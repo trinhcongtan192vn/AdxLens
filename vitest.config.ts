@@ -6,6 +6,7 @@ export default defineConfig({
     exclude: ['**/node_modules/**', '**/.next/**', '**/e2e/**'],
     environment: 'node',
     globalSetup: ['./tests/global-setup.ts'],
+    setupFiles: ['./tests/setup-env.ts'],
     // Test tích hợp dùng chung một database test; chạy tuần tự để không giẫm dữ liệu.
     fileParallelism: false,
     testTimeout: 20_000,
