@@ -21,6 +21,8 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "@adxlens/core": "workspace:*",
+    "@adxlens/db": "workspace:*",
     "@eslint/js": "^9.39.5",
     "@types/node": "^22.15.0",
     "@vitest/coverage-v8": "^3.2.7",
