@@ -84,6 +84,132 @@
     "support": "Hỗ trợ",
     "onboarding": "Bắt đầu"
   },
+  "marketing": {
+    "nav": {
+      "pricing": "Bảng giá",
+      "guide": "Hướng dẫn",
+      "privacy": "Quyền riêng tư",
+      "login": "Đăng nhập"
+    },
+    "cta": {
+      "tryFree": "Dùng thử miễn phí"
+    },
+    "footer": {
+      "copyright": "© {year} AdxLens · Chỉ đọc dữ liệu Meta Ads",
+      "terms": "Điều khoản",
+      "dataDeletion": "Xóa dữ liệu",
+      "support": "Hỗ trợ"
+    },
+    "landing": {
+      "title": "Báo cáo Meta Ads có bằng chứng, khớp Ads Manager",
+      "subtitle": "Gửi khách báo cáo mang thương hiệu agency, số liệu lệch không quá 1% so với Ads Manager, trong 10 phút sau khi kết nối.",
+      "sampleReport": "Xem báo cáo mẫu",
+      "assurance": "Chỉ đọc dữ liệu · Không cần thẻ · Kết nối trong vài phút",
+      "features": {
+        "match": {
+          "title": "Số liệu khớp",
+          "body": "Mỗi báo cáo có dòng đối chiếu với Ads Manager. Lệch trên 1%, chúng tôi chặn gửi và báo bạn."
+        },
+        "brand": {
+          "title": "Mang thương hiệu agency",
+          "body": "Logo, màu và email của agency. Khách mở bằng một liên kết, không cần đăng nhập."
+        },
+        "evidence": {
+          "title": "Phát hiện kèm bằng chứng",
+          "body": "Mỗi phát hiện dẫn tới số liệu gốc để bạn tự kiểm tra, không có số do AI tự bịa."
+        }
+      },
+      "howItWorks": "Cách hoạt động",
+      "steps": {
+        "connect": "Kết nối Meta (chỉ đọc)",
+        "assign": "Gán tài khoản cho Client",
+        "send": "Xem đối chiếu và gửi báo cáo"
+      }
+    },
+    "pricing": {
+      "title": "Bảng giá",
+      "basis": "Tính theo tài khoản quảng cáo đang hoạt động (có chi tiêu trong 30 ngày gần nhất), không tính theo % ngân sách. Thêm tài khoản: {extra}/tháng. Trả theo năm giảm {discount}%. Giá chưa gồm VAT.",
+      "perMonth": "{price}/tháng",
+      "accounts": "{count} tài khoản",
+      "choose": "Chọn gói",
+      "contact": "Liên hệ",
+      "breakEvenLink": "Trang hoà vốn: giờ tiết kiệm mỗi tài khoản × giá giờ của bạn so với phí hằng tháng. Xem công thức",
+      "plans": {
+        "free": {
+          "name": "Free",
+          "summary": "Báo cáo, link công khai, PDF. Có nhãn \"Powered by AdxLens\"."
+        },
+        "starter": {
+          "name": "Starter",
+          "summary": "Thêm gợi ý hằng tuần, Creative library, đối chiếu chi tiết."
+        },
+        "growth": {
+          "name": "Growth",
+          "summary": "Thêm hành động có duyệt và rule tự động (theo đăng ký sớm)."
+        },
+        "scale": {
+          "name": "Scale",
+          "summary": "Thêm white-label đầy đủ: gỡ nhãn \"Powered by\", hỗ trợ ưu tiên."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Chính sách quyền riêng tư",
+      "updated": "Cập nhật 22/10/2026",
+      "read": {
+        "title": "Dữ liệu chúng tôi đọc",
+        "body": "Số liệu chiến dịch, nhóm quảng cáo, quảng cáo, chi tiêu và kết quả từ tài khoản quảng cáo bạn cấp quyền. Chúng tôi không ghi hay thay đổi gì trên Meta."
+      },
+      "store": {
+        "title": "Cách chúng tôi lưu",
+        "body": "Token truy cập được mã hóa và chỉ dùng để đồng bộ số liệu. Không lưu mật khẩu Meta."
+      },
+      "rights": {
+        "title": "Quyền của bạn",
+        "body": "Ngắt kết nối bất cứ lúc nào và yêu cầu xóa dữ liệu. Xem <link>hướng dẫn xóa dữ liệu</link>."
+      }
+    },
+    "terms": {
+      "title": "Điều khoản sử dụng",
+      "updated": "Cập nhật 22/10/2026",
+      "service": {
+        "title": "1. Dịch vụ",
+        "body": "AdxLens cung cấp báo cáo và phân tích từ dữ liệu Meta Ads mà bạn cấp quyền đọc."
+      },
+      "responsibility": {
+        "title": "2. Trách nhiệm với khách của bạn",
+        "body": "Bạn chịu trách nhiệm về nội dung báo cáo gửi cho khách của mình. Số liệu lệch trên 1% so với Ads Manager sẽ bị chặn chia sẻ."
+      },
+      "billing": {
+        "title": "3. Thanh toán và ân hạn",
+        "body": "Phí tính theo tài khoản đang hoạt động. Khi thanh toán thất bại, dữ liệu vẫn đồng bộ trong thời gian ân hạn."
+      }
+    },
+    "deletion": {
+      "title": "Hướng dẫn xóa dữ liệu",
+      "intro": "Bạn có hai cách yêu cầu xóa dữ liệu AdxLens đã lưu từ tài khoản Meta của bạn.",
+      "inApp": {
+        "title": "Cách 1: Trong AdxLens",
+        "body": "Kết nối › chọn kết nối › \"Ngắt kết nối và xóa dữ liệu\". Chúng tôi gửi email xác nhận khi xóa xong."
+      },
+      "fromFacebook": {
+        "title": "Cách 2: Từ Facebook",
+        "body": "Cài đặt › Ứng dụng và trang web › AdxLens › Xóa. Meta gửi yêu cầu cho chúng tôi, và chúng tôi xóa dữ liệu trong vòng 30 ngày."
+      },
+      "track": {
+        "title": "Theo dõi yêu cầu",
+        "body": "Nhập mã xác nhận để xem trạng thái xóa.",
+        "code": "Mã xác nhận",
+        "submit": "Kiểm tra trạng thái",
+        "notFound": "Không tìm thấy yêu cầu với mã này. Kiểm tra lại mã trong email xác nhận.",
+        "status": {
+          "pending": "Đã nhận yêu cầu, đang chờ xử lý.",
+          "in_progress": "Đang xóa dữ liệu.",
+          "done": "Đã xóa xong dữ liệu."
+        }
+      }
+    }
+  },
   "placeholder": {
     "comingSoon": "Màn hình này sẽ có ở bản tiếp theo."
   }
