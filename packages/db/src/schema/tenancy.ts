@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { boolean, index, jsonb, primaryKey, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, jsonb, primaryKey, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { app, createdAt, tsz, updatedAt } from './_common';
 
 export type WorkspaceBrand = {
@@ -106,6 +106,17 @@ export const staff = app.table('staff', {
     .references(() => users.id, { onDelete: 'cascade' }),
   canEnableFlags: boolean('can_enable_flags').notNull().default(false),
   createdAt: createdAt(),
+});
+
+/**
+ * Đếm đăng nhập sai theo SHA-256 của email (không lưu email). Không có workspace_id; chỉ service
+ * role đọc. Penpot A03 · lỗi: khóa 15 phút sau 5 lần sai.
+ */
+export const authThrottle = app.table('auth_throttle', {
+  keyHash: text('key_hash').primaryKey(),
+  failures: integer('failures').notNull().default(0),
+  lockedUntil: tsz('locked_until'),
+  updatedAt: updatedAt(),
 });
 
 /** Nhật ký thao tác nhạy cảm trong workspace (chuyển quyền owner, đổi vai trò). Chỉ thêm. */

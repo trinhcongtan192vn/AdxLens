@@ -34,11 +34,7 @@ type CtxFor<A extends Auth> = A extends 'workspace'
       ? UserCtx
       : PublicCtx;
 
-export type RouteSpec<
-  A extends Auth,
-  B extends z.ZodType | undefined,
-  Q extends z.ZodType | undefined,
-> = {
+export type RouteSpec<A extends Auth, B extends z.ZodType | undefined, Q extends z.ZodType | undefined> = {
   auth: A;
   /** Quyền theo vai trò (chỉ với auth 'workspace'). */
   permission?: Permission;
@@ -55,10 +51,7 @@ export type RouteSpec<
   ) => Promise<unknown>;
 };
 
-export type RouteHandler = ((
-  req: Request,
-  ctx: { params: Promise<Record<string, string>> },
-) => Promise<Response>) & {
+export type RouteHandler = ((req: Request, ctx: { params: Promise<Record<string, string>> }) => Promise<Response>) & {
   spec: RouteSpec<Auth, z.ZodType | undefined, z.ZodType | undefined>;
 };
 
@@ -67,12 +60,7 @@ export function json(data: unknown, init?: number | ResponseInit): Response {
   return Response.json(data, typeof init === 'object' ? { ...init, status } : { status });
 }
 
-export function errorResponse(
-  code: string,
-  message: string,
-  status: number,
-  details: Record<string, unknown> = {},
-) {
+export function errorResponse(code: string, message: string, status: number, details: Record<string, unknown> = {}) {
   return json({ error: { code, message, details } }, status);
 }
 
@@ -93,8 +81,7 @@ function assertSameOrigin(req: Request): void {
   if (!MUTATING.has(req.method) || req.headers.get('authorization')) return;
   const origin = req.headers.get('origin');
   if (!origin) return;
-  const host =
-    req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? new URL(req.url).host;
+  const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? new URL(req.url).host;
   if (new URL(origin).host !== host) throw new AppError('FORBIDDEN', 'Origin không hợp lệ');
 }
 
@@ -155,9 +142,7 @@ export function route<
         }
       }
 
-      const query = spec.query
-        ? spec.query.parse(Object.fromEntries(new URL(req.url).searchParams))
-        : undefined;
+      const query = spec.query ? spec.query.parse(Object.fromEntries(new URL(req.url).searchParams)) : undefined;
       const rawBody = await readBody(req);
       const body = spec.body ? spec.body.parse(rawBody) : undefined;
 

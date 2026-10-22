@@ -53,10 +53,7 @@ export async function getUser(db: DbOrTx, userId: string) {
   return u ?? null;
 }
 
-export async function isStaff(
-  db: DbOrTx,
-  userId: string,
-): Promise<{ canEnableFlags: boolean } | null> {
+export async function isStaff(db: DbOrTx, userId: string): Promise<{ canEnableFlags: boolean } | null> {
   const [s] = await db.select().from(staff).where(eq(staff.userId, userId));
   return s ? { canEnableFlags: s.canEnableFlags } : null;
 }
@@ -80,9 +77,7 @@ export async function createWorkspace(
       })
       .returning();
     if (!ws) throw new AppError('INTERNAL', 'Không tạo được workspace');
-    await tx
-      .insert(memberships)
-      .values({ workspaceId: ws.id, userId: input.ownerUserId, role: 'owner' });
+    await tx.insert(memberships).values({ workspaceId: ws.id, userId: input.ownerUserId, role: 'owner' });
     await tx.insert(auditEvents).values({
       workspaceId: ws.id,
       actorUserId: input.ownerUserId,
@@ -92,10 +87,7 @@ export async function createWorkspace(
   });
 }
 
-export async function listWorkspacesForUser(
-  db: DbOrTx,
-  userId: string,
-): Promise<WorkspaceSummary[]> {
+export async function listWorkspacesForUser(db: DbOrTx, userId: string): Promise<WorkspaceSummary[]> {
   return db
     .select({ id: workspaces.id, name: workspaces.name, role: memberships.role })
     .from(memberships)
@@ -105,11 +97,7 @@ export async function listWorkspacesForUser(
 }
 
 /** Trả Actor nếu user là thành viên workspace; null nếu không (route trả 403/404). */
-export async function resolveActor(
-  db: DbOrTx,
-  workspaceId: string,
-  userId: string,
-): Promise<Actor | null> {
+export async function resolveActor(db: DbOrTx, workspaceId: string, userId: string): Promise<Actor | null> {
   const [m] = await db
     .select()
     .from(memberships)
@@ -142,11 +130,7 @@ export async function updateWorkspace(
   if (patch.name !== undefined && !patch.name.trim()) {
     throw new AppError('VALIDATION_FAILED', 'Tên workspace không được trống');
   }
-  const [ws] = await ctx.db
-    .update(workspaces)
-    .set(patch)
-    .where(eq(workspaces.id, ctx.workspaceId))
-    .returning();
+  const [ws] = await ctx.db.update(workspaces).set(patch).where(eq(workspaces.id, ctx.workspaceId)).returning();
   if (!ws) throw notFound('Workspace');
   return ws;
 }
@@ -192,10 +176,7 @@ export async function updateMember(
   if (target.role === 'owner') {
     throw new AppError('CONFLICT', 'Không đổi vai trò owner; dùng chuyển quyền owner');
   }
-  await assertClientsInWorkspace(ctx, [
-    ...(patch.clientAccess ?? []),
-    ...(patch.approveClientIds ?? []),
-  ]);
+  await assertClientsInWorkspace(ctx, [...(patch.clientAccess ?? []), ...(patch.approveClientIds ?? [])]);
   await ctx.db
     .update(memberships)
     .set(patch)
@@ -225,10 +206,7 @@ export async function removeMember(ctx: ActorCtx, userId: string): Promise<void>
 }
 
 /** ADR-0001 B8: owner chuyển quyền cho một manager hiện có; owner cũ thành manager. */
-export async function transferOwnership(
-  ctx: ActorCtx & { db: Db },
-  toUserId: string,
-): Promise<void> {
+export async function transferOwnership(ctx: ActorCtx & { db: Db }, toUserId: string): Promise<void> {
   assertCan(ctx.actor, 'ownership.transfer');
   if (toUserId === ctx.actor.userId) throw new AppError('BAD_REQUEST', 'Đã là owner');
   await ctx.db.transaction(async (tx) => {

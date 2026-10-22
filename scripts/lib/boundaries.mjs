@@ -3,8 +3,7 @@ import path from 'node:path';
 
 const CORE_DIR = 'packages/core/src/';
 const EXECUTION_DIR = 'packages/core/src/execution/';
-const IMPORT_RE =
-  /(?:import|export)\s[^'"]*?from\s+['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g;
+const IMPORT_RE = /(?:import|export)\s[^'"]*?from\s+['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g;
 
 function toPosix(p) {
   return p.split(path.sep).join('/');
@@ -43,16 +42,11 @@ export function findViolations(files) {
 
       // 3. Trong core, import tương đối không được vượt sang module khác.
       if (fromModule && spec.startsWith('.')) {
-        const target = toPosix(
-          path.posix.normalize(path.posix.join(path.posix.dirname(posixFile), spec)),
-        );
+        const target = toPosix(path.posix.normalize(path.posix.join(path.posix.dirname(posixFile), spec)));
         const toModule =
-          coreModuleOf(target.endsWith('.ts') ? target : `${target}.ts`) ??
-          coreModuleOf(`${target}/index.ts`);
+          coreModuleOf(target.endsWith('.ts') ? target : `${target}.ts`) ?? coreModuleOf(`${target}/index.ts`);
         if (target.startsWith(CORE_DIR) && toModule && toModule !== fromModule) {
-          violations.push(
-            `${posixFile}: import tương đối sang module "${toModule}"; dùng "@adxlens/core/${toModule}"`,
-          );
+          violations.push(`${posixFile}: import tương đối sang module "${toModule}"; dùng "@adxlens/core/${toModule}"`);
         }
       }
     }

@@ -19,9 +19,7 @@ export async function workspaceFingerprint(db: Db, workspaceId: string): Promise
   `);
   const h = createHash('sha256');
   for (const t of tables) {
-    const rows = await db.execute(
-      sql.raw(`select * from ${t.fq} where workspace_id = '${workspaceId}' order by 1`),
-    );
+    const rows = await db.execute(sql.raw(`select * from ${t.fq} where workspace_id = '${workspaceId}' order by 1`));
     h.update(t.fq + JSON.stringify(rows));
   }
   return h.digest('hex');

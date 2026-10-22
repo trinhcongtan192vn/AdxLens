@@ -71,9 +71,7 @@ export function FilterChip({
       aria-pressed={active}
       className={cn(
         'inline-flex h-6 items-center gap-1 rounded-full border px-2.5 text-small font-medium',
-        active
-          ? 'border-brand bg-brand-subtle text-brand'
-          : 'border-line bg-surface text-fg-secondary hover:bg-hover',
+        active ? 'border-brand bg-brand-subtle text-brand' : 'border-line bg-surface text-fg-secondary hover:bg-hover',
         className,
       )}
       {...props}

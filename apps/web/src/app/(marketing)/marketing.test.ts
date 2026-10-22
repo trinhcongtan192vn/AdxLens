@@ -8,9 +8,7 @@ describe('trang công khai', () => {
   it('mọi gói trong cấu hình có tên và mô tả ở cả hai ngôn ngữ', () => {
     for (const key of PLAN_KEYS) {
       for (const m of [vi, en]) {
-        const plan = (
-          m.marketing.pricing.plans as Record<string, { name: string; summary: string }>
-        )[key];
+        const plan = (m.marketing.pricing.plans as Record<string, { name: string; summary: string }>)[key];
         expect(plan?.name, key).toBeTruthy();
         expect(plan?.summary, key).toBeTruthy();
       }

@@ -4,8 +4,7 @@ import { numeric, pgSchema, timestamp, uuid } from 'drizzle-orm/pg-core';
 export const app = pgSchema('app');
 export const analytics = pgSchema('analytics');
 
-export const createdAt = () =>
-  timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow();
+export const createdAt = () => timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow();
 
 export const updatedAt = () =>
   timestamp('updated_at', { withTimezone: true, mode: 'date' })

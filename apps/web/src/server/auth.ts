@@ -9,9 +9,7 @@ type Resolver = (req?: Request) => Promise<AuthUser | null>;
 const supabaseResolver: Resolver = async (req) => {
   const supabase = await supabaseServer();
   const bearer = req?.headers.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
-  const { data, error } = bearer
-    ? await supabase.auth.getUser(bearer)
-    : await supabase.auth.getUser();
+  const { data, error } = bearer ? await supabase.auth.getUser(bearer) : await supabase.auth.getUser();
   if (error || !data.user?.email) return null;
   return {
     id: data.user.id,

@@ -23,16 +23,9 @@ export function Delta({
 }) {
   const arrow = direction === 'up' ? '▲' : direction === 'down' ? '▼' : '–';
   const sign = direction === 'up' ? '+' : direction === 'down' ? '−' : '';
-  const color =
-    direction === 'flat' ? 'text-fg-tertiary' : good ? 'text-delta-pos' : 'text-delta-neg';
+  const color = direction === 'flat' ? 'text-fg-tertiary' : good ? 'text-delta-pos' : 'text-delta-neg';
   return (
-    <span
-      className={cn(
-        'num inline-flex items-center gap-0.5 text-small font-medium',
-        color,
-        className,
-      )}
-    >
+    <span className={cn('num inline-flex items-center gap-0.5 text-small font-medium', color, className)}>
       <span aria-hidden>{arrow}</span>
       <span>
         {sign}

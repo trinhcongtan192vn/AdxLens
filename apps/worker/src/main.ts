@@ -28,15 +28,10 @@ registerHealthCheck({
 
 const workers = (Object.keys(QUEUES) as QueueName[]).map(
   (q) =>
-    new Worker(
-      q,
-      (job) =>
-        dispatch(handlers, { db, enqueue }, { name: job.name, id: job.id ?? '', data: job.data }),
-      {
-        connection,
-        concurrency: QUEUES[q].concurrency,
-      },
-    ),
+    new Worker(q, (job) => dispatch(handlers, { db, enqueue }, { name: job.name, id: job.id ?? '', data: job.data }), {
+      connection,
+      concurrency: QUEUES[q].concurrency,
+    }),
 );
 
 for (const w of workers) {

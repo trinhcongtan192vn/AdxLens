@@ -8,10 +8,9 @@ export const SCHEDULES: { queue: QueueName; name: string; every?: number; patter
 
 export async function registerSchedules(queues: Record<QueueName, Queue>): Promise<void> {
   for (const s of SCHEDULES) {
-    await queues[s.queue].upsertJobScheduler(
-      s.name,
-      s.every ? { every: s.every } : { pattern: s.pattern! },
-      { name: s.name, data: { tick: 'scheduled' } },
-    );
+    await queues[s.queue].upsertJobScheduler(s.name, s.every ? { every: s.every } : { pattern: s.pattern! }, {
+      name: s.name,
+      data: { tick: 'scheduled' },
+    });
   }
 }

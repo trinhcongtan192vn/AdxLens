@@ -10,9 +10,7 @@ const optionalString = z
   .optional()
   .transform((v) => (v === undefined || v.trim() === '' ? undefined : v));
 
-const base64Key32 = z
-  .string()
-  .refine((v) => Buffer.from(v, 'base64').length === 32, 'phải là 32 byte mã hóa base64');
+const base64Key32 = z.string().refine((v) => Buffer.from(v, 'base64').length === 32, 'phải là 32 byte mã hóa base64');
 
 export const baseEnvSchema = z.object({
   APP_ENV: z.enum(['local', 'test', 'staging', 'production']).default('local'),

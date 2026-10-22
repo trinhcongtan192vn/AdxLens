@@ -21,9 +21,7 @@ async function asAuthenticated<T>(
       // Cấp quyền tạm để kiểm tra policy; production không cấp quyền trực tiếp cho authenticated.
       await tx.execute(sql`grant usage on schema app to authenticated`);
       await tx.execute(sql`grant select on all tables in schema app to authenticated`);
-      await tx.execute(
-        sql`select set_config('request.jwt.claims', ${JSON.stringify(claims)}, true)`,
-      );
+      await tx.execute(sql`select set_config('request.jwt.claims', ${JSON.stringify(claims)}, true)`);
       await tx.execute(sql`set local role authenticated`);
       out = await fn(tx);
       throw new Rollback();
@@ -58,9 +56,7 @@ describe('RLS', () => {
 
   it('không có claim workspace thì không thấy gì', async () => {
     await seedWorkspace(db, 'A');
-    const seen = await asAuthenticated({}, (tx) =>
-      tx.execute<{ id: string }>(sql`select id from app.workspaces`),
-    );
+    const seen = await asAuthenticated({}, (tx) => tx.execute<{ id: string }>(sql`select id from app.workspaces`));
     expect(seen).toHaveLength(0);
   });
 

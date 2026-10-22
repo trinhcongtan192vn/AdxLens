@@ -36,13 +36,7 @@ export const PLANS: Record<PlanKey, Plan> = {
     key: 'growth',
     monthlyPriceVnd: 1_490_000,
     includedAccounts: 15,
-    entitlements: [
-      'reports',
-      'recommendations',
-      'detailed_reconciliation',
-      'write_actions',
-      'automation',
-    ],
+    entitlements: ['reports', 'recommendations', 'detailed_reconciliation', 'write_actions', 'automation'],
   },
   scale: {
     key: 'scale',

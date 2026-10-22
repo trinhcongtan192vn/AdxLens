@@ -124,6 +124,8 @@ adxlens/
     └── workflows/
 ```
 
+**Bổ sung mốc L (ADR-0003, 22/10/2026):** trong `apps/web/src/app` có ba route group: `(marketing)` cho trang công khai M01–M06 (`/`, `/pricing`, `/privacy`, `/terms`, `/data-deletion`, `/break-even`), `(auth)` cho A01–A06 (`/signup`, `/verify-email`, `/login`, `/forgot-password`, `/reset-password`, `/invite/[token]`, `/auth/callback`), `(app)` cho mọi màn cần đăng nhập. Xác thực bằng Supabase Auth (email + mật khẩu, bắt buộc xác minh email), phiên cookie qua `@supabase/ssr`; mọi thao tác auth chạy phía server và không tiết lộ email đã tồn tại.
+
 **Quy tắc:** `apps/*` chỉ gọi `packages/core`; `core` không import từ `apps`. Mỗi module trong `core` có `index.ts` xuất interface công khai và test riêng. Mọi quyết định kiến trúc đáng kể (đổi nhà cung cấp, đổi schema lớn, thêm hành động ghi lên Meta) ghi thành một ADR trước khi merge. Mỗi phiên Claude Code chỉ làm trong một module hoặc một tính năng, để PR nhỏ và review được.
 
 ---

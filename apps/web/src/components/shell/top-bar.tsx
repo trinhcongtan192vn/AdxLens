@@ -112,23 +112,16 @@ export function TopBar({
         >
           {initials(user.fullName, user.email)}
           {unread > 0 ? (
-            <span
-              className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-danger"
-              aria-hidden
-            />
+            <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-danger" aria-hidden />
           ) : null}
         </Menu.Trigger>
         <Menu.Content className="w-60">
           <div className="px-2 py-1.5">
-            {user.fullName ? (
-              <p className="text-body font-medium text-fg">{user.fullName}</p>
-            ) : null}
+            {user.fullName ? <p className="text-body font-medium text-fg">{user.fullName}</p> : null}
             <p className="truncate text-small text-fg-tertiary">{user.email}</p>
           </div>
           <Menu.Separator />
-          <Menu.Item onSelect={() => router.push('/settings/profile')}>
-            {t('shell.profile')}
-          </Menu.Item>
+          <Menu.Item onSelect={() => router.push('/settings/profile')}>{t('shell.profile')}</Menu.Item>
           <Menu.Item onSelect={() => router.push('/notifications')}>
             <span className="flex-1">{t('shell.notifications')}</span>
             {unread > 0 ? (

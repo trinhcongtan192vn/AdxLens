@@ -17,23 +17,15 @@ const securityHeaders = [
 ];
 
 const config: NextConfig = {
-  transpilePackages: [
-    '@adxlens/ui',
-    '@adxlens/core',
-    '@adxlens/db',
-    '@adxlens/jobs',
-    '@adxlens/config',
-  ],
+  transpilePackages: ['@adxlens/ui', '@adxlens/core', '@adxlens/db', '@adxlens/jobs', '@adxlens/config'],
   serverExternalPackages: ['pino', 'postgres', 'bullmq', 'ioredis'],
   poweredByHeader: false,
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
   env: {
-    NEXT_PUBLIC_SUPABASE_URL:
-      process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? '',
-    NEXT_PUBLIC_SUPABASE_ANON_KEY:
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY ?? '',
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? '',
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY ?? '',
   },
 };
 

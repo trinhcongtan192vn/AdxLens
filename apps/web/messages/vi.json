@@ -210,6 +210,80 @@
       }
     }
   },
+  "auth": {
+    "working": "Đang xử lý…",
+    "passwordHint": "Mật khẩu cần ít nhất {min} ký tự.",
+    "fields": {
+      "fullName": "Họ tên",
+      "email": "Email",
+      "workEmail": "Email công việc",
+      "password": "Mật khẩu"
+    },
+    "placeholders": {
+      "fullName": "Nguyễn Văn A",
+      "email": "ten@agency.vn",
+      "password": "Tối thiểu {min} ký tự"
+    },
+    "fieldErrors": {
+      "email": "Email không hợp lệ.",
+      "mismatch": "Mật khẩu nhập lại không khớp."
+    },
+    "errors": {
+      "invalid_input": "Thông tin chưa hợp lệ. Kiểm tra các ô được đánh dấu.",
+      "invalid_credentials": "Email hoặc mật khẩu không đúng.",
+      "invalid_credentials_remaining": "Email hoặc mật khẩu không đúng. Còn {remaining} lần thử trước khi tạm khóa 15 phút.",
+      "locked": "Đăng nhập tạm khóa do nhập sai nhiều lần. Thử lại sau {minutes} phút hoặc đặt lại mật khẩu.",
+      "email_not_confirmed": "Email chưa được xác minh. Kiểm tra hộp thư để xác minh trước khi đăng nhập.",
+      "weak_password": "Mật khẩu chưa đủ mạnh.",
+      "terms_required": "Bạn cần đồng ý Điều khoản và Chính sách quyền riêng tư.",
+      "link_expired": "Liên kết đã hết hạn hoặc không hợp lệ.",
+      "rate_limited": "Bạn thao tác quá nhanh. Vui lòng thử lại sau ít phút.",
+      "unknown": "Đã có lỗi xảy ra. Vui lòng thử lại."
+    },
+    "signup": {
+      "title": "Tạo tài khoản agency",
+      "description": "Dùng thử miễn phí. Chỉ đọc dữ liệu Meta, không ghi gì lên tài khoản quảng cáo.",
+      "acceptTerms": "Tôi đồng ý <terms>Điều khoản</terms> và <privacy>Chính sách quyền riêng tư</privacy>",
+      "submit": "Tạo tài khoản",
+      "haveAccount": "Đã có tài khoản?"
+    },
+    "verify": {
+      "title": "Kiểm tra email của bạn",
+      "description": "Chúng tôi đã gửi liên kết xác minh đến {email}. Liên kết có hiệu lực 24 giờ.",
+      "yourEmail": "email của bạn",
+      "resend": "Gửi lại email",
+      "resendIn": "Gửi lại email (sau {seconds} giây)",
+      "resent": "Đã gửi lại email xác minh.",
+      "wrongEmail": "Sai email?",
+      "changeEmail": "Đổi địa chỉ"
+    },
+    "login": {
+      "title": "Đăng nhập",
+      "description": "Dùng email công việc của agency.",
+      "forgot": "Quên mật khẩu?",
+      "submit": "Đăng nhập",
+      "noAccount": "Chưa có tài khoản?",
+      "signup": "Đăng ký"
+    },
+    "forgot": {
+      "title": "Quên mật khẩu",
+      "description": "Nhập email đăng ký, chúng tôi gửi liên kết đặt lại mật khẩu.",
+      "submit": "Gửi liên kết đặt lại",
+      "sent": "Nếu email này có tài khoản, chúng tôi đã gửi liên kết đặt lại mật khẩu. Liên kết có hiệu lực 60 phút.",
+      "back": "Quay lại đăng nhập"
+    },
+    "reset": {
+      "title": "Đặt mật khẩu mới",
+      "newPassword": "Mật khẩu mới",
+      "confirm": "Nhập lại mật khẩu",
+      "note": "Liên kết hết hạn sau 60 phút. Đặt lại xong, mọi phiên đăng nhập cũ bị đăng xuất.",
+      "submit": "Lưu mật khẩu mới",
+      "expiredBadge": "Hết hạn",
+      "expiredTitle": "Liên kết đặt lại đã hết hạn",
+      "expiredBody": "Liên kết chỉ có hiệu lực 60 phút. Gửi yêu cầu mới để nhận liên kết khác.",
+      "sendNew": "Gửi liên kết mới"
+    }
+  },
   "placeholder": {
     "comingSoon": "Màn hình này sẽ có ở bản tiếp theo."
   }

@@ -10,9 +10,6 @@ export type JobDeps = {
   jobId: string;
 };
 
-export type JobHandler<N extends JobName> = (
-  payload: JobPayload<N>,
-  deps: JobDeps,
-) => Promise<unknown>;
+export type JobHandler<N extends JobName> = (payload: JobPayload<N>, deps: JobDeps) => Promise<unknown>;
 
 export type HandlerMap = { [N in JobName]?: JobHandler<N> };

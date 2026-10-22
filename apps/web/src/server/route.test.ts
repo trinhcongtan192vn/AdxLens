@@ -2,14 +2,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { enableFlag } from '@adxlens/core/flags';
 import { AppError } from '@adxlens/core/shared';
-import {
-  closeTestDb,
-  seedMember,
-  seedStaff,
-  seedWorkspace,
-  testDb,
-  truncateAll,
-} from '@adxlens/db/testing';
+import { closeTestDb, seedMember, seedStaff, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
 import { asUser, call, installTestServer, uninstallTestServer } from '../test-utils';
 import { route } from './route';
 
@@ -39,9 +32,7 @@ describe('route()', () => {
     const b = await seedWorkspace(db);
     const u = asUser(a.owner);
     expect((await call(echo, { user: u, body: { n: 1 } })).status).toBe(400);
-    expect(
-      (await call(echo, { user: u, workspaceId: b.workspace.id, body: { n: 1 } })).status,
-    ).toBe(403);
+    expect((await call(echo, { user: u, workspaceId: b.workspace.id, body: { n: 1 } })).status).toBe(403);
   });
 
   it('thành viên gọi được, nhận đúng workspace và vai trò', async () => {
@@ -108,9 +99,7 @@ describe('route()', () => {
       staffUserId: pm.id,
       reason: 'test bật',
     });
-    expect((await call(p1, { user: asUser(a.owner), workspaceId: a.workspace.id })).status).toBe(
-      200,
-    );
+    expect((await call(p1, { user: asUser(a.owner), workspaceId: a.workspace.id })).status).toBe(200);
     expect(ran).toBe(1);
   });
 

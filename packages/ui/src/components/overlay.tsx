@@ -42,17 +42,12 @@ export function Dialog({
                 <D.Description className="text-body text-fg-secondary">{description}</D.Description>
               ) : null}
             </div>
-            <D.Close
-              aria-label={closeLabel}
-              className="rounded-sm p-1 text-fg-tertiary hover:bg-subtle"
-            >
+            <D.Close aria-label={closeLabel} className="rounded-sm p-1 text-fg-tertiary hover:bg-subtle">
               <X className="size-4" />
             </D.Close>
           </div>
           <div className="overflow-y-auto px-4 py-3">{children}</div>
-          {footer ? (
-            <div className="flex justify-end gap-2 border-t border-line px-4 py-3">{footer}</div>
-          ) : null}
+          {footer ? <div className="flex justify-end gap-2 border-t border-line px-4 py-3">{footer}</div> : null}
         </D.Content>
       </D.Portal>
     </D.Root>
@@ -82,18 +77,13 @@ export function Drawer({
         <D.Content className="fixed inset-y-0 right-0 z-50 flex w-[min(480px,100vw)] flex-col border-l border-line bg-surface shadow-lg">
           <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
             <D.Title className="text-h2 font-semibold text-fg">{title}</D.Title>
-            <D.Close
-              aria-label={closeLabel}
-              className="rounded-sm p-1 text-fg-tertiary hover:bg-subtle"
-            >
+            <D.Close aria-label={closeLabel} className="rounded-sm p-1 text-fg-tertiary hover:bg-subtle">
               <X className="size-4" />
             </D.Close>
           </div>
           <D.Description className="sr-only">{title}</D.Description>
           <div className="flex-1 overflow-y-auto px-4 py-3">{children}</div>
-          {footer ? (
-            <div className="flex justify-end gap-2 border-t border-line px-4 py-3">{footer}</div>
-          ) : null}
+          {footer ? <div className="flex justify-end gap-2 border-t border-line px-4 py-3">{footer}</div> : null}
         </D.Content>
       </D.Portal>
     </D.Root>
@@ -107,10 +97,7 @@ export function Tooltip({ content, children }: { content: ReactNode; children: R
       <T.Root>
         <T.Trigger asChild>{children}</T.Trigger>
         <T.Portal>
-          <T.Content
-            sideOffset={4}
-            className="z-50 rounded-sm bg-inverse px-2 py-1 text-small text-fg-inverse"
-          >
+          <T.Content sideOffset={4} className="z-50 rounded-sm bg-inverse px-2 py-1 text-small text-fg-inverse">
             {content}
           </T.Content>
         </T.Portal>
@@ -127,10 +114,7 @@ export const Menu = {
       <M.Content
         sideOffset={4}
         align="end"
-        className={cn(
-          'z-50 min-w-48 rounded-md border border-line bg-surface p-1 shadow-lg',
-          className,
-        )}
+        className={cn('z-50 min-w-48 rounded-md border border-line bg-surface p-1 shadow-lg', className)}
       >
         {children}
       </M.Content>
