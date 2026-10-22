@@ -1,0 +1,43 @@
+{
+  "name": "adxlens",
+  "private": true,
+  "packageManager": "pnpm@10.34.7",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "env:init": "node scripts/env-init.mjs",
+    "build": "turbo run build",
+    "lint": "eslint . && node scripts/check-boundaries.mjs",
+    "typecheck": "turbo run typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "pnpm --filter @adxlens/web test:e2e",
+    "db:generate": "pnpm --filter @adxlens/db generate",
+    "db:migrate": "pnpm --filter @adxlens/db migrate",
+    "db:check": "pnpm --filter @adxlens/db check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^22.15.0",
+    "@vitest/coverage-v8": "^3.2.7",
+    "eslint": "^9.39.5",
+    "globals": "^16.4.0",
+    "prettier": "^3.9.10",
+    "supabase": "^2.121.0",
+    "tsx": "^4.23.15",
+    "turbo": "^2.11.10",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.0",
+    "vitest": "^3.2.7"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "supabase"
+    ]
+  }
+}
