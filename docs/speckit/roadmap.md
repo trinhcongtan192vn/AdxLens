@@ -76,6 +76,8 @@ Màn chưa gán vào feature nào: **X06 Hỗ trợ + "Báo số liệu lệch"*
 
 ## Câu hỏi cho PM (mâu thuẫn hoặc thiếu giữa các tài liệu)
 
+> **Đã chốt ngày 22/10/2026**, xem `docs/adr/0001-pm-decisions-2026-10-22.md`. Từ thời điểm này PM ủy quyền cho Claude Code xây liên tục toàn bộ feature, không qua từng prompt Spec Kit; PM review và test thủ công ở PR `develop → main`. Theo ADR-0001 B2, feature 042 (admin cờ) làm ngay sau 022.
+
 1. **Stack local.** implementation-guide B0 dùng **Supabase CLI** (Postgres, Auth, Storage, Mailpit) cộng Docker Compose cho Redis. CLAUDE.md ("docker compose (Postgres, Redis)"), PROMPTS B0 và L3 17 chỉ nói Docker Compose. Dùng Supabase CLI (khớp Supabase Auth ở L3 mục 2) hay Postgres thuần trong Compose?
 2. **Môi trường Windows.** implementation-guide giả định chạy trong WSL2 Ubuntu; PROMPTS và máy hiện tại dùng PowerShell trên Windows (Docker Desktop backend WSL2). Code và script chạy trực tiếp trên Windows, hay chuyển repo vào WSL2?
 3. **Tạo workspace và mời thành viên ở mốc nào.** L3 17 ghi định nghĩa xong của B0 là "tạo workspace và mời thành viên được trên local"; implementation-guide và PROMPTS đặt việc này ở L. Bảng trên theo PROMPTS (B0 chỉ có tenancy ở tầng core, UI ở 008).
