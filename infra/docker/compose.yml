@@ -1,0 +1,17 @@
+# Dịch vụ local ngoài Supabase CLI (ADR-0001 A1). Postgres, Auth, Storage, Mailpit do Supabase CLI chạy.
+name: adxlens
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    command: ['redis-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  redis-data:

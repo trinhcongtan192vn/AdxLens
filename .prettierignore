@@ -1,0 +1,13 @@
+node_modules
+pnpm-lock.yaml
+.next
+.turbo
+dist
+coverage
+docs
+.specify
+.claude
+infra/supabase/.temp
+packages/db/migrations/meta
+CLAUDE.md
+*.md
