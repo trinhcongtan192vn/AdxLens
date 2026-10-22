@@ -52,6 +52,8 @@ Nguồn đối chiếu: PRD v0.4 → đã nâng lên **v0.5**, `adxlens-ux-requi
 
 ## 3. Danh sách màn còn thiếu để vẽ vào Penpot
 
+> **Cập nhật 22/10/2026:** các đợt 1–7 dưới đây đã vẽ xong, khung Penpot đã đổi tên theo mã danh mục (đề xuất ở mục 2 đã áp dụng). Trạng thái hiện hành xem `ux-requirements.md` mục 9; phần dưới giữ làm lịch sử.
+
 **Đã có trong Penpot: 13 màn.**
 - O01, C02, R02+R03, S02, S06, R06
 - P101+P102, P202+P203, P211, ST03

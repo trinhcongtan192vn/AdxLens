@@ -126,7 +126,7 @@
 | EC12 | Hành động ghi thất bại / verify không khớp | Thông báo lỗi tại chỗ + trong nhật ký; tài khoản bị circuit breaker hiện trạng thái "tạm dừng thực thi" |
 | EC13 | Kill switch đang bật | Mọi nút duyệt bị vô hiệu, banner giải thích |
 | EC14 | Guardrails chặn | Hộp thoại nêu giới hạn bị vượt, giá trị hiện tại, giới hạn |
-| EC15 | Cờ tắt khi người dùng đang ở màn P1/P2 | Chuyển về màn tương ứng của P0, thông báo ngắn. Trang "tính năng chưa bật" (A11 trong Penpot) chỉ dùng khi mở thẳng URL của màn P1/P2 lúc cờ tắt (PM chốt 22/10/2026) |
+| EC15 | Cờ tắt khi người dùng đang ở màn P1/P2 | Chuyển về màn tương ứng của P0, thông báo ngắn. Trang "tính năng chưa bật" (khung "F-state Tính năng chưa bật (mở thẳng URL)" trong Penpot, trước đây là A11) chỉ dùng khi mở thẳng URL của màn P1/P2 lúc cờ tắt (PM chốt 22/10/2026) |
 | EC18 | **[v0.5]** Báo cáo theo lịch gặp đối chiếu lệch hoặc gán chưa xác nhận | Hoãn gửi, báo account manager kèm lý do (P0-24) |
 | EC19 | **[v0.5]** Lời mời hết hạn | A06 báo hết hạn, nút xin mời lại; không lộ tên workspace |
 | EC16 | Chuỗi tiếng Việt dài | Bảng cho phép xuống dòng có giới hạn, có tooltip |
@@ -285,6 +285,8 @@
 
 ## 9. Đồng bộ mã màn với Penpot (cập nhật 22/10/2026)
 
+File Penpot "AdxLens Design" (nguồn thiết kế chính thức): https://design.penpot.app/#/workspace?team-id=da05d154-084a-817e-8008-d3e89206539f&file-id=8af72ccb-2daf-802c-8008-d3f10464db3a&page-id=345f51b4-792c-80ad-8008-d40497dac48f (trang Wireframes). Kiểm lại ngày 22/10/2026: trang Wireframes có 101 khung, mọi khung bắt đầu bằng mã danh mục; token và component ở `design-system.md`.
+
 Quy tắc: tên khung trong Penpot (trang Wireframes) bắt đầu bằng đúng mã trong danh mục mục 3. Khung ghép nhiều màn dùng dấu gạch nối (ví dụ "R02-R03"). Biến thể trạng thái đặt sau dấu "·" cùng mã (ví dụ "R04 Chia sẻ báo cáo · chặn BR01"). Thêm hoặc đổi mã trong danh mục thì đổi tên khung trong cùng lượt.
 
 **Đợt 1 đã vẽ (16 khung cho 15 màn + banner):**
@@ -361,4 +363,4 @@ Dữ liệu minh họa trong bản vẽ: workspace "Agency Sao Mai" dùng gói G
 
 Còn mở, cần quyết định hoặc bản vẽ tiếp: (1) S07 dùng checkbox cho lựa chọn loại trừ, nên đổi sang radio khi design system có component Radio; (2) mục "Nhật ký hành động" và "Rule tự động" phải ẩn khỏi sidebar khi cờ P2 tắt (CLAUDE.md điều 7), bản vẽ hiện cả hai để minh họa; (3) cột "Duyệt hành động" ở ST02 chỉ hiện khi tính năng bật; (4) Owner không có thao tác chuyển quyền, cần quyết định luồng; (5) ST03 chưa có hủy gói và biểu mẫu thông tin xuất hóa đơn (tên công ty, mã số thuế, địa chỉ); (6) giá trị mặc định guardrails ở P205 vẫn là "PM chốt"; (7) thanh tab ở C02 có độ rộng các tab chưa đều.
 
-**Prototype (Penpot, chế độ xem):** 14 điểm bắt đầu được đặt tên theo luồng F1–F12 trong sơ đồ luồng, thêm "Đăng nhập" và "Quên mật khẩu". Liên kết đã nối giữa các nút chính và thanh điều hướng trái ở mọi màn app. Prototype chỉ thể hiện luồng điều hướng, không mô phỏng dữ liệu hay trạng thái lỗi.
+**Prototype (Penpot, chế độ xem):** 14 điểm bắt đầu được đặt tên theo luồng F1–F12 trong sơ đồ luồng, thêm "Đăng nhập" và "Quên mật khẩu". Liên kết đã nối giữa các nút chính và thanh điều hướng trái ở mọi màn app. Prototype chỉ thể hiện luồng điều hướng, không mô phỏng dữ liệu hay trạng thái lỗi. Ngoài 14 điểm bắt đầu có tên, file còn 9 điểm bắt đầu tên mặc định "Flow 1"–"Flow 9" trỏ tới các biến thể trạng thái (O01 · trống, O01 · đang tải, S02 · trống, ST02 · trống, D02 · trống, D02 · đang tải, P101-P102 · trống, P211 · trống, A03 · lỗi); nên đặt tên lại hoặc xóa khi dọn file.

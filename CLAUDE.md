@@ -8,6 +8,7 @@
 - Mọi giai đoạn sau P0 nằm sau **cờ tính năng theo workspace**; chỉ PM bật.
 - Người dùng: agency (owner, manager, buyer). Khách của agency xem báo cáo qua link công khai.
 - Tài liệu gốc: `docs/prd.md`, `docs/architecture/L1|L2|L3`. Khi tài liệu và code mâu thuẫn, hỏi PM; không tự chọn.
+- Thiết kế: Penpot "AdxLens Design" (link và cách dùng trong `docs/design/design-system.md`); danh mục màn và mã màn ở `docs/design/ux-requirements.md`.
 
 ## Kiến trúc tóm tắt
 - Monorepo pnpm + Turborepo. TypeScript `strict` ở mọi nơi.

@@ -17,7 +17,9 @@ Thứ tự mốc giữ như `docs/implementation-guide.md`: **B0 → L → B1 �
    ```
    Muốn cố định phiên bản thì thêm `@vX.Y.Z` (tag ở trang Releases của github/spec-kit).
 3. Giải nén gói này vào thư mục `AdxLens` sao cho `CLAUDE.md` nằm ở gốc.
-4. Xuất màn hình từ Penpot: mở trang **Wireframes**, chọn tất cả board, Export → PNG 1x. Giải nén vào `docs/design/screens/`. Tên file giữ nguyên tên board (bắt đầu bằng mã màn, ví dụ `ST03 Gói & thanh toán.png`).
+4. Nguồn thiết kế là file Penpot "AdxLens Design": https://design.penpot.app/#/workspace?team-id=da05d154-084a-817e-8008-d3e89206539f&file-id=8af72ccb-2daf-802c-8008-d3f10464db3a (trang Foundations, Design System, Wireframes, Sitemap & Flows; xem `docs/design/design-system.md`). Hai cách cho Claude Code xem màn:
+   - **Penpot MCP** (khuyên dùng): mở file trong Penpot, bật plugin Penpot MCP; Claude Code đọc khung theo mã màn và xuất ảnh khi cần. Đầu mỗi phiên kiểm tra plugin đang nối đúng file và bản mới nhất (số khung trang Wireframes, hiện là 101).
+   - **Ảnh tĩnh** (dự phòng khi không mở Penpot): trang **Wireframes**, chọn tất cả board, Export → PNG 1x, giải nén vào `docs/design/screens/`. Tên file giữ nguyên tên board (bắt đầu bằng mã màn, ví dụ `ST03 Gói & thanh toán.png`). Xuất lại sau mỗi lần sửa thiết kế.
 5. Mở thư mục `AdxLens` trong VS Code, mở Claude Code. Chế độ quyền: **Ask before edits** cho mọi phiên chạm `packages/core/execution`, `packages/db`, `infra`, `packages/core/flags`, `packages/core/connections`.
 
 ---
@@ -94,7 +96,7 @@ Mỗi feature dùng **một tab Claude Code mới**. Làm lần lượt, đọc 
 
 **4c. Plan**
 ```text
-/speckit.plan Bám sát @docs/architecture/L3-technical.md (stack, cấu trúc monorepo, schema, API, jobs) và constitution. Không thêm thư viện ngoài L3; nếu cần thì viết ADR trong docs/adr/ trước và hỏi tôi. Ghi rõ: file sẽ tạo/sửa, migration (nếu có), endpoint và job mới, test sẽ viết (gồm test cách ly workspace, test cờ tắt cho P1/P2), vùng bảo vệ bị chạm, rủi ro. Giao diện: dùng @docs/design/design-system.md cho token và component, đối chiếu ảnh trong docs/design/screens/ theo mã màn; chuỗi giao diện qua i18n (vi, en).
+/speckit.plan Bám sát @docs/architecture/L3-technical.md (stack, cấu trúc monorepo, schema, API, jobs) và constitution. Không thêm thư viện ngoài L3; nếu cần thì viết ADR trong docs/adr/ trước và hỏi tôi. Ghi rõ: file sẽ tạo/sửa, migration (nếu có), endpoint và job mới, test sẽ viết (gồm test cách ly workspace, test cờ tắt cho P1/P2), vùng bảo vệ bị chạm, rủi ro. Giao diện: dùng @docs/design/design-system.md cho token và component, đối chiếu khung trong Penpot (trang Wireframes, qua Penpot MCP) hoặc ảnh trong docs/design/screens/ theo mã màn; chuỗi giao diện qua i18n (vi, en).
 Sau khi cập nhật file ngữ cảnh agent, kiểm tra CLAUDE.md: các mục "Quy tắc tuyệt đối", "Vùng bảo vệ", "Định nghĩa xong" phải giữ nguyên.
 ```
 
@@ -224,4 +226,4 @@ Kết quả: trang admin AD01–AD03 (ma trận cờ, hộp thoại bật cờ c
 - Số ngày ân hạn, giá chính thức sau E3, workspace mới dùng Free hay dùng thử Starter (trước B6).
 - Thời hạn xóa dữ liệu khi ngắt kết nối (trước B1).
 - Luồng chuyển quyền Owner (trước L hoặc B0).
-- `docs/design/design-system.md` chưa đồng bộ hết token đã chỉnh trong Penpot: khi lệch, ảnh trong `docs/design/screens/` là chuẩn về bố cục, design-system.md là chuẩn về token.
+- `docs/design/design-system.md` đã đồng bộ token với Penpot ngày 22/10/2026. Khi lệch: Penpot là chuẩn (khung Wireframes cho bố cục, bộ token cho giá trị); sửa design-system.md cho khớp.

@@ -1,5 +1,7 @@
 # AdxLens — Bước 6 Validation (Gate 4)
 
+> **Ghi chú đồng bộ (22/10/2026):** báo cáo này viết khi Penpot mới có 10 màn tên A01–A10 (và A11). Các khung đó đã đổi tên theo mã danh mục: A01→O01, A02→C02, A03→R02-R03, A04→P101-P102, A05→P202-P203, A06→P211, A07→S02, A08→ST03, A09→S06, A10→R06, A11→F-state. Danh mục màn hiện đã vẽ đủ (xem `ux-requirements.md` mục 9). Các sửa token ở mục 1 (chart 2–4, `delta.positive`, `border.control`) đã có trong Penpot và trong `design-system.md`.
+
 Phạm vi đã kiểm: độ tương phản WCAG của token (tính bằng công thức), rà 10 màn trong Penpot theo nguyên tắc design system. Chưa kiểm: bàn phím/focus order, màn hình đọc, responsive ngoài A10, kiểm thử với người dùng thật.
 
 ## 1. Tương phản (WCAG 2.2 AA: chữ 4,5:1; thành phần UI/đồ họa 3:1)

@@ -1,7 +1,16 @@
-# AdxLens — Design System v0.1 (Gate 2 draft)
+# AdxLens — Design System v1.0
 
-> Trạng thái: **tài liệu nền tảng đã xong; file Figma chưa dựng** (gói Starter đã hết hạn mức gọi MCP, xem mục 9).
-> Figma file: https://www.figma.com/design/kWhT11s2BUQyi67y4nSd7n (đang trống)
+> **Nguồn thiết kế chính thức: Penpot**, file "AdxLens Design":
+> https://design.penpot.app/#/workspace?team-id=da05d154-084a-817e-8008-d3e89206539f&file-id=8af72ccb-2daf-802c-8008-d3f10464db3a
+>
+> | Trang Penpot | Nội dung |
+> |---|---|
+> | Foundations | Bảng tổng hợp "Design System — AdxLens" v1.0: màu, typography, spacing/radius/elevation, icon, component kèm quy tắc dùng |
+> | Design System | Component chính (main component) và variant, mục 7 |
+> | Wireframes | 101 khung màn theo mã danh mục (`ux-requirements.md` mục 6, 9) và prototype luồng F1–F12 |
+> | Sitemap & Flows | Sitemap và 12 user flow (`sitemap-flows.md`) |
+>
+> Tài liệu này là bản chép bằng chữ của token và quy tắc trong Penpot, đồng bộ ngày 22/10/2026. Khi lệch: **token theo Penpot** (bộ token `primitives`, `semantic`, `dimensions`), sửa tài liệu này cho khớp. Figma và `wireframes-lofi.html` không còn dùng.
 
 ## 1. Nguyên tắc
 1. **Mật độ trước tiên (U1).** Bảng nén, số dùng tabular-nums, header sticky; không dùng thẻ số lớn đơn lẻ. Ít khoảng trống.
@@ -26,7 +35,7 @@
 - **red:** 50 #FEF2F2 · 200 #FECACA · 600 #DC2626 · 700 #B91C1C
 - **amber:** 50 #FFFBEB · 200 #FDE68A · 600 #D97706 · 700 #B45309
 - **blue:** 50 #EFF6FF · 200 #BFDBFE · 600 #2563EB · 700 #1D4ED8
-- **chart 1–6:** #4F46E5 · #0EA5E9 · #10B981 · #F59E0B · #EC4899 · #8B5CF6
+- **chart 1–6:** #4F46E5 · #0284C7 · #059669 · #D97706 · #EC4899 · #8B5CF6 (chart 2–4 đã đậm lên để đạt 3:1 trên nền trắng, xem `validation.md`)
 - white #FFFFFF, black #000000
 
 ### 3.2 Semantic (Light / Dark cho code)
@@ -48,6 +57,7 @@
 | border/subtle | gray/100 | gray/800 |
 | border/strong | gray/300 | gray/600 |
 | border/focus | indigo/500 | indigo/500 |
+| border/control | gray/500 | chưa định nghĩa |
 | brand/primary | indigo/600 | indigo/500 |
 | brand/primary-hover | indigo/700 | indigo/600 |
 | brand/primary-subtle | indigo/50 | indigo/700 @ 25% |
@@ -55,11 +65,16 @@
 | status/{success,warning,danger,info}-fg | *-700 | *-200 |
 | status/…-bg | *-50 | *-600 @ 15% |
 | status/…-border | *-200 | *-600 @ 40% |
-| delta/positive | green/600 | green/500 (green/200 cho chữ nhỏ) |
+| delta/positive | green/700 | green/500 (green/200 cho chữ nhỏ) |
 | delta/negative | red/600 | red/200 cho chữ nhỏ |
 | chart/1–6 | như primitives | tăng sáng 1 bậc |
 
-Tên CSS: `--color-<nhóm>-<tên>` (ví dụ `--color-bg-surface`).
+Cột Dark chỉ có trong tài liệu này; Penpot chưa có theme Dark.
+
+- `border/control`: viền của Input, Select, Checkbox ở trạng thái mặc định (đạt 3:1). Viền Error dùng red/600; viền focus dùng border/focus 2px.
+- `border/default`: viền card, viền trang trí.
+
+Tên token trong Penpot dạng `color.<nhóm>.<tên>` (ví dụ `color.bg.surface`) ↔ tên CSS `--color-<nhóm>-<tên>` (ví dụ `--color-bg-surface`). Spacing, radius, density: `space.N` ↔ `--space-N`, `radius.md` ↔ `--radius-md`, `density.row-height` ↔ `--density-row-height`.
 
 ## 4. Khoảng cách, bo góc, mật độ
 - **Spacing:** 0, 2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48 (`--space-N`).
@@ -91,11 +106,39 @@ Tên CSS: `--color-<nhóm>-<tên>` (ví dụ `--color-bg-surface`).
 Code: bật `font-variant-numeric: tabular-nums` cho mọi số; số căn phải trong bảng.
 
 ## 6. Hiệu ứng
-- shadow/sm: `0 1px 2px rgba(15,23,42,.06)`
-- shadow/lg: `0 8px 24px rgba(15,23,42,.14)` (dialog, drawer, popover)
+- shadow/sm: `0 1px 2px rgba(15,23,42,.06)` (chỉ định nghĩa cho code; Penpot chưa dùng)
+- shadow/lg: `0 8px 24px rgba(15,23,42,.14)` (dialog, drawer, popover; có trong Penpot)
+- Quy tắc: lưới 4px; viền thay bóng, bóng chỉ cho lớp nổi.
 
-## 7. Danh mục component (~18, v1)
-Icon placeholder (16px) · Button (Primary/Secondary/Ghost/Danger × S28/M32 × Default/Hover/Disabled) · Badge (Neutral/Success/Warning/Danger/Info/Brand × Subtle/Solid) · Delta (Up-Good, Up-Bad, Down-Good, Down-Bad, Flat) · Input (Default/Focus/Error/Disabled) · Select (Default/Open/Disabled) · Checkbox (Off/On/Indeterminate) · Tab item · Segmented item · Table (header cell trái/phải, cell Text/Number/Muted, row Default/Hover/Selected) · KPI Stat (Compact/Inline) · Source footnote · Nav item (Default/Hover/Active) · Banner (Info/Warning/Danger/Success) · Tooltip · Dialog shell · Drawer shell (480px) · Filter chip (Default/Active) · Empty state.
+## 6a. Icon
+Nét 2px, lưới 24px, hiển thị 16px trong bảng và sidebar. Màu theo ngữ cảnh: text/tertiary mặc định, brand/primary khi đang chọn. Penpot chưa có bộ icon thành component; khi code chọn một bộ icon nét 2px (cần ADR nếu thêm thư viện, theo CLAUDE.md).
+
+## 7. Danh mục component
+**Có trong Penpot (trang Design System, 17 component):**
+
+| Component | Variant trong Penpot |
+|---|---|
+| Button | Kind Primary/Secondary/Ghost/Danger × Size S (28) / M (32) × State Default/Hover/Disabled |
+| Badge | Tone Neutral/Success/Warning/Danger/Info/Brand × Style Subtle/Solid |
+| Delta | Direction Up-Good/Up-Bad/Down-Good/Down-Bad/Flat |
+| Input | State Default/Focus/Error/Disabled |
+| Select | State Default/Open/Disabled |
+| Checkbox | State Off/On/Indeterminate |
+| Tab item | State Default/Hover/Active |
+| Segmented item | State Off/On |
+| Filter chip | State Default/Active |
+| Nav item | State Default/Hover/Active |
+| Banner | Tone Info/Warning/Danger/Success |
+| Table header cell | một dạng (nền subtle, chữ text/secondary viết hoa) |
+| Table cell / Number | một dạng (căn phải, tabular-nums) |
+| KPI Stat | một dạng (tile nhỏ gọn, kèm so sánh kỳ trước và dòng nguồn) |
+| Source footnote | một dạng |
+| Tooltip | một dạng (nền bg/inverse) |
+| Empty state | một dạng |
+
+**Chỉ có trong tài liệu, chưa thành component Penpot (dựng khi code, theo bố cục trong các khung Wireframes):** Icon · Table cell Text/Muted, Table row Default/Hover/Selected, hàng tổng in đậm · KPI Stat dạng Inline · Dialog shell · Drawer shell (480px) · Radio (S07 cần, xem `ux-requirements.md` 9.2).
+
+Quy tắc dùng (từ trang Foundations): một nút Primary mỗi vùng thao tác; control cao 28px, focus viền indigo 2px, lỗi viền đỏ kèm thông điệp; trạng thái đang chọn chỉ dùng indigo; banner đặt đầu vùng nội dung, mỗi lần một cái; bảng hàng 32px, header nền subtle viết hoa, hàng chọn dùng bg/selected.
 
 Quy tắc Delta: màu theo *tốt/xấu*, không theo tăng/giảm (CPA tăng = xấu = đỏ). Luôn kèm mũi tên và dấu, không dựa vào màu đơn thuần.
 
@@ -105,10 +148,8 @@ Quy tắc Delta: màu theo *tốt/xấu*, không theo tăng/giảm (CPA tăng = 
 - Chuỗi giao diện qua i18n (vi, en), theo CLAUDE.md.
 - Component trạng thái phụ thuộc cờ (Việc tuần này, Creative, Nhật ký hành động, Rule tự động) vẫn dùng cùng bộ thành phần; cờ tắt thì mục không hiện ở sidebar.
 
-## 9. Giới hạn hiện tại & việc cần PM quyết
-- Figma gói Starter: **1 mode/collection** (không có Light/Dark trong Figma) và **đã hết hạn mức gọi MCP**, nên file Figma chưa có biến, style, component.
-- Lựa chọn tiếp:
-  1. Chờ hạn mức làm mới rồi tôi dựng tiếp (token → component → ảnh chụp kiểm tra).
-  2. Nâng gói Figma (Professional) để dựng liền mạch.
-  3. Duyệt Gate 2 trên tài liệu này trước, dựng Figma song song với bước wireframe.
-- Chưa làm: kiểm tra trực quan; số liệu độ tương phản (WCAG) cần kiểm lại khi có bản dựng.
+## 9. Giới hạn hiện tại
+- Penpot chỉ có Light + Compact; Dark và Regular chỉ có trong tài liệu (mục 3.2, 4), chưa có bản dựng.
+- Nav item trên các màn Wireframes đã tách khỏi component; sửa component gốc không lan sang màn (xem `validation.md` mục 3).
+- Các component ở dòng "Chỉ có trong tài liệu" của mục 7 chưa dựng trong Penpot.
+- Độ tương phản đã kiểm bằng công thức (`validation.md`); chưa kiểm bàn phím, màn hình đọc, bản tiếng Anh.
