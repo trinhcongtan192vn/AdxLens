@@ -45,7 +45,10 @@ export const metaEnvSchema = z.object({
 
 export const tokenEnvSchema = z.object({
   TOKEN_ENC_KEY_V1: base64Key32,
-  TOKEN_ENC_KEY_V2: base64Key32.optional(),
+  TOKEN_ENC_KEY_V2: z.preprocess(
+    (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
+    base64Key32.optional(),
+  ),
 });
 
 export const integrationsEnvSchema = z.object({

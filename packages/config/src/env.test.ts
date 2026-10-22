@@ -29,6 +29,12 @@ describe('parseEnv', () => {
     expect(env.EXECUTION_ALLOWED_TEST_ACCOUNTS).toEqual(['act_1', 'act_2']);
   });
 
+  it('khóa xoay vòng V2 để trống được coi là chưa cấu hình', () => {
+    expect(
+      parseEnv(fullEnvSchema, { ...valid, TOKEN_ENC_KEY_V2: '' }).TOKEN_ENC_KEY_V2,
+    ).toBeUndefined();
+  });
+
   it('từ chối khóa mã hóa không đủ 32 byte', () => {
     expect(() => parseEnv(fullEnvSchema, { ...valid, TOKEN_ENC_KEY_V1: 'abc' })).toThrow(EnvError);
   });
