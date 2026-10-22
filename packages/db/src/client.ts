@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
@@ -21,6 +22,11 @@ export function createDb(url: string, opts: { max?: number } = {}): DbHandle {
   });
   const db = drizzle(sql, { schema });
   return { db, close: () => sql.end({ timeout: 5 }) };
+}
+
+/** Kiểm tra kết nối (health check). */
+export async function ping(db: Db): Promise<void> {
+  await db.execute(sql`select 1`);
 }
 
 let singleton: DbHandle | undefined;

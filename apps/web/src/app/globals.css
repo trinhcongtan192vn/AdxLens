@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+@import '@adxlens/ui/theme.css';
+
+/* Quét class Tailwind trong component dùng chung. */
+@source '../../../../packages/ui/src';

@@ -38,6 +38,26 @@ describe('logger không lộ token (CLAUDE.md quy tắc 2)', () => {
     expect(text()).not.toContain(META_TOKEN);
   });
 
+  it('che thông tin đăng nhập trong URL và token trong query string', () => {
+    const { log, text } = capture();
+    log.error(
+      { err: new Error('connect postgres://admin:hunter2@db.local:5432/x thất bại') },
+      'gọi https://graph.facebook.com/v24.0/me?access_token=abc123secret&fields=id',
+    );
+    expect(text()).not.toContain('hunter2');
+    expect(text()).not.toContain('abc123secret');
+    expect(text()).toContain('postgres://[REDACTED]@db.local');
+  });
+
+  it('không giữ thuộc tính tùy ý của lỗi', () => {
+    const { log, text } = capture();
+    const err = Object.assign(new Error('x'), {
+      config: { headers: { Authorization: 'k-secret' } },
+    });
+    log.error({ err }, 'lỗi');
+    expect(text()).not.toContain('k-secret');
+  });
+
   it('không log body request', () => {
     const { log, text } = capture();
     log.info({ req: { body: { password: 'p@ss-123456' } } }, 'request');

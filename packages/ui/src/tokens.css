@@ -1,0 +1,93 @@
+/*
+ * Token giao diện AdxLens — chép từ Penpot "AdxLens Design" (bộ token primitives, semantic,
+ * dimensions) và docs/design/design-system.md. Đổi giá trị ở đây, không hard-code trong component.
+ * Phát hành Light + Compact; Dark/Regular chỉ định nghĩa cho code (design-system mục 1.6).
+ */
+:root {
+  /* bg */
+  --color-bg-canvas: #f8fafc;
+  --color-bg-surface: #ffffff;
+  --color-bg-subtle: #f1f5f9;
+  --color-bg-hover: #f8fafc;
+  --color-bg-selected: #eef2ff;
+  --color-bg-inverse: #0f172a;
+  /* text */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #64748b;
+  --color-text-disabled: #94a3b8;
+  --color-text-inverse: #ffffff;
+  --color-text-link: #4f46e5;
+  /* border */
+  --color-border-default: #e2e8f0;
+  --color-border-subtle: #f1f5f9;
+  --color-border-strong: #cbd5e1;
+  --color-border-focus: #6366f1;
+  --color-border-control: #64748b;
+  /* brand */
+  --color-brand-primary: #4f46e5;
+  --color-brand-primary-hover: #4338ca;
+  --color-brand-primary-subtle: #eef2ff;
+  --color-brand-on-primary: #ffffff;
+  /* status */
+  --color-status-success-fg: #15803d;
+  --color-status-success-bg: #f0fdf4;
+  --color-status-success-border: #bbf7d0;
+  --color-status-warning-fg: #b45309;
+  --color-status-warning-bg: #fffbeb;
+  --color-status-warning-border: #fde68a;
+  --color-status-danger-fg: #b91c1c;
+  --color-status-danger-bg: #fef2f2;
+  --color-status-danger-border: #fecaca;
+  --color-status-info-fg: #1d4ed8;
+  --color-status-info-bg: #eff6ff;
+  --color-status-info-border: #bfdbfe;
+  /* delta: màu theo tốt/xấu, không theo tăng/giảm */
+  --color-delta-positive: #15803d;
+  --color-delta-negative: #dc2626;
+  /* chart */
+  --color-chart-1: #4f46e5;
+  --color-chart-2: #0284c7;
+  --color-chart-3: #059669;
+  --color-chart-4: #d97706;
+  --color-chart-5: #ec4899;
+  --color-chart-6: #8b5cf6;
+  /* density: Compact */
+  --density-control-height: 28px;
+  --density-row-height: 32px;
+  --density-cell-x: 8px;
+  --density-cell-y: 6px;
+  /* effects */
+  --elevation-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --elevation-lg: 0 8px 24px rgba(15, 23, 42, 0.14);
+}
+
+/* Dark: chỉ định nghĩa cho code, chưa phát hành UI. */
+[data-theme='dark'] {
+  --color-bg-canvas: #0f172a;
+  --color-bg-surface: #1e293b;
+  --color-bg-subtle: #334155;
+  --color-bg-hover: #334155;
+  --color-bg-selected: rgba(67, 56, 202, 0.25);
+  --color-bg-inverse: #f8fafc;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #94a3b8;
+  --color-text-disabled: #64748b;
+  --color-text-inverse: #0f172a;
+  --color-text-link: #6366f1;
+  --color-border-default: #334155;
+  --color-border-subtle: #1e293b;
+  --color-border-strong: #475569;
+  --color-brand-primary: #6366f1;
+  --color-brand-primary-hover: #4f46e5;
+  --color-brand-primary-subtle: rgba(67, 56, 202, 0.25);
+}
+
+/* Regular: chỉ định nghĩa cho code. */
+[data-density='regular'] {
+  --density-control-height: 32px;
+  --density-row-height: 40px;
+  --density-cell-x: 12px;
+  --density-cell-y: 10px;
+}

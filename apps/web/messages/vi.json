@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "title": "AdxLens",
+    "description": "Báo cáo Meta Ads có bằng chứng cho agency"
+  },
+  "common": {
+    "close": "Đóng",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "saving": "Đang lưu…",
+    "saved": "Đã lưu",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "create": "Tạo",
+    "confirm": "Xác nhận",
+    "back": "Quay lại",
+    "next": "Tiếp tục",
+    "search": "Tìm kiếm",
+    "loading": "Đang tải…",
+    "retry": "Thử lại",
+    "actions": "Thao tác",
+    "none": "Không có",
+    "learnMore": "Tìm hiểu thêm",
+    "errorGeneric": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+    "errorCode": "Mã lỗi: {code}"
+  },
+  "nav": {
+    "overview": "Tổng quan",
+    "clients": "Clients",
+    "reports": "Báo cáo",
+    "weeklyActions": "Việc tuần này",
+    "creatives": "Creative",
+    "actionLog": "Nhật ký hành động",
+    "automation": "Rule tự động",
+    "connections": "Kết nối",
+    "settings": "Cài đặt",
+    "support": "Hỗ trợ",
+    "mainNav": "Điều hướng chính"
+  },
+  "shell": {
+    "period": "Kỳ",
+    "periods": {
+      "last7": "7 ngày qua",
+      "last14": "14 ngày qua",
+      "last30": "30 ngày qua",
+      "thisMonth": "Tháng này",
+      "lastMonth": "Tháng trước"
+    },
+    "workspace": "Workspace",
+    "switchWorkspace": "Chuyển workspace",
+    "notifications": "Thông báo",
+    "accountMenu": "Menu tài khoản",
+    "profile": "Hồ sơ cá nhân",
+    "notificationSettings": "Thông báo",
+    "language": "Ngôn ngữ",
+    "languageItem": "Ngôn ngữ: {language}",
+    "logout": "Đăng xuất",
+    "languages": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    }
+  },
+  "errors": {
+    "notFoundTitle": "Không tìm thấy trang",
+    "notFoundBody": "Trang bạn tìm không tồn tại hoặc đã bị chuyển đi.",
+    "forbiddenTitle": "Bạn không có quyền xem trang này",
+    "forbiddenBody": "Hãy liên hệ owner của workspace để được cấp quyền.",
+    "genericTitle": "Đã có lỗi xảy ra",
+    "genericBody": "Chúng tôi đã ghi nhận lỗi. Nếu lỗi lặp lại, gửi mã lỗi bên dưới cho bộ phận hỗ trợ.",
+    "goHome": "Về trang chủ",
+    "featureUnavailableTitle": "Tính năng chưa được bật cho workspace này",
+    "featureUnavailableBody": "Liên hệ đội AdxLens nếu bạn muốn dùng thử tính năng này."
+  },
+  "settings": {
+    "workspace": "Workspace",
+    "members": "Thành viên",
+    "billing": "Gói & thanh toán",
+    "notifications": "Thông báo",
+    "profile": "Hồ sơ cá nhân",
+    "guardrails": "Guardrails"
+  },
+  "pages": {
+    "notifications": "Thông báo",
+    "support": "Hỗ trợ",
+    "onboarding": "Bắt đầu"
+  },
+  "placeholder": {
+    "comingSoon": "Màn hình này sẽ có ở bản tiếp theo."
+  }
+}
