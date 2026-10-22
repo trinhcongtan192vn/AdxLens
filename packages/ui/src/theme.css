@@ -1,0 +1,97 @@
+/* Ánh xạ token sang tiện ích Tailwind 4. Import sau `tailwindcss` trong globals.css của app. */
+@import './tokens.css';
+
+@theme inline {
+  --font-sans: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --color-canvas: var(--color-bg-canvas);
+  --color-surface: var(--color-bg-surface);
+  --color-subtle: var(--color-bg-subtle);
+  --color-hover: var(--color-bg-hover);
+  --color-selected: var(--color-bg-selected);
+  --color-inverse: var(--color-bg-inverse);
+
+  --color-fg: var(--color-text-primary);
+  --color-fg-secondary: var(--color-text-secondary);
+  --color-fg-tertiary: var(--color-text-tertiary);
+  --color-fg-disabled: var(--color-text-disabled);
+  --color-fg-inverse: var(--color-text-inverse);
+  --color-link: var(--color-text-link);
+
+  --color-line: var(--color-border-default);
+  --color-line-subtle: var(--color-border-subtle);
+  --color-line-strong: var(--color-border-strong);
+  --color-line-focus: var(--color-border-focus);
+  --color-line-control: var(--color-border-control);
+
+  --color-brand: var(--color-brand-primary);
+  --color-brand-hover: var(--color-brand-primary-hover);
+  --color-brand-subtle: var(--color-brand-primary-subtle);
+  --color-on-brand: var(--color-brand-on-primary);
+
+  --color-success: var(--color-status-success-fg);
+  --color-success-bg: var(--color-status-success-bg);
+  --color-success-line: var(--color-status-success-border);
+  --color-warning: var(--color-status-warning-fg);
+  --color-warning-bg: var(--color-status-warning-bg);
+  --color-warning-line: var(--color-status-warning-border);
+  --color-danger: var(--color-status-danger-fg);
+  --color-danger-bg: var(--color-status-danger-bg);
+  --color-danger-line: var(--color-status-danger-border);
+  --color-info: var(--color-status-info-fg);
+  --color-info-bg: var(--color-status-info-bg);
+  --color-info-line: var(--color-status-info-border);
+
+  --color-delta-pos: var(--color-delta-positive);
+  --color-delta-neg: var(--color-delta-negative);
+
+  /* Typography (Inter) — design-system mục 5 */
+  --text-display: 24px;
+  --text-display--line-height: 32px;
+  --text-h1: 20px;
+  --text-h1--line-height: 28px;
+  --text-h2: 16px;
+  --text-h2--line-height: 24px;
+  --text-h3: 14px;
+  --text-h3--line-height: 20px;
+  --text-body: 13px;
+  --text-body--line-height: 20px;
+  --text-small: 12px;
+  --text-small--line-height: 16px;
+  --text-caption: 11px;
+  --text-caption--line-height: 16px;
+  --text-kpi: 22px;
+  --text-kpi--line-height: 28px;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  --shadow-sm: var(--elevation-sm);
+  --shadow-lg: var(--elevation-lg);
+
+  --spacing-control: var(--density-control-height);
+  --spacing-row: var(--density-row-height);
+}
+
+@layer base {
+  html {
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background: var(--color-bg-canvas);
+    color: var(--color-text-primary);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+  /* Số luôn tabular-nums (design-system mục 5). */
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 1px;
+  }
+}

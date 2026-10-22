@@ -6,7 +6,7 @@ export function loadTestEnv(): void {
   const file = path.resolve(import.meta.dirname, '..', '.env.local');
   if (existsSync(file)) process.loadEnvFile(file);
   process.env.APP_ENV = 'test';
-  process.env.LOG_LEVEL ??= 'silent';
+  process.env.LOG_LEVEL = process.env.TEST_LOG_LEVEL ?? 'silent';
   process.env.META_MOCK = '1';
   process.env.INTERNAL_SIGNING_SECRET ??= 'test-signing-secret-0123456789abcdef';
   process.env.TOKEN_ENC_KEY_V1 ??= Buffer.alloc(32, 1).toString('base64');

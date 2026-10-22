@@ -1,8 +1,17 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
+const r = (p: string) => fileURLToPath(new URL(p, import.meta.url));
+
 export default defineConfig({
+  resolve: {
+    alias: [
+      { find: 'server-only', replacement: r('./tests/empty-module.ts') },
+      { find: /^@\//, replacement: `${r('./apps/web/src')}/` },
+    ],
+  },
   test: {
-    include: ['{apps,packages,scripts}/**/*.test.ts', '{apps,packages}/**/*.test.tsx'],
+    include: ['{apps,packages,scripts,tests}/**/*.test.ts', '{apps,packages}/**/*.test.tsx'],
     exclude: ['**/node_modules/**', '**/.next/**', '**/e2e/**'],
     environment: 'node',
     globalSetup: ['./tests/global-setup.ts'],

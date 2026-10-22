@@ -50,6 +50,8 @@ jobs:
         run: pnpm format:check
       - name: Typecheck
         run: pnpm typecheck
+      - name: Build web
+        run: pnpm --filter @adxlens/web build
       - name: Test (unit, fixture, đối chiếu, cách ly workspace)
         run: pnpm test -- --coverage
       - name: Migration chưa sinh
