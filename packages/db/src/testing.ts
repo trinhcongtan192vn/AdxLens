@@ -98,6 +98,12 @@ export async function seedMember(
   return u;
 }
 
+export async function seedStaff(db: Db, canEnableFlags: boolean) {
+  const u = await seedUser(db);
+  await db.insert(s.staff).values({ userId: u.id, canEnableFlags });
+  return u;
+}
+
 export async function seedClient(db: Db, workspaceId: string, name = 'Client A') {
   const [c] = await db.insert(s.clients).values({ workspaceId, name }).returning();
   return c!;
