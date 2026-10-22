@@ -1,0 +1,328 @@
+<title>AdxLens Wireframes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: sticky screen switcher on top, wireframe frame (app shell) in the middle, numbered annotations below. */
+:root{
+  --bg:#F1F5F9; --surface:#FFFFFF; --subtle:#F1F5F9; --hover:#F8FAFC; --selected:#EEF2FF;
+  --fg:#0F172A; --fg2:#475569; --fg3:#64748B; --fg4:#94A3B8;
+  --line:#E2E8F0; --line2:#CBD5E1; --brand:#4F46E5; --brand-h:#4338CA; --brand-s:#EEF2FF; --on-brand:#FFFFFF;
+  --ok:#15803D; --ok-bg:#F0FDF4; --ok-line:#BBF7D0; --warn:#B45309; --warn-bg:#FFFBEB; --warn-line:#FDE68A;
+  --bad:#B91C1C; --bad-bg:#FEF2F2; --bad-line:#FECACA; --info:#1D4ED8; --info-bg:#EFF6FF; --info-line:#BFDBFE;
+  --up:#16A34A; --down:#DC2626; --shadow:0 8px 24px rgba(15,23,42,.14);
+  --c1:#4F46E5; --c2:#0EA5E9; --c3:#10B981; --c4:#F59E0B;
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1120; --surface:#0F172A; --subtle:#1E293B; --hover:#162033; --selected:#1E1B4B;
+  --fg:#F8FAFC; --fg2:#CBD5E1; --fg3:#94A3B8; --fg4:#64748B; --line:#1E293B; --line2:#334155;
+  --brand:#818CF8; --brand-h:#A5B4FC; --brand-s:#1E1B4B; --on-brand:#0F172A;
+  --ok:#86EFAC; --ok-bg:#052E16; --ok-line:#14532D; --warn:#FDE68A; --warn-bg:#2A1D05; --warn-line:#78350F;
+  --bad:#FECACA; --bad-bg:#2D0A0A; --bad-line:#7F1D1D; --info:#BFDBFE; --info-bg:#0B1A3A; --info-line:#1E3A8A;
+  --up:#4ADE80; --down:#F87171; --shadow:0 8px 24px rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1120; --surface:#0F172A; --subtle:#1E293B; --hover:#162033; --selected:#1E1B4B;
+  --fg:#F8FAFC; --fg2:#CBD5E1; --fg3:#94A3B8; --fg4:#64748B; --line:#1E293B; --line2:#334155;
+  --brand:#818CF8; --brand-h:#A5B4FC; --brand-s:#1E1B4B; --on-brand:#0F172A;
+  --ok:#86EFAC; --ok-bg:#052E16; --ok-line:#14532D; --warn:#FDE68A; --warn-bg:#2A1D05; --warn-line:#78350F;
+  --bad:#FECACA; --bad-bg:#2D0A0A; --bad-line:#7F1D1D; --info:#BFDBFE; --info-bg:#0B1A3A; --info-line:#1E3A8A;
+  --up:#4ADE80; --down:#F87171; --shadow:0 8px 24px rgba(0,0,0,.5); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:13px;line-height:20px;padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));font-variant-numeric:tabular-nums}
+a{color:var(--brand)}
+.wrap{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+h1{font-size:20px;line-height:28px;margin:0;font-weight:600}
+.sub{color:var(--fg3);margin:0}
+.switch{display:flex;flex-wrap:wrap;gap:4px}
+.switch button{font:inherit;font-weight:500;border:1px solid var(--line2);background:var(--surface);color:var(--fg2);height:28px;padding:0 10px;border-radius:4px;cursor:pointer}
+.switch button:hover{background:var(--hover)}
+.switch button[aria-selected=true]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.switch button:focus-visible,.tab:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.tag{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border:1px solid currentColor;border-radius:2px;padding:0 4px;margin-left:5px;opacity:.85}
+.stage{overflow-x:auto;border:1px solid var(--line2);border-radius:6px;background:var(--surface)}
+.shell{min-width:1080px;display:grid;grid-template-columns:200px 1fr;grid-template-rows:48px 1fr;min-height:620px}
+.top{grid-column:1/3;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+.logo{font-weight:700;font-size:15px;color:var(--brand);width:168px}
+.crumb{color:var(--fg3)} .crumb b{color:var(--fg);font-weight:500}
+.sp{flex:1}
+.ctl{height:28px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:4px;padding:0 8px;background:var(--surface);color:var(--fg2);font-weight:500;white-space:nowrap}
+.ctl.pri{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.ctl.dng{color:var(--bad);border-color:var(--bad-line)}
+.side{border-right:1px solid var(--line);padding:8px;display:flex;flex-direction:column;gap:2px;background:var(--surface)}
+.nav{height:28px;display:flex;align-items:center;gap:8px;padding:0 8px;border-radius:4px;color:var(--fg2);font-weight:500}
+.nav i{width:14px;height:14px;border:1.5px solid var(--fg4);border-radius:3px;display:inline-block}
+.nav.on{background:var(--selected);color:var(--brand)} .nav.on i{border-color:var(--brand)}
+.nav .tag{margin-left:auto}
+.nav.off{color:var(--fg4)}
+.main{background:var(--bg);padding:12px 16px;display:flex;flex-direction:column;gap:12px;min-width:0;position:relative}
+.head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.head h2{font-size:16px;line-height:24px;margin:0;font-weight:600}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;min-width:0}
+.panel>.ph{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--line);font-weight:600}
+.panel>.ph .sp{flex:1}
+.pb{padding:10px}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.kpi{padding:6px 10px;border-right:1px solid var(--line)} .kpi:last-child{border-right:0}
+.kpi small{display:block;color:var(--fg3);font-size:11px;line-height:16px;font-weight:500}
+.kpi b{font-size:18px;line-height:24px;font-weight:600}
+.dl{font-size:11px;font-weight:500;margin-left:6px}
+.dl.g{color:var(--up)} .dl.b{color:var(--down)} .dl.f{color:var(--fg3)}
+table{border-collapse:collapse;width:100%}
+th{font-size:11px;line-height:16px;text-transform:uppercase;letter-spacing:.03em;color:var(--fg3);font-weight:600;text-align:left;padding:6px 8px;background:var(--subtle);border-bottom:1px solid var(--line2);white-space:nowrap;position:sticky;top:0}
+td{padding:6px 8px;height:32px;border-bottom:1px solid var(--line);white-space:nowrap}
+th.n,td.n{text-align:right} tr:hover td{background:var(--hover)} tr.sel td{background:var(--selected)}
+tfoot td{font-weight:600;background:var(--subtle)}
+.scroll{overflow-x:auto}
+.b{display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:4px;font-size:11px;font-weight:500;border:1px solid}
+.b.ok{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-line)}
+.b.wr{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-line)}
+.b.bd{color:var(--bad);background:var(--bad-bg);border-color:var(--bad-line)}
+.b.in{color:var(--info);background:var(--info-bg);border-color:var(--info-line)}
+.b.nu{color:var(--fg2);background:var(--subtle);border-color:var(--line2)}
+.src{font-size:11px;line-height:16px;color:var(--fg3);padding:4px 10px;border-top:1px solid var(--line)}
+.src b{color:var(--ok);font-weight:600}
+.cols{display:grid;gap:12px;min-width:0}
+.c2{grid-template-columns:2fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}.c21{grid-template-columns:3fr 1fr}
+.chart{height:120px;display:block;width:100%}
+.bar{height:6px;border-radius:3px;background:var(--subtle);overflow:hidden}.bar i{display:block;height:100%;background:var(--brand)}
+.banner{display:flex;gap:8px;align-items:center;padding:6px 10px;border:1px solid;border-radius:6px}
+.banner.wr{background:var(--warn-bg);border-color:var(--warn-line);color:var(--warn)}
+.banner.in{background:var(--info-bg);border-color:var(--info-line);color:var(--info)}
+.banner.bd{background:var(--bad-bg);border-color:var(--bad-line);color:var(--bad)}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:380px;background:var(--surface);border-left:1px solid var(--line2);box-shadow:var(--shadow);padding:12px;display:flex;flex-direction:column;gap:10px;overflow:auto}
+.drawer h3{margin:0;font-size:14px}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:4px 8px;margin:0}.kv dt{color:var(--fg3)}.kv dd{margin:0;font-weight:500}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line)}
+.tab{padding:6px 10px;color:var(--fg3);font-weight:500;border-bottom:2px solid transparent}.tab.on{color:var(--brand);border-color:var(--brand)}
+.mk{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--warn);color:#111;font-size:10px;font-weight:700;vertical-align:1px;margin-left:4px}
+.ph0{border:1px dashed var(--line2);border-radius:4px;color:var(--fg4);display:grid;place-items:center;background:repeating-linear-gradient(135deg,transparent 0 8px,var(--subtle) 8px 9px)}
+.phone{width:360px;border:1px solid var(--line2);border-radius:18px;margin:16px auto;background:var(--bg);padding:12px;display:flex;flex-direction:column;gap:10px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px 24px;margin:0;padding:0;list-style:none}
+.notes li{display:flex;gap:8px;align-items:flex-start;min-width:0}
+.notes .mk{flex:none;margin-top:2px}
+.status{color:var(--fg3);font-size:12px}
+@media (max-width:700px){.notes{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+  <div>
+    <h1>AdxLens — Wireframes v0.1</h1>
+    <p class="sub">Bước 4 · Gate 3 · Lo-fi, dùng token của Design System v0.1 (Light, Compact). Dữ liệu là ví dụ. Chấm vàng là ghi chú ở dưới khung.</p>
+  </div>
+  <div class="switch" role="tablist" id="switch"></div>
+  <div class="stage"><div id="stage"></div></div>
+  <ul class="notes" id="notes"></ul>
+  <p class="status">Chưa dựng trong Figma: hạn mức Figma MCP gói Starter đã hết. Bản này là nguồn để chuyển sang Figma sau khi có hạn mức.</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const NAV=[['Tổng quan',''],['Clients',''],['Báo cáo',''],['Việc tuần này','P1'],['Creative','P1'],['Nhật ký hành động','P2a'],['Rule tự động','P2b'],['Kết nối',''],['Cài đặt','']];
+const mk=n=>`<span class="mk">${n}</span>`;
+const dl=(v,good)=>`<span class="dl ${v===0?'f':good?'g':'b'}">${v===0?'—':(v>0?'▲ ':'▼ ')+Math.abs(v).toFixed(1)+'%'}</span>`;
+const badge=(t,k)=>`<span class="b ${k}">${t}</span>`;
+function shell(active,crumb,actions,body){
+  const side=NAV.map(([n,t])=>`<div class="nav ${n===active?'on':''} ${t&&n!==active?'':''}"><i></i>${n}${t?`<span class="tag">${t}</span>`:''}</div>`).join('');
+  return `<div class="shell"><div class="top"><span class="logo">AdxLens</span><span class="crumb">${crumb}</span><span class="sp"></span>
+  <span class="ctl">Kỳ: 7 ngày qua ▾</span><span class="ctl">Agency Sao Mai ▾</span><span class="ctl">TN</span></div>
+  <div class="side">${side}</div><div class="main">${body}</div></div>`;
+}
+function table(cols,rows,opt={}){
+  const th=cols.map(c=>`<th class="${c[1]==='n'?'n':''}">${c[0]}</th>`).join('');
+  const tr=rows.map(r=>`<tr class="${r.sel?'sel':''}">${r.c.map((v,i)=>`<td class="${cols[i][1]==='n'?'n':''}">${v}</td>`).join('')}</tr>`).join('');
+  const tf=opt.foot?`<tfoot><tr>${opt.foot.map((v,i)=>`<td class="${cols[i][1]==='n'?'n':''}">${v}</td>`).join('')}</tr></tfoot>`:'';
+  return `<div class="scroll"><table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody>${tf}</table></div>`;
+}
+const SRC='<div class="src"><b>Khớp Meta</b> · cập nhật 08:12 hôm nay · attribution 7d click / 1d view · VND · múi giờ Asia/Ho_Chi_Minh</div>';
+const spark=(pts,c='var(--c1)')=>{const w=300,h=100,m=Math.max(...pts);const p=pts.map((v,i)=>`${(i*w/(pts.length-1)).toFixed(0)},${(h-8-v/m*(h-20)).toFixed(0)}`);
+ return `<svg class="chart" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="Biểu đồ xu hướng">${[25,50,75].map(y=>`<line x1="0" x2="${w}" y1="${y}" y2="${y}" stroke="var(--line)"/>`).join('')}<polyline points="${p.join(' ')}" fill="none" stroke="${c}" stroke-width="2"/><circle cx="${p[p.length-1].split(',')[0]}" cy="${p[p.length-1].split(',')[1]}" r="3.5" fill="${c}"/></svg>`;};
+const kpis=(a)=>`<div class="kpis">${a.map(k=>`<div class="kpi"><small>${k[0]}</small><b>${k[1]}</b>${dl(k[2],k[3])}</div>`).join('')}</div>`;
+
+const S={};
+S.overview={label:'Tổng quan',notes:[
+ 'UC01 · Bảng clients là trung tâm; mỗi dòng một client với 5 chỉ số chính. Không có thẻ số lớn đơn lẻ.',
+ 'Dải KPI một hàng, cao 52px, có delta so với kỳ trước (BR: delta luôn hiện, màu theo tốt/xấu).',
+ 'Cột "Đối chiếu" cho thấy độ lệch so với Ads Manager (ngưỡng ≤ 1%). Quá ngưỡng thì dòng báo cảnh báo và chặn gửi báo cáo.',
+ 'Khối "Cần xử lý" gom token hết hạn, đối chiếu lệch, báo cáo chờ gửi. Click mở drawer 480px.',
+ 'Kỳ chọn ở thanh trên áp cho cả trang, mỗi bảng có thể ghi đè.'],
+ html:()=>shell('Tổng quan','<b>Tổng quan</b>','',`
+  <div class="head"><h2>Tổng quan agency</h2>${badge('12 clients · 3 chờ gửi','nu')}<span class="sp" style="flex:1"></span><span class="ctl">Lọc ▾</span><span class="ctl">Cột ▾</span><span class="ctl pri">+ Thêm client</span></div>
+  ${kpis([['Chi tiêu','482.350.000 ₫',8.2,false],['Doanh thu','1.894.200.000 ₫',12.4,true],['ROAS','3,93',3.9,true],['CPA','86.400 ₫',-4.1,true],['CTR','1,82%',-0.6,false],['Đơn hàng','5.583',17.0,true]])}${mk(2)}
+  <div class="cols c21"><div class="panel"><div class="ph">Clients ${mk(1)}</div>
+  ${table([['Client'],['Trạng thái'],['Chi tiêu','n'],['ROAS','n'],['CPA','n'],['Δ ROAS','n'],['Đối chiếu'],['Báo cáo cuối']],[
+   {c:['Cà phê Nhà Rang',badge('Đang chạy','ok'),'96.200.000','4,41','71.300',dl(5.2,true),badge('Khớp 0,2%','ok')+mk(3),'Thứ 2, 20/10']},
+   {c:['Thời trang Linh',badge('Đang chạy','ok'),'142.800.000','3,12','112.900',dl(-8.6,false),badge('Lệch 1,4%','bd'),'Chưa gửi'],sel:true},
+   {c:['Nội thất An Cư',badge('Đang chạy','ok'),'74.100.000','5,06','64.000',dl(2.1,true),badge('Khớp 0,5%','ok'),'Thứ 2, 20/10']},
+   {c:['Mỹ phẩm Hạ Vy',badge('Token hết hạn','wr'),'—','—','—','—',badge('Không có dữ liệu','nu'),'13/10']},
+   {c:['Tour Đà Lạt Xanh',badge('Đang chạy','ok'),'58.650.000','2,74','98.200',dl(0,true),badge('Khớp 0,1%','ok'),'Thứ 2, 20/10']},
+   {c:['Giày Sneaker VN',badge('Tạm dừng','nu'),'0','—','—','—',badge('Khớp','ok'),'06/10']}],
+   {foot:['Tổng 12 clients','','482.350.000','3,93','86.400','','','']})}
+  ${SRC}</div>
+  <div class="panel"><div class="ph">Cần xử lý ${mk(4)}</div><div class="pb" style="display:flex;flex-direction:column;gap:8px">
+   <div class="banner bd">Thời trang Linh: lệch 1,4% so với Ads Manager</div>
+   <div class="banner wr">Mỹ phẩm Hạ Vy: token Meta hết hạn</div>
+   <div class="banner in">3 báo cáo chờ duyệt gửi</div></div></div></div>`)};
+
+S.client={label:'Client chi tiết',notes:[
+ 'UC05 · Tab theo ngữ cảnh: Chiến dịch, Nhóm QC, Quảng cáo, Báo cáo, Cài đặt client. Cấp độ chọn bằng breadcrumb.',
+ 'Cột chỉ số theo thứ tự Ads Manager; người dùng thêm/bớt qua "Cột". Số căn phải, tabular.',
+ 'Biểu đồ xu hướng nằm cạnh bảng, không thay thế bảng. Điểm cuối nhấn mạnh.',
+ 'Drawer chi tiết 480px mở khi chọn dòng; không rời trang.',
+ 'Dòng nguồn dưới bảng ghi cửa sổ attribution, tiền tệ, múi giờ để báo cáo có bằng chứng.'],
+ html:()=>shell('Clients','Clients / <b>Thời trang Linh</b>','',`
+  <div class="head"><h2>Thời trang Linh</h2>${badge('Đang chạy','ok')}${badge('Lệch 1,4%','bd')}<span style="flex:1"></span><span class="ctl">Cột ▾</span><span class="ctl">Xuất CSV</span><span class="ctl pri">Tạo báo cáo</span></div>
+  <div class="tabs"><span class="tab on">Chiến dịch ${mk(1)}</span><span class="tab">Nhóm QC</span><span class="tab">Quảng cáo</span><span class="tab">Báo cáo</span><span class="tab">Cài đặt</span></div>
+  <div class="cols c21"><div class="panel">
+  ${table([['Chiến dịch'],['Trạng thái'],['Chi tiêu','n'],['Hiển thị','n'],['Click','n'],['CTR','n'],['Đơn','n'],['CPA','n'],['ROAS','n']],[
+   {c:['Thu Đông 2026 — Lookalike 1%',badge('Đang chạy','ok'),'52.400.000','1.204.300','21.980','1,83%','412','127.200','2,71'],sel:true},
+   {c:['Thu Đông 2026 — Retarget 30d',badge('Đang chạy','ok'),'31.900.000','402.100','9.870','2,45%','388','82.200','4,86']},
+   {c:['Sale 10.10 — Broad',badge('Học','in'),'24.300.000','908.000','12.040','1,33%','166','146.400','2,02']},
+   {c:['Catalog — DPA',badge('Đang chạy','ok'),'18.600.000','311.900','6.740','2,16%','201','92.500','3,95']},
+   {c:['Brand — Video views',badge('Tạm dừng','nu'),'15.600.000','2.110.000','8.100','0,38%','12','1.300.000','0,40']}],
+   {foot:['Tổng 5','','142.800.000','4.936.300','58.730','1,19%','1.179','121.100','3,12']})}${SRC}</div>
+  <div class="panel"><div class="ph">ROAS 14 ngày ${mk(3)}</div><div class="pb">${spark([2.9,3.4,3.1,3.6,3.3,3.8,3.5,3.2,3.0,3.4,3.1,2.9,3.0,3.12])}<div class="status">Kỳ trước: 3,41 ${dl(-8.6,false)}</div></div></div></div>
+  <div class="drawer">${mk(4)}<h3>Thu Đông 2026 — Lookalike 1%</h3><div class="tabs"><span class="tab on">Tóm tắt</span><span class="tab">Đối chiếu</span><span class="tab">Lịch sử</span></div>
+   <dl class="kv"><dt>Mục tiêu</dt><dd>Mua hàng (OUTCOME_SALES)</dd><dt>Ngân sách</dt><dd>2.000.000 ₫/ngày</dd><dt>Chi tiêu</dt><dd>52.400.000 ₫</dd><dt>Ads Manager</dt><dd>52.700.000 ₫ ${badge('Lệch 0,6%','ok')}</dd><dt>Tần suất</dt><dd>2,4</dd><dt>CPM</dt><dd>43.500 ₫</dd></dl>
+   <div class="ph0" style="height:90px">biểu đồ chi tiêu/ngày</div></div>`)};
+
+S.report={label:'Tạo & gửi báo cáo',notes:[
+ 'UC10–UC14 · Một màn hình ba vùng: cấu hình (trái), xem trước (giữa), danh sách kiểm tra gửi (phải).',
+ 'Khối bằng chứng: mỗi con số có nguồn. Không đạt đối chiếu thì nút "Gửi" bị khóa và nêu lý do.',
+ 'Phần diễn giải do LLM. Mọi số trong văn bản phải khớp số đã tính, có huy hiệu "Đã kiểm số".',
+ 'Thương hiệu agency (logo, màu) áp ở xem trước; link công khai và PDF cùng nguồn.',
+ 'Lịch gửi định kỳ: tuần/tháng, người nhận, múi giờ.'],
+ html:()=>shell('Báo cáo','Báo cáo / <b>Thời trang Linh — Tuần 42</b>','',`
+  <div class="head"><h2>Báo cáo tuần 42 · Thời trang Linh</h2>${badge('Nháp','nu')}<span style="flex:1"></span><span class="ctl">Xem PDF</span><span class="ctl">Sao chép link</span><span class="ctl pri" style="opacity:.55">Gửi cho khách</span>${mk(2)}</div>
+  <div class="cols" style="grid-template-columns:220px 1fr 240px">
+  <div class="panel"><div class="ph">Cấu hình ${mk(1)}</div><div class="pb" style="display:flex;flex-direction:column;gap:8px">
+   <div><small class="status">Kỳ</small><br><span class="ctl">13–19/10/2026 ▾</span></div><div><small class="status">So với</small><br><span class="ctl">Kỳ trước ▾</span></div>
+   <div><small class="status">Khối nội dung</small><br>☑ Tóm tắt KPI<br>☑ Bảng chiến dịch<br>☑ Xu hướng<br>☑ Diễn giải<br>☐ Creative</div>
+   <div><small class="status">Thương hiệu</small><br><span class="ctl">Sao Mai Agency ▾</span></div></div></div>
+  <div class="panel"><div class="ph">Xem trước ${badge('Đã kiểm số','ok')}${mk(3)}</div><div class="pb" style="display:flex;flex-direction:column;gap:10px">
+   <div style="display:flex;align-items:center;gap:8px"><div class="ph0" style="width:80px;height:28px">logo</div><b style="font-size:16px">Báo cáo Meta Ads · Tuần 42</b></div>
+   ${kpis([['Chi tiêu','142,8 tr',8.2,false],['Doanh thu','445,6 tr',-1.1,false],['ROAS','3,12',-8.6,false],['CPA','121.100',6.3,false],['Đơn','1.179',3.9,true],['CTR','1,19%',-0.2,false]]).replace('repeat(6,1fr)','repeat(6,1fr)')}
+   <div class="ph0" style="padding:8px;text-align:left;display:block;color:var(--fg2);border-style:solid;background:var(--hover)">ROAS giảm 8,6% xuống 3,12 chủ yếu do chiến dịch Sale 10.10 — Broad (ROAS 2,02, chi 24,3 tr). Retarget 30d vẫn tốt ở 4,86.</div>
+   ${spark([2.9,3.4,3.1,3.6,3.3,3.8,3.12])}</div>${SRC}</div>
+  <div class="panel"><div class="ph">Kiểm tra trước khi gửi ${mk(2)}</div><div class="pb" style="display:flex;flex-direction:column;gap:6px">
+   <div>${badge('Lệch 1,4%','bd')} Đối chiếu Ads Manager</div><div>${badge('Đạt','ok')} Kiểm số diễn giải</div><div>${badge('Đạt','ok')} Thương hiệu</div><div>${badge('Chưa','nu')} Người nhận (2)</div>
+   <div class="banner bd" style="align-items:flex-start">Chi tiêu lệch 1,4% (> 1%). Chạy lại đồng bộ hoặc ghi lý do.</div><span class="ctl">Chạy lại đồng bộ</span></div></div></div>`)};
+
+S.public={label:'Báo cáo công khai (mobile)',notes:[
+ 'UC20 · Mobile-first, chỉ xem. Không đăng nhập, không có thao tác ghi.',
+ 'KPI hiện thành danh sách 2 cột gọn; bảng chiến dịch cuộn ngang trong khung riêng.',
+ 'Mỗi khối có dòng nguồn ngắn: cập nhật lúc, attribution, múi giờ.',
+ 'Chân trang: thương hiệu agency, tải PDF. Chữ "Powered by AdxLens" bật/tắt theo gói.'],
+ html:()=>`<div style="background:var(--bg);padding:8px 0"><div class="phone">
+  <div style="display:flex;align-items:center;gap:8px"><div class="ph0" style="width:56px;height:24px">logo</div><b>Sao Mai Agency</b></div>
+  <div><b style="font-size:20px;line-height:28px">Thời trang Linh</b><div class="status">Báo cáo tuần 42 · 13–19/10/2026</div></div>
+  <div class="panel" style="display:grid;grid-template-columns:1fr 1fr"><div class="kpi"><small>Chi tiêu</small><b>142,8 tr ₫</b>${dl(8.2,false)}</div><div class="kpi"><small>Doanh thu</small><b>445,6 tr ₫</b>${dl(-1.1,false)}</div><div class="kpi" style="border-top:1px solid var(--line)"><small>ROAS</small><b>3,12</b>${dl(-8.6,false)}</div><div class="kpi" style="border-top:1px solid var(--line)"><small>CPA</small><b>121.100 ₫</b>${dl(6.3,false)}</div></div>
+  <div class="panel"><div class="ph">Xu hướng ROAS</div><div class="pb">${spark([2.9,3.4,3.1,3.6,3.3,3.8,3.12])}</div></div>
+  <div class="panel"><div class="ph">Chiến dịch</div>${table([['Chiến dịch'],['Chi tiêu','n'],['ROAS','n']],[{c:['Lookalike 1%','52,4 tr','2,71']},{c:['Retarget 30d','31,9 tr','4,86']},{c:['Sale 10.10','24,3 tr','2,02']}])}</div>
+  <div class="panel"><div class="pb"><b>Nhận xét</b><br>ROAS giảm 8,6% do chiến dịch Sale 10.10. Retarget vẫn hiệu quả.</div></div>
+  <div class="src" style="border:0"><b>Khớp Meta</b> · cập nhật 08:12 · VND · GMT+7</div>
+  <span class="ctl" style="justify-content:center">Tải PDF</span></div></div>`};
+
+S.weekly={label:'Việc tuần này',flag:'P1',notes:[
+ 'UC25 · Cờ p1_recommendations phải bật; cờ tắt thì mục không hiện ở sidebar và API trả 403.',
+ 'Danh sách gợi ý xếp theo tác động ước tính (₫ chi tiêu liên quan), mỗi dòng có lý do và bằng chứng.',
+ 'Bộ lọc nhanh: Client, loại phát hiện, mức ưu tiên. Không có nút thực thi ở P1 (chỉ ghi nhận / bỏ qua).',
+ 'Drawer bằng chứng: số liệu thô, ngưỡng đã dùng, kỳ so sánh.'],
+ html:()=>shell('Việc tuần này','<b>Việc tuần này</b>','',`
+  <div class="head"><h2>Việc tuần này</h2>${badge('Gợi ý P1','in')}<span style="flex:1"></span><span class="ctl">Client: Tất cả ▾</span><span class="ctl">Loại ▾</span><span class="ctl">Ưu tiên ▾</span></div>
+  <div class="banner in">Cờ <b>p1_recommendations</b> đang bật cho workspace này. ${mk(1)}</div>
+  <div class="panel">${table([['Ưu tiên'],['Client'],['Phát hiện'],['Đối tượng'],['Chi tiêu liên quan','n'],['Gợi ý'],['Trạng thái']],[
+   {c:[badge('Cao','bd'),'Thời trang Linh','Quảng cáo mệt mỏi (tần suất 4,1)','Sale 10.10 — Broad','24.300.000','Thay creative / giảm ngân sách',badge('Mới','in')],sel:true},
+   {c:[badge('Cao','bd'),'Nội thất An Cư','CPA tăng 3 ngày liên tiếp','Retarget 14d','11.200.000','Kiểm tra audience chồng lấn',badge('Mới','in')]},
+   {c:[badge('TB','wr'),'Cà phê Nhà Rang','Ngân sách tiêu không hết','Lookalike 2%','—','Tăng ngân sách 20%',badge('Đã xem','nu')]},
+   {c:[badge('Thấp','nu'),'Tour Đà Lạt Xanh','Placement kém','Reels','4.800.000','Loại placement',badge('Đã bỏ qua','nu')]}])}${SRC}</div>
+  <div class="drawer">${mk(4)}<h3>Quảng cáo mệt mỏi · Sale 10.10 — Broad</h3><dl class="kv"><dt>Tần suất</dt><dd>4,1 (ngưỡng 3,0)</dd><dt>CTR 7 ngày</dt><dd>1,33% ${dl(-22,false)}</dd><dt>So với</dt><dd>7 ngày trước</dd><dt>Dữ liệu</dt><dd>${badge('Đủ (≥ 5 ngày)','ok')}</dd></dl>
+   <div class="ph0" style="height:90px">biểu đồ tần suất & CTR</div><div style="display:flex;gap:6px"><span class="ctl">Ghi nhận</span><span class="ctl">Bỏ qua</span></div></div>`)};
+
+S.log={label:'Nhật ký & duyệt',flag:'P2a',notes:[
+ 'UC30 · Cờ p2a_approve. Mọi ghi lên Meta chỉ qua Execution Gateway; UI chỉ gửi yêu cầu duyệt.',
+ 'Hàng đợi chờ duyệt: hiện giá trị trước và sau, người đề xuất, hạn mức đã dùng.',
+ 'Buyer chỉ được duyệt khi owner cấp quyền cho từng Client (mặc định tắt).',
+ 'Nhật ký bất biến: mỗi hành động có thời điểm, người duyệt, kết quả, nút hoàn tác khi Meta cho phép.',
+ 'Hộp thoại xác nhận nêu rõ tác động trước khi bấm Duyệt.'],
+ html:()=>shell('Nhật ký hành động','<b>Nhật ký hành động</b>','',`
+  <div class="head"><h2>Nhật ký hành động</h2>${badge('P2a · duyệt từng hành động','in')}<span style="flex:1"></span><span class="ctl">Client ▾</span><span class="ctl">Trạng thái ▾</span></div>
+  <div class="panel"><div class="ph">Chờ duyệt (2) ${mk(2)}</div>${table([['Client'],['Hành động'],['Trước','n'],['Sau','n'],['Đề xuất bởi'],['Quyền duyệt'],['']],[
+   {c:['Thời trang Linh','Giảm ngân sách Sale 10.10','2.000.000 ₫','1.400.000 ₫','Gợi ý P1 · TN','Owner, Buyer '+mk(3),'<span class="ctl pri">Xem & duyệt</span>']},
+   {c:['Cà phê Nhà Rang','Tăng ngân sách Lookalike 2%','1.000.000 ₫','1.200.000 ₫','Gợi ý P1 · Hà','Owner','<span class="ctl pri">Xem & duyệt</span>']}])}</div>
+  <div class="panel"><div class="ph">Đã thực hiện ${mk(4)}</div>${table([['Thời điểm'],['Client'],['Hành động'],['Người duyệt'],['Kết quả'],['']],[
+   {c:['21/10 14:02','Nội thất An Cư','Tạm dừng quảng cáo #4412','Tân',badge('Thành công','ok'),'<span class="ctl">Hoàn tác</span>']},
+   {c:['20/10 09:40','Tour Đà Lạt Xanh','Đổi ngân sách ngày','Tân',badge('Thành công','ok'),'<span class="ctl">Hoàn tác</span>']},
+   {c:['18/10 17:15','Mỹ phẩm Hạ Vy','Tạm dừng nhóm QC','Hà',badge('Lỗi Meta (rate limit)','bd'),'<span class="ctl">Thử lại</span>']}])}</div>
+  <div class="drawer" style="top:90px;right:40px;bottom:auto;width:340px;border:1px solid var(--line2);border-radius:6px">${mk(5)}<h3>Duyệt hành động</h3><dl class="kv"><dt>Hành động</dt><dd>Giảm ngân sách</dd><dt>Đối tượng</dt><dd>Sale 10.10 — Broad</dd><dt>Thay đổi</dt><dd>2.000.000 → 1.400.000 ₫ (−30%)</dd><dt>Hạn mức</dt><dd>Trong giới hạn ±30%/ngày</dd></dl><div class="banner wr">Thay đổi áp dụng lên Meta ngay.</div><div style="display:flex;gap:6px;justify-content:flex-end"><span class="ctl">Hủy</span><span class="ctl pri">Duyệt</span></div></div>`)};
+
+S.rules={label:'Rule tự động',flag:'P2b',notes:[
+ 'UC35 · Cờ p2b_auto. Guardrails mặc định có test khóa; UI không cho nới quá giới hạn hệ thống.',
+ 'Rule builder dạng hàng: Điều kiện (AND/OR) → Hành động → Giới hạn. Xem trước số đối tượng khớp.',
+ 'Công tắc kill switch toàn workspace luôn hiện ở đầu trang.',
+ 'Bảng lịch sử đánh giá rule: kích hoạt hay bỏ qua, và lý do.'],
+ html:()=>shell('Rule tự động','<b>Rule tự động</b>','',`
+  <div class="head"><h2>Rule tự động</h2>${badge('P2b','in')}<span style="flex:1"></span><span class="ctl dng">Kill switch: BẬT ${mk(3)}</span><span class="ctl pri">+ Rule mới</span></div>
+  <div class="cols c2"><div class="panel"><div class="ph">Rule đang chạy</div>${table([['Tên'],['Điều kiện'],['Hành động'],['Giới hạn'],['Trạng thái']],[
+   {c:['Cắt lỗ CPA','CPA > 200.000 ₫ VÀ chi > 1 tr','Tạm dừng nhóm QC','5/ngày',badge('Bật','ok')],sel:true},
+   {c:['Tăng khi ROAS tốt','ROAS > 4 trong 3 ngày','Tăng ngân sách 20%','trần 5 tr/ngày',badge('Bật','ok')]},
+   {c:['Dừng quảng cáo mệt','Tần suất > 4','Tạm dừng quảng cáo','10/ngày',badge('Tắt','nu')]}])}</div>
+  <div class="panel"><div class="ph">Trình tạo rule ${mk(2)}</div><div class="pb" style="display:flex;flex-direction:column;gap:8px">
+   <div><small class="status">NẾU</small><br><span class="ctl">CPA ▾</span> <span class="ctl">&gt; ▾</span> <span class="ctl">200.000</span><br><span class="status">VÀ</span> <span class="ctl">Chi tiêu ▾</span> <span class="ctl">&gt; ▾</span> <span class="ctl">1.000.000</span></div>
+   <div><small class="status">THÌ</small><br><span class="ctl">Tạm dừng nhóm QC ▾</span></div><div><small class="status">GIỚI HẠN</small><br><span class="ctl">Tối đa 5 / ngày</span></div>
+   <div class="banner in">Khớp hiện tại: 3 nhóm QC (xem trước)</div></div></div></div>
+  <div class="panel"><div class="ph">Lịch sử đánh giá ${mk(4)}</div>${table([['Thời điểm'],['Rule'],['Đối tượng'],['Kết quả'],['Lý do']],[
+   {c:['22/10 06:00','Cắt lỗ CPA','Nhóm QC #881',badge('Đã chạy','ok'),'CPA 231.000 > 200.000'],},
+   {c:['22/10 06:00','Cắt lỗ CPA','Nhóm QC #902',badge('Bỏ qua','nu'),'Không đủ dữ liệu (chi < 1 tr)']},
+   {c:['21/10 06:00','Tăng khi ROAS tốt','Chiến dịch #310',badge('Bỏ qua','wr'),'Chạm trần ngân sách']}])}</div>`)};
+
+S.conn={label:'Kết nối',notes:[
+ 'UC03 · Trạng thái từng tài khoản quảng cáo: token, lần đồng bộ cuối, lỗi.',
+ 'Không bao giờ hiện token. Chỉ hiện trạng thái và nút "Kết nối lại".',
+ 'Cột "Đang hoạt động" quyết định tính phí (chi tiêu trong 30 ngày).',
+ 'Banner nhắc khi sắp hết hạn 7 ngày.'],
+ html:()=>shell('Kết nối','<b>Kết nối</b>','',`
+  <div class="head"><h2>Kết nối Meta</h2><span style="flex:1"></span><span class="ctl pri">+ Kết nối tài khoản</span></div>
+  <div class="banner wr">1 token hết hạn, 1 sắp hết hạn trong 7 ngày. ${mk(4)}</div>
+  <div class="panel">${table([['Tài khoản QC'],['Client'],['Token'],['Đồng bộ cuối'],['Múi giờ'],['Tiền tệ'],['Hoạt động 30d'],['']],[
+   {c:['act_1203…88','Thời trang Linh',badge('Hợp lệ','ok')+mk(2),'08:12 hôm nay','Asia/Ho_Chi_Minh','VND',badge('Có','ok')+mk(3),'']},
+   {c:['act_9981…02','Mỹ phẩm Hạ Vy',badge('Hết hạn','bd'),'13/10 08:00','Asia/Ho_Chi_Minh','VND',badge('Không','nu'),'<span class="ctl pri">Kết nối lại</span>']},
+   {c:['act_4410…17','Cà phê Nhà Rang',badge('Còn 6 ngày','wr'),'08:10 hôm nay','Asia/Ho_Chi_Minh','VND',badge('Có','ok'),'<span class="ctl">Kết nối lại</span>']}])}</div>`)};
+
+S.billing={label:'Cài đặt & thanh toán',notes:[
+ 'UC38 · Gói, hạn mức tài khoản hoạt động, phương thức thanh toán (Stripe hoặc PayOS).',
+ 'Thanh dung lượng: 4 / 5 tài khoản hoạt động. Vượt hạn mức nêu rõ hệ quả trước khi nâng gói.',
+ 'Cờ tính năng chỉ đọc với agency; chỉ PM bật. Hiện trạng thái và mô tả.',
+ 'Thương hiệu: logo, màu, tên miền báo cáo.'],
+ html:()=>shell('Cài đặt','Cài đặt / <b>Gói & thanh toán</b>','',`
+  <div class="head"><h2>Cài đặt</h2></div><div class="tabs"><span class="tab">Workspace</span><span class="tab">Thành viên</span><span class="tab">Thương hiệu</span><span class="tab on">Gói & thanh toán</span><span class="tab">Tính năng</span></div>
+  <div class="cols c2"><div class="panel"><div class="ph">Gói hiện tại</div><div class="pb" style="display:flex;flex-direction:column;gap:8px">
+   <div style="display:flex;gap:8px;align-items:center"><b style="font-size:16px">Growth</b>${badge('Hằng tháng','nu')}<span class="sp" style="flex:1"></span><b>1.990.000 ₫/tháng</b></div>
+   <div>Tài khoản hoạt động: 4 / 5 ${mk(2)}<div class="bar"><i style="width:80%"></i></div></div>
+   <dl class="kv"><dt>Chu kỳ tiếp theo</dt><dd>01/11/2026</dd><dt>Phương thức</dt><dd>PayOS · chuyển khoản QR</dd></dl><div style="display:flex;gap:6px"><span class="ctl pri">Nâng gói</span><span class="ctl">Đổi phương thức</span></div></div></div>
+  <div class="panel"><div class="ph">Tính năng ${mk(3)}</div>${table([['Cờ'],['Trạng thái']],[{c:['Báo cáo (p0)',badge('Bật','ok')]},{c:['Gợi ý (p1)',badge('Bật','ok')]},{c:['Duyệt 1 chạm (p2a)',badge('Tắt','nu')]},{c:['Tự chạy (p2b)',badge('Tắt','nu')]}])}</div></div>
+  <div class="panel"><div class="ph">Hóa đơn</div>${table([['Ngày'],['Mô tả'],['Số tiền','n'],['Trạng thái'],['']],[{c:['01/10/2026','Growth · 10/2026','1.990.000 ₫',badge('Đã thanh toán','ok'),'PDF']},{c:['01/09/2026','Growth · 09/2026','1.990.000 ₫',badge('Đã thanh toán','ok'),'PDF']}])}</div>`)};
+
+S.onboard={label:'Onboarding F1',notes:[
+ 'F1 · Từ đăng ký tới báo cáo đầu tiên trong một luồng 4 bước, không rời màn hình.',
+ 'Bước 3 hiện tiến độ đồng bộ và đối chiếu thật; khi lệch quá 1% thì nêu rõ, không giả vờ khớp.',
+ 'Bước 4 đặt tên client, chọn mẫu, xem trước báo cáo mẫu bằng dữ liệu thật.',
+ 'Có thể thoát và quay lại, tiến độ lưu theo workspace.'],
+ html:()=>`<div style="min-height:620px;background:var(--bg);display:grid;place-items:center;padding:24px"><div class="panel" style="width:560px">
+  <div class="ph">Thiết lập AdxLens ${mk(4)}<span class="sp" style="flex:1"></span><span class="status">Bước 3 / 4</span></div>
+  <div class="tabs"><span class="tab">1 Workspace</span><span class="tab">2 Kết nối Meta</span><span class="tab on">3 Đồng bộ</span><span class="tab">4 Báo cáo đầu tiên</span></div>
+  <div class="pb" style="display:flex;flex-direction:column;gap:10px"><b>Đang đồng bộ dữ liệu 30 ngày</b>${mk(2)}
+   <div class="bar"><i style="width:72%"></i></div><div class="status">72% · 3 / 4 tài khoản · còn khoảng 2 phút. Bạn có thể đóng trang, chúng tôi sẽ email khi xong.</div>
+   ${table([['Tài khoản'],['Tiến độ'],['Đối chiếu']],[{c:['Thời trang Linh',badge('Xong','ok'),badge('Khớp 0,3%','ok')]},{c:['Cà phê Nhà Rang',badge('Xong','ok'),badge('Khớp 0,1%','ok')]},{c:['Nội thất An Cư',badge('Đang chạy','in'),'—']}])}
+   <div style="display:flex;justify-content:space-between"><span class="ctl">Quay lại</span><span class="ctl pri" style="opacity:.55">Tiếp tục</span></div></div></div></div>`};
+
+const ORDER=['overview','client','report','public','weekly','log','rules','conn','billing','onboard'];
+const sw=$('#switch');
+ORDER.forEach(k=>{const b=document.createElement('button');b.setAttribute('role','tab');b.dataset.k=k;b.innerHTML=S[k].label+(S[k].flag?`<span class="tag">${S[k].flag}</span>`:'');b.onclick=()=>show(k);sw.appendChild(b)});
+function show(k){
+  if(!S[k])k='overview';
+  $('#stage').innerHTML=S[k].html();
+  $('#notes').innerHTML=S[k].notes.map((t,i)=>`<li>${mk(i+1)}<span>${t}</span></li>`).join('');
+  sw.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',b.dataset.k===k));
+  try{history.replaceState(null,'','#'+k)}catch(e){}
+}
+show(location.hash.slice(1)||'overview');
+</script>
