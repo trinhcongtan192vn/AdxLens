@@ -84,6 +84,132 @@
     "support": "Support",
     "onboarding": "Get started"
   },
+  "marketing": {
+    "nav": {
+      "pricing": "Pricing",
+      "guide": "How it works",
+      "privacy": "Privacy",
+      "login": "Log in"
+    },
+    "cta": {
+      "tryFree": "Try it free"
+    },
+    "footer": {
+      "copyright": "© {year} AdxLens · Read-only Meta Ads data",
+      "terms": "Terms",
+      "dataDeletion": "Data deletion",
+      "support": "Support"
+    },
+    "landing": {
+      "title": "Meta Ads reports with evidence, matching Ads Manager",
+      "subtitle": "Send clients agency-branded reports with numbers within 1% of Ads Manager, ready 10 minutes after you connect.",
+      "sampleReport": "See a sample report",
+      "assurance": "Read-only data · No card required · Connect in minutes",
+      "features": {
+        "match": {
+          "title": "Numbers that match",
+          "body": "Every report carries a reconciliation line against Ads Manager. If the gap is over 1%, we block sending and tell you."
+        },
+        "brand": {
+          "title": "Your agency's brand",
+          "body": "Your logo, colors and email. Clients open a link, no sign-up needed."
+        },
+        "evidence": {
+          "title": "Findings with evidence",
+          "body": "Every finding links to the source numbers so you can check them yourself. No numbers made up by AI."
+        }
+      },
+      "howItWorks": "How it works",
+      "steps": {
+        "connect": "Connect Meta (read-only)",
+        "assign": "Assign accounts to clients",
+        "send": "Check reconciliation and send the report"
+      }
+    },
+    "pricing": {
+      "title": "Pricing",
+      "basis": "Priced per active ad account (spend in the last 30 days), never as a % of ad spend. Extra account: {extra}/month. Pay yearly and save {discount}%. Prices exclude VAT.",
+      "perMonth": "{price}/month",
+      "accounts": "{count, plural, one {# account} other {# accounts}}",
+      "choose": "Choose plan",
+      "contact": "Contact us",
+      "breakEvenLink": "Break-even page: hours saved per account × your hourly rate vs. the monthly fee. See the formula",
+      "plans": {
+        "free": {
+          "name": "Free",
+          "summary": "Reports, public links, PDF. Includes a \"Powered by AdxLens\" label."
+        },
+        "starter": {
+          "name": "Starter",
+          "summary": "Adds weekly recommendations, creative library, detailed reconciliation."
+        },
+        "growth": {
+          "name": "Growth",
+          "summary": "Adds approved actions and automation rules (early access)."
+        },
+        "scale": {
+          "name": "Scale",
+          "summary": "Adds full white-label: remove the \"Powered by\" label, priority support."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "updated": "Updated 22/10/2026",
+      "read": {
+        "title": "Data we read",
+        "body": "Campaign, ad set and ad metrics, spend and results from the ad accounts you authorize. We never write or change anything on Meta."
+      },
+      "store": {
+        "title": "How we store it",
+        "body": "Access tokens are encrypted and used only to sync metrics. We never store your Meta password."
+      },
+      "rights": {
+        "title": "Your rights",
+        "body": "Disconnect at any time and ask us to delete your data. See the <link>data deletion guide</link>."
+      }
+    },
+    "terms": {
+      "title": "Terms of service",
+      "updated": "Updated 22/10/2026",
+      "service": {
+        "title": "1. The service",
+        "body": "AdxLens provides reports and analysis from the Meta Ads data you give it read access to."
+      },
+      "responsibility": {
+        "title": "2. Responsibility to your clients",
+        "body": "You are responsible for the reports you send to your clients. Reports whose numbers differ from Ads Manager by more than 1% cannot be shared."
+      },
+      "billing": {
+        "title": "3. Billing and grace period",
+        "body": "Fees are per active account. If a payment fails, data keeps syncing during the grace period."
+      }
+    },
+    "deletion": {
+      "title": "Data deletion guide",
+      "intro": "There are two ways to ask us to delete the data AdxLens stored from your Meta account.",
+      "inApp": {
+        "title": "Option 1: In AdxLens",
+        "body": "Connections › choose the connection › \"Disconnect and delete data\". We email you a confirmation once deletion is complete."
+      },
+      "fromFacebook": {
+        "title": "Option 2: From Facebook",
+        "body": "Settings › Apps and websites › AdxLens › Remove. Meta forwards the request to us and we delete the data within 30 days."
+      },
+      "track": {
+        "title": "Track a request",
+        "body": "Enter your confirmation code to see the deletion status.",
+        "code": "Confirmation code",
+        "submit": "Check status",
+        "notFound": "No request found for this code. Check the code in your confirmation email.",
+        "status": {
+          "pending": "Request received, waiting to be processed.",
+          "in_progress": "Deleting data.",
+          "done": "Data deleted."
+        }
+      }
+    }
+  },
   "placeholder": {
     "comingSoon": "This screen is coming in the next release."
   }
