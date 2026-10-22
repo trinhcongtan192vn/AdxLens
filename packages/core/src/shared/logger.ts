@@ -64,9 +64,7 @@ export function createLogger(
     redact: { paths: REDACT_PATHS, censor: '[REDACTED]' },
     hooks: {
       logMethod(args, method) {
-        const scrubbed = args.map((a) =>
-          typeof a === 'string' ? scrubTokens(a) : a,
-        ) as typeof args;
+        const scrubbed = args.map((a) => (typeof a === 'string' ? scrubTokens(a) : a)) as typeof args;
         method.apply(this, scrubbed);
       },
     },
@@ -74,15 +72,13 @@ export function createLogger(
       log(obj) {
         // Lỗi (Error hoặc object đã được pino serialize): chỉ giữ tên, code, message và stack đã
         // che; không giữ thuộc tính tùy ý của lỗi (có thể chứa token, body request).
-        const err = obj.err as
-          { name?: unknown; code?: unknown; message?: unknown; stack?: unknown } | undefined;
+        const err = obj.err as { name?: unknown; code?: unknown; message?: unknown; stack?: unknown } | undefined;
         if (err && typeof err === 'object') {
           return {
             ...obj,
             err: {
               name: typeof err.name === 'string' ? err.name : 'Error',
-              code:
-                typeof err.code === 'string' || typeof err.code === 'number' ? err.code : undefined,
+              code: typeof err.code === 'string' || typeof err.code === 'number' ? err.code : undefined,
               message: typeof err.message === 'string' ? scrubTokens(err.message) : undefined,
               stack: typeof err.stack === 'string' ? scrubTokens(err.stack) : undefined,
             },
@@ -102,10 +98,6 @@ export function rootLogger(): Logger {
 }
 
 /** Logger con luôn gắn workspace_id, job_id (CLAUDE.md quy ước code). */
-export function scopedLogger(fields: {
-  workspace_id?: string;
-  job_id?: string;
-  [k: string]: unknown;
-}): Logger {
+export function scopedLogger(fields: { workspace_id?: string; job_id?: string; [k: string]: unknown }): Logger {
   return rootLogger().child(fields);
 }

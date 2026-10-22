@@ -16,12 +16,7 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        'flex items-center justify-between gap-2 border-b border-line px-4 py-2.5',
-        className,
-      )}
-    >
+    <div className={cn('flex items-center justify-between gap-2 border-b border-line px-4 py-2.5', className)}>
       <h2 className="text-h3 font-semibold text-fg">{title}</h2>
       {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
     </div>
@@ -61,13 +56,7 @@ export function PageHeader({
 }
 
 /** Dòng nguồn số liệu: "Khớp Meta · cập nhật … · attribution · tiền tệ · múi giờ" (U2). */
-export function SourceFootnote({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function SourceFootnote({ children, className }: { children: ReactNode; className?: string }) {
   return <p className={cn('text-caption text-fg-tertiary', className)}>{children}</p>;
 }
 
@@ -114,9 +103,7 @@ export function KpiStat({
 }) {
   return (
     <div className={cn('flex min-w-36 flex-col gap-0.5 px-4 py-2.5', className)}>
-      <span className="text-caption font-medium uppercase tracking-wide text-fg-tertiary">
-        {label}
-      </span>
+      <span className="text-caption font-medium uppercase tracking-wide text-fg-tertiary">{label}</span>
       <span className="num text-kpi font-semibold text-fg">{value}</span>
       {delta || compare ? (
         <span className="flex items-center gap-1.5 text-small text-fg-tertiary">

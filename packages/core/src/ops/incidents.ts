@@ -27,12 +27,7 @@ export async function openIncident(db: DbOrTx, input: IncidentInput) {
   const [existing] = await db
     .select({ id: opsIncidents.id })
     .from(opsIncidents)
-    .where(
-      and(
-        eq(opsIncidents.fingerprint, input.fingerprint),
-        inArray(opsIncidents.status, ['open', 'mitigated']),
-      ),
-    )
+    .where(and(eq(opsIncidents.fingerprint, input.fingerprint), inArray(opsIncidents.status, ['open', 'mitigated'])))
     .limit(1);
   if (existing) {
     const [row] = await db

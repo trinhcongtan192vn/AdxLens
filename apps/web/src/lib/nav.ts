@@ -35,9 +35,7 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 export function visibleNav(flags: Record<FlagKey, boolean>, role: Role): NavItem[] {
-  return NAV_ITEMS.filter(
-    (i) => (!i.flag || flags[i.flag]) && (!i.roles || i.roles.includes(role)),
-  );
+  return NAV_ITEMS.filter((i) => (!i.flag || flags[i.flag]) && (!i.roles || i.roles.includes(role)));
 }
 
 export function isActive(item: NavItem, pathname: string): boolean {

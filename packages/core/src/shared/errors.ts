@@ -40,5 +40,4 @@ export function isAppError(e: unknown): e is AppError {
 }
 
 export const notFound = (what: string) => new AppError('NOT_FOUND', `${what} không tồn tại`);
-export const forbidden = (why = 'Không có quyền thực hiện thao tác này') =>
-  new AppError('FORBIDDEN', why);
+export const forbidden = (why = 'Không có quyền thực hiện thao tác này') => new AppError('FORBIDDEN', why);

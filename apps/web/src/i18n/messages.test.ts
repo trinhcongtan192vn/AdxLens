@@ -4,9 +4,7 @@ import vi from '../../messages/vi.json';
 
 function keys(obj: unknown, prefix = ''): string[] {
   if (obj === null || typeof obj !== 'object') return [prefix];
-  return Object.entries(obj as Record<string, unknown>).flatMap(([k, v]) =>
-    keys(v, prefix ? `${prefix}.${k}` : k),
-  );
+  return Object.entries(obj as Record<string, unknown>).flatMap(([k, v]) => keys(v, prefix ? `${prefix}.${k}` : k));
 }
 
 function placeholders(s: string): string[] {

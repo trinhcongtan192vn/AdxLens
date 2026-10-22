@@ -1,13 +1,5 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
-import {
-  closeTestDb,
-  seedClient,
-  seedMember,
-  seedUser,
-  seedWorkspace,
-  testDb,
-  truncateAll,
-} from '@adxlens/db/testing';
+import { closeTestDb, seedClient, seedMember, seedUser, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
 import { AppError, type Actor } from '@adxlens/core/shared';
 import {
   acceptInvitation,
@@ -47,9 +39,7 @@ describe('workspace', () => {
     const u = await seedUser(db);
     const ws = await createWorkspace(db, { name: '  Agency Sao Mai ', ownerUserId: u.id });
     expect(ws.name).toBe('Agency Sao Mai');
-    expect(await listWorkspacesForUser(db, u.id)).toEqual([
-      { id: ws.id, name: 'Agency Sao Mai', role: 'owner' },
-    ]);
+    expect(await listWorkspacesForUser(db, u.id)).toEqual([{ id: ws.id, name: 'Agency Sao Mai', role: 'owner' }]);
   });
 
   it('từ chối tên rỗng', async () => {
@@ -102,9 +92,7 @@ describe('thành viên và lời mời', () => {
     const { token } = await createInvitation(ctx, { email: 'a@b.vn', role: 'manager' }, past);
     expect(await peekInvitation(db, token)).toEqual({ status: 'expired' });
     const u = await seedUser(db, 'a@b.vn');
-    await expect(
-      acceptInvitation(db, { token, userId: u.id, email: 'a@b.vn' }),
-    ).rejects.toMatchObject({
+    await expect(acceptInvitation(db, { token, userId: u.id, email: 'a@b.vn' })).rejects.toMatchObject({
       code: 'CONFLICT',
     });
   });
@@ -113,9 +101,7 @@ describe('thành viên và lời mời', () => {
     const ctx = await ownerCtx();
     const { token } = await createInvitation(ctx, { email: 'a@b.vn', role: 'manager' });
     const u = await seedUser(db, 'khac@b.vn');
-    await expect(
-      acceptInvitation(db, { token, userId: u.id, email: 'khac@b.vn' }),
-    ).rejects.toMatchObject({
+    await expect(acceptInvitation(db, { token, userId: u.id, email: 'khac@b.vn' })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });
@@ -137,9 +123,7 @@ describe('thành viên và lời mời', () => {
     const ctx = await ownerCtx();
     const m = await seedMember(db, ctx.workspaceId, 'manager');
     const mActor = (await resolveActor(db, ctx.workspaceId, m.id))!;
-    await expect(
-      createInvitation(asActor(ctx, mActor), { email: 'x@y.vn', role: 'buyer' }),
-    ).rejects.toMatchObject({
+    await expect(createInvitation(asActor(ctx, mActor), { email: 'x@y.vn', role: 'buyer' })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
     await updateMember(ctx, m.id, { role: 'buyer' });

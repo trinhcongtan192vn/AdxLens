@@ -37,11 +37,7 @@ export function TR({
   );
 }
 
-export function TH({
-  className,
-  numeric,
-  ...props
-}: ThHTMLAttributes<HTMLTableCellElement> & { numeric?: boolean }) {
+export function TH({ className, numeric, ...props }: ThHTMLAttributes<HTMLTableCellElement> & { numeric?: boolean }) {
   return (
     <th
       scope="col"
@@ -63,12 +59,7 @@ export function TD({
 }: TdHTMLAttributes<HTMLTableCellElement> & { numeric?: boolean; muted?: boolean }) {
   return (
     <td
-      className={cn(
-        'px-2 py-1.5',
-        numeric && 'num text-right',
-        muted ? 'text-fg-tertiary' : 'text-fg',
-        className,
-      )}
+      className={cn('px-2 py-1.5', numeric && 'num text-right', muted ? 'text-fg-tertiary' : 'text-fg', className)}
       {...props}
     />
   );

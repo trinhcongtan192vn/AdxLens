@@ -18,14 +18,10 @@ const set = (key, value) => {
 set('INTERNAL_SIGNING_SECRET', randomBytes(32).toString('base64url'));
 set('TOKEN_ENC_KEY_V1', randomBytes(32).toString('base64'));
 
-const status = spawnSync(
-  'pnpm',
-  ['exec', 'supabase', 'status', '--workdir', 'infra', '-o', 'env'],
-  {
-    shell: process.platform === 'win32',
-    encoding: 'utf8',
-  },
-);
+const status = spawnSync('pnpm', ['exec', 'supabase', 'status', '--workdir', 'infra', '-o', 'env'], {
+  shell: process.platform === 'win32',
+  encoding: 'utf8',
+});
 if (status.status === 0) {
   const vars = Object.fromEntries(
     status.stdout
@@ -41,9 +37,7 @@ if (status.status === 0) {
   if (vars.SERVICE_ROLE_KEY) set('SUPABASE_SERVICE_ROLE_KEY', vars.SERVICE_ROLE_KEY);
   console.log('Đã lấy key Supabase local.');
 } else {
-  console.log(
-    'Supabase local chưa chạy: key Supabase để trống. Chạy `pnpm dev` một lần rồi `pnpm env:init --force`.',
-  );
+  console.log('Supabase local chưa chạy: key Supabase để trống. Chạy `pnpm dev` một lần rồi `pnpm env:init --force`.');
 }
 
 writeFileSync('.env.local', text);

@@ -1,12 +1,6 @@
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
-import {
-  ANNUAL_DISCOUNT,
-  EXTRA_ACCOUNT_MONTHLY_VND,
-  PLAN_KEYS,
-  PLANS,
-  type PlanKey,
-} from '@adxlens/core/billing';
+import { ANNUAL_DISCOUNT, EXTRA_ACCOUNT_MONTHLY_VND, PLAN_KEYS, PLANS, type PlanKey } from '@adxlens/core/billing';
 import { buttonVariants, cn } from '@adxlens/ui';
 
 export async function generateMetadata() {
@@ -48,16 +42,10 @@ export default async function Pricing() {
             >
               <h2 className="text-h2 font-semibold text-fg">{t(`pricing.plans.${key}.name`)}</h2>
               <p className="num mt-2 text-body font-semibold text-fg">
-                {p.monthlyPriceVnd === 0
-                  ? vnd(0)
-                  : t('pricing.perMonth', { price: vnd(p.monthlyPriceVnd) })}
+                {p.monthlyPriceVnd === 0 ? vnd(0) : t('pricing.perMonth', { price: vnd(p.monthlyPriceVnd) })}
               </p>
-              <p className="mt-2 text-body text-fg-secondary">
-                {t('pricing.accounts', { count: p.includedAccounts })}
-              </p>
-              <p className="mt-2 flex-1 text-small text-fg-secondary">
-                {t(`pricing.plans.${key}.summary`)}
-              </p>
+              <p className="mt-2 text-body text-fg-secondary">{t('pricing.accounts', { count: p.includedAccounts })}</p>
+              <p className="mt-2 flex-1 text-small text-fg-secondary">{t(`pricing.plans.${key}.summary`)}</p>
               <Link
                 href={cta[key].href}
                 className={cn(

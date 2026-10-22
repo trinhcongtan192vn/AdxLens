@@ -49,13 +49,10 @@ describe('sự cố', () => {
 
 describe('playbook có giới hạn (L2 11.2)', () => {
   it('reconcile_retry chỉ 1 lần/ngày/account, lần sau leo thang', async () => {
-    const run = () =>
-      runPlaybook(db, { playbook: 'reconcile_retry', scopeKey: 'acc-1' }, async () => {});
+    const run = () => runPlaybook(db, { playbook: 'reconcile_retry', scopeKey: 'acc-1' }, async () => {});
     expect(await run()).toBe('done');
     expect(await run()).toBe('escalated');
-    expect(
-      await runPlaybook(db, { playbook: 'reconcile_retry', scopeKey: 'acc-2' }, async () => {}),
-    ).toBe('done');
+    expect(await runPlaybook(db, { playbook: 'reconcile_retry', scopeKey: 'acc-2' }, async () => {})).toBe('done');
   });
 
   it('hết cửa sổ thời gian thì chạy lại được', async () => {
@@ -68,13 +65,9 @@ describe('playbook có giới hạn (L2 11.2)', () => {
   });
 
   it('playbook lỗi được ghi failed, không ném ra ngoài', async () => {
-    const r = await runPlaybook(
-      db,
-      { playbook: 'meta_rate_limited', scopeKey: 'app' },
-      async () => {
-        throw new Error('x');
-      },
-    );
+    const r = await runPlaybook(db, { playbook: 'meta_rate_limited', scopeKey: 'app' }, async () => {
+      throw new Error('x');
+    });
     expect(r).toBe('failed');
   });
 

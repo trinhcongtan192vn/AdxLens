@@ -30,12 +30,8 @@ describe('cấu hình gói', () => {
   it('giá và số tài khoản tăng dần theo gói', () => {
     const order = ['free', 'starter', 'growth', 'scale'] as const;
     for (let i = 1; i < order.length; i++) {
-      expect(PLANS[order[i]!].monthlyPriceVnd).toBeGreaterThan(
-        PLANS[order[i - 1]!].monthlyPriceVnd,
-      );
-      expect(PLANS[order[i]!].includedAccounts).toBeGreaterThan(
-        PLANS[order[i - 1]!].includedAccounts,
-      );
+      expect(PLANS[order[i]!].monthlyPriceVnd).toBeGreaterThan(PLANS[order[i - 1]!].monthlyPriceVnd);
+      expect(PLANS[order[i]!].includedAccounts).toBeGreaterThan(PLANS[order[i - 1]!].includedAccounts);
     }
   });
 });

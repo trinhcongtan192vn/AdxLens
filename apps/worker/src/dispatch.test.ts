@@ -11,15 +11,13 @@ afterAll(() => closeTestDb());
 
 describe('dispatch', () => {
   it('job không có trong danh mục bị từ chối', async () => {
-    await expect(
-      dispatch(handlers, deps, { name: 'evil:run', id: '1', data: {} }),
-    ).rejects.toBeInstanceOf(UnknownJobError);
+    await expect(dispatch(handlers, deps, { name: 'evil:run', id: '1', data: {} })).rejects.toBeInstanceOf(
+      UnknownJobError,
+    );
   });
 
   it('payload sai schema bị từ chối trước khi chạy handler', async () => {
-    await expect(
-      dispatch(handlers, deps, { name: 'ops:health_check', id: '1', data: { tick: 5 } }),
-    ).rejects.toThrow();
+    await expect(dispatch(handlers, deps, { name: 'ops:health_check', id: '1', data: { tick: 5 } })).rejects.toThrow();
   });
 
   it('ops:health_check chạy kiểm tra sức khỏe', async () => {

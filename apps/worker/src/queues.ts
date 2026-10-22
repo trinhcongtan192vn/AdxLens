@@ -1,13 +1,6 @@
 import { Queue } from 'bullmq';
 import IORedis from 'ioredis';
-import {
-  DEFAULT_JOB_OPTIONS,
-  JOBS,
-  QUEUES,
-  jobIdFor,
-  type Enqueue,
-  type QueueName,
-} from '@adxlens/jobs';
+import { DEFAULT_JOB_OPTIONS, JOBS, QUEUES, jobIdFor, type Enqueue, type QueueName } from '@adxlens/jobs';
 
 export function redisConnection(url: string): IORedis {
   // BullMQ yêu cầu maxRetriesPerRequest = null cho kết nối blocking.

@@ -19,9 +19,7 @@ export function registerUnreadSource(s: (pc: PageContext) => Promise<number>): v
   unreadSource = s;
 }
 
-export async function getShellExtras(
-  pc: PageContext,
-): Promise<{ unread: number; banner: ReactNode }> {
+export async function getShellExtras(pc: PageContext): Promise<{ unread: number; banner: ReactNode }> {
   // Mỗi lần chỉ một banner (design-system: Banner), ưu tiên theo thứ tự đăng ký.
   let banner: ReactNode = null;
   for (const s of bannerSources) {

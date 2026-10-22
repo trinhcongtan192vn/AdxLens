@@ -27,17 +27,11 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
   );
 }
 
-export function Checkbox({
-  className,
-  ...props
-}: Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>) {
+export function Checkbox({ className, ...props }: Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>) {
   return (
     <input
       type="checkbox"
-      className={cn(
-        'size-4 rounded-xs border-line-control accent-[var(--color-brand-primary)]',
-        className,
-      )}
+      className={cn('size-4 rounded-xs border-line-control accent-[var(--color-brand-primary)]', className)}
       {...props}
     />
   );

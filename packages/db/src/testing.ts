@@ -87,12 +87,7 @@ export async function seedWorkspace(db: Db, name = `WS ${randomUUID().slice(0, 6
   return { workspace: ws!, owner };
 }
 
-export async function seedMember(
-  db: Db,
-  workspaceId: string,
-  role: s.Role,
-  clientAccess: string[] = [],
-) {
+export async function seedMember(db: Db, workspaceId: string, role: s.Role, clientAccess: string[] = []) {
   const u = await seedUser(db);
   await db.insert(s.memberships).values({ workspaceId, userId: u.id, role, clientAccess });
   return u;
@@ -117,6 +112,5 @@ export async function truncateAll(db: Db): Promise<void> {
     where schemaname in ('app', 'analytics') and tablename not like '__drizzle%'
   `);
   const names = rows.map((r) => r.fq);
-  if (names.length)
-    await db.execute(sql.raw(`truncate ${names.join(', ')} restart identity cascade`));
+  if (names.length) await db.execute(sql.raw(`truncate ${names.join(', ')} restart identity cascade`));
 }

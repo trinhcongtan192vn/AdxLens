@@ -29,15 +29,8 @@ export async function api<T = unknown>(
   if (res.status === 204) return undefined as T;
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const e = (
-      data as { error?: { code?: string; message?: string; details?: Record<string, unknown> } }
-    ).error;
-    throw new ApiError(
-      res.status,
-      e?.code ?? 'INTERNAL',
-      e?.message ?? res.statusText,
-      e?.details ?? {},
-    );
+    const e = (data as { error?: { code?: string; message?: string; details?: Record<string, unknown> } }).error;
+    throw new ApiError(res.status, e?.code ?? 'INTERNAL', e?.message ?? res.statusText, e?.details ?? {});
   }
   return data as T;
 }

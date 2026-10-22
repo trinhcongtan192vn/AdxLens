@@ -1,13 +1,7 @@
 import { and, desc, eq } from 'drizzle-orm';
 import type { Db, DbOrTx } from '@adxlens/db';
 import { schema } from '@adxlens/db';
-import {
-  AppError,
-  forbidden,
-  systemClock,
-  type Clock,
-  type WorkspaceCtx,
-} from '@adxlens/core/shared';
+import { AppError, forbidden, systemClock, type Clock, type WorkspaceCtx } from '@adxlens/core/shared';
 import { checksFor, disabledHandlersFor, type ChecklistItemResult, type FlagKey } from './registry';
 
 const { featureFlags, flagChangeLog, staff, workspaces } = schema;
@@ -97,11 +91,7 @@ async function staffOf(db: DbOrTx, userId: string) {
   return s ?? null;
 }
 
-export async function runChecklist(
-  db: DbOrTx,
-  workspaceId: string,
-  key: FlagKey,
-): Promise<ChecklistItemResult[]> {
+export async function runChecklist(db: DbOrTx, workspaceId: string, key: FlagKey): Promise<ChecklistItemResult[]> {
   const out: ChecklistItemResult[] = [];
   const parent = FLAG_PARENT[key];
   if (parent) {
@@ -143,10 +133,7 @@ export async function enableFlag(db: Db, input: EnableFlagInput, clock: Clock = 
   if (!s?.canEnableFlags) throw forbidden('Chỉ PM được bật cờ');
 
   return db.transaction(async (tx) => {
-    const [ws] = await tx
-      .select({ id: workspaces.id })
-      .from(workspaces)
-      .where(eq(workspaces.id, input.workspaceId));
+    const [ws] = await tx.select({ id: workspaces.id }).from(workspaces).where(eq(workspaces.id, input.workspaceId));
     if (!ws) throw new AppError('NOT_FOUND', 'Workspace không tồn tại');
 
     const checklist = await runChecklist(tx, input.workspaceId, input.key);

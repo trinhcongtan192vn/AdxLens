@@ -2,11 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Actor } from '@adxlens/core/shared';
 import { can, canAccessClient, canApproveActions } from './permissions';
 
-const actor = (
-  role: Actor['role'],
-  clientAccess: string[] = [],
-  approve: string[] = [],
-): Actor => ({
+const actor = (role: Actor['role'], clientAccess: string[] = [], approve: string[] = []): Actor => ({
   userId: 'u',
   role,
   clientAccess,

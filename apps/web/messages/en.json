@@ -210,6 +210,80 @@
       }
     }
   },
+  "auth": {
+    "working": "Working…",
+    "passwordHint": "Password must be at least {min} characters.",
+    "fields": {
+      "fullName": "Full name",
+      "email": "Email",
+      "workEmail": "Work email",
+      "password": "Password"
+    },
+    "placeholders": {
+      "fullName": "Jane Doe",
+      "email": "you@agency.com",
+      "password": "At least {min} characters"
+    },
+    "fieldErrors": {
+      "email": "Invalid email address.",
+      "mismatch": "Passwords do not match."
+    },
+    "errors": {
+      "invalid_input": "Some details are not valid. Check the highlighted fields.",
+      "invalid_credentials": "Incorrect email or password.",
+      "invalid_credentials_remaining": "Incorrect email or password. {remaining} attempts left before a 15-minute lock.",
+      "locked": "Sign-in is temporarily locked after too many attempts. Try again in {minutes} minutes or reset your password.",
+      "email_not_confirmed": "Your email is not verified yet. Check your inbox to verify before signing in.",
+      "weak_password": "Password is not strong enough.",
+      "terms_required": "You need to accept the Terms and Privacy Policy.",
+      "link_expired": "This link has expired or is invalid.",
+      "rate_limited": "Too many attempts. Please try again in a few minutes.",
+      "unknown": "Something went wrong. Please try again."
+    },
+    "signup": {
+      "title": "Create your agency account",
+      "description": "Free to try. Read-only access to Meta; we never write to your ad accounts.",
+      "acceptTerms": "I agree to the <terms>Terms</terms> and <privacy>Privacy Policy</privacy>",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?"
+    },
+    "verify": {
+      "title": "Check your email",
+      "description": "We sent a verification link to {email}. The link is valid for 24 hours.",
+      "yourEmail": "your email",
+      "resend": "Resend email",
+      "resendIn": "Resend email (in {seconds}s)",
+      "resent": "Verification email sent again.",
+      "wrongEmail": "Wrong email?",
+      "changeEmail": "Change address"
+    },
+    "login": {
+      "title": "Log in",
+      "description": "Use your agency work email.",
+      "forgot": "Forgot password?",
+      "submit": "Log in",
+      "noAccount": "No account yet?",
+      "signup": "Sign up"
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "description": "Enter your sign-up email and we will send you a reset link.",
+      "submit": "Send reset link",
+      "sent": "If this email has an account, we sent a password reset link. The link is valid for 60 minutes.",
+      "back": "Back to log in"
+    },
+    "reset": {
+      "title": "Set a new password",
+      "newPassword": "New password",
+      "confirm": "Repeat password",
+      "note": "The link expires after 60 minutes. Once reset, all other sessions are signed out.",
+      "submit": "Save new password",
+      "expiredBadge": "Expired",
+      "expiredTitle": "The reset link has expired",
+      "expiredBody": "Links are valid for 60 minutes. Request a new one to get another link.",
+      "sendNew": "Send a new link"
+    }
+  },
   "placeholder": {
     "comingSoon": "This screen is coming in the next release."
   }

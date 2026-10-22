@@ -145,9 +145,7 @@ describe('bật cờ', () => {
     expect(r.override).toBe(true);
     const [log] = await flagHistory(db, ws);
     expect(log?.override).toBe(true);
-    expect(log?.checklistResult).toContainEqual(
-      expect.objectContaining({ id: 'accounts_confirmed', passed: false }),
-    );
+    expect(log?.checklistResult).toContainEqual(expect.objectContaining({ id: 'accounts_confirmed', passed: false }));
   });
 
   it('kiểm tra ném lỗi được coi là chưa đạt', async () => {

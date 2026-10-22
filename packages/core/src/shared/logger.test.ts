@@ -72,8 +72,6 @@ describe('logger không lộ token (CLAUDE.md quy tắc 2)', () => {
   });
 
   it('scrubTokens che Bearer và EAA', () => {
-    expect(scrubTokens(`a ${META_TOKEN} b Bearer xyz.abc-123456`)).toBe(
-      'a [REDACTED] b [REDACTED]',
-    );
+    expect(scrubTokens(`a ${META_TOKEN} b Bearer xyz.abc-123456`)).toBe('a [REDACTED] b [REDACTED]');
   });
 });

@@ -20,9 +20,7 @@ try {
   }
   const added = readdirSync(tmp).filter((f) => f.endsWith('.sql') && !before.has(f));
   if (added.length) {
-    process.stderr.write(
-      `Schema có thay đổi chưa sinh migration (${added.join(', ')}). Chạy: pnpm db:generate\n`,
-    );
+    process.stderr.write(`Schema có thay đổi chưa sinh migration (${added.join(', ')}). Chạy: pnpm db:generate\n`);
     process.exit(1);
   }
   process.stdout.write('db:check: migration khớp schema.\n');
