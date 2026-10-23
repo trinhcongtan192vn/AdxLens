@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 import { Button, buttonVariants, Checkbox, Dialog, Drawer, Field, Input, Textarea } from '@adxlens/ui';
 import { api } from '@/lib/api-client';
 
-type Edits = { title?: string; workDone?: string; nextSteps?: string; hiddenSections?: string[] };
-const SECTIONS = ['kpis', 'trend', 'campaigns', 'findings', 'workDone', 'nextSteps'] as const;
+type Edits = { title?: string; intro?: string; workDone?: string; nextSteps?: string; hiddenSections?: string[] };
+const SECTIONS = ['kpis', 'trend', 'campaigns', 'audience', 'creatives', 'findings', 'workDone', 'nextSteps'] as const;
 
 /** Làm mới trang khi báo cáo đang dựng (L). */
 export function ReportPoller() {
@@ -98,6 +98,15 @@ export function ReportToolbar({ id, edits, ready }: { id: string; edits: Edits; 
               maxLength={160}
               value={form.title ?? ''}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
+          </Field>
+          <Field label={t('intro')} htmlFor="r-intro">
+            <Textarea
+              id="r-intro"
+              rows={4}
+              maxLength={2000}
+              value={form.intro ?? ''}
+              onChange={(e) => setForm({ ...form, intro: e.target.value })}
             />
           </Field>
           <Field label={t('workDone')} htmlFor="r-done">

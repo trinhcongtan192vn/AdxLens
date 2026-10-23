@@ -400,6 +400,20 @@
       "when": 1792773905788,
       "tag": "0056_client_budgets_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1792774632445,
+      "tag": "0057_insights_breakdowns",
+      "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1792774633392,
+      "tag": "0058_insights_breakdowns_rls",
+      "breakpoints": true
     }
   ]
 }

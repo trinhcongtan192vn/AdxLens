@@ -2,6 +2,24 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [058] Báo cáo sâu: đối tượng / vị trí / khu vực, quảng cáo chi nhiều nhất, nhận xét agency (A4) — 2026-10-24
+
+**Thay đổi**
+- **Đồng bộ thêm insight theo nhóm** (`analytics.insights_breakdowns`, migration 0057–0058): mỗi lô đồng bộ gọi thêm 3 lần Meta ở cấp ad set với `breakdowns` = tuổi + giới tính / nền tảng + vị trí / khu vực; kết quả tính theo mục tiêu ad set như số liệu chính. Là dữ liệu phụ: Meta từ chối một nhóm (lỗi không phải token / quyền / rate limit) → bỏ nhóm đó cho lô (`breakdownSkipped`), đồng bộ vẫn xong; token hỏng / mất quyền / rate limit vẫn xử lý như cũ. Ngắt kết nối → xóa cùng dữ liệu tài khoản (cascade).
+- **Báo cáo** (web / công khai / PDF), mỗi tài khoản:
+  - **Đối tượng, vị trí và khu vực**: 3 bảng top 8 nhóm (tỷ trọng chi, CPA decimal), ghi chú "số theo nhóm có thể lệch nhẹ tổng tài khoản".
+  - **Quảng cáo chi nhiều nhất**: top 5 ad theo chi tiêu kèm ảnh thumbnail creative (chỉ URL https), chi tiêu, kết quả, CPA, CTR.
+  - **Nhận xét của agency** (trường mới khi sửa báo cáo, hiện ngay sau tóm tắt).
+  - Ẩn / hiện được 2 mục mới như các mục cũ.
+- meta-client: `InsightQuery.level` thêm `adset`, `breakdown` (`BREAKDOWNS`), trường nhóm trong `insightSchema`; Meta giả tách nhóm theo trọng số, tổng khớp đúng ad set.
+- `core/reporting/report-extras.ts` (`breakdownTable`, `topAds`); `ReportContent.accounts[].breakdowns / topAds` (tùy chọn).
+
+**Test tự động:** `mock.test.ts` (tổng theo nhóm = tổng ad set cho cả 3 nhóm); `ingestion.test.ts` (lưu đủ 3 nhóm, tổng chi khớp insight; Meta từ chối một nhóm → bỏ nhóm, đồng bộ xong; token hỏng → thất bại như cũ); `report-extras.test.ts` (xếp hạng, tỷ trọng, CPA decimal, bỏ ngoài kỳ; top ad + thumbnail chỉ https; ngữ cảnh workspace khác không đọc được); `deletion.test.ts` thêm khẳng định `insights_breakdowns` có dữ liệu trước và bằng 0 sau purge (chặt hơn, không nới).
+
+**Vùng bảo vệ:** `packages/db/**` (migration 0057–0058 + RLS).
+
+**PM kiểm tra:** TRON_GLAMPING → "Chạy lại đồng bộ" 30 ngày (để có dữ liệu nhóm) → tạo báo cáo → mục "Đối tượng, vị trí và khu vực" + "Quảng cáo chi nhiều nhất" có ảnh; Sửa → "Nhận xét của agency".
+
 ## [fix] Execution Gateway: giờ tạo hành động theo cùng đồng hồ với guardrail — 2026-10-24
 
 **Nguyên nhân:** `actions.created_at` do DB tự đặt (giờ thật), còn guardrail "số hành động hôm nay / rule tối đa mỗi ngày" và cooldown 24 giờ đếm theo đồng hồ của gateway. Hai mốc lệch ngày thì đếm ra 0 → giới hạn ngày không chặn. Phát hiện khi ngày đổi sang 24/10: test gateway (đồng hồ cố định 23/10) tạo 24 hành động thay vì 2. Ở production hai đồng hồ trùng nhau nên hiếm, nhưng có thể lệch đúng thời điểm qua nửa đêm giờ tài khoản.

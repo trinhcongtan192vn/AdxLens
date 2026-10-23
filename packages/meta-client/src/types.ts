@@ -91,6 +91,12 @@ export const insightSchema = z.object({
   inline_link_clicks: numStr.optional(),
   actions: z.array(actionSchema).optional(),
   action_values: z.array(actionSchema).optional(),
+  // Trường nhóm khi có `breakdowns` (A4).
+  age: z.string().optional(),
+  gender: z.string().optional(),
+  publisher_platform: z.string().optional(),
+  platform_position: z.string().optional(),
+  region: z.string().optional(),
 });
 export type MetaInsight = z.infer<typeof insightSchema>;
 

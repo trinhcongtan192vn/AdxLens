@@ -935,7 +935,10 @@
       "campaigns": "Top campaigns",
       "findings": "Issues to address",
       "workDone": "Work done",
-      "nextSteps": "Next steps"
+      "nextSteps": "Next steps",
+      "intro": "Agency notes",
+      "audience": "Audience, placements and regions",
+      "creatives": "Top spending ads"
     },
     "kpi": {
       "spend": "Spend",
@@ -985,6 +988,17 @@
       "share": "explains {share}% of the CPA change",
       "drivers": "Campaigns contributing most",
       "method": "CPA = CPM ÷ CTR ÷ conversion rate. Computed from the reconciled figures of both periods."
+    },
+    "audience": {
+      "age_gender": "Age · gender",
+      "placement": "Placement",
+      "region": "Region",
+      "group": "Group",
+      "share": "Spend share",
+      "female": "Female",
+      "male": "Male",
+      "unknown": "Unknown",
+      "note": "Breakdown figures from Meta may differ slightly from account totals (Meta hides or rounds small groups)."
     }
   },
   "reports": {
@@ -1060,10 +1074,13 @@
         "campaigns": "Top campaigns",
         "findings": "Issues to address",
         "workDone": "Work done",
-        "nextSteps": "Next steps"
+        "nextSteps": "Next steps",
+        "audience": "Audience, placements and regions",
+        "creatives": "Top spending ads"
       },
       "summaryLlm": "Summary written by AI from computed figures; every number was checked against the data.",
-      "summaryTemplate": "Automatic summary from the figures (no AI)."
+      "summaryTemplate": "Automatic summary from the figures (no AI).",
+      "intro": "Agency notes (shown after the summary)"
     }
   },
   "share": {

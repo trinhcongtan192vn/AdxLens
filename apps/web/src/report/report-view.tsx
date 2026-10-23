@@ -86,6 +86,16 @@ export function ReportView({
           <p className="mt-1 whitespace-pre-line text-body">{summary}</p>
         </section>
       ) : null}
+      {edits.intro ? (
+        <section
+          className="mt-4 rounded-md border-l-4 px-3 py-2"
+          style={{ borderColor: color }}
+          data-testid="report-intro"
+        >
+          <h2 className="text-h3 font-semibold">{t('sections.intro')}</h2>
+          <p className="mt-1 whitespace-pre-line text-body">{edits.intro}</p>
+        </section>
+      ) : null}
 
       {content.accounts.map((a) => (
         <section key={a.id} className="mt-6 break-inside-avoid">
@@ -184,6 +194,58 @@ export function ReportView({
                   ))}
                 </tbody>
               </table>
+            </div>
+          ) : null}
+
+          {!hidden.has('audience') && a.breakdowns && Object.values(a.breakdowns).some((rows) => rows.length) ? (
+            <div className="mt-4 break-inside-avoid" data-testid="report-audience">
+              <h3 className="text-h3 font-semibold">{t('sections.audience')}</h3>
+              <div className="mt-1 grid gap-4 md:grid-cols-3">
+                {(['age_gender', 'placement', 'region'] as const).map((b) =>
+                  a.breakdowns![b].length ? (
+                    <BreakdownList
+                      key={b}
+                      title={t(`audience.${b}`)}
+                      rows={a.breakdowns![b]}
+                      label={(k) => breakdownLabel(b, k, (key, v) => t(key as never, v as never))}
+                      money={(v) => money(v, a.currency)}
+                      nf={nf}
+                      t={(k, v) => t(k as never, v as never)}
+                    />
+                  ) : null,
+                )}
+              </div>
+              <p className="mt-1 text-small text-fg-tertiary">{t('audience.note')}</p>
+            </div>
+          ) : null}
+
+          {!hidden.has('creatives') && a.topAds?.length ? (
+            <div className="mt-4 break-inside-avoid" data-testid="report-creatives">
+              <h3 className="text-h3 font-semibold">{t('sections.creatives')}</h3>
+              <ul className="mt-2 grid gap-3 sm:grid-cols-5">
+                {a.topAds.map((ad) => (
+                  <li key={ad.metaId} className="text-small">
+                    {ad.thumbnailUrl ? (
+                      <img
+                        src={ad.thumbnailUrl}
+                        alt=""
+                        className="aspect-square w-full rounded-md border border-line object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="aspect-square w-full rounded-md border border-line bg-subtle" />
+                    )}
+                    <p className="mt-1 line-clamp-2 font-medium">{ad.name ?? '—'}</p>
+                    <p className="num text-fg-secondary">
+                      {money(ad.spend, a.currency)} · {nf(ad.results)} {t('cols.results').toLowerCase()}
+                    </p>
+                    <p className="num text-fg-tertiary">
+                      CPA {money(ad.cpa, a.currency)} · CTR{' '}
+                      {ad.ctr === null ? '—' : `${nf(ad.ctr * 100, { maximumFractionDigits: 2 })}%`}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             </div>
           ) : null}
         </section>
@@ -421,6 +483,63 @@ export function CpaChangeBlock({
         </>
       ) : null}
       <p className="mt-2 text-small text-fg-tertiary">{t('cpa.method')}</p>
+    </div>
+  );
+}
+
+/** Nhãn nhóm: "25-34|female" → "25–34 · Nữ", "instagram|story" → "Instagram · Story", khu vực giữ nguyên. */
+function breakdownLabel(
+  b: 'age_gender' | 'placement' | 'region',
+  key: string,
+  t: (key: string, values?: Record<string, string | number>) => string,
+): string {
+  if (b === 'region') return key === 'unknown' ? t('audience.unknown') : key;
+  const [x, y] = key.split('|');
+  if (b === 'age_gender') {
+    const g = y === 'female' ? t('audience.female') : y === 'male' ? t('audience.male') : t('audience.unknown');
+    return `${(x ?? '').replace('-', '–')} · ${g}`;
+  }
+  const cap = (v: string | undefined) => (v ? v.charAt(0).toUpperCase() + v.slice(1).replace(/_/g, ' ') : '');
+  return `${cap(x)} · ${cap(y)}`;
+}
+
+/** A4: danh sách theo nhóm (tỷ trọng chi tiêu, kết quả, CPA). */
+function BreakdownList({
+  title,
+  rows,
+  label,
+  money,
+  nf,
+  t,
+}: {
+  title: string;
+  rows: NonNullable<ReportContent['accounts'][number]['breakdowns']>['age_gender'];
+  label: (key: string) => string;
+  money: (v: string | null) => string;
+  nf: (v: number, o?: Intl.NumberFormatOptions) => string;
+  t: (key: string, values?: Record<string, string | number>) => string;
+}) {
+  return (
+    <div>
+      <p className="text-small font-semibold text-fg-secondary">{title}</p>
+      <table className="mt-1 w-full text-small">
+        <thead className="text-fg-tertiary">
+          <tr>
+            <th className="py-0.5 text-left font-medium">{t('audience.group')}</th>
+            <th className="py-0.5 text-right font-medium">{t('audience.share')}</th>
+            <th className="py-0.5 text-right font-medium">CPA</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.key} className="border-t border-line">
+              <td className="py-0.5">{label(r.key)}</td>
+              <td className="num py-0.5 text-right">{nf(r.share, { maximumFractionDigits: 1 })}%</td>
+              <td className="num py-0.5 text-right">{money(r.cpa)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

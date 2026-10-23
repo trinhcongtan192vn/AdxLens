@@ -42,3 +42,28 @@ describe('Meta mock', () => {
     expect(ads.every((a) => creatives.some((c) => c.id === a.creative?.id))).toBe(true);
   });
 });
+
+describe('Meta giả: breakdowns (A4)', () => {
+  it('tách theo nhóm cộng lại đúng tổng của ad set (chi tiêu, hiển thị, click, kết quả)', async () => {
+    const m = new MockMetaRead(() => new Date('2026-10-23T05:00:00Z'));
+    const q = { level: 'adset' as const, since: '2026-10-20', until: '2026-10-20' };
+    const total = await m.getInsights('t', 'act_100000001', q);
+    for (const breakdown of ['age_gender', 'placement', 'region'] as const) {
+      const parts = await m.getInsights('t', 'act_100000001', { ...q, breakdown });
+      for (const row of total) {
+        const mine = parts.filter((p) => p.adset_id === row.adset_id);
+        expect(mine.length).toBeGreaterThan(1);
+        const sum = (k: 'spend' | 'impressions' | 'inline_link_clicks') =>
+          mine.reduce((t, p) => t + Number(p[k] ?? 0), 0);
+        expect(sum('spend')).toBeCloseTo(Number(row.spend), 6);
+        expect(sum('impressions')).toBe(Number(row.impressions));
+        expect(sum('inline_link_clicks')).toBe(Number(row.inline_link_clicks ?? 0));
+        const acts = (rows: typeof mine) =>
+          rows.flatMap((p) => p.actions ?? []).reduce((t, a) => t + Number(a.value), 0);
+        expect(acts(mine)).toBe(acts([row]));
+      }
+    }
+    const ag = await m.getInsights('t', 'act_100000001', { ...q, breakdown: 'age_gender' });
+    expect(ag[0]).toMatchObject({ age: '18-24', gender: 'female' });
+  });
+});

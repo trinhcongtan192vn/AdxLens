@@ -333,3 +333,63 @@ describe('daily sync', () => {
     expect(sub?.overLimitSince?.toISOString()).toBe(now().toISOString());
   });
 });
+
+describe('insight theo nhóm (A4)', () => {
+  it('lưu theo nhóm (tuổi-giới tính / vị trí / khu vực) cấp ad set; tổng mỗi nhóm khớp chi tiêu insight', async () => {
+    const { ctx, adAccountId } = await setup();
+    const enqueue = recordingEnqueue();
+    await startBackfill(ctx, adAccountId, { enqueue, clock });
+    const job = enqueue.calls[0]!.payload as BackfillJob;
+    const out = await syncRange(ctx, job, { meta, keys: KEYS.keys, clock });
+    expect(out).toMatchObject({ status: 'ok' });
+    expect(out).not.toHaveProperty('breakdownSkipped');
+    const rows = await db
+      .select({
+        breakdown: schema.insightsBreakdowns.breakdown,
+        spend: sql<string>`sum(${schema.insightsBreakdowns.spend})::text`,
+        keys: sql<number>`count(distinct ${schema.insightsBreakdowns.key})::int`,
+      })
+      .from(schema.insightsBreakdowns)
+      .where(eq(schema.insightsBreakdowns.adAccountId, adAccountId))
+      .groupBy(schema.insightsBreakdowns.breakdown);
+    const [total] = await db
+      .select({ spend: sql<string>`sum(${schema.insightsDaily.spend})::text` })
+      .from(schema.insightsDaily)
+      .where(eq(schema.insightsDaily.adAccountId, adAccountId));
+    expect(rows.map((r) => r.breakdown).sort()).toEqual(['age_gender', 'placement', 'region']);
+    for (const r of rows) {
+      expect(Number(r.spend)).toBeCloseTo(Number(total!.spend), 0);
+      expect(r.keys).toBeGreaterThan(1);
+    }
+  });
+
+  it('Meta từ chối một nhóm (lỗi không phải token) → bỏ nhóm đó, đồng bộ vẫn xong; token hỏng vẫn báo lỗi', async () => {
+    const { ctx, adAccountId } = await setup();
+    const enqueue = recordingEnqueue();
+    await startBackfill(ctx, adAccountId, { enqueue, clock });
+    const job = enqueue.calls[0]!.payload as BackfillJob;
+    const flaky = Object.assign(Object.create(meta), {
+      getInsights: async (t: string, act: string, q: Parameters<typeof meta.getInsights>[2]) => {
+        if (q.breakdown === 'region')
+          throw new MetaApiError(400, 100, null, 'OAuthException', 'Invalid breakdown', null);
+        return meta.getInsights(t, act, q);
+      },
+    });
+    const out = await syncRange(ctx, job, { meta: flaky, keys: KEYS.keys, clock });
+    expect(out).toMatchObject({ status: 'ok', breakdownSkipped: 1 });
+    const kinds = await db
+      .selectDistinct({ b: schema.insightsBreakdowns.breakdown })
+      .from(schema.insightsBreakdowns)
+      .where(eq(schema.insightsBreakdowns.adAccountId, adAccountId));
+    expect(kinds.map((k) => k.b).sort()).toEqual(['age_gender', 'placement']);
+
+    const expired = Object.assign(Object.create(meta), {
+      getInsights: async (t: string, act: string, q: Parameters<typeof meta.getInsights>[2]) => {
+        if (q.breakdown) throw new MetaApiError(401, 190, null, 'OAuthException', 'Session expired', null);
+        return meta.getInsights(t, act, q);
+      },
+    });
+    const job2 = enqueue.calls[1]!.payload as BackfillJob;
+    expect(await syncRange(ctx, job2, { meta: expired, keys: KEYS.keys, clock })).toMatchObject({ status: 'failed' });
+  });
+});
