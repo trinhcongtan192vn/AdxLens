@@ -69,14 +69,16 @@ export default async function BillingPage() {
           ) : null}
         </dl>
         <p className="border-t border-line px-4 py-3 text-small text-fg-secondary">{t('activeHint')}</p>
-        {s.provider === 'stripe' && s.status !== 'canceled' ? (
+        {s.provider !== 'none' && s.status !== 'canceled' ? (
           <div className="border-t border-line px-4 py-3">
-            <ManageSubscription cancelAtPeriodEnd={s.cancelAtPeriodEnd} />
+            <ManageSubscription cancelAtPeriodEnd={s.cancelAtPeriodEnd} portal={s.provider === 'stripe'} />
           </div>
         ) : null}
       </Card>
       <ChoosePlan
         current={s.effectivePlan}
+        canRenew={s.provider === 'payos' && s.status !== 'canceled'}
+        lockedMethod={s.status !== 'canceled' && s.provider !== 'none' ? s.provider : null}
         plans={PAID_PLANS.map((k) => ({
           key: k,
           label: tp(`pricing.plans.${k}.name`),

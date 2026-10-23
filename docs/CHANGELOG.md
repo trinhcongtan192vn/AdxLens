@@ -2,6 +2,27 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [028] Cổng thanh toán VN — PayOS (sandbox): thanh toán theo kỳ, webhook, gia hạn, nhắc gia hạn — 2026-10-23
+
+**Thay đổi**
+- DB: `app.payment_orders` (đơn theo kỳ: `order_code` số do DB cấp, gói, kỳ, số tiền VND `numeric`, trạng thái, link). RLS (migration 0037–0038).
+- `packages/core/billing/payos.ts`: PayOS REST bằng `fetch`; `payosSignature` (HMAC-SHA256, khóa xếp chữ cái), `verifyPayosWebhook`; `periodAmountVnd` (BigInt; năm = 12 × 80% làm tròn nghìn); `startPayosCheckout` (chỉ owner; chặn khi đang trả qua Stripe); `applyPaidOrder` — **số tiền phải khớp đơn**, chỉ đơn `pending`, gia hạn từ max(bây giờ, hết kỳ hiện tại) + 1 tháng / 12 tháng, gọi lặp không gia hạn hai lần; `confirmPayosOrder` (ST04 tra trạng thái đơn trên PayOS bằng khóa AdxLens, không tin query trên URL).
+- `billing/cancel.ts`: hủy / tiếp tục gói cho cả Stripe và PayOS (route `/billing/cancel` dùng chung).
+- `core/ops/billing-webhooks.ts` → `handlePayosWebhook` (tìm workspace theo mã đơn — xuyên workspace có chú thích; webhook thử của PayOS trả 200). `core/ops/billing-renewals.ts` → `runPayosRenewals` trong `maintenance:daily_tick`: nhắc gia hạn trước 7 và 1 ngày (loại thông báo mới `billing_renewal`, bắt buộc, có email); hết kỳ chưa trả → `past_due` từ ngày hết kỳ (ân hạn 7 ngày → Free); đã hủy cuối kỳ → `canceled`.
+- API: `POST /billing/checkout` thêm `method: stripe | payos`; `POST /webhooks/payos`.
+- Giao diện: ST03 chọn phương thức (QR / chuyển khoản VND — mặc định; thẻ quốc tế), nút "Gia hạn" cho gói PayOS, "Quản lý thanh toán" chỉ với Stripe; ST04 hiện "đã nhận thanh toán … tới ngày …" / "chưa nhận". Banner X04 past_due đổi lời cho cả hai cổng ("Chưa thanh toán kỳ hiện tại…").
+- `docs/onboarding.md` mục 7. Tech-debt: đổi gói giữa kỳ chưa tính chênh lệch.
+
+**Test tự động**
+- `billing/payos.test.ts` (13): chữ ký đúng chuẩn PayOS; webhook sửa số tiền / sai khóa bị từ chối; số tiền kỳ; tạo đơn → webhook → active 1 tháng, lặp không gia hạn hai lần; gia hạn sớm cộng từ hết kỳ, kỳ năm; số tiền lệch không ghi nhận, mã lỗi bỏ qua, đơn lạ; ST04 tra cứu PAID/CANCELLED; **cách ly đơn giữa workspace**; chặn khi đang dùng Stripe; nhắc 7/1 ngày mỗi mốc một lần; hết kỳ → quá hạn → Free → trả lại active; hủy cuối kỳ → Free không nhắc; hủy khi Free → 409.
+- `billing.test.ts` (+1): checkout PayOS, webhook chữ ký sai 400 / đúng áp gói / lặp không gia hạn.
+- **Test đổi:** `apps/worker/src/dispatch.test.ts` — kết quả `maintenance:daily_tick` nay có thêm `renewals`; kỳ vọng được mở rộng thêm trường này (giữ nguyên các trường cũ), không nới.
+- Bộ cách ly: probe `POST /webhooks/payos`; world B có đơn PayOS (link bí mật không được lộ). `installTestServer` cài PayOS giả.
+
+**Vùng bảo vệ:** `packages/db/**` (1 bảng + RLS, migration 0037–0038).
+
+**PM kiểm tra:** cần khóa PayOS thử nghiệm — `docs/onboarding.md` mục 7: chọn Growth bằng QR → thanh toán → ST04 báo đã nhận, ST03 hiện ngày hết kỳ; `pnpm job:trigger -- maintenance:daily_tick '{"tick":"manual"}'` khi gần hết kỳ → thông báo "Nhắc gia hạn gói".
+
 ## [027] Thanh toán Stripe (test mode): checkout, cổng tự phục vụ, webhook, past_due, hủy gói, thông tin hóa đơn — 2026-10-23
 
 **Thay đổi**

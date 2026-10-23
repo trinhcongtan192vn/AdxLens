@@ -14,22 +14,29 @@ function errorToast(e: unknown, t: (k: string) => string, tc: (k: string) => str
   else toast.error(tc('errorGeneric'));
 }
 
-/** Chọn gói trả phí → Stripe Checkout (027). */
+/** Chọn gói trả phí → Stripe Checkout (thẻ quốc tế, 027) hoặc PayOS (QR / chuyển khoản VND, 028). */
 export function ChoosePlan({
   plans,
   current,
+  canRenew,
+  lockedMethod,
 }: {
   plans: { key: PaidPlan; label: string; price: string }[];
   current: string;
+  /** PayOS trả theo kỳ: gói hiện tại có nút "Gia hạn". */
+  canRenew: boolean;
+  /** Đang có gói ở một cổng thì chỉ dùng cổng đó. */
+  lockedMethod: 'stripe' | 'payos' | null;
 }) {
   const t = useTranslations('billing');
   const tc = useTranslations('common');
   const [period, setPeriod] = useState<'monthly' | 'annual'>('monthly');
+  const [method, setMethod] = useState<'stripe' | 'payos'>(lockedMethod ?? 'payos');
   const [pending, start] = useTransition();
   const checkout = (plan: PaidPlan) =>
     start(async () => {
       try {
-        const r = await api<{ url: string }>('billing/checkout', { method: 'POST', body: { plan, period } });
+        const r = await api<{ url: string }>('billing/checkout', { method: 'POST', body: { plan, period, method } });
         window.location.assign(r.url);
       } catch (e) {
         errorToast(e, t, tc);
@@ -40,15 +47,27 @@ export function ChoosePlan({
       <CardHeader
         title={t('changePlan')}
         actions={
-          <Select
-            aria-label={t('period')}
-            value={period}
-            onChange={(e) => setPeriod(e.target.value as 'monthly' | 'annual')}
-            className="w-auto"
-          >
-            <option value="monthly">{t('monthly')}</option>
-            <option value="annual">{t('annual')}</option>
-          </Select>
+          <div className="flex gap-2">
+            <Select
+              aria-label={t('method')}
+              value={method}
+              disabled={lockedMethod !== null}
+              onChange={(e) => setMethod(e.target.value as 'stripe' | 'payos')}
+              className="w-auto"
+            >
+              <option value="payos">{t('methodPayos')}</option>
+              <option value="stripe">{t('methodStripe')}</option>
+            </Select>
+            <Select
+              aria-label={t('period')}
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as 'monthly' | 'annual')}
+              className="w-auto"
+            >
+              <option value="monthly">{t('monthly')}</option>
+              <option value="annual">{t('annual')}</option>
+            </Select>
+          </div>
         }
       />
       <ul className="divide-y divide-line">
@@ -58,11 +77,11 @@ export function ChoosePlan({
               <span className="font-semibold text-fg">{p.label}</span>
               <span className="num ml-2 text-fg-secondary">{p.price}</span>
             </span>
-            {p.key === current ? (
+            {p.key === current && !(canRenew && method === 'payos') ? (
               <span className="text-small text-fg-secondary">{t('currentBadge')}</span>
             ) : (
               <Button kind="secondary" size="s" disabled={pending} onClick={() => checkout(p.key)}>
-                {t('choose')}
+                {p.key === current ? t('renew') : t('choose')}
               </Button>
             )}
           </li>
@@ -73,7 +92,13 @@ export function ChoosePlan({
 }
 
 /** Quản lý thanh toán (cổng Stripe) + hủy / tiếp tục gói cuối kỳ. */
-export function ManageSubscription({ cancelAtPeriodEnd }: { cancelAtPeriodEnd: boolean }) {
+export function ManageSubscription({
+  cancelAtPeriodEnd,
+  portal: hasPortal,
+}: {
+  cancelAtPeriodEnd: boolean;
+  portal: boolean;
+}) {
   const t = useTranslations('billing');
   const tc = useTranslations('common');
   const router = useRouter();
@@ -100,9 +125,11 @@ export function ManageSubscription({ cancelAtPeriodEnd }: { cancelAtPeriodEnd: b
     });
   return (
     <div className="flex flex-wrap gap-2">
-      <Button kind="secondary" size="m" disabled={pending} onClick={portal}>
-        {t('managePayment')}
-      </Button>
+      {hasPortal ? (
+        <Button kind="secondary" size="m" disabled={pending} onClick={portal}>
+          {t('managePayment')}
+        </Button>
+      ) : null}
       {cancelAtPeriodEnd ? (
         <Button kind="secondary" size="m" disabled={pending} onClick={() => cancel(false)}>
           {t('resume')}

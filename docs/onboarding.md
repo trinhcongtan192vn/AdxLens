@@ -68,3 +68,10 @@ Xem `docs/architecture/L3-technical.md` mục 3. Tóm tắt:
 - Thử thanh toán thất bại: thẻ `4000 0000 0000 0341` hoặc `stripe trigger invoice.payment_failed` → banner thanh toán thất bại + email E05 (Mailpit).
 - Chưa có khóa: các nút thanh toán báo "Thanh toán chưa sẵn sàng" (API 503), phần còn lại của app chạy bình thường.
 - Giá gói: sửa dòng trong `app.billing_plans` (Supabase Studio). Stripe dùng `monthly_price_usd` nếu có, không thì VND.
+
+## 7. Thanh toán thử qua PayOS (QR / chuyển khoản VND)
+
+- Tạo kênh thanh toán **thử nghiệm** trên my.payos.vn, điền `PAYOS_CLIENT_ID`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY` trong `.env.local`.
+- Webhook: PayOS cần URL công khai → dùng tunnel (vd. `cloudflared tunnel --url http://localhost:3000`) và khai báo `<tunnel>/api/v1/webhooks/payos` trong kênh thanh toán. Không có webhook vẫn thử được: khi PayOS chuyển về ST04, trang tự tra trạng thái đơn.
+- Cài đặt → Gói & thanh toán → phương thức "QR / chuyển khoản (VND)" → "Chọn gói" → trang PayOS → thanh toán → ST04.
+- PayOS trả theo kỳ: job `maintenance:daily_tick` nhắc gia hạn trước 7 và 1 ngày; hết kỳ chưa trả → quá hạn (ân hạn 7 ngày) → Free. Thử ngay: `pnpm job:trigger -- maintenance:daily_tick '{"tick":"manual"}'`.

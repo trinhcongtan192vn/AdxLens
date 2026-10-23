@@ -1,6 +1,7 @@
 // Chỉ dùng trong test: gọi Route Handler trực tiếp với user giả.
 import type { Db } from '@adxlens/db';
-import type { StripeApi } from '@adxlens/core/billing';
+import type { PayosApi, StripeApi } from '@adxlens/core/billing';
+import { setPayosForTests } from '@/server/payos';
 import { setStripeForTests } from '@/server/stripe';
 import { memoryEmailSender } from '@adxlens/core/notification';
 import { recordingEnqueue } from '@adxlens/jobs';
@@ -34,6 +35,24 @@ export function fakeStripe() {
   return api;
 }
 
+/** PayOS giả: đơn nào cũng PAID với số tiền đã tạo (hoặc trạng thái đặt sẵn). */
+export function fakePayos() {
+  const links = new Map<number, bigint>();
+  const status = new Map<number, string>();
+  const api: PayosApi & { links: typeof links; status: typeof status } = {
+    links,
+    status,
+    async createPaymentLink(p) {
+      links.set(p.orderCode, p.amount);
+      return { checkoutUrl: `https://pay.payos.test/${p.orderCode}`, paymentLinkId: `pl_${p.orderCode}` };
+    },
+    async getPaymentStatus(orderCode) {
+      return { status: status.get(orderCode) ?? 'PENDING', amount: links.get(orderCode) ?? 0n };
+    },
+  };
+  return api;
+}
+
 export function installTestServer(db: Db) {
   const enqueue = recordingEnqueue();
   const email = memoryEmailSender();
@@ -49,7 +68,9 @@ export function installTestServer(db: Db) {
   setAccountOpsForTest({ changePassword: async () => ({ ok: true }), signOutOthers: async () => {} });
   const stripe = fakeStripe();
   setStripeForTests(stripe);
-  return { enqueue, email, storage, rateLimiter, stripe };
+  const payos = fakePayos();
+  setPayosForTests(payos);
+  return { enqueue, email, storage, rateLimiter, stripe, payos };
 }
 
 export function uninstallTestServer() {
@@ -58,6 +79,7 @@ export function uninstallTestServer() {
   setPasswordVerifierForTest(null);
   setAccountOpsForTest(null);
   setStripeForTests(null);
+  setPayosForTests(null);
   users.clear();
 }
 

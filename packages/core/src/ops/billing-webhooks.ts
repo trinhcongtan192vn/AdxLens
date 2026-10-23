@@ -2,10 +2,17 @@ import { eq, or } from 'drizzle-orm';
 import type { Db } from '@adxlens/db';
 import { schema } from '@adxlens/db';
 import type { Enqueue } from '@adxlens/jobs';
-import { applyStripeEvent, HANDLED_STRIPE_EVENTS, stripeEventRefs, type StripeEvent } from '@adxlens/core/billing';
+import {
+  applyPaidOrder,
+  applyStripeEvent,
+  HANDLED_STRIPE_EVENTS,
+  stripeEventRefs,
+  type PayosWebhook,
+  type StripeEvent,
+} from '@adxlens/core/billing';
 import type { Clock } from '@adxlens/core/shared';
 
-const { billingEvents, subscriptions, workspaces } = schema;
+const { billingEvents, paymentOrders, subscriptions, workspaces } = schema;
 
 export type WebhookResult = { status: 'applied' | 'ignored' | 'duplicate' | 'unknown_workspace'; workspaceId?: string };
 
@@ -50,5 +57,43 @@ export async function handleStripeWebhook(
     if (!workspaceId) return { status: 'unknown_workspace' as const };
     const r = await applyStripeEvent({ db: tx, workspaceId }, event, deps);
     return { status: r, workspaceId };
+  });
+}
+
+export type PayosWebhookResult = {
+  status: 'applied' | 'duplicate' | 'ignored' | 'unknown_order' | 'amount_mismatch';
+  workspaceId?: string;
+};
+
+/**
+ * Webhook PayOS (028) — XUYÊN WORKSPACE có chủ đích: tìm đơn theo `orderCode` (số do AdxLens cấp, unique
+ * toàn hệ thống) để biết workspace, rồi ghi nhận trong ngữ cảnh workspace đó. Chữ ký đã được route xác
+ * minh. Số tiền phải khớp đơn; gọi lặp không gia hạn hai lần.
+ */
+export async function handlePayosWebhook(
+  db: Db,
+  body: PayosWebhook,
+  deps: { clock?: Clock } = {},
+): Promise<PayosWebhookResult> {
+  if (body.code !== '00' || body.data.code !== '00') return { status: 'ignored' };
+  const [order] = await db
+    .select({ workspaceId: paymentOrders.workspaceId })
+    .from(paymentOrders)
+    .where(eq(paymentOrders.orderCode, body.data.orderCode));
+  // PayOS gửi một webhook thử (đơn không tồn tại) khi xác nhận URL — trả 200.
+  if (!order) return { status: 'unknown_order' };
+  const workspaceId = order.workspaceId;
+  return db.transaction(async (tx) => {
+    await tx
+      .insert(billingEvents)
+      .values({
+        provider: 'payos',
+        eventId: `${body.data.orderCode}:${body.data.reference ?? body.data.paymentLinkId ?? 'paid'}`,
+        type: 'payment.paid',
+        workspaceId,
+      })
+      .onConflictDoNothing();
+    const r = await applyPaidOrder({ db: tx, workspaceId }, body.data.orderCode, BigInt(body.data.amount), deps.clock);
+    return { status: r === 'not_found' ? 'unknown_order' : r, workspaceId };
   });
 }

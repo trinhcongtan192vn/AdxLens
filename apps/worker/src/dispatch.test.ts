@@ -29,9 +29,9 @@ describe('dispatch', () => {
     expect(r.database?.ok).toBe(true);
   });
 
-  it('maintenance:daily_tick chạy playbook token_expiring', async () => {
+  it('maintenance:daily_tick chạy playbook token_expiring và gia hạn PayOS', async () => {
     const r = await dispatch(handlers, deps, { name: 'maintenance:daily_tick', id: '1', data: { tick: 'now' } });
-    expect(r).toEqual({ notified: 0, expired: 0, skipped: 0 });
+    expect(r).toEqual({ notified: 0, expired: 0, skipped: 0, renewals: { reminded: 0, pastDue: 0, canceled: 0 } });
   });
 
   it('report:build: cờ p0_reports tắt → không dựng (test "cờ tắt thì không chạy")', async () => {

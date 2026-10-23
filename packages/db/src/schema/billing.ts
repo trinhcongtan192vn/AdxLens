@@ -1,4 +1,4 @@
-import { boolean, integer, numeric, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { bigserial, boolean, integer, numeric, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { app, createdAt, tsz, updatedAt } from './_common';
 import { workspaces } from './tenancy';
 
@@ -74,3 +74,32 @@ export const billingProfiles = app.table('billing_profiles', {
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
+
+export const PAYMENT_ORDER_STATUSES = ['pending', 'paid', 'canceled', 'expired'] as const;
+
+/**
+ * Đơn thanh toán theo kỳ qua cổng VN (028, PayOS): mỗi kỳ một đơn. `order_code` là số nguyên do DB cấp
+ * (PayOS yêu cầu số). Số tiền VND `numeric` — webhook phải khớp đúng số tiền này mới ghi nhận.
+ */
+export const paymentOrders = app.table(
+  'payment_orders',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    provider: text('provider', { enum: BILLING_PROVIDERS }).notNull(),
+    orderCode: bigserial('order_code', { mode: 'number' }).notNull(),
+    planKey: text('plan_key').notNull(),
+    period: text('period', { enum: BILLING_PERIODS }).notNull(),
+    amountVnd: numeric('amount_vnd', { precision: 14, scale: 0 }).notNull(),
+    status: text('status', { enum: PAYMENT_ORDER_STATUSES }).notNull().default('pending'),
+    checkoutUrl: text('checkout_url'),
+    paymentLinkId: text('payment_link_id'),
+    createdBy: uuid('created_by'),
+    paidAt: tsz('paid_at'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex('payment_orders_order_code_uq').on(t.orderCode)],
+);
