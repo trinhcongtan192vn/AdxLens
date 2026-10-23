@@ -55,6 +55,8 @@ export const ruleInputSchema = z.object({
   name: z.string().trim().min(1).max(120),
   templateKey: z.string().max(60).nullish(),
   level: z.enum(['ad', 'adset']),
+  /** ADR-0014: 'all' (VÀ, mặc định) hoặc 'any' (HOẶC). */
+  match: z.enum(['all', 'any']).default('all'),
   condition: z.array(ruleConditionSchema).min(1).max(6),
   action: ruleActionSchema,
   guardrails: z
@@ -71,9 +73,15 @@ export type RuleInput = z.input<typeof ruleInputSchema>;
 export type RuleRow = typeof automationRules.$inferSelect;
 
 /** Mẫu dựng sẵn từ gợi ý P1 (P2-10), sắp theo số gợi ý loại đó đã được làm. */
-export const RULE_TEMPLATES: (Omit<z.output<typeof ruleInputSchema>, 'adAccountId' | 'name' | 'guardrails'> & {
+export const RULE_TEMPLATES: (Omit<
+  z.output<typeof ruleInputSchema>,
+  'adAccountId' | 'name' | 'guardrails' | 'match'
+> & {
   key: string;
   sourceKey: string;
+  match?: 'all' | 'any';
+  /** Mẫu tăng ngân sách: người dùng phải nhập trần ngân sách ngày (ADR-0012 mục 2, ADR-0014). */
+  requiresMaxDailyBudget?: boolean;
 })[] = [
   {
     key: 'pause_fatigued_ad',
@@ -107,6 +115,19 @@ export const RULE_TEMPLATES: (Omit<z.output<typeof ruleInputSchema>, 'adAccountI
       { metric: 'results', op: 'gte', value: '5' },
     ],
     action: { type: 'set_adset_budget', changePct: '-15' },
+  },
+  {
+    // ADR-0014: ad set thắng (CPA giảm mạnh, đủ kết quả) → +15% (mức tối đa ADR-0010), không vượt trần người dùng đặt.
+    key: 'increase_budget_winner',
+    sourceKey: 'starved_winner',
+    templateKey: 'increase_budget_winner',
+    level: 'adset',
+    condition: [
+      { metric: 'cpa_change_pct', op: 'lte', value: '-20' },
+      { metric: 'results', op: 'gte', value: '10' },
+    ],
+    action: { type: 'set_adset_budget', changePct: '15' },
+    requiresMaxDailyBudget: true,
   },
 ];
 
@@ -162,6 +183,7 @@ export async function createRule(ctx: ActorCtx, input: RuleInput, clock: Clock =
       name: r.name,
       templateKey: r.templateKey ?? null,
       level: r.level,
+      match: r.match,
       condition: r.condition,
       action: r.action,
       guardrails: r.guardrails,
@@ -341,14 +363,17 @@ export async function entityMetrics(
 export function matchConditions(
   conditions: { metric: string; op: string; value: string }[],
   e: Pick<EntityMetrics, 'metrics' | 'status'>,
+  match: 'all' | 'any' = 'all',
 ): boolean {
   if (e.status !== 'ACTIVE') return false;
-  return conditions.every((c) => {
+  // Chỉ số thiếu dữ liệu (null) không bao giờ làm điều kiện đúng — kể cả với "HOẶC" (ADR-0014).
+  const ok = (c: { metric: string; op: string; value: string }) => {
     const v = e.metrics[c.metric as RuleMetric];
     if (v === null || v === undefined) return false;
     const cmp = compareDecimal(v, c.value);
     return c.op === 'gte' ? cmp >= 0 : cmp <= 0;
-  });
+  };
+  return match === 'any' ? conditions.some(ok) : conditions.every(ok);
 }
 
 /** Ngân sách mới cho rule: hiện tại × (1 + %), làm tròn xuống, không vượt trần người dùng đặt. */
@@ -394,7 +419,7 @@ export async function backtestRule(
   for (let i = BACKTEST_DAYS - 1; i >= 0; i--) {
     const d = addDays(end, -i);
     const m = (await entityMetrics(ctx, r.adAccountId, r.level, d)).filter(
-      (e) => matchConditions(r.condition, e) && !(r.guardrails.excludeMetaIds ?? []).includes(e.metaId),
+      (e) => matchConditions(r.condition, e, r.match) && !(r.guardrails.excludeMetaIds ?? []).includes(e.metaId),
     );
     for (const w of plan(r, m)) {
       const prev = last.get(w.metaId);
@@ -421,7 +446,7 @@ export async function evaluateRule(ctx: WorkspaceCtx, rule: RuleRow, clock: Cloc
   const metrics = await entityMetrics(ctx, rule.adAccountId, rule.level, asOf);
   const g = await effectiveGuardrails(ctx);
   const exclude = [...g.excludeMetaIds, ...(rule.guardrails.excludeMetaIds ?? [])];
-  const matched = metrics.filter((e) => matchConditions(rule.condition, e));
+  const matched = metrics.filter((e) => matchConditions(rule.condition, e, rule.match));
   const wouldDo = plan(rule, matched).map((w) => {
     const e = matched.find((x) => x.metaId === w.metaId)!;
     const v = checkGuardrails({
@@ -622,4 +647,55 @@ export async function automationEffectiveness(ctx: ActorCtx, opts: { days?: numb
       pausedSpend7d: x?.paused_spend ?? '0',
     };
   });
+}
+
+/**
+ * Sao chép rule sang tài khoản QC khác cùng workspace (ADR-0014): mỗi bản sao là rule riêng của một tài khoản, luôn
+ * bắt đầu chạy thử 14 ngày; không kế thừa live, không chép danh sách loại trừ (id đối tượng của tài khoản gốc).
+ * Bỏ qua tài khoản nguồn và tài khoản đã có bản sao cùng tên.
+ */
+export async function copyRule(
+  ctx: ActorCtx,
+  ruleId: string,
+  targetAdAccountIds: string[],
+  clock: Clock = systemClock,
+): Promise<{ created: RuleRow[]; skipped: string[] }> {
+  assertCan(ctx.actor, 'automation.manage');
+  const src = await getRule(ctx, ruleId);
+  const targets = [...new Set(targetAdAccountIds)];
+  if (!targets.length || targets.length > 20) throw new AppError('VALIDATION_FAILED', 'Chọn 1–20 tài khoản');
+  const visible = new Set((await listAdAccounts(ctx)).map((a) => a.id));
+  if (targets.some((id) => !visible.has(id))) throw new AppError('NOT_FOUND', 'Không tìm thấy tài khoản');
+  const existing = await ctx.db
+    .select({ adAccountId: automationRules.adAccountId })
+    .from(automationRules)
+    .where(and(eq(automationRules.workspaceId, ctx.workspaceId), eq(automationRules.name, src.name)));
+  const taken = new Set(existing.map((r) => r.adAccountId));
+  const created: RuleRow[] = [];
+  const skipped: string[] = [];
+  for (const adAccountId of targets) {
+    if (adAccountId === src.adAccountId || taken.has(adAccountId)) {
+      skipped.push(adAccountId);
+      continue;
+    }
+    created.push(
+      await createRule(
+        ctx,
+        {
+          adAccountId,
+          name: src.name,
+          templateKey: src.templateKey,
+          level: src.level,
+          match: src.match,
+          condition: src.condition as RuleInput['condition'],
+          action: src.action as RuleInput['action'],
+          guardrails: {
+            ...(src.guardrails.maxActionsPerDay ? { maxActionsPerDay: src.guardrails.maxActionsPerDay } : {}),
+          },
+        },
+        clock,
+      ),
+    );
+  }
+  return { created, skipped };
 }

@@ -2,11 +2,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { z } from 'zod';
+import { listAdAccounts } from '@adxlens/core/connections';
 import { getRule, liveBlocker, ruleEvaluationsFor } from '@adxlens/core/execution';
 import { Badge, Card, CardHeader, EmptyState, PageHeader, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
 import { MODE_TONE } from '@/lib/automation';
 import { requirePermission } from '@/server/guards';
 import { getPageContext, requireFlag } from '@/server/page-context';
+import { CopyRule } from './copy-rule';
 import { RuleModeActions } from './rule-mode-actions';
 
 export async function generateMetadata() {
@@ -29,11 +31,16 @@ export default async function RulePage({ params }: { params: Promise<{ id: strin
   const t = await getTranslations('automation');
   const ta = await getTranslations('actionLog');
   const format = await getFormatter();
-  const [evals, blocker] = await Promise.all([ruleEvaluationsFor(pc.ctx, id), liveBlocker(pc.ctx, rule)]);
+  const [evals, blocker, accounts] = await Promise.all([
+    ruleEvaluationsFor(pc.ctx, id),
+    liveBlocker(pc.ctx, rule),
+    listAdAccounts(pc.ctx),
+  ]);
+  const copyTargets = accounts.filter((a) => a.id !== rule.adAccountId).map((a) => ({ id: a.id, name: a.name }));
   const shadowDays = rule.shadowStartedAt ? Math.floor((Date.now() - rule.shadowStartedAt.getTime()) / 86_400_000) : 0;
   const conditions = rule.condition
     .map((c) => `${t(`metrics.${c.metric}` as never)} ${c.op === 'gte' ? '≥' : '≤'} ${c.value}`)
-    .join(' · ');
+    .join(rule.match === 'any' ? ` ${t('or')} ` : ` ${t('and')} `);
   const action = `${ta(`types.${rule.action.type}` as never)}${rule.action.changePct ? ` ${rule.action.changePct}%` : ''}`;
   return (
     <>
@@ -52,7 +59,12 @@ export default async function RulePage({ params }: { params: Promise<{ id: strin
             </Badge>
           </span>
         }
-        actions={<RuleModeActions id={rule.id} mode={rule.mode} liveBlocker={blocker} />}
+        actions={
+          <div className="flex gap-2">
+            <CopyRule id={rule.id} name={rule.name} accounts={copyTargets} />
+            <RuleModeActions id={rule.id} mode={rule.mode} liveBlocker={blocker} />
+          </div>
+        }
       />
       <Card className="mb-4 px-4 py-4 text-body">
         <p className="text-fg">{t('summary', { level: t(`levels.${rule.level}`), conditions, action })}</p>
@@ -88,14 +100,32 @@ export default async function RulePage({ params }: { params: Promise<{ id: strin
                   </TD>
                   <TD numeric>{e.matchedEntities.length}</TD>
                   <TD>
-                    {e.wouldDo.length === 0
-                      ? '—'
-                      : e.wouldDo.map((w) => (
-                          <span key={w.metaId} className="block text-small">
-                            {w.metaId}
-                            {w.blockedBy ? ` · ${t('blocked', { reason: w.blockedBy })}` : ''}
-                          </span>
-                        ))}
+                    {e.matchedEntities.length === 0 ? (
+                      <span className="text-small text-fg-tertiary">{t('log.none')}</span>
+                    ) : (
+                      <details data-testid="evaluation-detail">
+                        <summary className="cursor-pointer text-small text-link">{t('log.matched')}</summary>
+                        <ul className="mt-1 space-y-1">
+                          {e.matchedEntities.map((m) => {
+                            const w = e.wouldDo.find((x) => x.metaId === m.metaId);
+                            return (
+                              <li key={m.metaId} className="text-small">
+                                <span className="font-medium">{m.name ?? m.metaId}</span>{' '}
+                                <span className="num text-fg-secondary">
+                                  {rule.condition
+                                    .map((c) => `${t(`metrics.${c.metric}` as never)} ${m.metrics[c.metric] ?? '—'}`)
+                                    .join(' · ')}
+                                </span>
+                                {w?.newDailyBudget ? ` · ${t('log.newBudget', { budget: w.newDailyBudget })}` : ''}
+                                {w?.blockedBy ? (
+                                  <span className="text-warning"> · {t('log.blockedBy', { reason: w.blockedBy })}</span>
+                                ) : null}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </details>
+                    )}
                     {e.actionIds?.length ? (
                       <span className="block text-small text-fg-secondary">
                         {t('actionsCreated', { count: e.actionIds.length })}

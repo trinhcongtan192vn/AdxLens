@@ -2,6 +2,22 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [060] Rule tự động mạnh hơn: điều kiện HOẶC, mẫu tăng ngân sách ad set thắng, nhật ký kích hoạt, sao chép rule (B1) — 2026-10-24
+
+**Thay đổi** (ADR-0014, sửa đổi ADR-0012 mục 1)
+- **Kiểu khớp** `match`: "Khi TẤT CẢ điều kiện đúng (VÀ)" (mặc định, rule cũ giữ nguyên) hoặc "Khi BẤT KỲ điều kiện nào đúng (HOẶC)". Chỉ số thiếu dữ liệu không bao giờ làm điều kiện đúng, kể cả với HOẶC. Backtest, shadow, live dùng cùng kiểu khớp. Cột `automation_rules.match` (migration 0059–0060, chỉ nhận `all` / `any`).
+- **Mẫu mới "Tăng ngân sách nhóm thắng (CPA giảm mạnh)"** (`increase_budget_winner`): CPA giảm ≥ 20% và ≥ 10 kết quả → +15% ngân sách ngày (mức tối đa ADR-0010); **bắt buộc trần ngân sách ngày** — không có trần → không tạo được (ADR-0012 mục 2).
+- **Nhật ký kích hoạt** trên trang rule: mỗi lần đánh giá mở xem đối tượng khớp kèm giá trị chỉ số của từng điều kiện lúc đó, ngân sách mới (nếu có), lý do bị chặn (guardrail / cooldown). Dòng điều kiện hiện "VÀ" / "HOẶC".
+- **Sao chép rule sang tài khoản khác** (Owner, `POST /api/v1/automation-rules/[id]/copy`, 1–20 tài khoản, sau cờ `p2b_auto`): mỗi bản sao là rule riêng cho một tài khoản, **luôn bắt đầu chạy thử 14 ngày**, không kế thừa live, **không chép danh sách loại trừ**; bỏ qua tài khoản nguồn / đã có bản sao cùng tên; tài khoản ngoài workspace → 404.
+- Không có hành động ghi mới, không nới ±15%, không bỏ shadow 14 ngày.
+
+**Test tự động:** `rules.test.ts` (HOẶC khớp khi một điều kiện đúng, chỉ số null không khớp, đối tượng tắt không khớp; rule lưu `match`; mẫu tăng ngân sách thiếu trần → 422, có trần → shadow, ngân sách không vượt trần; sao chép: shadow, giữ `match` và giới hạn / ngày, bỏ `excludeMetaIds`, bỏ nguồn / trùng, tài khoản workspace khác → 404, ngữ cảnh workspace khác → 404); `automation.test.ts` (copy: cờ tắt → 404, cờ bật → bản sao shadow, `match` = any); bộ cách ly: route copy mới.
+- **Test đổi (lý do):** `automation.test.ts` "cờ bật: mẫu…" — trước khẳng định đúng 3 mẫu; ADR-0014 thêm mẫu thứ 4. Nay khẳng định 4 mẫu **và** có `increase_budget_winner` (thêm assertion).
+
+**Vùng bảo vệ:** `packages/core/execution/**` (rules.ts), `packages/db/**` (migration 0059–0060) — **cần PM chạy staging** trước khi merge main. Coverage `execution` 95,95% dòng.
+
+**PM kiểm tra:** Rule tự động → Tạo rule → mẫu "Tăng ngân sách nhóm thắng" (thử bỏ trống trần → báo lỗi) → đổi kiểu khớp sang HOẶC → Lưu (chạy thử) → trang rule: "Sao chép sang tài khoản khác"; sau `pnpm rules:simulate` mở "Đối tượng khớp" ở nhật ký.
+
 ## [059] Duyệt hàng loạt từ Việc tuần này (B2) — 2026-10-24
 
 **Thay đổi**

@@ -2169,7 +2169,8 @@
     "templates": {
       "pause_fatigued_ad": "Pause fatigued ads",
       "pause_adset_no_results": "Pause ad sets spending without results",
-      "reduce_budget_high_cpa": "Cut budget of ad sets with rising CPA"
+      "reduce_budget_high_cpa": "Cut budget of ad sets with rising CPA",
+      "increase_budget_winner": "Increase budget of winning ad sets (CPA down sharply)"
     },
     "template": "Template",
     "doneCount": "done {count} times",
@@ -2183,7 +2184,8 @@
       "then": "then",
       "changePct": "Budget change (%)",
       "maxDailyBudget": "Daily budget cap (smallest currency unit)",
-      "maxPerDay": "Max actions per day (optional)"
+      "maxPerDay": "Max actions per day (optional)",
+      "match": "Condition matching"
     },
     "levels": {
       "ad": "ad",
@@ -2252,6 +2254,28 @@
         "undoRate": "Undo rate",
         "pausedSpend": "Spend in 7 days before pausing"
       }
-    }
+    },
+    "match": {
+      "all": "When ALL conditions are true (AND)",
+      "any": "When ANY condition is true (OR)"
+    },
+    "maxRequired": "Required for budget increases: the new budget never exceeds this.",
+    "copy": {
+      "button": "Copy to other accounts",
+      "title": "Copy rule \"{name}\"",
+      "note": "Each copy is a separate rule for one account and starts with a 14-day trial run. Exclusions are not copied.",
+      "accounts": "Ad accounts",
+      "confirm": "Copy",
+      "done": "Created {created} rules (skipped {skipped})"
+    },
+    "log": {
+      "title": "Trigger log",
+      "matched": "Matched objects",
+      "none": "No matching objects.",
+      "blockedBy": "blocked: {reason}",
+      "newBudget": "new budget {budget}"
+    },
+    "and": "AND",
+    "or": "OR"
   }
 }

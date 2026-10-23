@@ -445,6 +445,13 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     reason: 'Superadmin duyệt / từ chối, bật cờ qua core/flags (admin-roles.test.ts)',
   },
   'GET /api/v1/automation-rules': { kind: 'workspace' },
+  'POST /api/v1/automation-rules/[id]/copy': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.rule.id }),
+    body: (w) => ({ ad_account_ids: [w.a.adAccount.id] }),
+    crossBody: (w) => ({ ad_account_ids: [w.b.adAccount.id] }),
+  },
   'POST /api/v1/automation-rules': {
     kind: 'workspace',
     body: (w) => ({
