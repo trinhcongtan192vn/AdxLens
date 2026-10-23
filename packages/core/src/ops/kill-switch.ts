@@ -44,16 +44,14 @@ export async function setGlobalKillSwitch(
       .where(eq(actions.status, 'pending'))
       .returning({ id: actions.id, workspaceId: actions.workspaceId });
     if (rows.length) {
-      await db
-        .insert(actionLogs)
-        .values(
-          rows.map((r) => ({
-            workspaceId: r.workspaceId,
-            actionId: r.id,
-            event: 'canceled',
-            detail: { reason: 'kill_switch_global' },
-          })),
-        );
+      await db.insert(actionLogs).values(
+        rows.map((r) => ({
+          workspaceId: r.workspaceId,
+          actionId: r.id,
+          event: 'canceled',
+          detail: { reason: 'kill_switch_global' },
+        })),
+      );
     }
     canceled = rows.length;
     await openIncident(db, {

@@ -12,7 +12,9 @@ import {
   truncateAll,
 } from '@adxlens/db/testing';
 import { asUser, call, installTestServer, uninstallTestServer } from '../../../../test-utils';
+import * as approveRoute from './[id]/approve/route';
 import * as assigneesRoute from './[id]/assignees/route';
+import * as proposalRoute from './[id]/proposal/route';
 import * as itemRoute from './[id]/route';
 import * as onboardingRoute from '../me/onboarding/route';
 import * as outcomesRoute from './outcomes/route';
@@ -81,6 +83,9 @@ describe('API Weekly Action List (P101)', () => {
       ).status,
     ).toBe(404);
     expect((await call(outcomesRoute.GET, { user, workspaceId: ws })).status).toBe(404);
+    const params = { id: '00000000-0000-4000-8000-000000000000' };
+    expect((await call(proposalRoute.GET, { user, workspaceId: ws, params })).status).toBe(404);
+    expect((await call(approveRoute.POST, { method: 'POST', user, workspaceId: ws, params })).status).toBe(404);
     expect((await call(onboardingRoute.DELETE, { method: 'DELETE', user, workspaceId: ws })).status).toBe(404);
   });
 

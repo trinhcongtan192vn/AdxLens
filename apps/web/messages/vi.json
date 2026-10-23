@@ -1648,5 +1648,32 @@
     "failures": "{count} lỗi liên tiếp",
     "unlock": "Mở khóa",
     "breakerClosed": "Đã mở khóa tài khoản"
+  },
+  "approve": {
+    "open": "Duyệt thực hiện trên Meta",
+    "title": "Duyệt hành động",
+    "confirm": "Duyệt và thực hiện",
+    "manualOnly": "Gợi ý này cần làm thủ công trên Ads Manager.",
+    "viewResult": "Xem kết quả trong nhật ký",
+    "queued": "Đã duyệt. AdxLens đang thực hiện và xác minh trên Meta.",
+    "beforeNote": "\"Trước\" theo lần đồng bộ gần nhất. Nếu đối tượng đã bị đổi trên Meta, AdxLens sẽ dừng và không ghi đè.",
+    "safety": "AdxLens kiểm tra giới hạn an toàn, thực hiện một lần, rồi đọc lại trạng thái trên Meta để xác minh.",
+    "noPermission": "Bạn chưa được cấp quyền duyệt hành động cho Client này. Owner cấp ở Cài đặt › Thành viên.",
+    "warnings": {
+      "not_undoable": "Hành động này không hoàn tác tự động được.",
+      "learning_reset": "Đổi ngân sách có thể đưa nhóm quảng cáo về giai đoạn học.",
+      "last_active_ad": "Đây là quảng cáo cuối cùng đang chạy của nhóm quảng cáo: nhóm sẽ ngừng phân phối."
+    },
+    "violations": {
+      "excluded": "Đối tượng nằm trong danh sách không bao giờ thay đổi.",
+      "too_many_actions": "Đã đạt tối đa {max} hành động hôm nay cho tài khoản này.",
+      "not_enough_data": "Chưa đủ {min} ngày dữ liệu.",
+      "budget_change_too_large": "Thay đổi ngân sách vượt {max}%.",
+      "no_daily_budget": "Nhóm quảng cáo không dùng ngân sách ngày.",
+      "invalid_budget": "Ngân sách mới không hợp lệ.",
+      "quiet_hours": "Ngoài giờ cho phép.",
+      "no_auto_resume": "Không tự bật lại.",
+      "no_auto_duplicate": "Không tự nhân bản."
+    }
   }
 }

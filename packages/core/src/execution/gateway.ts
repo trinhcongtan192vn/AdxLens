@@ -430,6 +430,19 @@ export async function executeAction(
       verifiedAt: ts,
       ...(outcome.copiedId ? { params: { ...a.params, copied_adset_id: outcome.copiedId } } : {}),
     });
+    // Gợi ý gốc (P101) → "Đã làm" khi hành động đã xác minh trên Meta.
+    if (a.recommendationId && !a.undoOf) {
+      await ctx.db
+        .update(schema.recommendations)
+        .set({ status: 'done', doneAt: ts, statusChangedBy: a.approvedBy, statusChangedAt: ts, updatedAt: ts })
+        .where(
+          and(
+            eq(schema.recommendations.workspaceId, ctx.workspaceId),
+            eq(schema.recommendations.id, a.recommendationId),
+            inArray(schema.recommendations.status, ['proposed', 'in_progress']),
+          ),
+        );
+    }
     if (a.undoOf) {
       await ctx.db
         .update(actions)

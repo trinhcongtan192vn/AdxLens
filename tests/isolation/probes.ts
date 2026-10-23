@@ -162,6 +162,16 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
     crossParams: (w) => ({ id: w.b.recommendation.id }),
   },
+  'GET /api/v1/recommendations/[id]/proposal': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.recommendation.id }),
+  },
+  'POST /api/v1/recommendations/[id]/approve': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.recommendation.id }),
+  },
   'GET /api/v1/reports': { kind: 'workspace' },
   'POST /api/v1/reports': {
     kind: 'workspace',
