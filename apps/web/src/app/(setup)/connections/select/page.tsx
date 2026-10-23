@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { z } from 'zod';
-import { currentPlanKey, PLANS } from '@adxlens/core/billing';
+import { billingStatus } from '@adxlens/core/billing';
 import { listAvailableAccounts } from '@adxlens/core/connections';
 import { SetupShell } from '@/components/setup-shell';
 import { requirePermission } from '@/server/guards';
@@ -25,13 +25,14 @@ export default async function SelectAccountsPage({ searchParams }: { searchParam
   const accounts = await listAvailableAccounts(pc.ctx, id.data).catch(() => null);
   if (!accounts) notFound();
   const t = await getTranslations('connect');
-  const plan = await currentPlanKey(pc.workspace.id);
+  const billing = await billingStatus(pc.ctx);
+  const plan = billing.effectivePlan;
   return (
     <SetupShell stepLabel={t('step', { n: 3, total: 4 })} width="lg">
       <SelectAccounts
         connectionId={id.data}
         planName={t(`plans.${plan}`)}
-        limit={PLANS[plan].includedAccounts}
+        limit={billing.plan.includedAccounts}
         accounts={accounts.map((a) => ({
           metaAccountId: a.metaAccountId,
           name: a.name,

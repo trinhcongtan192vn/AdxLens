@@ -282,4 +282,54 @@ describe('daily sync', () => {
       .where(and(eq(schema.syncRuns.adAccountId, adAccountId), eq(schema.syncRuns.kind, 'daily')));
     expect(runs).toHaveLength(1);
   });
+
+  it('hết ân hạn vượt hạn mức gói: tài khoản ngoài hạn mức bỏ qua đồng bộ (026, PRD 13.3)', async () => {
+    const { ctx, adAccountId, connectionId } = await setup();
+    const [second] = await importAccounts(ctx, { connectionId, metaAccountIds: ['act_100000002'] });
+    await db
+      .update(schema.adAccounts)
+      .set({ active30d: true })
+      .where(eq(schema.adAccounts.workspaceId, ctx.workspaceId));
+    await db
+      .update(schema.adAccounts)
+      .set({ createdAt: new Date('2026-10-01T00:00:00Z') })
+      .where(eq(schema.adAccounts.id, adAccountId));
+    // Free: 1 tài khoản; vượt từ 8 ngày trước → hết ân hạn 7 ngày.
+    await db.insert(schema.subscriptions).values({
+      workspaceId: ctx.workspaceId,
+      planKey: 'free',
+      overLimitSince: new Date(now().getTime() - 8 * 86_400_000),
+    });
+    expect(
+      await runDailySync(
+        ctx,
+        { adAccountId: second!.adAccountId, date: '2026-10-22' },
+        { meta, keys: KEYS.keys, clock },
+      ),
+    ).toEqual({ status: 'skipped', reason: 'plan_limit' });
+    expect(
+      await runDailySync(ctx, { adAccountId, date: '2026-10-22' }, { meta, keys: KEYS.keys, clock }),
+    ).toMatchObject({
+      status: 'ok',
+    });
+  });
+
+  it('vượt hạn mức lần đầu: ghi mốc ân hạn, vẫn đồng bộ', async () => {
+    const { ctx, adAccountId, connectionId } = await setup();
+    await importAccounts(ctx, { connectionId, metaAccountIds: ['act_100000002'] });
+    await db
+      .update(schema.adAccounts)
+      .set({ active30d: true })
+      .where(eq(schema.adAccounts.workspaceId, ctx.workspaceId));
+    expect(
+      await runDailySync(ctx, { adAccountId, date: '2026-10-22' }, { meta, keys: KEYS.keys, clock }),
+    ).toMatchObject({
+      status: 'ok',
+    });
+    const [sub] = await db
+      .select()
+      .from(schema.subscriptions)
+      .where(eq(schema.subscriptions.workspaceId, ctx.workspaceId));
+    expect(sub?.overLimitSince?.toISOString()).toBe(now().toISOString());
+  });
 });

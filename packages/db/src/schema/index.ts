@@ -9,3 +9,4 @@ export * from './deletion';
 export * from './insight';
 export * from './reporting';
 export * from './notification';
+export * from './billing';

@@ -157,6 +157,15 @@ export async function seedWorld(db: Db) {
     })
     .returning();
 
+  // Gói của B (026): workspace A không được thấy hay đổi được.
+  await db.insert(schema.subscriptions).values({
+    workspaceId: b.workspace.id,
+    planKey: 'scale',
+    status: 'past_due',
+    pastDueSince: new Date('2026-10-20T00:00:00Z'),
+    overLimitSince: new Date('2026-10-20T00:00:00Z'),
+  });
+
   const world = {
     a: {
       workspace: a.workspace,

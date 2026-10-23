@@ -9,6 +9,7 @@ import {
   withConnectionToken,
   type TokenKeys,
 } from '@adxlens/core/connections';
+import { refreshOverLimit, syncableAccountIds } from '@adxlens/core/billing';
 import { notify } from '@adxlens/core/notification';
 import {
   AppError,
@@ -478,8 +479,13 @@ export async function runDailySync(
   ctx: WorkspaceCtx,
   input: { adAccountId: string; date: string; finalAttempt?: boolean },
   deps: SyncDeps,
-): Promise<SyncOutcome | { status: 'skipped' }> {
+): Promise<SyncOutcome | { status: 'skipped'; reason?: 'plan_limit' }> {
   await getAccount(ctx, input.adAccountId);
+  // PRD 13.3 (feature 026): cập nhật mốc vượt hạn mức; hết ân hạn 7 ngày → ngừng đồng bộ tài khoản ngoài
+  // hạn mức (dữ liệu cũ giữ nguyên).
+  await refreshOverLimit(ctx, deps.clock);
+  const allowed = await syncableAccountIds(ctx, deps.clock);
+  if (allowed && !allowed.has(input.adAccountId)) return { status: 'skipped', reason: 'plan_limit' };
   const from = addDays(input.date, -(DAILY_LOOKBACK_DAYS - 1));
   const [prev] = await ctx.db
     .select({ id: syncRuns.id, status: syncRuns.status })

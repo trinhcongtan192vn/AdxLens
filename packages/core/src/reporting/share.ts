@@ -10,11 +10,12 @@ import {
   type Clock,
   type WorkspaceCtx,
 } from '@adxlens/core/shared';
+import { showPoweredBy } from '@adxlens/core/billing';
 import { notify } from '@adxlens/core/notification';
 import { assertCan } from '@adxlens/core/tenancy';
 import { getReport, isBlocked, reportIntegrity } from './report';
 
-const { shareLinks, workspaces, adAccounts, metaConnections } = schema;
+const { shareLinks, adAccounts, metaConnections } = schema;
 
 /** Hạn tùy chọn của link (PRD P0-14). null = không hết hạn. */
 export const SHARE_EXPIRY_DAYS = [7, 30, 90] as const;
@@ -71,10 +72,7 @@ export async function createShareLink(
   }
   const password = input.password?.trim() || null;
   if (password && password.length < 6) throw new AppError('VALIDATION_FAILED', 'Mật khẩu tối thiểu 6 ký tự');
-  const [ws] = await ctx.db
-    .select({ badgeRemoved: workspaces.badgeRemoved })
-    .from(workspaces)
-    .where(eq(workspaces.id, ctx.workspaceId));
+  const showBadge = await showPoweredBy(ctx, clock);
   const token = randomBytes(32).toString('base64url');
   try {
     const [link] = await ctx.db
@@ -84,7 +82,7 @@ export async function createShareLink(
         reportId: report.id,
         token,
         passwordHash: password ? hashSharePassword(password) : null,
-        showBadge: !ws?.badgeRemoved,
+        showBadge,
         expiresAt: input.expiresInDays ? new Date(clock.now().getTime() + input.expiresInDays * 86_400_000) : null,
         createdBy: ctx.actor.userId,
       })
