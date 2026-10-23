@@ -38,7 +38,7 @@ test('superadmin: các trang vận hành, sửa gói, thông báo bảo trì t�
   await page.getByTestId('edit-plan-starter').click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Tài khoản kèm gói').fill('6');
-  await dialog.getByLabel('Lý do (bắt buộc, ≥ 5 ký tự)').fill('Thử E2E sửa gói');
+  await dialog.getByLabel('Lý do (bắt buộc, ≥ 5 ký tự)').fill(`Thử E2E sửa gói ${ws}`);
   await dialog.getByRole('button', { name: 'Sửa' }).click();
   await expect(starter.locator('td').nth(3)).toHaveText('6');
 
@@ -49,7 +49,7 @@ test('superadmin: các trang vận hành, sửa gói, thông báo bảo trì t�
   await dialog.getByLabel('Hiện cho mọi khách').check();
   await dialog.getByLabel('Nội dung tiếng Việt').fill(notice);
   await dialog.getByLabel('Nội dung tiếng Anh').fill('Maintenance E2E');
-  await dialog.getByLabel('Lý do (bắt buộc, ≥ 5 ký tự)').fill('Thử thông báo bảo trì');
+  await dialog.getByLabel('Lý do (bắt buộc, ≥ 5 ký tự)').fill(`Thử thông báo bảo trì ${ws}`);
   await dialog.getByRole('button', { name: 'Sửa' }).click();
   await expect(page.getByTestId('maintenance-state')).toContainText(notice);
 
@@ -74,8 +74,10 @@ test('superadmin: các trang vận hành, sửa gói, thông báo bảo trì t�
 
   // Nhật ký: có dòng sửa gói và bảo trì; trả lại giá trị gói cũ.
   await page.goto('/admin/audit');
-  await expect(page.getByRole('row', { name: /Sửa gói.*Thử E2E sửa gói/ })).toBeVisible();
-  await expect(page.getByRole('row', { name: /Bật thông báo bảo trì.*Thử thông báo bảo trì/ })).toBeVisible();
+  await expect(page.getByRole('row', { name: new RegExp(`Sửa gói.*Thử E2E sửa gói ${ws}`) })).toBeVisible();
+  await expect(
+    page.getByRole('row', { name: new RegExp(`Bật thông báo bảo trì.*Thử thông báo bảo trì ${ws}`) }),
+  ).toBeVisible();
   await page.goto('/admin/billing');
   await page.getByTestId('edit-plan-starter').click();
   await dialog.getByLabel('Tài khoản kèm gói').fill((before ?? '5').trim());
