@@ -131,7 +131,7 @@ describe('OAuth Meta (META_MOCK=1)', () => {
     expect(st.body).toMatchObject({
       status: 'queued',
       progress: { days_done: 0, days_total: 90 },
-      reconciliation: null,
+      reconciliation: { status: 'pending' },
     });
 
     // Đang chạy → thử lại không tạo lần mới.

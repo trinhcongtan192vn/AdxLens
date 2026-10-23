@@ -25,6 +25,7 @@ import {
   THead,
   TR,
 } from '@adxlens/ui';
+import { ReconBadge } from '@/components/recon-badge';
 import { api } from '@/lib/api-client';
 import { filterClients, type ClientRow } from '@/lib/clients';
 
@@ -147,7 +148,15 @@ export function ClientsTable({
                       <TD numeric muted>
                         —
                       </TD>
-                      <TD muted>—</TD>
+                      <TD>
+                        {c.recon && c.recon.status !== 'pending' ? (
+                          <Link href={`/clients/${c.id}/reconciliation`}>
+                            <ReconBadge status={c.recon.status} pct={c.recon.maxSpendDeltaPct} />
+                          </Link>
+                        ) : (
+                          <span className="text-fg-tertiary">—</span>
+                        )}
+                      </TD>
                       <TD muted>—</TD>
                       <TD className="text-right">
                         {canManage && needConfirm ? (

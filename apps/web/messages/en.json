@@ -586,5 +586,52 @@
       "META_NO_ACCESS": "Sync stopped at {percent}%: access to the ad account was lost. Check permissions in Business Manager, then retry.",
       "META_TOKEN_INVALID": "Sync stopped at {percent}%: the Meta connection expired. Reconnect to continue."
     }
+  },
+  "recon": {
+    "ok": "Match {pct}",
+    "warning": "Off by {pct}",
+    "pending": "Not reconciled",
+    "title": "Data reconciliation",
+    "resync": "Re-run sync",
+    "resyncQueued": "Re-sync scheduled. Reconciliation updates when syncing finishes.",
+    "warningBanner": "Figures differ from Ads Manager by more than 1% on {count, plural, one {# day} other {# days}}: {dates}. Reports for this Client can't be shared yet. We re-sync and reconcile again in 24 hours.",
+    "pendingBody": "No reconciliation data for this range yet. Reconciliation runs after syncing finishes.",
+    "noAccounts": "This Client has no ad accounts to reconcile.",
+    "account": "Account",
+    "range": "Date range",
+    "ranges": {
+      "7": "Last 7 days",
+      "14": "Last 14 days",
+      "30": "Last 30 days"
+    },
+    "cols": {
+      "metric": "Metric",
+      "adxlens": "AdxLens",
+      "adsManager": "Ads Manager",
+      "diff": "Difference",
+      "pct": "%",
+      "status": "Status"
+    },
+    "metrics": {
+      "spend": "Spend ({currency})",
+      "impressions": "Impressions",
+      "linkClicks": "Link clicks",
+      "conversionValue": "Conversion value ({currency})",
+      "roas": "ROAS",
+      "purchase": "Purchases (7d click / 1d view)",
+      "lead": "Leads (7d click / 1d view)",
+      "landing_page_view": "Landing page views",
+      "messaging": "Conversations",
+      "other": "Result: {type}"
+    },
+    "match": "Match",
+    "mismatch": "Off",
+    "causesTitle": "Possible causes (for reference only)",
+    "causes": {
+      "recent": "Data for {dates} is not final yet: Meta keeps adjusting conversions for a few days.",
+      "timezone": "The account time zone ({timezone}) must match Ads Manager's setting when comparing.",
+      "attribution": "Ads Manager may be showing an attribution window other than 7d click / 1d view."
+    },
+    "footnote": "Matches Meta · updated {time} · attribution 7d click / 1d view · {currency} · {timezone}"
   }
 }

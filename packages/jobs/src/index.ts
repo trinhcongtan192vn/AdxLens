@@ -46,7 +46,7 @@ export const JOBS = {
     queue: 'sync',
     workspaceScoped: true,
     schema: z.object({ ...ws, adAccountId: uuid, from: isoDate, to: isoDate, syncRunId: uuid }),
-    jobId: (p) => `sync:backfill:${p.adAccountId}:${p.from}:${p.to}`,
+    jobId: (p) => `sync:backfill:${p.syncRunId}:${p.from}:${p.to}`,
   }),
   'sync:daily_account': def({
     queue: 'sync',
@@ -182,10 +182,12 @@ export const DEFAULT_JOB_OPTIONS = {
 };
 
 /** Enqueue ghi vào mảng, dùng trong test. */
-export function recordingEnqueue(): Enqueue & { calls: { name: JobName; payload: unknown }[] } {
-  const calls: { name: JobName; payload: unknown }[] = [];
-  const fn = (async (name, payload) => {
-    calls.push({ name, payload });
+export function recordingEnqueue(): Enqueue & {
+  calls: { name: JobName; payload: unknown; opts?: { delayMs?: number } }[];
+} {
+  const calls: { name: JobName; payload: unknown; opts?: { delayMs?: number } }[] = [];
+  const fn = (async (name, payload, opts) => {
+    calls.push(opts ? { name, payload, opts } : { name, payload });
   }) as Enqueue & { calls: typeof calls };
   fn.calls = calls;
   return fn;

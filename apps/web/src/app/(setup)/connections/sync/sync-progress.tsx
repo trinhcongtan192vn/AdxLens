@@ -6,10 +6,15 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Badge, Banner, Button, buttonVariants, EmptyState, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
+import { ReconBadge } from '@/components/recon-badge';
 import { api } from '@/lib/api-client';
 import { summarizeSync, type AccountSync } from '@/lib/sync-progress';
 
-type Row = AccountSync & { id: string; name: string };
+type Row = AccountSync & {
+  id: string;
+  name: string;
+  recon: { status: 'ok' | 'warning' | 'pending'; pct: string | null };
+};
 
 export function SyncProgress({ accounts }: { accounts: Row[] }) {
   const t = useTranslations('sync');
@@ -17,13 +22,14 @@ export function SyncProgress({ accounts }: { accounts: Row[] }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const s = summarizeSync(accounts);
+  const waitingRecon = s.allDone && accounts.some((a) => a.recon.status === 'pending');
 
   // Worker đang đồng bộ: làm mới tới khi xong.
   useEffect(() => {
-    if (!s.active) return;
+    if (!s.active && !waitingRecon) return;
     const id = setInterval(() => router.refresh(), 3000);
     return () => clearInterval(id);
-  }, [s.active, router]);
+  }, [s.active, waitingRecon, router]);
 
   const retry = () =>
     start(async () => {
@@ -97,7 +103,13 @@ export function SyncProgress({ accounts }: { accounts: Row[] }) {
                     </Badge>
                   )}
                 </TD>
-                <TD muted>—</TD>
+                <TD>
+                  {a.recon.status === 'pending' ? (
+                    <span className="text-fg-tertiary">—</span>
+                  ) : (
+                    <ReconBadge status={a.recon.status} pct={a.recon.pct} />
+                  )}
+                </TD>
               </TR>
             ))}
           </TBody>

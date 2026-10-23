@@ -111,6 +111,18 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: (w) => ({ id: w.a.adAccount.id }),
     crossParams: (w) => ({ id: w.b.adAccount.id }),
   },
+  'GET /api/v1/ad-accounts/[id]/reconciliation': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.adAccount.id }),
+    crossParams: (w) => ({ id: w.b.adAccount.id }),
+    query: () => ({ from: '2026-10-16', to: '2026-10-22' }),
+  },
+  'POST /api/v1/ad-accounts/[id]/resync': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.adAccount.id }),
+    crossParams: (w) => ({ id: w.b.adAccount.id }),
+    body: () => ({ from: '2026-10-20', to: '2026-10-22' }),
+  },
   'GET /api/v1/clients': { kind: 'workspace' },
   'POST /api/v1/clients': { kind: 'workspace', body: () => ({ name: 'Client mới' }) },
   'GET /api/v1/clients/[id]': {
