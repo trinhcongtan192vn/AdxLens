@@ -875,5 +875,128 @@
       "ad": "Chưa có quảng cáo trong kỳ này."
     },
     "footnote": "{from} → {to} · attribution 7d click / 1d view · theo múi giờ tài khoản"
+  },
+  "report": {
+    "kindLabel": {
+      "audit": "Báo cáo audit",
+      "periodic": "Báo cáo định kỳ",
+      "pitch": "Báo cáo đánh giá"
+    },
+    "preparedFor": "Báo cáo cho {client}",
+    "period": "{from} – {to}",
+    "compare": "So với {from} – {to}",
+    "sections": {
+      "summary": "Tóm tắt",
+      "kpis": "Số liệu chính",
+      "trend": "Chi tiêu theo ngày",
+      "campaigns": "Chiến dịch nổi bật",
+      "findings": "Vấn đề cần xử lý",
+      "workDone": "Việc đã làm",
+      "nextSteps": "Kế hoạch tiếp theo"
+    },
+    "kpi": {
+      "spend": "Chi tiêu",
+      "results": "Kết quả",
+      "cpa": "Chi phí/kết quả",
+      "roas": "ROAS",
+      "ctr": "CTR",
+      "impressions": "Hiển thị"
+    },
+    "cols": {
+      "campaign": "Chiến dịch",
+      "spend": "Chi tiêu",
+      "results": "Kết quả",
+      "cpa": "CPA",
+      "roas": "ROAS"
+    },
+    "severity": {
+      "high": "Cao",
+      "medium": "Trung bình",
+      "low": "Thấp"
+    },
+    "impact": "Tác động ước tính: {amount}",
+    "noFindings": "Không có vấn đề mức đáng kể trong kỳ.",
+    "noData": "Không có chi tiêu trong kỳ.",
+    "source": "Khớp Meta tính đến {matchedAt} · attribution 7 ngày click / 1 ngày xem · {currencies} · {timezones}",
+    "sourcePending": "Chưa đối chiếu với Meta · attribution 7 ngày click / 1 ngày xem · {currencies} · {timezones}",
+    "poweredBy": "Powered by AdxLens",
+    "account": "Tài khoản {name}"
+  },
+  "reports": {
+    "title": "Báo cáo",
+    "create": "+ Tạo báo cáo",
+    "emptyTitle": "Chưa có báo cáo",
+    "emptyBody": "Tạo báo cáo đầu tiên cho Client: số liệu khớp Ads Manager, phát hiện và kế hoạch, mang thương hiệu agency.",
+    "cols": {
+      "report": "Báo cáo",
+      "client": "Client",
+      "period": "Kỳ",
+      "status": "Trạng thái",
+      "created": "Tạo lúc"
+    },
+    "status": {
+      "building": "Đang dựng",
+      "ready": "Sẵn sàng",
+      "failed": "Lỗi"
+    },
+    "blocked": "Chưa chia sẻ được",
+    "kind": {
+      "audit": "Audit",
+      "periodic": "Định kỳ"
+    },
+    "new": {
+      "title": "Tạo báo cáo",
+      "client": "Client",
+      "kind": "Loại báo cáo",
+      "period": "Kỳ báo cáo",
+      "locale": "Ngôn ngữ báo cáo",
+      "from": "Từ ngày",
+      "to": "Đến ngày",
+      "presets": {
+        "last7": "7 ngày qua",
+        "last30": "30 ngày qua",
+        "lastMonth": "Tháng trước",
+        "custom": "Tùy chọn"
+      },
+      "submit": "Tạo báo cáo",
+      "noClients": "Chưa có Client. Tạo Client và gán tài khoản quảng cáo trước.",
+      "kindHelp": {
+        "audit": "Tập trung vào vấn đề và việc cần làm.",
+        "periodic": "Số liệu kỳ này so với kỳ trước, kèm phát hiện."
+      },
+      "locales": {
+        "vi": "Tiếng Việt",
+        "en": "English"
+      }
+    },
+    "view": {
+      "building": "Đang dựng báo cáo… trang tự cập nhật.",
+      "failed": "Không dựng được báo cáo ({code}). Thử dựng lại.",
+      "rebuild": "Dựng lại",
+      "edit": "Chỉnh nội dung",
+      "save": "Lưu thay đổi",
+      "saved": "Đã lưu",
+      "titleLabel": "Tiêu đề",
+      "workDone": "Việc đã làm",
+      "nextSteps": "Kế hoạch tiếp theo",
+      "hide": "Ẩn mục",
+      "share": "Chia sẻ",
+      "delete": "Xóa báo cáo",
+      "deleteConfirm": "Xóa báo cáo này? Link chia sẻ của báo cáo cũng bị xóa.",
+      "blockedTitle": "Chưa chia sẻ được báo cáo này",
+      "unconfirmed": "{count, plural, other {# tài khoản}} chưa xác nhận gán Client.",
+      "warning": "Số liệu lệch hơn 1% so với Ads Manager ngày {dates}.",
+      "fix": "Xử lý xong thì bấm \"Dựng lại\".",
+      "goAssign": "Xác nhận gán",
+      "goRecon": "Xem đối chiếu",
+      "sections": {
+        "kpis": "Số liệu chính",
+        "trend": "Chi tiêu theo ngày",
+        "campaigns": "Chiến dịch nổi bật",
+        "findings": "Vấn đề cần xử lý",
+        "workDone": "Việc đã làm",
+        "nextSteps": "Kế hoạch tiếp theo"
+      }
+    }
   }
 }

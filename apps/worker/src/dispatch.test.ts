@@ -33,4 +33,13 @@ describe('dispatch', () => {
     const r = await dispatch(handlers, deps, { name: 'maintenance:daily_tick', id: '1', data: { tick: 'now' } });
     expect(r).toEqual({ notified: 0, expired: 0, skipped: 0 });
   });
+
+  it('report:build: cờ p0_reports tắt → không dựng (test "cờ tắt thì không chạy")', async () => {
+    const r = await dispatch(handlers, deps, {
+      name: 'report:build',
+      id: '1',
+      data: { workspaceId: '00000000-0000-4000-8000-000000000001', reportId: '00000000-0000-4000-8000-000000000002' },
+    });
+    expect(r).toEqual({ status: 'flag_off' });
+  });
 });

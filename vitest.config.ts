@@ -4,6 +4,8 @@ import { defineConfig } from 'vitest/config';
 const r = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
 export default defineConfig({
+  // JSX runtime tự động (như Next.js) cho test render component (.test.tsx).
+  esbuild: { jsx: 'automatic' },
   resolve: {
     alias: [
       { find: 'server-only', replacement: r('./tests/empty-module.ts') },

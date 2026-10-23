@@ -875,5 +875,128 @@
       "ad": "No ads in this period."
     },
     "footnote": "{from} → {to} · attribution 7d click / 1d view · account time zone"
+  },
+  "report": {
+    "kindLabel": {
+      "audit": "Audit report",
+      "periodic": "Performance report",
+      "pitch": "Assessment report"
+    },
+    "preparedFor": "Report for {client}",
+    "period": "{from} – {to}",
+    "compare": "vs {from} – {to}",
+    "sections": {
+      "summary": "Summary",
+      "kpis": "Key metrics",
+      "trend": "Daily spend",
+      "campaigns": "Top campaigns",
+      "findings": "Issues to address",
+      "workDone": "Work done",
+      "nextSteps": "Next steps"
+    },
+    "kpi": {
+      "spend": "Spend",
+      "results": "Results",
+      "cpa": "Cost per result",
+      "roas": "ROAS",
+      "ctr": "CTR",
+      "impressions": "Impressions"
+    },
+    "cols": {
+      "campaign": "Campaign",
+      "spend": "Spend",
+      "results": "Results",
+      "cpa": "CPA",
+      "roas": "ROAS"
+    },
+    "severity": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "impact": "Estimated impact: {amount}",
+    "noFindings": "No significant issues this period.",
+    "noData": "No spend in this period.",
+    "source": "Matches Meta as of {matchedAt} · attribution 7-day click / 1-day view · {currencies} · {timezones}",
+    "sourcePending": "Not yet reconciled with Meta · attribution 7-day click / 1-day view · {currencies} · {timezones}",
+    "poweredBy": "Powered by AdxLens",
+    "account": "Account {name}"
+  },
+  "reports": {
+    "title": "Reports",
+    "create": "+ Create report",
+    "emptyTitle": "No reports yet",
+    "emptyBody": "Create a Client's first report: figures matching Ads Manager, findings and a plan, under your agency's brand.",
+    "cols": {
+      "report": "Report",
+      "client": "Client",
+      "period": "Period",
+      "status": "Status",
+      "created": "Created"
+    },
+    "status": {
+      "building": "Building",
+      "ready": "Ready",
+      "failed": "Failed"
+    },
+    "blocked": "Can't share yet",
+    "kind": {
+      "audit": "Audit",
+      "periodic": "Periodic"
+    },
+    "new": {
+      "title": "Create report",
+      "client": "Client",
+      "kind": "Report type",
+      "period": "Period",
+      "locale": "Report language",
+      "from": "From",
+      "to": "To",
+      "presets": {
+        "last7": "Last 7 days",
+        "last30": "Last 30 days",
+        "lastMonth": "Last month",
+        "custom": "Custom"
+      },
+      "submit": "Create report",
+      "noClients": "No Clients yet. Create a Client and assign ad accounts first.",
+      "kindHelp": {
+        "audit": "Focused on issues and actions.",
+        "periodic": "This period vs the previous one, with findings."
+      },
+      "locales": {
+        "vi": "Tiếng Việt",
+        "en": "English"
+      }
+    },
+    "view": {
+      "building": "Building the report… this page updates itself.",
+      "failed": "Couldn't build the report ({code}). Try rebuilding.",
+      "rebuild": "Rebuild",
+      "edit": "Edit content",
+      "save": "Save changes",
+      "saved": "Saved",
+      "titleLabel": "Title",
+      "workDone": "Work done",
+      "nextSteps": "Next steps",
+      "hide": "Hide sections",
+      "share": "Share",
+      "delete": "Delete report",
+      "deleteConfirm": "Delete this report? Its share links are deleted too.",
+      "blockedTitle": "This report can't be shared yet",
+      "unconfirmed": "{count, plural, one {# account has} other {# accounts have}} no confirmed Client.",
+      "warning": "Figures differ from Ads Manager by more than 1% on {dates}.",
+      "fix": "Once fixed, click \"Rebuild\".",
+      "goAssign": "Confirm assignment",
+      "goRecon": "View reconciliation",
+      "sections": {
+        "kpis": "Key metrics",
+        "trend": "Daily spend",
+        "campaigns": "Top campaigns",
+        "findings": "Issues to address",
+        "workDone": "Work done",
+        "nextSteps": "Next steps"
+      }
+    }
   }
 }

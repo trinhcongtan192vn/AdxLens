@@ -1,5 +1,6 @@
 import { schema, type Db } from '@adxlens/db';
-import { seedAdAccount, seedClient, seedConnection, seedMember, seedWorkspace } from '@adxlens/db/testing';
+import { enableFlag } from '@adxlens/core/flags';
+import { seedAdAccount, seedClient, seedConnection, seedMember, seedStaff, seedWorkspace } from '@adxlens/db/testing';
 
 /**
  * Hai workspace A và B với dữ liệu nghiệp vụ. Feature mới thêm bảng thì thêm dữ liệu của B vào đây
@@ -88,6 +89,33 @@ export async function seedWorld(db: Db) {
     })
     .returning();
 
+  // Cờ P0 bật cho A (qua core/flags, như PM bật) để probe chạy hết logic route sau cờ.
+  const pm = await seedStaff(db, true);
+  for (const key of ['p0_reports'] as const) {
+    await enableFlag(db, {
+      workspaceId: a.workspace.id,
+      key,
+      staffUserId: pm.id,
+      reason: 'probe cách ly',
+      override: true,
+    });
+  }
+  const [bReport] = await db
+    .insert(schema.reports)
+    .values({
+      workspaceId: b.workspace.id,
+      clientId: bClient.id,
+      kind: 'periodic',
+      dateFrom: '2026-10-16',
+      dateTo: '2026-10-22',
+      locale: 'vi',
+      status: 'ready',
+      content: { client: { name: 'Beta Client Secret' } },
+      templateVersion: 'v1',
+      createdBy: b.owner.id,
+    })
+    .returning();
+
   const world = {
     a: {
       workspace: a.workspace,
@@ -106,6 +134,7 @@ export async function seedWorld(db: Db) {
       adAccount: bAdAccount,
       syncRun: bRun!,
       finding: bFinding!,
+      report: bReport!,
     },
     /** Chuỗi của B tuyệt đối không được xuất hiện trong phản hồi cho ngữ cảnh A. */
     bFingerprints: [
@@ -126,6 +155,7 @@ export async function seedWorld(db: Db) {
       'Beta Campaign Secret',
       bFinding!.id,
       'Beta Ad Secret',
+      bReport!.id,
     ],
   };
   return world;

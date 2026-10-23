@@ -8,6 +8,7 @@ import { can, getClient } from '@adxlens/core/tenancy';
 import { entityTable } from '@adxlens/core/reporting';
 import { Card, EmptyState, PageHeader, SourceFootnote, TabBar, tabItemClass } from '@adxlens/ui';
 import { EntityTable } from '@/components/entity-table';
+import { ClientReports } from './client-reports';
 import { currentRanges } from '@/server/period';
 import { ReconBadge } from '@/components/recon-badge';
 import { worstRecon } from '@/lib/recon';
@@ -112,6 +113,8 @@ export default async function ClientPage({
           />
           <SourceFootnote className="mt-2">{te('footnote', ranges.cur)}</SourceFootnote>
         </>
+      ) : tab === 'reports' && pc.flags.p0_reports ? (
+        <ClientReports clientId={client.id} canCreate={can(pc.ctx.actor.role, 'reports.manage')} />
       ) : (
         <Card>
           <EmptyState title={t(`tabs.${tab}`)} description={t('c02NoData')} />
