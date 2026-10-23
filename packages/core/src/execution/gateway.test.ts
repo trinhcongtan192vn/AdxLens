@@ -727,3 +727,38 @@ describe('rule live tạo hành động tự động (P2b, ADR-0012)', () => {
     expect(Number(eff!.pausedSpend7d)).toBeGreaterThanOrEqual(0);
   });
 });
+
+describe('playbook execution_failed với rule tự động (L2 11.2)', () => {
+  it('hành động tự động thất bại → tạm dừng rule live tạo ra nó', async () => {
+    const s = await setup();
+    const pm = await seedStaff(db, true);
+    await enableFlag(db, {
+      workspaceId: s.workspaceId,
+      key: 'p2b_auto',
+      staffUserId: pm.id,
+      reason: 'test rule fail',
+      override: true,
+    });
+    const [rule] = await db
+      .insert(schema.automationRules)
+      .values({
+        workspaceId: s.workspaceId,
+        adAccountId: s.adAccountId,
+        name: 'Rule lỗi',
+        level: 'ad',
+        condition: [{ metric: 'spend', op: 'gte', value: '0' }],
+        action: { type: 'pause_ad' },
+        guardrails: { maxActionsPerDay: 1 },
+        mode: 'live',
+        createdBy: s.owner.id,
+      })
+      .returning();
+    await liveEvaluate({ db, workspaceId: s.workspaceId }, rule!.id, { enqueue: s.enqueue, clock });
+    const [a] = await db.select().from(schema.actions).where(eq(schema.actions.ruleId, rule!.id));
+    writer.failNext('error_before');
+    expect(await s.run(a!.id)).toMatchObject({ status: 'failed' });
+    const [after] = await db.select().from(schema.automationRules).where(eq(schema.automationRules.id, rule!.id));
+    expect(after!.mode).toBe('paused');
+    expect(await logs(a!.id)).toContain('rule_paused');
+  });
+});

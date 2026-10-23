@@ -2,6 +2,26 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [044] Quy trình agent-diagnose, runbook đầy đủ, onboarding hoàn chỉnh, xoay khóa token — 2026-10-23
+
+**Thay đổi**
+- `.github/ISSUE_TEMPLATE/agent-diagnose.yml`: mẫu issue chỉ nhận dữ liệu đã che (fingerprint, job / route, mã lỗi, stack trace, môi trường), bắt buộc xác nhận không có token / dữ liệu khách. `docs/runbooks/agent-diagnose.md`: quy trình phát hiện → agent → CI → review độc lập → PM.
+- `docs/runbooks/`:
+  - mục lục `README.md`;
+  - runbook mới: đối chiếu lệch, rate limit, token hết hạn, backfill lỗi / kẹt, smoke sau deploy, thanh toán, xóa dữ liệu, khôi phục DB, xoay khóa token, bật / tắt cờ (checklist từng cờ);
+  - đã có từ 037: sự cố thực thi.
+- `docs/onboarding.md` hoàn chỉnh (L3 20): bản đồ module + luồng dữ liệu, bảng lệnh, danh sách E2E, diễn tập sự cố, tài liệu ở đâu, tuần đầu cho dev mới.
+- Xoay khóa token (L3 5.4 — trước đây chưa có): `reencryptWorkspaceTokens` (`core/connections`, theo từng workspace, chỉ worker / CLI, không log token) + `pnpm tokens:rotate`.
+- Playbook `execution_failed` bổ sung theo L2 11.2: **hành động tự động thất bại → tạm dừng rule live đã tạo ra nó** (nhật ký `rule_paused`).
+
+**Test tự động**
+- `connections/rotate.test.ts`: mã hóa lại bằng khóa mới, token đọc lại đúng, chạy lại không đổi, không chạm workspace khác.
+- `execution/gateway.test.ts` (+1): hành động tự động lỗi → rule chuyển "tạm dừng".
+
+**Vùng bảo vệ:** `packages/core/connections/**` (xoay khóa: giải mã + mã hóa lại; không đổi thuật toán), `packages/core/execution/**` (tạm dừng rule khi lỗi). Cần PM chạy staging cùng lượt với 035–041.
+
+**PM kiểm tra:** đọc `docs/onboarding.md` và `docs/runbooks/README.md`; tạo thử issue bằng mẫu "Chẩn đoán lỗi".
+
 ## [043] Trang sự cố AD03, playbook worker_stuck và deploy_smoke_failed, kênh báo đội — 2026-10-23
 
 **Thay đổi**

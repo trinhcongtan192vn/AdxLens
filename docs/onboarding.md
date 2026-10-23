@@ -81,3 +81,87 @@ Xem `docs/architecture/L3-technical.md` mục 3. Tóm tắt:
 - Mọi lời gọi ghi đi qua `packages/core/execution` (ADR-0008). Local dùng Meta giả (`META_MOCK=1`): ghi vào bộ nhớ của worker, đọc lại được.
 - Test tích hợp trên tài khoản Meta **test** (bắt buộc trước khi merge thay đổi `execution` và trước khi bật cờ cho khách): đặt `APP_ENV=staging`, `META_WRITE_TEST_ACCOUNTS=act_…` (danh sách cho phép), `META_TEST_WRITE_TOKEN` (token người dùng test), rồi `pnpm execution:check -- <ad_id> <adset_id>`. Script từ chối đối tượng ngoài danh sách, chạy đủ: tạm dừng/bật lại ad và ad set, ngân sách +5% rồi trả lại, nhân bản (bản sao PAUSED — xóa tay).
 - Thử ở local với Meta giả: `META_MOCK=1 META_WRITE_TEST_ACCOUNTS=act_100000001 pnpm execution:check -- <ad_id> <adset_id>` (lấy id ad và ad set có ngân sách ngày của tài khoản `act_100000001` trong bảng `analytics.entities` sau khi đồng bộ).
+
+## 9. Bản đồ module và luồng dữ liệu chính
+
+```
+Meta Marketing API ──(chỉ đọc, packages/meta-client)──► ingestion ──► analytics.insights_daily / entities
+        ▲                                                     │
+        │ (ghi — CHỈ packages/core/execution)                  ▼
+   execution ◄── recommendation (Việc tuần này, creative)   reconciliation (≤ 1%) ──► insight (phát hiện)
+        ▲                                                     │                          │
+   automation rules (P2b)                                     ▼                          ▼
+                                                   reporting (báo cáo, PDF, chia sẻ, lịch, digest)
+                                                              │
+                                                   notification (trong app + email) · billing · flags · ops
+```
+
+| Module (`packages/core/src`) | Việc chính |
+|---|---|
+| `tenancy` | workspace, thành viên, vai trò, quyền theo Client |
+| `connections` | OAuth Meta, mã hóa token, tài khoản QC, quyền ghi, xóa dữ liệu, tài khoản mẫu |
+| `ingestion` | backfill 90 ngày (lô 7 ngày), daily sync, trạng thái đồng bộ |
+| `reconciliation` | so số liệu theo ngày với Meta, ngưỡng 1% (khóa test) |
+| `insight` | rule audit, phát hiện, health score |
+| `recommendation` | creative library, Việc tuần này, kết quả trước/sau, onboarding buyer |
+| `reporting` | báo cáo, tóm tắt LLM + kiểm số, chia sẻ, PDF, lịch gửi, digest |
+| `notification` | thông báo, email, cài đặt |
+| `billing` | gói, hạn mức, Stripe, PayOS, hoà vốn |
+| `execution` | Execution Gateway, guardrails, kill switch, breaker, nhật ký, hoàn tác, rule tự động |
+| `flags` | cờ theo workspace + checklist |
+| `ops` | sức khỏe, sự cố, playbook, kênh báo đội, truy vấn xuyên workspace có chú thích |
+
+## 10. Lệnh thường dùng
+
+| Lệnh | Việc |
+|---|---|
+| `pnpm dev` | Redis + Supabase + migration + web + worker |
+| `pnpm lint && pnpm typecheck && pnpm test` | kiểm tra trước khi mở PR (`pnpm db:check` khi chạm DB) |
+| `pnpm test:e2e` | Playwright (tự bật web + worker riêng) |
+| `pnpm db:generate` / `pnpm db:migrate` | sinh / áp migration |
+| `pnpm job:trigger -- <job> '<json>'` | chạy một job ngay (local/staging) |
+| `pnpm e4:report -- --workspace <id>` | báo cáo độ lệch + phủ dữ liệu |
+| `pnpm execution:check -- <ad_id> <adset_id>` | test tích hợp lớp ghi trên tài khoản Meta test (staging) |
+| `pnpm killswitch -- on|off [--workspace <id>] --reason "…"` | kill switch dự phòng |
+| `pnpm rules:simulate -- <rule_id> [--days 14]` | giả lập chạy thử rule (chỉ local) |
+| `pnpm smoke -- <base_url>` | smoke test sau deploy |
+| `pnpm tokens:rotate` | xoay khóa mã hóa token (runbook rotate-token-key) |
+| `pnpm drill` | diễn tập 3 sự cố trên local (mục 12) |
+
+## 11. E2E (Playwright, `apps/web/e2e`)
+
+| Spec | Luồng |
+|---|---|
+| `auth-workspace` | trang công khai, đăng ký → xác minh → workspace, mời thành viên, lỗi đăng nhập |
+| `demo` | tài khoản mẫu, banner, báo cáo mẫu |
+| `clients-assign` | S04 → S05 gán Client → S06 → C01/C02 |
+| `reports-share` | PM bật cờ → báo cáo → chia sẻ → trang công khai → PDF → thu hồi |
+| `billing` | Gói & thanh toán, thông tin hóa đơn, ST04, M06 hoà vốn |
+| `creatives` | creative library, so sánh, Việc tuần này, kết quả trước/sau |
+| `p2a` | quyền ghi → duyệt → thực hiện + xác minh → hoàn tác → kill switch |
+| `p2b` | rule từ mẫu → backtest → chạy thử → giả lập 14 ngày → chạy thật → hiệu quả |
+| `safety` | các thử "phải thất bại đúng cách" (implementation-guide 4.4) |
+
+## 12. Diễn tập sự cố
+
+`pnpm drill` (chỉ local, cần `pnpm dev` đang chạy DB) tạo workspace "Diễn tập sự cố …" và giả lập lần lượt:
+1. **Meta rate limit** → health check mở sự cố, playbook `meta_rate_limited` hoãn queue `sync`;
+2. **Đối chiếu lệch** → sự cố `reconciliation_warning`, báo cáo bị khóa chia sẻ, playbook `reconcile_retry` lên lịch đồng bộ lại;
+3. **Thực thi lỗi** → hành động thất bại, sự cố `execution_failed` P1, breaker mở sau đủ số lỗi.
+
+Mỗi bước in ĐẠT / LỖI; sự cố hiện ở `/admin/incidents` (kèm cảnh báo nếu cấu hình kênh báo đội). Thêm `--cleanup` để xóa workspace diễn tập và đóng các sự cố sau khi xem.
+
+## 13. Tài liệu ở đâu
+
+- `CLAUDE.md` — quy tắc tuyệt đối, cách làm task / review / chẩn đoán.
+- `docs/prd.md`, `docs/architecture/L1|L2|L3` — sản phẩm và kiến trúc; `docs/adr/` — quyết định (0008–0012 cho thực thi trên Meta).
+- `docs/rules/` — ngưỡng rule audit, phân loại creative, xếp hạng gợi ý.
+- `docs/runbooks/` — xử lý sự cố; `docs/tech-debt.md` — chỗ làm tạm; `docs/CHANGELOG.md` — thay đổi theo feature.
+
+## 14. Tuần đầu cho dev mới (L3 20)
+
+1. Chạy local (mục 1–2), chạy `pnpm test` và `pnpm test:e2e`.
+2. Đọc `packages/core/execution` và bộ test cách ly workspace (`tests/isolation`) — vùng rủi ro cao nhất.
+3. Đọc `docs/tech-debt.md`, đề xuất thứ tự ưu tiên lại.
+4. Thay đổi đầu tiên: một mục nhỏ trong tech-debt, theo `.github/pull_request_template.md`.
+
