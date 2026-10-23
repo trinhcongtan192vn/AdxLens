@@ -1108,7 +1108,8 @@
       "incidents": "Incidents",
       "killSwitch": "Kill switch",
       "staff": "Team",
-      "audit": "Admin log"
+      "audit": "Admin log",
+      "workspaces": "Workspaces"
     },
     "flags": {
       "title": "Feature flag matrix",
@@ -1239,6 +1240,63 @@
         "flag_proposal_cancel": "Cancel flag proposal",
         "kill_switch_on": "Global kill switch on",
         "kill_switch_off": "Global kill switch off"
+      }
+    },
+    "workspaces": {
+      "title": "Workspace lookup",
+      "detailTitle": "Workspace detail",
+      "search": "Workspace name or member email…",
+      "empty": "No workspace found.",
+      "back": "← Lookup",
+      "createdAt": "created {at}",
+      "openFlags": "Open the flag matrix for this workspace",
+      "demo": "Demo",
+      "yes": "Yes",
+      "no": "No",
+      "none": "None.",
+      "pendingDeletion": "Disconnected · pending deletion",
+      "reconSummary": "{warnings}/{days} days off (30 days)",
+      "purgeAfter": "purge at {at}",
+      "sections": {
+        "billing": "Plan & billing",
+        "flags": "Feature flags",
+        "members": "Members ({count})",
+        "connections": "Meta connections ({count})",
+        "accounts": "Ad accounts ({count})",
+        "syncRuns": "Recent syncs",
+        "incidents": "Open incidents ({count})",
+        "deletions": "Data deletion requests ({count})"
+      },
+      "billing": {
+        "plan": "Effective plan",
+        "subscribed": "subscribed {plan}",
+        "status": "Status",
+        "accounts": "Active accounts / limit",
+        "overLimit": "Over limit",
+        "periodEnd": "Period ends",
+        "grace": "Grace until"
+      },
+      "cols": {
+        "name": "Workspace",
+        "owner": "Owner",
+        "members": "Members",
+        "accounts": "Ad accounts",
+        "created": "Created",
+        "email": "Email",
+        "role": "Role",
+        "metaUser": "Meta user",
+        "status": "Status",
+        "expires": "Token expires",
+        "write": "Write access",
+        "account": "Account",
+        "client": "Client · assignment",
+        "sync": "Sync",
+        "lastSync": "Last synced",
+        "recon": "Reconciliation",
+        "kind": "Kind",
+        "range": "Range",
+        "started": "Started",
+        "error": "Error"
       }
     }
   },

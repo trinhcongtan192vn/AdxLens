@@ -9,6 +9,7 @@ import * as proposals from './flag-proposals/route';
 import * as killSwitch from './kill-switch/route';
 import * as staffOne from './staff/[userId]/route';
 import * as staffList from './staff/route';
+import * as wsDetail from './workspaces/[id]/route';
 
 const db = testDb();
 beforeEach(async () => {
@@ -172,5 +173,19 @@ describe('đề xuất bật cờ (ADR-0013)', () => {
     });
     const flags = await db.select().from(schema.featureFlags).where(eq(schema.featureFlags.workspaceId, workspace.id));
     expect(flags.filter((f) => f.enabled)).toEqual([]);
+  });
+});
+
+describe('tra cứu workspace (admin)', () => {
+  it('người ngoài → 404; staff xem chi tiết (không token); id lạ → 404', async () => {
+    const { workspace, owner } = await seedWorkspace(db);
+    const params = { id: workspace.id };
+    expect((await call(wsDetail.GET, { user: asUser(owner), params })).status).toBe(404);
+    const op = asUser(await seedStaff(db, false));
+    const r = await call(wsDetail.GET, { user: op, params });
+    expect(r.body).toMatchObject({ workspace: { id: workspace.id }, members: [{ email: owner.email }] });
+    expect(JSON.stringify(r.body)).not.toMatch(/ciphertext/i);
+    const missing = await call(wsDetail.GET, { user: op, params: { id: '00000000-0000-0000-0000-000000000000' } });
+    expect(missing.status).toBe(404);
   });
 });

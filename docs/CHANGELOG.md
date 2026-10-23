@@ -2,6 +2,17 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [047] Admin: tra cứu workspace (hỗ trợ khách) — 2026-10-23
+
+**Thay đổi**
+- `/admin/workspaces`: tìm theo tên workspace **hoặc email thành viên**; số thành viên, tài khoản QC (không tính kết nối đã ngắt).
+- `/admin/workspaces/[id]` (+ `GET /api/v1/admin/workspaces/[id]`): gói (đang hưởng / đã đăng ký, trạng thái, tài khoản active / hạn mức, hết kỳ, ân hạn), cờ, thành viên, kết nối Meta (người kết nối, trạng thái, hạn token, quyền ghi — **không bao giờ trả token**), tài khoản QC (Client, gán, đồng bộ, đồng bộ gần nhất, số ngày lệch 30 ngày; tài khoản chờ xóa có nhãn), 20 lần đồng bộ gần nhất (lỗi), sự cố đang mở, yêu cầu xóa dữ liệu. Không trả số liệu quảng cáo.
+- `core/ops/workspace-lookup.ts` (`searchWorkspaces`, `adminWorkspaceDetail`): truy vấn xuyên workspace có chú thích, chỉ route staff gọi.
+
+**Test tự động:** `workspace-lookup.test.ts` (tìm theo tên / email thành viên, chi tiết không chứa token, id lạ → 404); `admin-roles.test.ts` (người ngoài 404, staff xem được). Bộ cách ly: route mới khai báo `exempt` có lý do.
+
+**PM kiểm tra:** `/admin/workspaces` → gõ email của mình → mở workspace → thấy kết nối Meta, tài khoản "Tan Trinh", trạng thái đồng bộ.
+
 ## [046] Admin: vai trò superadmin / operator, đề xuất bật cờ, nhật ký admin — 2026-10-23
 
 **Thay đổi** (ADR-0013)

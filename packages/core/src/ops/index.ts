@@ -12,3 +12,4 @@ export * from './kill-switch';
 export * from './alerts';
 export * from './stuck';
 export * from './staff';
+export * from './workspace-lookup';

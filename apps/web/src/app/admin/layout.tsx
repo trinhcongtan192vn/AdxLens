@@ -18,6 +18,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <span className="text-h3 font-semibold text-brand">{t('brand')}</span>
         <Badge tone="warning">{t('internal')}</Badge>
         <nav className="ml-6 flex gap-4 text-body">
+          <Link href="/admin/workspaces" className="text-fg-secondary hover:text-fg">
+            {t('nav.workspaces')}
+          </Link>
           <Link href="/admin/flags" className="text-fg-secondary hover:text-fg">
             {t('nav.flags')}
           </Link>

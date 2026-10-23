@@ -376,6 +376,10 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     reason: 'Trang nội bộ PM: công tắc toàn hệ thống; có test riêng ở admin.test.ts',
   },
   // ADR-0013: route staff, xuyên workspace có chủ đích; người không phải staff → 404 (admin-roles.test.ts).
+  'GET /api/v1/admin/workspaces/[id]': {
+    kind: 'exempt',
+    reason: 'Staff tra cứu workspace (hỗ trợ khách): xuyên workspace có chủ đích, không token / số liệu QC',
+  },
   'GET /api/v1/admin/staff': { kind: 'exempt', reason: 'Staff: danh sách đội AdxLens, không theo workspace' },
   'POST /api/v1/admin/staff': { kind: 'exempt', reason: 'Superadmin thêm staff (admin-roles.test.ts)' },
   'PATCH /api/v1/admin/staff/[userId]': { kind: 'exempt', reason: 'Superadmin đổi vai trò staff' },
