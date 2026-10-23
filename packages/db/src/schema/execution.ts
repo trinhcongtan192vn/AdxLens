@@ -1,5 +1,18 @@
-import { integer, numeric, text, uuid } from 'drizzle-orm/pg-core';
-import { app, tsz, updatedAt } from './_common';
+import {
+  bigserial,
+  boolean,
+  index,
+  integer,
+  jsonb,
+  numeric,
+  text,
+  uniqueIndex,
+  uuid,
+  type AnyPgColumn,
+} from 'drizzle-orm/pg-core';
+import { app, createdAt, tsz, updatedAt } from './_common';
+import { adAccounts } from './connections';
+import { recommendations } from './recommendation';
 import { workspaces } from './tenancy';
 
 /**
@@ -21,4 +34,91 @@ export const guardrailSettings = app.table('guardrail_settings', {
   updatedBy: uuid('updated_by'),
   updatedAt: updatedAt(),
   createdAt: tsz('created_at').notNull().defaultNow(),
+});
+
+export const ACTION_STATUSES = ['pending', 'executing', 'success', 'failed', 'undone', 'canceled'] as const;
+export const ACTION_TIERS = ['approve', 'auto'] as const;
+
+/**
+ * Hành động ghi lên Meta (L3 5.2, ADR-0008). Chỉ `core/execution` tạo / đổi trạng thái. `idempotency_key`
+ * unique chống tạo trùng; `before_state` chụp lúc duyệt, worker so với trạng thái thật trước khi ghi.
+ */
+export const actions = app.table(
+  'actions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id').notNull(),
+    adAccountId: uuid('ad_account_id')
+      .notNull()
+      .references(() => adAccounts.id, { onDelete: 'cascade' }),
+    recommendationId: uuid('recommendation_id').references(() => recommendations.id, { onDelete: 'set null' }),
+    ruleId: uuid('rule_id'),
+    actionType: text('action_type').notNull(),
+    targetType: text('target_type', { enum: ['ad', 'adset'] }).notNull(),
+    targetMetaId: text('target_meta_id').notNull(),
+    targetName: text('target_name'),
+    tier: text('tier', { enum: ACTION_TIERS }).notNull(),
+    params: jsonb('params').$type<Record<string, string>>().notNull(),
+    beforeState: jsonb('before_state').$type<Record<string, string | null>>().notNull(),
+    afterExpected: jsonb('after_expected').$type<Record<string, string | null>>().notNull(),
+    afterState: jsonb('after_state').$type<Record<string, string | null>>(),
+    status: text('status', { enum: ACTION_STATUSES }).notNull().default('pending'),
+    resultCode: text('result_code'),
+    errorMessage: text('error_message'),
+    idempotencyKey: text('idempotency_key').notNull(),
+    requestedBy: uuid('requested_by'),
+    approvedBy: uuid('approved_by'),
+    undoOf: uuid('undo_of').references((): AnyPgColumn => actions.id, { onDelete: 'set null' }),
+    executedAt: tsz('executed_at'),
+    verifiedAt: tsz('verified_at'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex('actions_idempotency_key_uq').on(t.idempotencyKey),
+    index().on(t.workspaceId, t.createdAt),
+    index().on(t.adAccountId, t.createdAt),
+  ],
+);
+
+/** Nhật ký hành động — chỉ thêm (trigger chặn UPDATE). Không chứa token / body request. */
+export const actionLogs = app.table(
+  'action_logs',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    workspaceId: uuid('workspace_id').notNull(),
+    actionId: uuid('action_id')
+      .notNull()
+      .references(() => actions.id, { onDelete: 'cascade' }),
+    event: text('event').notNull(),
+    detail: jsonb('detail').$type<Record<string, unknown>>().notNull(),
+    at: tsz('at').notNull().defaultNow(),
+  },
+  (t) => [index().on(t.actionId), index().on(t.workspaceId)],
+);
+
+/**
+ * Kill switch (ADR-0008 mục 7): `scope_key` = 'global' (toàn hệ thống, staff) hoặc id workspace. Đang bật →
+ * gateway chặn mọi hành động mới và hủy hành động đang chờ.
+ */
+export const killSwitches = app.table('kill_switches', {
+  scopeKey: text('scope_key').primaryKey(),
+  workspaceId: uuid('workspace_id').references(() => workspaces.id, { onDelete: 'cascade' }),
+  active: boolean('active').notNull().default(false),
+  reason: text('reason'),
+  changedBy: uuid('changed_by'),
+  changedAt: tsz('changed_at'),
+});
+
+/** Circuit breaker theo tài khoản QC: N lỗi liên tiếp → mở, chặn tới khi Owner đóng. */
+export const circuitBreakers = app.table('circuit_breakers', {
+  adAccountId: uuid('ad_account_id')
+    .primaryKey()
+    .references(() => adAccounts.id, { onDelete: 'cascade' }),
+  workspaceId: uuid('workspace_id').notNull(),
+  consecutiveFailures: integer('consecutive_failures').notNull().default(0),
+  open: boolean('open').notNull().default(false),
+  openedAt: tsz('opened_at'),
+  closedBy: uuid('closed_by'),
+  closedAt: tsz('closed_at'),
 });

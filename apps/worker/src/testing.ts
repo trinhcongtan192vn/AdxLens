@@ -3,6 +3,7 @@ import { keysFromEnv } from '@adxlens/core/connections';
 import { memoryEmailSender } from '@adxlens/core/notification';
 import type { Db } from '@adxlens/db';
 import { recordingEnqueue } from '@adxlens/jobs';
+import { createMetaWriter } from '@adxlens/core/execution';
 import { MockMetaRead } from '@adxlens/meta-client/mock';
 import { signPayload } from '@adxlens/core/shared';
 import type { WorkerServices } from './handler';
@@ -35,6 +36,7 @@ export function testWorkerServices(db: Db, now?: () => Date) {
     email,
     meta: new MockMetaRead(now),
     tokenKeys: keysFromEnv({ TOKEN_ENC_KEY_V1: TEST_TOKEN_KEY }).keys,
+    metaWriter: createMetaWriter({ mock: true, apiVersion: 'v24.0' }),
   };
   return { services, enqueue, email, throttled, rendered, uploads };
 }

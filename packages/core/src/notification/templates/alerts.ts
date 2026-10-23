@@ -167,6 +167,14 @@ const TEXT: Record<string, Record<Locale, (p: P) => { subject: string; body: str
     vi: (p) => ({ subject: `Bạn được giao việc: ${p.item}`, body: `Tài khoản ${p.account}.`, cta: 'Xem việc' }),
     en: (p) => ({ subject: `Assigned to you: ${p.item}`, body: `Account ${p.account}.`, cta: 'Open' }),
   },
+  action_executed: {
+    vi: (p) => ({
+      subject: `Đã thực hiện: ${p.item}`,
+      body: 'Thay đổi đã được áp dụng và xác minh trên Meta.',
+      cta: 'Xem nhật ký',
+    }),
+    en: (p) => ({ subject: `Done: ${p.item}`, body: 'The change was applied and verified on Meta.', cta: 'Open log' }),
+  },
   action_failed: {
     vi: (p) => ({
       subject: 'Hành động trên Meta thất bại',

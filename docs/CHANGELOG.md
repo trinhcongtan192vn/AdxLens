@@ -2,6 +2,31 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [035] Execution Gateway: executor, verifier, idempotency, lỗi giữa chừng, test tích hợp — 2026-10-23
+
+> **Cần PM chạy test tích hợp trên staging trước khi merge `develop → main`** (vùng bảo vệ `execution`, L3 13.1): `pnpm execution:check -- <ad_id> <adset_id>` với tài khoản Meta test (`docs/onboarding.md` mục 8).
+
+**Thay đổi**
+- DB: `app.actions` (theo L3 5.2 + `target_type`, `params`, `after_expected`, `result_code`, `error_message` đã che, `undo_of`), `app.action_logs` (**append-only**: trigger chặn UPDATE), `app.kill_switches` (`global` / theo workspace), `app.circuit_breakers` (theo tài khoản QC). RLS (migration 0045–0046).
+- `core/execution/gateway.ts`:
+  - `previewAction` (trước theo lần đồng bộ gần nhất / sau mong đợi / vi phạm guardrails / hoàn tác được không — không gọi Meta);
+  - `requestAction` (cờ → gói Growth+ → kill switch toàn cục + workspace → breaker → quyền ghi của kết nối → vai trò theo Client → guardrails; tạo `pending` + nhật ký, enqueue `execute:action`; đang có hành động trùng → 409);
+  - `executeAction` (worker): giành quyền chạy `pending → executing` có điều kiện (retry trùng → bỏ qua); kiểm lại toàn bộ cổng an toàn và guardrails với dữ liệu thật; đọc trạng thái thật — đã ở đích → `no_change` không gọi Meta; khác `before_state` → `state_changed` không ghi đè; **ghi một lần, không retry**; luôn đọc lại để xác minh (Meta báo lỗi nhưng đã áp → `applied_despite_error`; không khớp → `verify_mismatch`); nhân bản lỗi → `meta_error_check_manually` (không đoán).
+  - Thất bại: đếm breaker (mở sau N lỗi theo guardrails), thông báo Owner + người duyệt. Thành công: thông báo `action_executed` (mới). Thông điệp lỗi đã che token.
+- `safety.ts`: trạng thái kill switch (đọc dòng `global` — xuyên workspace có chú thích), breaker, `cancelPending`. `writer.ts`: `createMetaWriter` (mock dùng chung / HTTP không retry) — worker lấy lớp ghi qua đây, không import `meta-client/write`.
+- `self-test.ts` + `pnpm execution:check`: test tích hợp mọi `action_type` trên tài khoản Meta test, chỉ local/staging, từ chối đối tượng ngoài `META_WRITE_TEST_ACCOUNTS`, trả lại trạng thái gốc.
+- Worker: handler `execute:action`; `WorkerServices.metaWriter`.
+
+**Test tự động**
+- `execution/gateway.test.ts` (18): tạm dừng ad end-to-end + nhật ký + thông báo; `no_change`; ngân sách ±10% số nguyên; nhân bản PAUSED + không hoàn tác được; **lỗi trước khi áp; đã áp nhưng báo lỗi; verify không khớp; đối tượng bị đổi sau khi duyệt; nhân bản lỗi không gọi lại; retry trùng / duyệt trùng**; 3 lỗi → breaker mở chặn tiếp; **cờ tắt thì không chạy** (cả lúc duyệt và lúc worker chạy); kill switch workspace/toàn cục; gói Free 402; không quyền ghi 403; kill switch bật sau duyệt → hủy; guardrails +20% và quá 5 hành động/ngày; buyer cần quyền duyệt theo Client; cách ly workspace; nhật ký không sửa được.
+- `execution/safety.test.ts` (5): hủy pending đúng phạm vi; breaker; kill switch theo phạm vi; lớp ghi mock/thật; self-test đủ action_type và từ chối tài khoản ngoài danh sách.
+- Coverage `packages/core/execution`: **95,6% dòng** (yêu cầu ≥ 90%).
+- Bộ cách ly: probe job `execute:action` (A bị hủy do gói/quyền ghi, B không đổi).
+
+**Vùng bảo vệ:** `packages/core/execution/**`, `packages/db/**` (4 bảng + RLS + trigger, migration 0045–0046). **Rủi ro:** ghi sai trên tài khoản Meta thật nếu cấu hình nhầm môi trường — giảm bởi: cờ tắt mặc định, gói Growth+, quyền ghi bật riêng từng kết nối, guardrails khóa, không retry ghi, xác minh sau ghi, breaker, kill switch.
+
+**PM kiểm tra:** chạy `pnpm execution:check` trên staging với tài khoản Meta test; duyệt ADR-0008..0011.
+
 ## [034] Guardrails có test khóa, P205 — 2026-10-23
 
 **Thay đổi**

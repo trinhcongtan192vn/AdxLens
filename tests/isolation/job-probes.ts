@@ -106,6 +106,29 @@ export const JOB_PROBES: Record<string, JobProbe> = {
   'notify:digest': {
     payload: (w) => ({ workspaceId: w.a.workspace.id, week: '2026-10-26' }),
   },
+  'execute:action': {
+    // Hành động của A (gói Free, chưa có quyền ghi) → gateway hủy, không gọi Meta; dữ liệu B không đổi.
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [a] = await db
+        .insert(schema.actions)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          actionType: 'pause_ad',
+          targetType: 'ad',
+          targetMetaId: '1',
+          tier: 'approve',
+          params: {},
+          beforeState: { status: 'ACTIVE' },
+          afterExpected: { status: 'PAUSED' },
+          idempotencyKey: 'probe-execute',
+        })
+        .returning();
+      return { actionId: a!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, actionId: p!.actionId }),
+  },
   'recommend:build': {
     prepare: backfillForA,
     payload: (w) => ({ workspaceId: w.a.workspace.id, week: '2026-10-19' }),

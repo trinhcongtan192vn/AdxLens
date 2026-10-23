@@ -2,6 +2,7 @@ import { Worker } from 'bullmq';
 import { getEnv } from '@adxlens/config/env';
 import { getDb } from '@adxlens/db';
 import { keysFromEnv, metaReadApi, recordMetaCall } from '@adxlens/core/connections';
+import { createMetaWriter } from '@adxlens/core/execution';
 import { smtpEmailSender } from '@adxlens/core/notification';
 import { registerHealthCheck } from '@adxlens/core/ops';
 import { anthropicClient } from '@adxlens/core/reporting';
@@ -37,6 +38,12 @@ const services: WorkerServices = {
     onAudit: (a) => recordMetaCall(db, null, a).catch(() => undefined),
   }),
   tokenKeys: keysFromEnv(env).keys,
+  metaWriter: createMetaWriter({
+    mock: env.META_MOCK,
+    apiVersion: env.META_API_VERSION,
+    appSecret: env.META_APP_SECRET,
+    onAudit: (a) => recordMetaCall(db, null, a).catch(() => undefined),
+  }),
   email: smtpEmailSender({
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
