@@ -87,8 +87,12 @@ jobs:
         run: pnpm env:init --force
       - name: Chromium cho Playwright
         run: pnpm --filter @adxlens/web exec playwright install --with-deps chromium
+      - name: Build web (E2E chạy trên bản build, không biên dịch theo yêu cầu như next dev)
+        run: pnpm --filter @adxlens/web build
       - name: E2E
         run: pnpm test:e2e
+        env:
+          E2E_WEB_COMMAND: pnpm start
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -12,6 +12,7 @@ Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự �
 
   In ĐẠT / LỖI từng bước; `--cleanup` xóa workspace diễn tập, đóng sự cố, xóa người dùng diễn tập. `core/execution` thêm `newMockMetaWriter` (bản ghi giả có cài lỗi, chỉ local / test) để worker không import lớp ghi trực tiếp.
 - **Test đổi (lý do):** `tests/isolation/routes.test.ts` và `jobs.test.ts` — test duyệt mọi route / job nay có timeout riêng 300 giây (trước dùng mặc định 20 giây). Số route tăng (B5–B9) làm test vượt 20 giây trên CI, vitest bắt đầu test kế tiếp khi test cũ còn chạy → lỗi trùng khóa giả. Không đổi assertion nào. Khóa idempotency của hành động mẫu workspace B trong `world.ts` thêm id workspace (tránh trùng nếu dữ liệu chưa dọn).
+- **CI E2E chạy trên bản build:** job `e2e` build web rồi chạy Playwright với `next start` (biến `E2E_WEB_COMMAND`). Với 13 spec, `next dev` trên runner CI biên dịch từng trang lần đầu truy cập nên chậm, làm 4 spec quá timeout (điều hướng, chuyển trang). Không đổi timeout hay assertion nào; local vẫn mặc định `pnpm dev`.
 - E2E mới `safety.spec.ts` (implementation-guide 4.4):
   - Client của workspace khác → 404, không lộ tên;
   - người thường vào `/admin` → 404;
