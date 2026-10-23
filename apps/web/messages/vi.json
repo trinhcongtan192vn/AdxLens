@@ -1186,6 +1186,16 @@
         "label": "Tổng kết tuần",
         "title": "Tổng kết tuần {week}",
         "body": "{summary}"
+      },
+      "weekly_actions": {
+        "label": "Việc tuần này",
+        "title": "Việc tuần này: {count} gợi ý",
+        "body": "Danh sách việc tuần {week} đã sẵn sàng, xếp theo tác động."
+      },
+      "action_assigned": {
+        "label": "Được giao việc",
+        "title": "Bạn được giao việc: {item}",
+        "body": "Tài khoản {account}."
       }
     },
     "settings": {
@@ -1383,5 +1393,53 @@
     "noAccounts": "Chưa có tài khoản quảng cáo",
     "noAccountsBody": "Kết nối Meta và nhập tài khoản để xem creative.",
     "footnote": "Nguồn: Meta Marketing API, {from} → {to}, theo múi giờ tài khoản. Phân loại theo quy tắc công khai; \"dự báo\" là ước tính từ xu hướng CTR, không phải kết luận."
+  },
+  "weekly": {
+    "title": "Việc tuần này",
+    "weekOf": "Tuần {date}",
+    "all": "Tất cả",
+    "mine": "Việc của tôi",
+    "status": {
+      "proposed": "Đề xuất",
+      "in_progress": "Đang làm",
+      "done": "Đã làm",
+      "skipped": "Bỏ qua"
+    },
+    "skip": {
+      "not_relevant": "Không phù hợp với khách này",
+      "wrong": "Gợi ý sai",
+      "later": "Để tuần sau",
+      "other": "Lý do khác"
+    },
+    "cols": {
+      "action": "Việc cần làm",
+      "account": "Tài khoản",
+      "impact": "Tác động ước tính",
+      "confidence": "Độ tin cậy",
+      "effort": "Thời gian làm",
+      "status": "Trạng thái",
+      "assignee": "Người làm"
+    },
+    "minutes": "{n} phút",
+    "hours": "{n} giờ",
+    "detail": "Chi tiết gợi ý",
+    "why": "Vì sao",
+    "noImpact": "Không ước tính được bằng tiền",
+    "scoreNote": "Xếp hạng = tác động ước tính (so với chi tiêu 7 ngày của tài khoản) × độ tin cậy ÷ thời gian làm. Loại gợi ý hay bị đánh dấu \"sai\" sẽ xếp thấp hơn.",
+    "unassigned": "Chưa gán",
+    "skippedBecause": "Đã bỏ qua: {reason}",
+    "openAdsManager": "Mở trong Ads Manager",
+    "skipTitle": "Bỏ qua gợi ý",
+    "skipBody": "Lý do giúp AdxLens xếp hạng gợi ý tốt hơn ở các tuần sau.",
+    "skipConfirm": "Bỏ qua",
+    "emptyTitle": "Chưa có danh sách việc",
+    "emptyBody": "Danh sách được tạo mỗi thứ Hai lúc 07:00 từ các phát hiện và creative của tuần trước.",
+    "noneFiltered": "Không có việc nào khớp bộ lọc",
+    "noneFilteredBody": "Đổi trạng thái hoặc bỏ lọc \"Việc của tôi\".",
+    "footnote": "Gợi ý chỉ để tham khảo, AdxLens không thay đổi gì trên tài khoản. Số liệu theo múi giờ của từng tài khoản.",
+    "actions": {
+      "creative_loser": "Tắt hoặc giảm phân bổ cho creative thua ({ads} quảng cáo)",
+      "creative_winner": "Tăng phân bổ cho creative đang thắng"
+    }
   }
 }

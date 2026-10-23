@@ -1186,6 +1186,16 @@
         "label": "Weekly summary",
         "title": "Weekly summary {week}",
         "body": "{summary}"
+      },
+      "weekly_actions": {
+        "label": "This week's actions",
+        "title": "This week: {count} actions",
+        "body": "The action list for the week of {week} is ready, ranked by impact."
+      },
+      "action_assigned": {
+        "label": "Assigned to me",
+        "title": "Assigned to you: {item}",
+        "body": "Account {account}."
       }
     },
     "settings": {
@@ -1383,5 +1393,53 @@
     "noAccounts": "No ad accounts yet",
     "noAccountsBody": "Connect Meta and import accounts to see creatives.",
     "footnote": "Source: Meta Marketing API, {from} → {to}, in the account time zone. Classes follow public rules; a \"forecast\" is an estimate from the CTR trend, not a conclusion."
+  },
+  "weekly": {
+    "title": "This week's actions",
+    "weekOf": "Week of {date}",
+    "all": "All",
+    "mine": "Assigned to me",
+    "status": {
+      "proposed": "Proposed",
+      "in_progress": "In progress",
+      "done": "Done",
+      "skipped": "Skipped"
+    },
+    "skip": {
+      "not_relevant": "Not relevant for this client",
+      "wrong": "Suggestion is wrong",
+      "later": "Next week",
+      "other": "Other reason"
+    },
+    "cols": {
+      "action": "Action",
+      "account": "Account",
+      "impact": "Estimated impact",
+      "confidence": "Confidence",
+      "effort": "Effort",
+      "status": "Status",
+      "assignee": "Assignee"
+    },
+    "minutes": "{n} min",
+    "hours": "{n} h",
+    "detail": "Suggestion details",
+    "why": "Why",
+    "noImpact": "No money estimate",
+    "scoreNote": "Rank = estimated impact (vs the account 7-day spend) × confidence ÷ effort. Suggestion types often marked \"wrong\" rank lower.",
+    "unassigned": "Unassigned",
+    "skippedBecause": "Skipped: {reason}",
+    "openAdsManager": "Open in Ads Manager",
+    "skipTitle": "Skip suggestion",
+    "skipBody": "A reason helps AdxLens rank suggestions better in later weeks.",
+    "skipConfirm": "Skip",
+    "emptyTitle": "No action list yet",
+    "emptyBody": "The list is created every Monday at 07:00 from last week's findings and creatives.",
+    "noneFiltered": "No actions match the filter",
+    "noneFilteredBody": "Change the status or clear \"Assigned to me\".",
+    "footnote": "Suggestions are for reference only; AdxLens does not change anything in your accounts. Data follows each account time zone.",
+    "actions": {
+      "creative_loser": "Pause or reduce delivery for the losing creative ({ads} ads)",
+      "creative_winner": "Shift more delivery to the winning creative"
+    }
   }
 }

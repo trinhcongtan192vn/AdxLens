@@ -10,3 +10,4 @@ export * from './insight';
 export * from './reporting';
 export * from './notification';
 export * from './billing';
+export * from './recommendation';

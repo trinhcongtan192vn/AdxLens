@@ -108,6 +108,27 @@ export async function seedWorld(db: Db) {
     })
     .returning();
 
+  const [bRecommendation] = await db
+    .insert(schema.recommendations)
+    .values({
+      workspaceId: b.workspace.id,
+      adAccountId: bAdAccount.id,
+      week: '2026-10-19',
+      source: 'finding',
+      sourceKey: 'test_rule',
+      findingId: bFinding!.id,
+      entityType: 'ad',
+      metaId: '999000111222',
+      entityName: 'Beta Recommendation Secret',
+      action: { key: 'x' },
+      why: { key: 'y' },
+      evidence: {},
+      confidence: '0.500',
+      effortMinutes: 10,
+      score: '1',
+    })
+    .returning();
+
   // Cờ P0/P1 bật cho A (qua core/flags, như PM bật) để probe chạy hết logic route sau cờ.
   const pm = await seedStaff(db, true);
   for (const key of ['p0_reports', 'p1_recommendations'] as const) {
@@ -220,6 +241,7 @@ export async function seedWorld(db: Db) {
       adAccount: bAdAccount,
       syncRun: bRun!,
       finding: bFinding!,
+      recommendation: bRecommendation!,
       report: bReport!,
       shareLink: bShare!,
       notification: bNote!,
@@ -256,6 +278,8 @@ export async function seedWorld(db: Db) {
       'sub_beta_secret',
       'Beta Billing Secret',
       'Beta Creative Secret',
+      'Beta Recommendation Secret',
+      bRecommendation!.id,
       'beta-creative-secret',
       'beta-order-secret',
       'beta-invoice-secret@beta.vn',

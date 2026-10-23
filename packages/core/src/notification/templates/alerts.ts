@@ -151,6 +151,22 @@ const TEXT: Record<string, Record<Locale, (p: P) => { subject: string; body: str
       cta: 'Renew',
     }),
   },
+  weekly_actions: {
+    vi: (p) => ({
+      subject: `Việc tuần này: ${p.count} gợi ý`,
+      body: `Danh sách việc tuần ${p.week} đã sẵn sàng với ${p.count} gợi ý, xếp theo tác động.`,
+      cta: 'Xem việc tuần này',
+    }),
+    en: (p) => ({
+      subject: `This week: ${p.count} actions`,
+      body: `The action list for the week of ${p.week} is ready with ${p.count} suggestions, ranked by impact.`,
+      cta: 'Open this week',
+    }),
+  },
+  action_assigned: {
+    vi: (p) => ({ subject: `Bạn được giao việc: ${p.item}`, body: `Tài khoản ${p.account}.`, cta: 'Xem việc' }),
+    en: (p) => ({ subject: `Assigned to you: ${p.item}`, body: `Account ${p.account}.`, cta: 'Open' }),
+  },
   action_failed: {
     vi: (p) => ({
       subject: 'Hành động trên Meta thất bại',

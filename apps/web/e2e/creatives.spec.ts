@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { makeStaff, signUpAndCreateWorkspace } from './helpers';
+import { generateWeeklyNow, makeStaff, signUpAndCreateWorkspace } from './helpers';
 
 async function enableWithOverride(page: Page, ws: string, flagName: string) {
   await page.goto(`/admin/flags?q=${encodeURIComponent(ws)}`);
@@ -42,4 +42,16 @@ test('P103 creative library → P104 so sánh (sau cờ Gợi ý)', async ({ pag
   await expect(page).toHaveURL(/\/creatives\/compare/);
   await expect(page.getByRole('heading', { name: 'So sánh creative' })).toBeVisible();
   await expect(page.getByRole('cell', { name: 'Chi phí / kết quả' })).toBeVisible();
+
+  // P101/P102: Weekly Action List từ phát hiện + creative của dữ liệu mẫu.
+  await generateWeeklyNow(ws);
+  await page.getByRole('link', { name: 'Việc tuần này', exact: true }).click();
+  await expect(page).toHaveURL(/\/weekly-actions/);
+  const rows = page.getByTestId('weekly-row');
+  await expect(rows.first()).toBeVisible();
+  await rows.first().getByRole('combobox', { name: 'Trạng thái' }).selectOption('in_progress');
+  await expect(page.getByText('Đã lưu').first()).toBeVisible();
+  await rows.first().getByRole('button').first().click();
+  await expect(page.getByRole('dialog', { name: 'Chi tiết gợi ý' })).toBeVisible();
+  await expect(page.getByText('Vì sao')).toBeVisible();
 });
