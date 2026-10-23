@@ -954,6 +954,19 @@
       "auto": "tự động (rule)",
       "undone": "đã hoàn tác",
       "more": "… và {count} mục khác"
+    },
+    "cpa": {
+      "titleUp": "Vì sao CPA tăng?",
+      "titleDown": "Vì sao CPA giảm?",
+      "headline": "CPA {previous} → {current} ({change}) so với kỳ trước.",
+      "factors": {
+        "cpm": "Chi phí mỗi 1.000 hiển thị (CPM)",
+        "ctr": "Tỷ lệ click liên kết (CTR)",
+        "cvr": "Tỷ lệ chuyển đổi (kết quả / click)"
+      },
+      "share": "giải thích {share}% thay đổi CPA",
+      "drivers": "Chiến dịch đóng góp nhiều nhất",
+      "method": "CPA = CPM ÷ CTR ÷ tỷ lệ chuyển đổi. Phần giải thích tính từ số liệu đã đối chiếu của hai kỳ."
     }
   },
   "reports": {

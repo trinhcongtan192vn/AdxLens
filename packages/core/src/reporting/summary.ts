@@ -51,6 +51,20 @@ export function summaryFacts(c: ReportContent): Fact[] {
     push(`${p}.results_change %`, pctChange(a.kpis.results, a.prevKpis.results));
     if (a.kpis.cpa && a.prevKpis.cpa) push(`${p}.cpa_change %`, pctChange(Number(a.kpis.cpa), Number(a.prevKpis.cpa)));
     push(`${p}.health`, a.health);
+    // A1: phân rã thay đổi CPA (không đưa tên chiến dịch vào prompt — chỉ nhãn thứ tự).
+    if (a.cpaChange) {
+      push(
+        `${p}.cpa_previous (${a.currency})`,
+        Number(a.cpaChange.previous),
+        nf(Number(a.cpaChange.previous), { maximumFractionDigits: a.currency === 'VND' ? 0 : 2 }),
+      );
+      for (const f of a.cpaChange.factors) {
+        push(`${p}.cpa_factor.${f.key}_change %`, f.changePct);
+        push(`${p}.cpa_factor.${f.key}_share_of_cpa_change %`, f.sharePct);
+      }
+      for (const [j, d] of a.cpaChange.drivers.entries())
+        push(`${p}.cpa_driver_campaign_${j + 1}.share_of_cpa_change %`, d.sharePct);
+    }
   }
   if (c.agencyWork) {
     push('agency_work.meta_changes', c.agencyWork.totals.actions);
@@ -92,6 +106,24 @@ export function templateSummary(c: ReportContent): string {
         : sentence(
             `chi tiêu ${spend} ${a.currency}${sc === null ? '' : ` (${change(sc)} so với kỳ trước)`}, ${nf(a.kpis.results)} kết quả${rc === null ? '' : ` (${change(rc)})`}${a.kpis.cpa ? `, chi phí mỗi kết quả ${nf(Number(a.kpis.cpa), { maximumFractionDigits: a.currency === 'VND' ? 0 : 2 })} ${a.currency}` : ''}.`,
           ),
+    );
+  }
+  // A1: câu giải thích CPA (số lấy từ phân rã đã tính; tên chiến dịch chỉ ở mẫu, không vào prompt LLM).
+  for (const a of c.accounts) {
+    const x = a.cpaChange;
+    if (!x) continue;
+    const top = x.factors[0]!;
+    const factor = (k: string) =>
+      en
+        ? { cpm: 'CPM', ctr: 'CTR', cvr: 'conversion rate' }[k]
+        : { cpm: 'CPM', ctr: 'CTR', cvr: 'tỷ lệ chuyển đổi' }[k];
+    const up = x.changePct > 0;
+    const head = c.accounts.length > 1 ? `${a.name}: ` : '';
+    const driver = x.drivers[0];
+    lines.push(
+      en
+        ? `${head}CPA ${up ? 'rose' : 'fell'} ${nf(Math.abs(x.changePct))}% mainly because ${factor(top.key)} ${top.changePct >= 0 ? 'rose' : 'fell'} ${nf(Math.abs(top.changePct))}%${driver ? `; campaign "${driver.name ?? ''}" accounts for ${nf(driver.sharePct)}% of the change` : ''}.`
+        : `${head}CPA ${up ? 'tăng' : 'giảm'} ${nf(Math.abs(x.changePct))}% chủ yếu do ${factor(top.key)} ${top.changePct >= 0 ? 'tăng' : 'giảm'} ${nf(Math.abs(top.changePct))}%${driver ? `; chiến dịch "${driver.name ?? ''}" chiếm ${nf(driver.sharePct)}% mức thay đổi` : ''}.`,
     );
   }
   const w = c.agencyWork;

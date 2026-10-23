@@ -954,6 +954,19 @@
       "auto": "automatic (rule)",
       "undone": "undone",
       "more": "… and {count} more"
+    },
+    "cpa": {
+      "titleUp": "Why did CPA rise?",
+      "titleDown": "Why did CPA fall?",
+      "headline": "CPA {previous} → {current} ({change}) vs the previous period.",
+      "factors": {
+        "cpm": "Cost per 1,000 impressions (CPM)",
+        "ctr": "Link click-through rate (CTR)",
+        "cvr": "Conversion rate (results / click)"
+      },
+      "share": "explains {share}% of the CPA change",
+      "drivers": "Campaigns contributing most",
+      "method": "CPA = CPM ÷ CTR ÷ conversion rate. Computed from the reconciled figures of both periods."
     }
   },
   "reports": {
