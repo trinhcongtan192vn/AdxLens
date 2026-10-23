@@ -1109,7 +1109,8 @@
       "killSwitch": "Kill switch",
       "staff": "Team",
       "audit": "Admin log",
-      "workspaces": "Workspaces"
+      "workspaces": "Workspaces",
+      "operations": "Operations"
     },
     "flags": {
       "title": "Feature flag matrix",
@@ -1239,7 +1240,10 @@
         "flag_proposal_reject": "Reject flag proposal",
         "flag_proposal_cancel": "Cancel flag proposal",
         "kill_switch_on": "Global kill switch on",
-        "kill_switch_off": "Global kill switch off"
+        "kill_switch_off": "Global kill switch off",
+        "sync_resync": "Re-sync",
+        "queue_retry": "Retry failed job",
+        "queue_discard": "Discard failed job"
       }
     },
     "workspaces": {
@@ -1297,6 +1301,53 @@
         "range": "Range",
         "started": "Started",
         "error": "Error"
+      }
+    },
+    "operations": {
+      "title": "Operations",
+      "syncTitle": "Failed (7 days) or stuck > 3h syncs ({count})",
+      "syncEmpty": "No failed or stuck syncs.",
+      "failed": "Failed",
+      "stuck": "Stuck",
+      "resync": "Re-sync",
+      "resyncTitle": "Re-sync {account}",
+      "resyncQueued": "Re-sync scheduled",
+      "days": "Range (up to yesterday, account time)",
+      "daysOption": "Last {days} days",
+      "reason": "Reason (required, ≥ 5 characters)",
+      "queuesTitle": "Job queues",
+      "redisDown": "Cannot read Redis.",
+      "failedTitle": "Failed jobs · {queue}",
+      "noRetry": "This queue writes to Meta: never retried (ADR-0008). Check Ads Manager, then discard.",
+      "loading": "Loading…",
+      "noFailed": "No failed jobs left.",
+      "attempts": "{n} attempts",
+      "retry": "Retry",
+      "discard": "Discard",
+      "retried": "Job retried",
+      "discarded": "Job discarded",
+      "metaTitle": "Meta API · last 60 minutes",
+      "noWorkspace": "(no workspace)",
+      "meta": {
+        "calls": "Calls",
+        "errors": "Errors",
+        "rateLimited": "Rate limited",
+        "avgMs": "Average duration"
+      },
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Ad account",
+        "status": "Status",
+        "range": "Range",
+        "error": "Error",
+        "at": "At",
+        "actions": "Actions",
+        "queue": "Queue",
+        "waiting": "Waiting",
+        "active": "Active",
+        "delayed": "Delayed",
+        "failed": "Failed",
+        "job": "Job"
       }
     }
   },

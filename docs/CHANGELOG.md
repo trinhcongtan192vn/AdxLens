@@ -2,6 +2,22 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [048] Admin: vận hành đồng bộ, hàng đợi job, mức dùng Meta API — 2026-10-23
+
+**Thay đổi**
+- `/admin/operations` (+ `GET /api/v1/admin/operations`):
+  - **Đồng bộ lỗi (7 ngày) hoặc kẹt > 3 giờ** trên mọi workspace (bỏ kết nối đã ngắt), nút **Chạy lại đồng bộ** (3 / 7 / 30 / 90 ngày đến hôm qua theo giờ tài khoản, bắt buộc lý do). Nút này cũng có ở từng tài khoản trong `/admin/workspaces/<id>`.
+  - **Hàng đợi BullMQ**: chờ / đang chạy / hẹn giờ / lỗi theo queue; bấm số lỗi → danh sách job lỗi (lý do lỗi **đã che** chuỗi giống token / secret, cắt 300 ký tự; không trả payload) → **Chạy lại** / **Bỏ** (bắt buộc lý do). Queue `execute` (ghi Meta) **không chạy lại được** (ADR-0008), chỉ bỏ sau khi kiểm Ads Manager.
+  - **Meta API 60 phút**: lời gọi, lỗi, rate limit (mã 4/17/32/613, 80000–80014), thời gian trung bình, top 10 workspace.
+- `core/ops/operations.ts` (`syncIssues`, `adminResync`, `metaApiUsage`, `QueueAdmin`, `failedJobs`, `handleFailedJob`, `scrubJobError`); web `server/queue-admin.ts` (BullMQ). Mọi thao tác ghi `/admin/audit` (`sync.resync`, `queue.retry`, `queue.discard`).
+
+**Test tự động**
+- `operations.test.ts`: lọc đồng bộ lỗi / kẹt đúng mốc, bỏ kết nối đã ngắt; chạy lại N ngày đúng khoảng theo giờ tài khoản + nhật ký; kết nối đã ngắt → 409; đếm rate limit; che token; `execute` không chạy lại; job lạ → 404.
+- `admin-ops.test.ts`: người ngoài → 404 ở mọi route; ngày ngoài 1–90 → 422; queue lạ (`toString`) → 404.
+- Bộ cách ly: 4 route mới khai báo `exempt` có lý do.
+
+**PM kiểm tra:** `/admin/operations` → bảng Hàng đợi có đủ queue; `/admin/workspaces/<id>` → "Chạy lại đồng bộ" cho TRON_GLAMPING 3 ngày → `/admin/audit` có dòng "Chạy lại đồng bộ".
+
 ## [fix] Trang Client luôn có lối vào "Đối chiếu số liệu" — 2026-10-23
 
 **Thay đổi:** badge đối chiếu (dẫn tới D04, nơi có nút "Chạy lại đồng bộ") trước chỉ hiện khi đã có kết quả đối chiếu; Client mới đồng bộ lần đầu (hoặc đồng bộ lỗi) không có đường bấm chạy lại. Nay hiện khi Client có ít nhất một tài khoản QC (badge "Chưa đối chiếu").
