@@ -1,6 +1,6 @@
 import { boolean, date, index, integer, jsonb, smallint, text, unique, uuid } from 'drizzle-orm/pg-core';
-import { app, createdAt, tsz, updatedAt } from './_common';
-import { clients } from './tenancy';
+import { app, createdAt, money, tsz, updatedAt } from './_common';
+import { clients, workspaces } from './tenancy';
 
 export const REPORT_KINDS = ['audit', 'periodic', 'pitch'] as const;
 export const REPORT_STATUSES = ['building', 'ready', 'failed'] as const;
@@ -125,4 +125,31 @@ export const reportDeliveries = app.table(
     createdAt: createdAt(),
   },
   (t) => [unique().on(t.scheduleId, t.period), index().on(t.workspaceId)],
+);
+
+export const PACING_STATUSES = ['on_track', 'over', 'under'] as const;
+
+/**
+ * Ngân sách tháng theo Client (roadmap A3): agency nhập ngân sách hợp đồng của tháng (`month` = 'YYYY-MM', tiền
+ * numeric theo tiền tệ tài khoản). `alert_status` = trạng thái đã cảnh báo trong tháng (chống gửi lặp).
+ */
+export const clientBudgets = app.table(
+  'client_budgets',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    clientId: uuid('client_id')
+      .notNull()
+      .references(() => clients.id, { onDelete: 'cascade' }),
+    month: text('month').notNull(),
+    amount: money('amount').notNull(),
+    currency: text('currency').notNull(),
+    alertStatus: text('alert_status', { enum: PACING_STATUSES }),
+    createdBy: uuid('created_by').notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [unique().on(t.clientId, t.month), index().on(t.workspaceId, t.month)],
 );

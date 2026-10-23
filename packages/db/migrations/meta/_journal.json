@@ -386,6 +386,20 @@
       "when": 1792771635805,
       "tag": "0054_system_settings_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1792773904842,
+      "tag": "0055_client_budgets",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1792773905788,
+      "tag": "0056_client_budgets_rls",
+      "breakpoints": true
     }
   ]
 }

@@ -9,3 +9,4 @@ export * from './schedule';
 export * from './digest';
 export * from './agency-work';
 export * from './cpa-change';
+export * from './pacing';

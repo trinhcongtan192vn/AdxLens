@@ -587,7 +587,25 @@
     "archiveConfirm": "Archive “{name}”? Its ad accounts become unassigned. Past reports are kept.",
     "noAccounts": "This Client has no ad accounts.",
     "backToClients": "Clients",
-    "reconnect": "Reconnect"
+    "reconnect": "Reconnect",
+    "budget": {
+      "title": "{month} budget",
+      "status": {
+        "on_track": "On track",
+        "over": "Projected over",
+        "under": "Projected under"
+      },
+      "edit": "Edit budget",
+      "set": "Set monthly budget",
+      "empty": "No monthly budget yet. Set the contracted budget to track spend pace and get alerts when the projection is off by more than 10%.",
+      "spent": "Spent {spent} / {amount} ({days}/{total} days)",
+      "projected": "projected {projected} ({pct})",
+      "dailyNeeded": "spend {amount}/day to hit budget",
+      "dialogTitle": "{month} budget",
+      "amount": "Budget ({currency})",
+      "hint": "Based on spend up to yesterday of the ad accounts in this currency. Owners and managers are alerted when the projection is over / under by more than 10% (from day 5 of the month).",
+      "saved": "Budget saved"
+    }
   },
   "sync": {
     "title": "Syncing 90 days of data",
@@ -1628,6 +1646,16 @@
         "label": "Action completed",
         "title": "Done: {item}",
         "body": "The change was applied and verified on Meta."
+      },
+      "budget_pacing": {
+        "label": "Monthly budget off pace",
+        "title": "{client}: {month} budget {status, select, over {projected to overspend} other {projected to underspend}} by {pct}%",
+        "body": "See spend pacing and the daily spend needed."
+      },
+      "anomaly": {
+        "label": "Daily unusual changes",
+        "title": "{account}: {summary}",
+        "body": "On {date}. Check it before the client asks."
       }
     },
     "settings": {
