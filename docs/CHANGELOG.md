@@ -2,6 +2,25 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [026] Gói cấu hình trong DB, đếm tài khoản đang hoạt động, vượt hạn mức + ân hạn — 2026-10-23
+
+**Thay đổi**
+- DB: `app.billing_plans` (giá VND `numeric`, hạn mức tài khoản, giá tài khoản thêm, quyền theo gói; bảng toàn hệ thống, RLS bật không policy) và `app.subscriptions` (gói theo workspace, trạng thái `active|past_due|canceled`, kỳ, nhà cung cấp thanh toán, mốc `past_due_since` / `over_limit_since`). Seed 4 gói theo PRD 13.3 (migration 0033–0034). **PM đổi giá bằng cách sửa dòng trong `app.billing_plans`**; code chỉ dùng giá mặc định khi thiếu dòng.
+- `packages/core/billing/service.ts`: `getPlans`, `activeAccountCount` (chi tiêu 30 ngày; không tính tài khoản mẫu và kết nối đã thu hồi), `billingStatus` (gói đăng ký / gói đang hưởng quyền, vượt hạn mức, ân hạn 7 ngày — ADR-0001 A8), `currentPlanKey(ctx)` (thay stub Free; bỏ mục tech-debt), `hasPlanEntitlement`, `showPoweredBy`, `refreshOverLimit`, `syncableAccountIds`, `setSubscription` (027/028 dùng).
+- Quy tắc: `past_due` quá 7 ngày hoặc gói đã hủy → quyền về Free. Vượt hạn mức → ghi mốc, đồng bộ bình thường trong 7 ngày; hết ân hạn → **đồng bộ hằng ngày chỉ chạy cho số tài khoản trong hạn mức (nhập sớm nhất)**, dữ liệu cũ giữ nguyên. Hết vượt → xóa mốc.
+- Đồng bộ hằng ngày (`runDailySync`) cập nhật mốc vượt hạn mức và bỏ qua tài khoản ngoài hạn mức (`skipped / plan_limit`).
+- Nhãn "Powered by" ở share link và PDF: ẩn khi gói có quyền `remove_badge` (Scale) hoặc workspace được gỡ thủ công.
+- Giao diện: S04 hạn mức theo gói thật; M02 bảng giá đọc từ DB; X04 thêm biến thể **thanh toán thất bại** và **vượt hạn mức** (trong ân hạn / hết ân hạn), link tới Gói & thanh toán cho người có quyền; ST03 hiện gói, giá, tài khoản đang hoạt động / hạn mức, ngày gia hạn và cảnh báo ân hạn (thanh toán ở 027–028).
+
+**Test tự động**
+- `billing/service.test.ts` (11): giá từ DB và fallback; gói không active về mặc định; đếm tài khoản đúng (bỏ mẫu, thu hồi, workspace khác); Free mặc định, đổi gói đổi quyền; past_due giữ gói 7 ngày rồi về Free; gói hủy về Free; nhãn Powered by; vượt hạn mức ghi mốc một lần, trong ân hạn không giới hạn, hết ân hạn chỉ giữ tài khoản sớm nhất; hết vượt thì xóa mốc.
+- `ingestion.test.ts` (+2): hết ân hạn → tài khoản ngoài hạn mức bỏ qua đồng bộ, tài khoản trong hạn mức vẫn chạy; vượt lần đầu ghi mốc và vẫn đồng bộ.
+- Bộ cách ly: world B có subscription (past_due, vượt hạn mức) — vân tay B không đổi khi chạy route/job của A.
+
+**Vùng bảo vệ:** `packages/db/**` (2 bảng + RLS + seed, migration 0033–0034).
+
+**PM kiểm tra:** Cài đặt → Gói & thanh toán hiện Free, "x/1" tài khoản. Nhập ≥ 2 tài khoản có chi tiêu → banner vượt hạn mức. Đổi giá một gói trong `app.billing_plans` (Supabase Studio) → `/pricing` hiện giá mới.
+
 ## [025] Tài khoản mẫu (S01), banner dữ liệu mẫu (X04), báo cáo mẫu `/r/demo` — 2026-10-23
 
 **Thay đổi**

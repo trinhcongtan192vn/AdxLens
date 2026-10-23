@@ -1,6 +1,5 @@
-import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
-import { schema } from '@adxlens/db';
+import { showPoweredBy } from '@adxlens/core/billing';
 import { getReport, type ReportContent } from '@adxlens/core/reporting';
 import { SYSTEM_ACTOR } from '@adxlens/core/shared';
 import { ReportView } from '@/report/report-view';
@@ -30,10 +29,7 @@ export default async function PrintReportPage({
   const { db, storage } = deps();
   const report = await getReport({ db, workspaceId: claim.w, actor: SYSTEM_ACTOR }, id).catch(() => null);
   if (!report || report.status !== 'ready') notFound();
-  const [ws] = await db
-    .select({ badgeRemoved: schema.workspaces.badgeRemoved })
-    .from(schema.workspaces)
-    .where(eq(schema.workspaces.id, claim.w));
+  const showBadge = await showPoweredBy({ db, workspaceId: claim.w });
   const content = report.content as ReportContent;
   return (
     <main className="print-a4 bg-surface">
@@ -43,7 +39,7 @@ export default async function PrintReportPage({
         edits={report.edits}
         summary={report.summaryText}
         logoUrl={content.brand.logoPath ? storage.publicUrl('brand', content.brand.logoPath) : null}
-        showBadge={!ws?.badgeRemoved}
+        showBadge={showBadge}
       />
     </main>
   );

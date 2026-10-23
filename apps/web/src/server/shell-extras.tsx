@@ -2,6 +2,7 @@ import 'server-only';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
+import { billingStatus } from '@adxlens/core/billing';
 import { connectionHealth, demoConnection } from '@adxlens/core/connections';
 import { DemoActions } from '@/components/demo-actions';
 import { unreadCount } from '@adxlens/core/notification';
@@ -29,6 +30,29 @@ async function systemBanner(pc: PageContext): Promise<ReactNode> {
         }
       >
         {t('tokenExpired', { count: health.expired.length })}
+      </Banner>
+    );
+  }
+  // X04 past_due + vượt hạn mức (026, PRD 13.3).
+  const billing = await billingStatus(pc.ctx);
+  const billingLink = can(pc.actor.role, 'billing.manage') ? (
+    <Link href="/settings/billing" className="text-body font-medium underline">
+      {t('openBilling')}
+    </Link>
+  ) : null;
+  if (billing.status === 'past_due') {
+    return (
+      <Banner tone="danger" action={billingLink}>
+        {t('pastDue')}
+      </Banner>
+    );
+  }
+  if (billing.overLimit) {
+    return (
+      <Banner tone={billing.graceExpired ? 'danger' : 'warning'} action={billingLink}>
+        {billing.graceExpired
+          ? t('overLimitExpired', { limit: billing.plan.includedAccounts })
+          : t('overLimit', { active: billing.activeAccounts, limit: billing.plan.includedAccounts })}
       </Banner>
     );
   }

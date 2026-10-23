@@ -432,7 +432,11 @@
   },
   "banners": {
     "tokenExpired": "The Meta token of {count, plural, one {# connection} other {# connections}} has expired. Data for the related accounts has stopped updating.",
-    "reconnect": "Reconnect"
+    "reconnect": "Reconnect",
+    "pastDue": "Your last payment failed. Update your payment method within 7 days to keep your plan.",
+    "overLimit": "This workspace has {active} active accounts, over the plan limit of {limit}. After 7 days, accounts over the limit stop updating.",
+    "overLimitExpired": "The grace period has ended: only {limit} accounts within the limit keep updating. Existing data is kept.",
+    "openBilling": "View plan"
   },
   "connect": {
     "step": "Setup · step {n}/{total}",
@@ -1260,5 +1264,19 @@
     "already": "This workspace already has sample data.",
     "goOverview": "Open overview",
     "back": "Back"
+  },
+  "billing": {
+    "currentPlan": "Current plan",
+    "comparePlans": "Compare plans",
+    "plan": "Plan",
+    "price": "Price",
+    "activeAccounts": "Active accounts",
+    "usage": "{active}/{limit}",
+    "renewsOn": "Renews on",
+    "endsOn": "Ends on",
+    "activeHint": "An active account is one with spend in the last 30 days. Sample accounts are not counted.",
+    "pastDue": "Your last payment failed. The plan moves to Free after {date} unless paid.",
+    "overLimit": "{active} active accounts, over the limit of {limit}. Upgrade before {date} to keep every account updating.",
+    "overLimitExpired": "The grace period has ended: only {limit} accounts within the limit keep updating."
   }
 }

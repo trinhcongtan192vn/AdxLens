@@ -432,7 +432,11 @@
   },
   "banners": {
     "tokenExpired": "Token Meta của {count} kết nối đã hết hạn. Số liệu của các tài khoản liên quan đã dừng cập nhật.",
-    "reconnect": "Kết nối lại"
+    "reconnect": "Kết nối lại",
+    "pastDue": "Thanh toán gần nhất không thành công. Cập nhật phương thức thanh toán trong 7 ngày để giữ gói hiện tại.",
+    "overLimit": "Workspace có {active} tài khoản đang hoạt động, vượt hạn mức {limit} của gói. Sau 7 ngày, tài khoản ngoài hạn mức sẽ ngừng cập nhật.",
+    "overLimitExpired": "Đã hết thời gian ân hạn: chỉ {limit} tài khoản trong hạn mức còn được cập nhật. Dữ liệu cũ vẫn giữ nguyên.",
+    "openBilling": "Xem gói"
   },
   "connect": {
     "step": "Thiết lập · bước {n}/{total}",
@@ -1260,5 +1264,19 @@
     "already": "Workspace đã có dữ liệu mẫu.",
     "goOverview": "Mở tổng quan",
     "back": "Quay lại"
+  },
+  "billing": {
+    "currentPlan": "Gói hiện tại",
+    "comparePlans": "So sánh các gói",
+    "plan": "Gói",
+    "price": "Giá",
+    "activeAccounts": "Tài khoản đang hoạt động",
+    "usage": "{active}/{limit}",
+    "renewsOn": "Gia hạn ngày",
+    "endsOn": "Kết thúc ngày",
+    "activeHint": "Tài khoản đang hoạt động là tài khoản có chi tiêu trong 30 ngày qua. Tài khoản mẫu không được tính.",
+    "pastDue": "Thanh toán gần nhất không thành công. Gói sẽ chuyển về Free sau {date} nếu chưa thanh toán.",
+    "overLimit": "Đang có {active} tài khoản hoạt động, vượt hạn mức {limit}. Nâng gói trước {date} để tiếp tục cập nhật mọi tài khoản.",
+    "overLimitExpired": "Đã hết thời gian ân hạn: chỉ {limit} tài khoản trong hạn mức còn được cập nhật."
   }
 }
