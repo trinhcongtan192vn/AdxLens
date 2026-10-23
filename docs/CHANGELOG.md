@@ -2,6 +2,25 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [036] Nhật ký hành động (P203), chi tiết + hoàn tác (P204) — 2026-10-23
+
+> Chạm `packages/core/execution` — **cần PM chạy staging trước khi merge `develop → main`** (cùng lượt với 035).
+
+**Thay đổi**
+- `core/execution/log.ts`: `listActions` (theo phạm vi Client, lọc trạng thái / tài khoản), `getAction` (dòng thời gian từ nhật ký append-only, hành động hoàn tác liên quan), `undoAction` (P2-06): tạo hành động **mới** ngược lại (bật lại / tạm dừng / ngân sách về giá trị cũ, `undo_of`) đi qua đúng gateway; nhân bản, hành động thất bại / không đổi / đã hoàn tác → không hoàn tác được. Hoàn tác không tính vào giới hạn số hành động/ngày.
+- Gateway: thành công thì ghi xuyên trạng thái đã xác minh (trạng thái / ngân sách) vào `analytics.entities` để xem trước và hoàn tác dùng trạng thái đúng trước lần đồng bộ kế tiếp; hoàn tác thành công đánh dấu hành động gốc "đã hoàn tác".
+- API `GET /actions`, `GET /actions/{id}`, `POST /actions/{id}/undo` (202) — sau cờ duyệt hành động.
+- Trang P203 `/action-log` (lọc trạng thái; thời điểm, hành động, thay đổi trước → sau, người duyệt, trạng thái) và P204 `/action-log/{id}` (tóm tắt, dòng thời gian, banner thất bại / cần kiểm tra thủ công, nút hoàn tác có hộp thoại xác nhận; lỗi hiển thị theo mã, song ngữ). Ngân sách hiển thị theo đơn vị nhỏ nhất của tiền tệ (tech-debt: bảng tiền tệ không có phần lẻ).
+
+**Test tự động**
+- `execution/gateway.test.ts` (+3): tạm dừng → hoàn tác bật lại qua gateway, gốc "đã hoàn tác", bản chụp cập nhật, không hoàn tác lần hai; hoàn tác ngân sách về đúng giá trị; nhân bản / thất bại không hoàn tác được; danh sách theo phạm vi Client, buyer không thấy ngoài phạm vi, workspace khác 404.
+- `api/v1/actions/actions.test.ts`: **cờ tắt → 404** cho 3 route. `lib/actions.test.ts`: hiển thị thay đổi (VND đồng, USD cent).
+- Bộ cách ly: probe 3 route; world B có một hành động (tên/id bí mật không lộ; hoàn tác chéo workspace → 404).
+
+**Vùng bảo vệ:** `packages/core/execution/**`.
+
+**PM kiểm tra:** sau khi duyệt một hành động (038) → "Nhật ký hành động" → mở chi tiết → "Hoàn tác".
+
 ## [035] Execution Gateway: executor, verifier, idempotency, lỗi giữa chừng, test tích hợp — 2026-10-23
 
 > **Cần PM chạy test tích hợp trên staging trước khi merge `develop → main`** (vùng bảo vệ `execution`, L3 13.1): `pnpm execution:check -- <ad_id> <adset_id>` với tài khoản Meta test (`docs/onboarding.md` mục 8).

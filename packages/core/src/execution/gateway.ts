@@ -20,7 +20,7 @@ import { canApproveActions } from '@adxlens/core/tenancy';
 import { checkGuardrails, effectiveGuardrails, type ActionType, type GuardrailViolation } from './guardrails';
 import { breakerOpen, killSwitchState, recordFailure, recordSuccess } from './safety';
 
-const { actions, actionLogs, adAccounts } = schema;
+const { actions, actionLogs, adAccounts, entities } = schema;
 
 type State = Record<string, string | null>;
 export type ActionRow = typeof actions.$inferSelect;
@@ -404,6 +404,25 @@ export async function executeAction(
   const ts = clock.now();
   if (outcome.kind === 'success') {
     await recordSuccess(ctx, account.id);
+    // Ghi xuyên trạng thái đã xác minh vào bản chụp cấu trúc (để xem trước / hoàn tác dùng trạng thái đúng
+    // trước lần đồng bộ kế tiếp).
+    if (type !== 'duplicate_adset') {
+      await ctx.db
+        .update(entities)
+        .set(
+          type === 'set_adset_budget'
+            ? { dailyBudget: outcome.after.daily_budget ?? null, updatedAt: ts }
+            : { status: outcome.after.status ?? null, updatedAt: ts },
+        )
+        .where(
+          and(
+            eq(entities.workspaceId, ctx.workspaceId),
+            eq(entities.adAccountId, account.id),
+            eq(entities.entityType, a.targetType),
+            eq(entities.metaId, a.targetMetaId),
+          ),
+        );
+    }
     const r = await finish('success', outcome.code, {
       afterState: outcome.after,
       executedAt: ts,
