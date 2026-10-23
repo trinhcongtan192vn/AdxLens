@@ -148,6 +148,33 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     crossParams: (w) => ({ id: w.b.finding.id }),
     body: () => ({ kind: 'seen' }),
   },
+  'GET /api/v1/reports': { kind: 'workspace' },
+  'POST /api/v1/reports': {
+    kind: 'workspace',
+    body: (w) => ({ client_id: w.a.client.id, kind: 'periodic', date_from: '2026-10-16', date_to: '2026-10-22' }),
+    crossBody: (w) => ({ client_id: w.b.client.id, kind: 'periodic', date_from: '2026-10-16', date_to: '2026-10-22' }),
+  },
+  'GET /api/v1/reports/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.report.id }),
+  },
+  'PATCH /api/v1/reports/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.report.id }),
+    body: () => ({ title: 'x' }),
+  },
+  'DELETE /api/v1/reports/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.report.id }),
+  },
+  'POST /api/v1/reports/[id]/rebuild': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.report.id }),
+  },
   'GET /api/v1/clients': { kind: 'workspace' },
   'POST /api/v1/clients': { kind: 'workspace', body: () => ({ name: 'Client mới' }) },
   'GET /api/v1/clients/[id]': {

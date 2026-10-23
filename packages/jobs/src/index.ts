@@ -76,7 +76,8 @@ export const JOBS = {
     queue: 'report',
     workspaceScoped: true,
     schema: z.object({ ...ws, reportId: uuid }),
-    jobId: (p) => `report:${p.reportId}`,
+    // Theo giây: dựng lại (R03) không bị trùng job cũ còn lưu.
+    jobId: (p) => `report:${p.reportId}:${Math.floor(Date.now() / 1000)}`,
   }),
   'pdf:render': def({
     queue: 'pdf',

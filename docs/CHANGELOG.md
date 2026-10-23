@@ -2,6 +2,30 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [019] Dựng báo cáo: nội dung có cấu trúc, mẫu vi/en, thương hiệu (sau cờ `p0_reports`) — 2026-10-23
+
+**Thay đổi**
+- ADR-0007 (PM chọn): cho tạo báo cáo nháp; chặn chia sẻ/gửi khi có tài khoản chưa xác nhận gán hoặc ngày lệch > 1% trong kỳ (kiểm lại tại thời điểm chia sẻ/gửi). L3 10.2 sửa cho khớp.
+- DB: `app.reports` (Client, loại, kỳ, ngôn ngữ, trạng thái building/ready/failed, `content` JSON, `edits` của agency, `integrity` + `reconciliation_status` lúc dựng, phiên bản mẫu, tóm tắt cho 020, PDF cho 022). RLS.
+- `packages/core/reporting/report.ts`: tạo (bất đồng bộ, enqueue `report:build`), dựng `ReportContent` (theo từng tài khoản: KPI kỳ này + kỳ trước cùng độ dài, chi tiêu/kết quả theo ngày, 5 chiến dịch chi tiêu cao nhất, health, đối chiếu; 10 phát hiện đang mở xếp theo mức độ và tác động; thương hiệu workspace ← ghi đè Client; nguồn số liệu P0-13: khớp Meta lúc nào, attribution, tiền tệ, múi giờ), toàn vẹn, chỉnh phần agency viết (tiêu đề, việc đã làm, kế hoạch, ẩn mục), dựng lại, xóa, danh sách (buyer chỉ thấy Client được gán). Loại "pitch" chưa mở (PRD P0-18 chỉ làm nếu E5 đạt).
+- `SYSTEM_ACTOR` cho job worker chỉ đọc. Worker `report:build` kiểm cờ `p0_reports` ở đầu job.
+- API (đều kiểm cờ phía server): `GET|POST /api/v1/reports`, `GET|PATCH|DELETE /api/v1/reports/{id}`, `POST /api/v1/reports/{id}/rebuild`.
+- Mẫu báo cáo `apps/web/src/report/report-view.tsx`: một mẫu cho xem trước, trang công khai (021) và PDF (022); nhãn theo ngôn ngữ báo cáo (không theo người xem); biểu đồ SVG render server; dòng nguồn số liệu; "Powered by AdxLens" (tùy gói, 026). Đặt trong `apps/web` (không phải `packages/ui/report` như L3 9) để dùng chung bộ dịch i18n của web.
+- Giao diện: sidebar "Báo cáo" sau cờ; R01 danh sách (trống, trạng thái, "Chưa chia sẻ được"); R02 tạo (Client, loại, kỳ 7/30 ngày/tháng trước/tùy chọn, ngôn ngữ); R03 xem trước (đang dựng tự cập nhật, lỗi, banner khóa chia sẻ kèm lý do và lối xử lý, chỉnh nội dung, dựng lại, xóa); C02 tab Báo cáo.
+- Vitest dùng JSX runtime tự động (test render component).
+
+**Test tự động**
+- `packages/core/src/reporting/report.test.ts` (4): tạo + dựng đủ nội dung (KPI, kỳ so sánh, phát hiện mức cao trước, nguồn P0-13); toàn vẹn chưa xác nhận / lệch trong kỳ → khóa, kỳ không chứa ngày lệch → không khóa; chỉnh + dựng lại + khoảng ngày sai; quyền buyer, workspace khác.
+- `apps/web/src/report/report-view.test.tsx` (4): nhãn theo ngôn ngữ báo cáo, số định dạng vi/en, delta, ẩn mục, nhãn Powered by, chưa đối chiếu.
+- API `reports.test.ts` (2): **cờ tắt → 404, không tạo, không enqueue**; cờ bật tạo/xem/sửa, buyer 403. Worker: `report:build` cờ tắt → không dựng.
+- Bộ cách ly: cờ bật cho A qua `core/flags`; dữ liệu B có báo cáo; probe 6 route + job `report:build` (+ báo cáo B).
+- **Test đổi:** `apps/web/src/lib/nav.test.ts` — mục "Báo cáo" nay sau cờ `p0_reports` (roadmap B3), nên khi mọi cờ tắt sidebar không còn "Báo cáo"; thêm khẳng định bật cờ thì hiện.
+- E2E báo cáo thêm ở 042 (khi có màn bật cờ của PM để bật trong test).
+
+**Vùng bảo vệ:** `packages/db/**` (1 bảng + RLS, migration 0020–0021).
+
+**PM kiểm tra:** bật cờ `p0_reports` cho workspace (tạm qua Supabase Studio bảng `app.feature_flags` hoặc chờ màn AD01 ở 042) → sidebar "Báo cáo" → "+ Tạo báo cáo" → R03.
+
 ## [018b] O01 Tổng quan agency, cột số liệu C01, bảng chiến dịch C02 — 2026-10-23
 
 **Thay đổi**

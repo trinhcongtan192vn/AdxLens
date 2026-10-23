@@ -21,11 +21,11 @@ export type NavItem = {
   roles?: Role[];
 };
 
-/** 9 mục sidebar (validation.md mục 2); 4 mục sau cờ P1/P2. */
+/** 9 mục sidebar (validation.md mục 2); Báo cáo sau cờ `p0_reports`, 4 mục sau cờ P1/P2. */
 export const NAV_ITEMS: NavItem[] = [
   { key: 'overview', href: '/overview', icon: 'LayoutDashboard' },
   { key: 'clients', href: '/clients', icon: 'Building2' },
-  { key: 'reports', href: '/reports', icon: 'FileText', roles: ['owner', 'manager'] },
+  { key: 'reports', href: '/reports', icon: 'FileText', roles: ['owner', 'manager'], flag: 'p0_reports' },
   { key: 'weeklyActions', href: '/weekly-actions', icon: 'ListChecks', flag: 'p1_recommendations' },
   { key: 'creatives', href: '/creatives', icon: 'Images', flag: 'p1_recommendations' },
   { key: 'actionLog', href: '/action-log', icon: 'History', flag: 'p2a_approve' },

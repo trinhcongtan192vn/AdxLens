@@ -83,6 +83,13 @@ export const JOB_PROBES: Record<string, JobProbe> = {
   'audit:run#cross': {
     payload: (w) => ({ workspaceId: w.a.workspace.id, adAccountId: w.b.adAccount.id, snapshotVersion: 'probe' }),
   },
+  'report:build': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, reportId: '00000000-0000-4000-8000-000000000000' }),
+  },
+  // Workspace A nhưng báo cáo của B: không được dựng/ghi báo cáo B.
+  'report:build#cross': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, reportId: w.b.report.id }),
+  },
   'reconcile:account': {
     prepare: backfillForA,
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, from: p!.from, to: p!.to }),

@@ -23,5 +23,16 @@ export type WorkspaceCtx = {
 
 export type ActorCtx = WorkspaceCtx & { actor: Actor };
 
+/**
+ * Actor hệ thống cho job worker chỉ ĐỌC dữ liệu của workspace (dựng báo cáo, digest): quyền xem mọi Client
+ * trong đúng workspace của job, không dùng cho thao tác ghi thay người dùng.
+ */
+export const SYSTEM_ACTOR: Actor = {
+  userId: '00000000-0000-0000-0000-000000000000',
+  role: 'manager',
+  clientAccess: [],
+  approveClientIds: [],
+};
+
 export type Clock = { now: () => Date };
 export const systemClock: Clock = { now: () => new Date() };
