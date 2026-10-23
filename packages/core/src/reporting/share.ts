@@ -36,22 +36,18 @@ export function verifySharePassword(password: string, stored: string): boolean {
 /** Lý do khóa chia sẻ hiện tại (kiểm lại lúc chia sẻ/xem — ADR-0007, P0-22, P0-23). */
 export async function shareBlockReasons(ctx: ActorCtx, report: { clientId: string; dateFrom: string; dateTo: string }) {
   const integrity = await reportIntegrity(ctx, report.clientId, { from: report.dateFrom, to: report.dateTo });
-  const [revoked] = await ctx.db
-    .select({ n: sql<number>`count(*)::int` })
+  const [c] = await ctx.db
+    .select({
+      revoked: sql<number>`(count(*) filter (where ${metaConnections.status} = 'revoked'))::int`,
+      demo: sql<number>`(count(*) filter (where ${metaConnections.isDemo}))::int`,
+    })
     .from(adAccounts)
     .innerJoin(metaConnections, eq(metaConnections.id, adAccounts.connectionId))
-    .where(
-      and(
-        eq(adAccounts.workspaceId, ctx.workspaceId),
-        eq(adAccounts.clientId, report.clientId),
-        eq(metaConnections.status, 'revoked'),
-      ),
-    );
-  return {
-    integrity,
-    connectionRevoked: (revoked?.n ?? 0) > 0,
-    blocked: isBlocked(integrity) || (revoked?.n ?? 0) > 0,
-  };
+    .where(and(eq(adAccounts.workspaceId, ctx.workspaceId), eq(adAccounts.clientId, report.clientId)));
+  const connectionRevoked = (c?.revoked ?? 0) > 0;
+  // Dữ liệu mẫu (S01) không chia sẻ/gửi khách được.
+  const demo = (c?.demo ?? 0) > 0;
+  return { integrity, connectionRevoked, demo, blocked: isBlocked(integrity) || connectionRevoked || demo };
 }
 
 /** R04: tạo link công khai. Chưa toàn vẹn → 422 REPORT_BLOCKED (DB trigger chặn thêm lớp nữa). */
@@ -70,6 +66,7 @@ export async function createShareLink(
       unconfirmed_accounts: block.integrity.unconfirmedAccounts,
       warning_dates: block.integrity.warningDates,
       connection_revoked: block.connectionRevoked,
+      demo: block.demo,
     });
   }
   const password = input.password?.trim() || null;

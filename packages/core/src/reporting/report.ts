@@ -26,6 +26,8 @@ export type ReportContent = {
   period: DateRange;
   compare: DateRange;
   generatedAt: string;
+  /** Dữ liệu mẫu (S01): báo cáo ghi rõ là số liệu minh họa. */
+  demo?: boolean;
   /** P0-13: "khớp Meta tính đến …", attribution, múi giờ, tiền tệ. */
   source: { matchedAt: string | null; attribution: '7d_click_1d_view'; currencies: string[]; timezones: string[] };
   accounts: {
@@ -223,6 +225,7 @@ export async function buildReport(
       period,
       compare,
       generatedAt: clock.now().toISOString(),
+      demo: accs.some((a) => a.isDemo),
       source: {
         matchedAt: matched?.at ? new Date(matched.at).toISOString() : null,
         attribution: '7d_click_1d_view',

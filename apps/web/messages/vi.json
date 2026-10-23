@@ -920,7 +920,8 @@
     "source": "Khớp Meta tính đến {matchedAt} · attribution 7 ngày click / 1 ngày xem · {currencies} · {timezones}",
     "sourcePending": "Chưa đối chiếu với Meta · attribution 7 ngày click / 1 ngày xem · {currencies} · {timezones}",
     "poweredBy": "Powered by AdxLens",
-    "account": "Tài khoản {name}"
+    "account": "Tài khoản {name}",
+    "demo": "Báo cáo mẫu — số liệu minh họa, không phải dữ liệu thật."
   },
   "reports": {
     "title": "Báo cáo",
@@ -1138,7 +1139,7 @@
       "report_postponed": {
         "label": "Báo cáo theo lịch bị hoãn",
         "title": "Hoãn gửi báo cáo cho {client}",
-        "body": "Lý do: {reason, select, unconfirmed {có tài khoản chưa xác nhận gán Client} reconciliation {số liệu lệch hơn 1% so với Ads Manager} connection_revoked {kết nối Meta đã bị ngắt} other {không dựng được báo cáo}}. Xử lý xong, báo cáo sẽ gửi ở lần chạy tiếp theo."
+        "body": "Lý do: {reason, select, unconfirmed {có tài khoản chưa xác nhận gán Client} reconciliation {số liệu lệch hơn 1% so với Ads Manager} connection_revoked {kết nối Meta đã bị ngắt} demo {Client dùng dữ liệu mẫu} other {không dựng được báo cáo}}. Xử lý xong, báo cáo sẽ gửi ở lần chạy tiếp theo."
       },
       "billing_failed": {
         "label": "Thanh toán không thành công",
@@ -1218,7 +1219,8 @@
       "unconfirmed": "Có tài khoản chưa xác nhận gán",
       "reconciliation": "Số liệu lệch > 1%",
       "connection_revoked": "Kết nối Meta đã ngắt",
-      "build_failed": "Không dựng được báo cáo"
+      "build_failed": "Không dựng được báo cáo",
+      "demo": "Client dùng dữ liệu mẫu"
     },
     "form": {
       "titleNew": "Thêm lịch gửi",
@@ -1241,5 +1243,22 @@
       "save": "Lưu lịch",
       "periodNote": "Mỗi lần gửi là báo cáo của kỳ vừa kết thúc (tuần trước hoặc tháng trước)."
     }
+  },
+  "demo": {
+    "banner": "Bạn đang xem dữ liệu mẫu. Số liệu là minh họa; báo cáo mẫu không chia sẻ được cho khách.",
+    "remove": "Xóa dữ liệu mẫu",
+    "connectReal": "Kết nối tài khoản thật",
+    "title": "Xem AdxLens với tài khoản mẫu",
+    "body": "Tạo 2 Client mẫu với 90 ngày dữ liệu quảng cáo giả: đối chiếu số liệu, phát hiện, báo cáo. Mọi màn hình ghi rõ \"dữ liệu mẫu\". Bạn có thể xóa bất cứ lúc nào.",
+    "points": {
+      "match": "Một tài khoản khớp Ads Manager, một tài khoản có ngày lệch để thấy luồng đối chiếu.",
+      "findings": "Phát hiện mẫu: creative mệt, ngân sách, học hạn chế…",
+      "safe": "Không cần đăng nhập Meta, không tốn phí, không gửi gì cho khách."
+    },
+    "start": "Dùng tài khoản mẫu",
+    "starting": "Đang tạo dữ liệu mẫu…",
+    "already": "Workspace đã có dữ liệu mẫu.",
+    "goOverview": "Mở tổng quan",
+    "back": "Quay lại"
   }
 }

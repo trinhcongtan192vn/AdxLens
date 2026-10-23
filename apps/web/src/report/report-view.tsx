@@ -68,6 +68,15 @@ export function ReportView({
         </div>
       </header>
 
+      {content.demo ? (
+        <p
+          className="mt-4 rounded-md border border-warning-line bg-warning-bg px-3 py-2 text-body text-warning"
+          role="note"
+        >
+          {t('demo')}
+        </p>
+      ) : null}
+
       {summary ? (
         <section className="mt-5">
           <h2 className="text-h3 font-semibold">{t('sections.summary')}</h2>

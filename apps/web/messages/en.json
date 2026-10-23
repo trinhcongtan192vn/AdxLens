@@ -920,7 +920,8 @@
     "source": "Matches Meta as of {matchedAt} · attribution 7-day click / 1-day view · {currencies} · {timezones}",
     "sourcePending": "Not yet reconciled with Meta · attribution 7-day click / 1-day view · {currencies} · {timezones}",
     "poweredBy": "Powered by AdxLens",
-    "account": "Account {name}"
+    "account": "Account {name}",
+    "demo": "Sample report — illustrative figures, not real data."
   },
   "reports": {
     "title": "Reports",
@@ -1138,7 +1139,7 @@
       "report_postponed": {
         "label": "Scheduled report postponed",
         "title": "Report to {client} postponed",
-        "body": "Reason: {reason, select, unconfirmed {an account has no confirmed Client} reconciliation {figures differ from Ads Manager by more than 1%} connection_revoked {the Meta connection was disconnected} other {the report could not be built}}. Once fixed, it goes out on the next run."
+        "body": "Reason: {reason, select, unconfirmed {an account has no confirmed Client} reconciliation {figures differ from Ads Manager by more than 1%} connection_revoked {the Meta connection was disconnected} demo {the Client uses sample data} other {the report could not be built}}. Once fixed, it goes out on the next run."
       },
       "billing_failed": {
         "label": "Payment failed",
@@ -1218,7 +1219,8 @@
       "unconfirmed": "Account without confirmed Client",
       "reconciliation": "Figures off by > 1%",
       "connection_revoked": "Meta connection disconnected",
-      "build_failed": "Report could not be built"
+      "build_failed": "Report could not be built",
+      "demo": "the Client uses sample data"
     },
     "form": {
       "titleNew": "Add schedule",
@@ -1241,5 +1243,22 @@
       "save": "Save schedule",
       "periodNote": "Each delivery covers the period that just ended (last week or last month)."
     }
+  },
+  "demo": {
+    "banner": "You are viewing sample data. Figures are illustrative; sample reports cannot be shared with clients.",
+    "remove": "Remove sample data",
+    "connectReal": "Connect a real account",
+    "title": "Try AdxLens with a sample account",
+    "body": "Creates 2 sample Clients with 90 days of fake ad data: reconciliation, findings and reports. Every screen is marked \"sample data\". You can remove it at any time.",
+    "points": {
+      "match": "One account matches Ads Manager; one has a mismatched day so you can see reconciliation.",
+      "findings": "Sample findings: creative fatigue, budget, limited learning…",
+      "safe": "No Meta login, no charge, nothing is sent to clients."
+    },
+    "start": "Use the sample account",
+    "starting": "Creating sample data…",
+    "already": "This workspace already has sample data.",
+    "goOverview": "Open overview",
+    "back": "Back"
   }
 }

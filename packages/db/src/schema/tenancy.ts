@@ -71,6 +71,8 @@ export const clients = app.table(
       .references(() => workspaces.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     brandOverride: jsonb('brand_override').$type<WorkspaceBrand>(),
+    /** Client mẫu do S01 tạo (xóa cùng dữ liệu mẫu). */
+    isDemo: boolean('is_demo').notNull().default(false),
     reportLocale: text('report_locale'),
     archivedAt: tsz('archived_at'),
     createdAt: createdAt(),

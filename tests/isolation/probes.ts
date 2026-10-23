@@ -276,6 +276,8 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
     crossParams: (w) => ({ id: w.b.delivery.id }),
   },
+  'POST /api/v1/demo': { kind: 'workspace' },
+  'DELETE /api/v1/demo': { kind: 'workspace' },
   'GET /api/v1/clients': { kind: 'workspace' },
   'POST /api/v1/clients': { kind: 'workspace', body: () => ({ name: 'Client mới' }) },
   'GET /api/v1/clients/[id]': {

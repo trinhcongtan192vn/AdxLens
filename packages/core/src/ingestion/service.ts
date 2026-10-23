@@ -2,7 +2,13 @@ import { and, desc, eq, gte, inArray, lte, sql } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import type { Enqueue } from '@adxlens/jobs';
 import { DEFAULT_ATTRIBUTION, MetaApiError, type MetaInsight, type MetaReadApi } from '@adxlens/meta-client';
-import { markConnectionExpired, withConnectionToken, type TokenKeys } from '@adxlens/core/connections';
+import {
+  connectionIsDemo,
+  markConnectionExpired,
+  metaFor,
+  withConnectionToken,
+  type TokenKeys,
+} from '@adxlens/core/connections';
 import { notify } from '@adxlens/core/notification';
 import {
   AppError,
@@ -325,15 +331,17 @@ export async function syncRange(
     .set({ status: 'running', startedAt: run.startedAt ?? new Date() })
     .where(and(eq(syncRuns.workspaceId, ctx.workspaceId), eq(syncRuns.id, run.id)));
 
+  // Kết nối mẫu (S01) luôn đọc dữ liệu giả.
+  const meta = metaFor({ isDemo: await connectionIsDemo(ctx, account.connectionId) }, deps.meta);
   let rows: (typeof insightsDaily.$inferInsert)[];
   try {
     rows = await withConnectionToken(ctx, account.connectionId, deps.keys, async (token) => {
       let goals = await adsetGoals(ctx, account.id);
       if (input.to === run.dateTo || goals.size === 0) {
-        await syncStructure(ctx, account.id, account.metaAccountId, token, deps.meta);
+        await syncStructure(ctx, account.id, account.metaAccountId, token, meta);
         goals = await adsetGoals(ctx, account.id);
       }
-      const insights = await deps.meta.getInsights(token, account.metaAccountId, {
+      const insights = await meta.getInsights(token, account.metaAccountId, {
         level: 'ad',
         since: input.from,
         until: input.to,

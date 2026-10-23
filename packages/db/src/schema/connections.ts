@@ -26,6 +26,8 @@ export const metaConnections = app.table(
     expiresAt: tsz('expires_at'),
     status: text('status', { enum: CONNECTION_STATUSES }).notNull().default('active'),
     lastRefreshedAt: tsz('last_refreshed_at'),
+    /** Tài khoản mẫu (PRD P0-02, S01): dữ liệu giả từ mock, ghi rõ là mẫu, không tính phí, không chia sẻ được. */
+    isDemo: boolean('is_demo').notNull().default(false),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

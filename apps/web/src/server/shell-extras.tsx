@@ -2,7 +2,8 @@ import 'server-only';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
-import { connectionHealth } from '@adxlens/core/connections';
+import { connectionHealth, demoConnection } from '@adxlens/core/connections';
+import { DemoActions } from '@/components/demo-actions';
 import { unreadCount } from '@adxlens/core/notification';
 import { can } from '@adxlens/core/tenancy';
 import { Banner } from '@adxlens/ui';
@@ -28,6 +29,15 @@ async function systemBanner(pc: PageContext): Promise<ReactNode> {
         }
       >
         {t('tokenExpired', { count: health.expired.length })}
+      </Banner>
+    );
+  }
+  // X04 biến thể "dữ liệu mẫu" (S01).
+  if (await demoConnection(pc.ctx)) {
+    const td = await getTranslations('demo');
+    return (
+      <Banner tone="info" action={can(pc.actor.role, 'connections.manage') ? <DemoActions /> : null}>
+        {td('banner')}
       </Banner>
     );
   }

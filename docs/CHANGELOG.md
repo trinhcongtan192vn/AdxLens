@@ -2,6 +2,25 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [025] Tài khoản mẫu (S01), banner dữ liệu mẫu (X04), báo cáo mẫu `/r/demo` — 2026-10-23
+
+**Thay đổi**
+- DB: `meta_connections.is_demo`, `clients.is_demo`; trigger chặn share link thêm điều kiện **dữ liệu mẫu** (migration 0031–0032).
+- `packages/core/connections/demo.ts` (PRD P0-02): "Dùng tài khoản mẫu" tạo kết nối mẫu + 2 tài khoản QC (một khớp số liệu, một có ngày lệch để thấy luồng đối chiếu) + 2 Client mẫu đã xác nhận, bắt đầu backfill; gọi lại không tạo thêm. **Kết nối mẫu luôn đọc dữ liệu giả** (`metaFor`) ở đồng bộ, đối chiếu, làm mới tài khoản — không bao giờ gọi Meta thật. "Xóa dữ liệu mẫu" xóa kết nối (cascade số liệu) và Client mẫu, giữ Client thật.
+- Báo cáo từ dữ liệu mẫu ghi `demo` và mẫu báo cáo hiện dòng "Báo cáo mẫu — số liệu minh họa"; **không chia sẻ / không xuất PDF / lịch gửi hoãn** (lý do "Client dùng dữ liệu mẫu").
+- API `POST|DELETE /api/v1/demo`. Trang S01 `/demo` (từ S03 "Xem tài khoản mẫu trước"): giải thích + "Dùng tài khoản mẫu" → S06. Banner hệ thống X04 biến thể dữ liệu mẫu ("Kết nối tài khoản thật", "Xóa dữ liệu mẫu").
+- `/r/demo`: báo cáo mẫu công khai (số liệu cố định, ghi rõ là mẫu) cho nút "Xem báo cáo mẫu" ở trang chủ. Bỏ mục `/r/demo` trong `docs/tech-debt.md`.
+- Ghi chú cho 026: tài khoản mẫu không tính vào số tài khoản đang hoạt động khi tính phí.
+
+**Test tự động**
+- `packages/core/src/connections/demo.test.ts` (4): tạo đủ + idempotent; đồng bộ kết nối mẫu thành công **dù Meta thật lỗi** (chứng minh không gọi Meta); báo cáo mẫu đánh dấu `demo` và 422 khi chia sẻ; xóa dữ liệu mẫu giữ Client thật.
+- `report-view.test.tsx` (+1): dòng "Báo cáo mẫu". Bộ cách ly: probe 2 route demo.
+- E2E mới `demo.spec.ts`: S03 → S01 → dùng tài khoản mẫu → S06 xong → Clients có banner + Client mẫu → xóa → trống; `/r/demo` có dòng "Báo cáo mẫu".
+
+**Vùng bảo vệ:** `packages/db/**` (2 cột + cập nhật trigger chặn chia sẻ), `packages/core/connections/**` (kết nối mẫu dùng token giả mã hóa như thường; không chạm logic token thật).
+
+**PM kiểm tra:** Kết nối → "Xem tài khoản mẫu trước" → "Dùng tài khoản mẫu" → banner dữ liệu mẫu trên mọi trang → "Xóa dữ liệu mẫu". Trang chủ → "Xem báo cáo mẫu".
+
 ## [024b] Digest tuần (E03), lệnh kích hoạt job cho dev — 2026-10-23
 
 **Thay đổi**

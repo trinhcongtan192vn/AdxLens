@@ -4,3 +4,4 @@ export * from './meta';
 export * from './refresh';
 export * from './service';
 export * from './deletion';
+export * from './demo';
