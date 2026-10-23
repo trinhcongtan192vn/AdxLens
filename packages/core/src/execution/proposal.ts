@@ -1,7 +1,7 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import type { Enqueue } from '@adxlens/jobs';
-import { AppError, type ActorCtx, type Clock } from '@adxlens/core/shared';
+import { AppError, notFound, type ActorCtx, type Clock } from '@adxlens/core/shared';
 import { canApproveActions } from '@adxlens/core/tenancy';
 import { minorUnits, previewAction, requestAction, type ActionRequest } from './gateway';
 import { GUARDRAIL_DEFAULTS, type ActionType } from './guardrails';
@@ -122,4 +122,44 @@ export async function approveRecommendation(ctx: ActorCtx, recId: string, deps: 
       ),
     );
   return action;
+}
+
+/** Số gợi ý tối đa mỗi lần duyệt hàng loạt (B2). */
+export const BULK_APPROVE_LIMIT = 20;
+
+export type BulkApproveResult =
+  { id: string; ok: true; actionId: string } | { id: string; ok: false; code: string; message: string };
+
+/**
+ * Duyệt hàng loạt từ Việc tuần này (roadmap B2): lần lượt từng gợi ý qua `approveRecommendation` — mỗi cái vẫn qua đủ
+ * cờ, gói, kill switch, breaker, quyền, guardrails (số hành động / ngày tính dần theo từng cái). Một cái lỗi không
+ * dừng cả lô; trả kết quả từng cái. Tối đa 20, bỏ trùng.
+ */
+export async function approveRecommendations(
+  ctx: ActorCtx,
+  ids: string[],
+  deps: { enqueue: Enqueue; clock?: Clock },
+): Promise<BulkApproveResult[]> {
+  const unique = [...new Set(ids)];
+  if (!unique.length || unique.length > BULK_APPROVE_LIMIT) {
+    throw new AppError('VALIDATION_FAILED', `Chọn 1–${BULK_APPROVE_LIMIT} gợi ý`);
+  }
+  // Mọi id phải thuộc workspace hiện tại; có id lạ (hoặc của workspace khác) → từ chối cả lô, không lộ id nào hợp lệ.
+  const own = await ctx.db
+    .select({ id: recommendations.id })
+    .from(recommendations)
+    .where(and(eq(recommendations.workspaceId, ctx.workspaceId), inArray(recommendations.id, unique)));
+  if (own.length !== unique.length) throw notFound('Gợi ý');
+  const out: BulkApproveResult[] = [];
+  for (const id of unique) {
+    try {
+      const a = await approveRecommendation(ctx, id, deps);
+      out.push({ id, ok: true, actionId: a.id });
+    } catch (e) {
+      // Lỗi nghiệp vụ (vi phạm guardrail, không tự động được, không có quyền…) ghi theo từng gợi ý; lỗi khác (DB…) ném lên.
+      if (!(e instanceof AppError)) throw e;
+      out.push({ id, ok: false, code: e.code, message: e.message });
+    }
+  }
+  return out;
 }

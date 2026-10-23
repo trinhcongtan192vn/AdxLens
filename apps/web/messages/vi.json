@@ -1918,7 +1918,13 @@
       "creative_loser": "Tắt hoặc giảm phân bổ cho creative thua ({ads} quảng cáo)",
       "creative_winner": "Tăng phân bổ cho creative đang thắng"
     },
-    "results": "Kết quả trước / sau →"
+    "results": "Kết quả trước / sau →",
+    "bulk": {
+      "selected": "Đã chọn {count}",
+      "clear": "Bỏ chọn",
+      "all": "Chọn tất cả (tối đa 20)",
+      "select": "Chọn: {action}"
+    }
   },
   "outcomes": {
     "title": "Kết quả trước / sau",
@@ -2129,7 +2135,13 @@
       "quiet_hours": "Ngoài giờ cho phép.",
       "no_auto_resume": "Không tự bật lại.",
       "no_auto_duplicate": "Không tự nhân bản."
-    }
+    },
+    "bulkButton": "Xem trước & duyệt ({count})",
+    "bulkTitle": "Duyệt {count} gợi ý",
+    "bulkConfirm": "Duyệt {count} hành động",
+    "bulkNote": "Chỉ gửi gợi ý thực hiện được và không vi phạm guardrails. Mỗi hành động vẫn được kiểm lại, thực hiện rồi xác minh như duyệt từng cái; xem kết quả ở Nhật ký hành động.",
+    "bulkQueued": "Đã gửi {count} hành động",
+    "bulkOk": "Đã gửi"
   },
   "automation": {
     "title": "Rule tự động",

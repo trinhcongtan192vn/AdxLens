@@ -10,6 +10,7 @@ import {
   Button,
   buttonVariants,
   Card,
+  Checkbox,
   Dialog,
   Drawer,
   Field,
@@ -23,6 +24,7 @@ import {
 } from '@adxlens/ui';
 import { api } from '@/lib/api-client';
 import { ApproveAction } from './approve-dialog';
+import { BulkApprove } from './bulk-approve';
 
 export type ActionView = {
   id: string;
@@ -66,6 +68,17 @@ export function WeeklyActionsList({
   const [skipFor, setSkipFor] = useState<ActionView | null>(null);
   const [skipReason, setSkipReason] = useState<(typeof SKIP_REASONS)[number]>('not_relevant');
   const [assignees, setAssignees] = useState<{ user_id: string; name: string }[] | null>(null);
+  // B2: chọn nhiều gợi ý đang đề xuất để duyệt hàng loạt (khi cờ duyệt hành động bật).
+  const bulk = canExecute && canUpdate;
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const selectable = items.filter((a) => a.status === 'proposed');
+  const toggle = (id: string, on: boolean) =>
+    setSelected((s) => {
+      const next = new Set(s);
+      if (on && next.size < 20) next.add(id);
+      else next.delete(id);
+      return next;
+    });
 
   const patch = (id: string, body: Record<string, unknown>, done?: () => void) =>
     start(async () => {
@@ -101,10 +114,36 @@ export function WeeklyActionsList({
 
   return (
     <>
+      {bulk && selectable.length ? (
+        <div className="mb-2 flex items-center gap-3 text-body">
+          <span className="text-fg-secondary">{t('bulk.selected', { count: selected.size })}</span>
+          <BulkApprove
+            ids={[...selected]}
+            labels={Object.fromEntries(items.map((a) => [a.id, `${a.action} — ${a.entityName}`]))}
+            onDone={() => setSelected(new Set())}
+          />
+          {selected.size ? (
+            <Button kind="ghost" size="s" onClick={() => setSelected(new Set())}>
+              {t('bulk.clear')}
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
       <Card>
         <Table>
           <THead>
             <TR>
+              {bulk ? (
+                <TH className="w-8">
+                  <Checkbox
+                    aria-label={t('bulk.all')}
+                    checked={selectable.length > 0 && selectable.slice(0, 20).every((a) => selected.has(a.id))}
+                    onChange={(e) =>
+                      setSelected(e.target.checked ? new Set(selectable.slice(0, 20).map((a) => a.id)) : new Set())
+                    }
+                  />
+                </TH>
+              ) : null}
               <TH className="w-10">#</TH>
               <TH>{t('cols.action')}</TH>
               <TH>{t('cols.account')}</TH>
@@ -118,6 +157,17 @@ export function WeeklyActionsList({
           <TBody>
             {items.map((a, i) => (
               <TR key={a.id} data-testid="weekly-row" data-source={a.sourceKey}>
+                {bulk ? (
+                  <TD>
+                    {a.status === 'proposed' ? (
+                      <Checkbox
+                        aria-label={t('bulk.select', { action: a.action })}
+                        checked={selected.has(a.id)}
+                        onChange={(e) => toggle(a.id, e.target.checked)}
+                      />
+                    ) : null}
+                  </TD>
+                ) : null}
                 <TD muted>{i + 1}</TD>
                 <TD>
                   <button type="button" className="text-left hover:underline" onClick={() => openDrawer(a)}>

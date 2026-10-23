@@ -167,6 +167,11 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
     crossParams: (w) => ({ id: w.b.recommendation.id }),
   },
+  'POST /api/v1/recommendations/bulk-approve': {
+    kind: 'workspace',
+    body: () => ({ ids: ['00000000-0000-4000-8000-000000000000'] }),
+    crossBody: (w) => ({ ids: [w.b.recommendation.id] }),
+  },
   'POST /api/v1/recommendations/[id]/approve': {
     kind: 'workspace',
     params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
