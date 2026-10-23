@@ -12,7 +12,12 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
-  reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
+  // Trên CI thêm reporter `github`: lỗi E2E hiện thành annotation đọc được qua API công khai.
+  reporter: [
+    ...(process.env.CI ? [['github'] as const] : []),
+    ['list'],
+    ['html', { open: 'never', outputFolder: 'playwright-report' }],
+  ],
   use: {
     baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:3000',
     locale: 'vi-VN',
