@@ -42,4 +42,19 @@ describe('dispatch', () => {
     });
     expect(r).toEqual({ status: 'flag_off' });
   });
+
+  it('pdf:render: cờ tắt → không render', async () => {
+    const t = testWorkerServices(db);
+    const r = await dispatch(handlers, t.services, {
+      name: 'pdf:render',
+      id: '1',
+      data: {
+        workspaceId: '00000000-0000-4000-8000-000000000001',
+        reportId: '00000000-0000-4000-8000-000000000002',
+        version: '1',
+      },
+    });
+    expect(r).toEqual({ status: 'flag_off' });
+    expect(t.rendered).toEqual([]);
+  });
 });

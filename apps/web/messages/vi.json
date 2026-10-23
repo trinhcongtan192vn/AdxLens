@@ -1031,7 +1031,13 @@
     "blockedTitle": "Chưa chia sẻ được báo cáo này",
     "blockedBody": "Khách chỉ xem được báo cáo khi mọi tài khoản đã xác nhận gán Client, số liệu khớp Ads Manager (lệch ≤ 1%) và kết nối Meta còn hoạt động.",
     "connectionRevoked": "Kết nối Meta của Client này đã bị ngắt.",
-    "pdfLater": "Xuất PDF ở mục bên dưới."
+    "pdfLater": "Xuất PDF ở mục bên dưới.",
+    "pdfTitle": "PDF (A4)",
+    "pdfBody": "Xuất báo cáo thành PDF để gửi kèm email. Liên kết tải có hiệu lực 1 giờ.",
+    "pdfExport": "Xuất PDF",
+    "pdfWorking": "Đang tạo PDF…",
+    "pdfDownload": "Tải PDF",
+    "pdfTimeout": "Tạo PDF lâu hơn dự kiến. Thử lại sau ít phút."
   },
   "publicReport": {
     "expiredTitle": "Liên kết đã hết hạn hoặc bị thu hồi",

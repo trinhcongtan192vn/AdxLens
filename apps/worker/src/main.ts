@@ -5,6 +5,8 @@ import { keysFromEnv, metaReadApi, recordMetaCall } from '@adxlens/core/connecti
 import { smtpEmailSender } from '@adxlens/core/notification';
 import { registerHealthCheck } from '@adxlens/core/ops';
 import { anthropicClient } from '@adxlens/core/reporting';
+import { signPayload } from '@adxlens/core/shared';
+import { closeRenderer, renderPdf, supabaseWorkerStorage } from './render';
 import { rootLogger } from '@adxlens/core/shared';
 import { QUEUES, type QueueName } from '@adxlens/jobs';
 import { dispatch } from './dispatch';
@@ -43,6 +45,17 @@ const services: WorkerServices = {
     from: env.EMAIL_FROM,
   }),
   appUrl: env.APP_URL,
+  renderPdf,
+  uploadReport: (path, bytes) => {
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('Thiếu SUPABASE_SERVICE_ROLE_KEY');
+    return supabaseWorkerStorage(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY).upload(
+      'reports',
+      path,
+      bytes,
+      'application/pdf',
+    );
+  },
+  sign: (payload, ttl) => signPayload(payload, ttl, env.INTERNAL_SIGNING_SECRET),
   llm: env.ANTHROPIC_API_KEY ? anthropicClient({ apiKey: env.ANTHROPIC_API_KEY, model: env.ANTHROPIC_MODEL }) : null,
   throttleQueue: (q, ms) => queues[q].rateLimit(ms),
 };
@@ -84,6 +97,7 @@ log.info({ queues: Object.keys(QUEUES), meta_mock: env.META_MOCK }, 'worker đã
 
 async function shutdown() {
   await Promise.all(workers.map((w) => w.close()));
+  await closeRenderer();
   await connection.quit();
   process.exit(0);
 }

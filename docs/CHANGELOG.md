@@ -2,6 +2,28 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [022] PDF báo cáo A4 qua worker (Playwright) — 2026-10-23
+
+**Thay đổi**
+- `packages/core/reporting/pdf.ts` (L3 9, R07): phiên bản PDF = thời điểm dựng báo cáo (dựng lại → PDF cũ hết hiệu lực); `requestPdf` (kiểm toàn vẹn như chia sẻ — ADR-0007 — rồi enqueue `pdf:render`, đã có thì trả sẵn sàng), `pdfStatus`, `renderReportPdf` (kiểm lại toàn vẹn + phiên bản trong job, render, lưu bucket `reports/{workspace}/{report}/{phiên bản}.pdf`).
+- Worker: `pdf:render` (kiểm cờ `p0_reports` ở đầu job) mở trang in nội bộ bằng URL ký 10 phút, Playwright Chromium `page.pdf` A4 + print CSS (trình duyệt dùng lại, mỗi job một context), upload Supabase Storage bằng service role.
+- Trang in nội bộ `/print/report/{id}?key=` (chỉ mở bằng khóa ký đúng báo cáo + workspace, noindex), cùng mẫu báo cáo, khổ A4, nhãn Powered by theo workspace.
+- `signPayload`/`verifyPayload` chuyển vào `packages/core/shared/signing.ts` (dùng chung web và worker).
+- API: `POST /api/v1/reports/{id}/pdf` (202 khi đưa vào hàng đợi, 200 + URL ký 1 giờ khi đã có, 422 khi bị khóa), `GET /api/v1/reports/{id}/pdf`.
+- R04: thẻ "PDF (A4)" — Xuất PDF, chờ worker xong, Tải PDF.
+- `docs/onboarding.md`: cài Chromium cho worker.
+
+**Test tự động**
+- `pdf.test.ts` (2): yêu cầu → enqueue đúng phiên bản; render ghi đường dẫn; lần sau sẵn sàng không enqueue lại; dựng lại → phiên bản cũ bỏ qua; chưa toàn vẹn → 422 và job không render.
+- `signing.test.ts` (1): ký/kiểm, sai secret, sửa nội dung, hết hạn.
+- Worker: `pdf:render` cờ tắt → không render.
+- Kiểm thủ công: render thật bằng Chromium ra tệp `%PDF` (31 KB). E2E xuất PDF qua giao diện thêm ở 042.
+- Bộ cách ly: probe 2 route + job `pdf:render` dùng báo cáo B.
+
+**Vùng bảo vệ:** không.
+
+**PM kiểm tra:** R04 → "Xuất PDF" → "Tải PDF" mở PDF A4 cùng nội dung trang công khai.
+
 ## [021] Chia sẻ link công khai, trang báo cáo công khai mobile-first — 2026-10-23
 
 **Thay đổi**

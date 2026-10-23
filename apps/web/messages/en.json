@@ -1031,7 +1031,13 @@
     "blockedTitle": "This report can't be shared yet",
     "blockedBody": "Clients can only view a report once every account has a confirmed Client, figures match Ads Manager (≤ 1% difference) and the Meta connection is active.",
     "connectionRevoked": "This Client's Meta connection was disconnected.",
-    "pdfLater": "Export PDF below."
+    "pdfLater": "Export PDF below.",
+    "pdfTitle": "PDF (A4)",
+    "pdfBody": "Export the report as a PDF to attach to an email. The download link is valid for 1 hour.",
+    "pdfExport": "Export PDF",
+    "pdfWorking": "Creating PDF…",
+    "pdfDownload": "Download PDF",
+    "pdfTimeout": "The PDF is taking longer than expected. Try again in a few minutes."
   },
   "publicReport": {
     "expiredTitle": "This link has expired or was revoked",
