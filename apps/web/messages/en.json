@@ -209,6 +209,23 @@
           "cancelled": "The request was cancelled because the account was reconnected."
         }
       }
+    },
+    "breakEven": {
+      "title": "Break-even with AdxLens",
+      "intro": "Estimate the time your team saves on account checks and client reports with AdxLens, compared with the monthly fee.",
+      "accounts": "Active ad accounts",
+      "hours": "Hours saved per account per month",
+      "hoursHint": "Checking numbers, reviewing account issues, building client reports.",
+      "rate": "Your team's hourly cost (VND)",
+      "calculate": "Calculate",
+      "plan": "Suggested plan",
+      "extra": "{count} extra accounts",
+      "fee": "Monthly fee",
+      "saved": "Value of {hours} hours saved",
+      "net": "Monthly difference",
+      "threshold": "You break even when your hourly cost is {rate} or more.",
+      "formula": "Formula: accounts × hours saved per account × hourly cost − fee of the cheapest plan that covers your accounts. Never a % of ad spend.",
+      "toPricing": "See pricing"
     }
   },
   "auth": {
