@@ -41,6 +41,8 @@ const services: WorkerServices = {
     pass: env.SMTP_PASS,
     from: env.EMAIL_FROM,
   }),
+  appUrl: env.APP_URL,
+  throttleQueue: (q, ms) => queues[q].rateLimit(ms),
 };
 
 // Tín hiệu sức khỏe: backlog queue sync (L3 mục 12: > 100 → cảnh báo).

@@ -12,6 +12,10 @@ export type WorkerServices = {
   meta: MetaReadApi;
   tokenKeys: TokenKeys;
   email: EmailSender;
+  /** URL gốc của web app (link trong email). */
+  appUrl: string;
+  /** Hoãn xử lý một queue trong `ms` (playbook `meta_rate_limited`). */
+  throttleQueue: (queue: 'sync', ms: number) => Promise<void>;
 };
 
 export type JobDeps = WorkerServices & {

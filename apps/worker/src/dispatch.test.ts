@@ -28,4 +28,9 @@ describe('dispatch', () => {
     })) as Record<string, { ok: boolean }>;
     expect(r.database?.ok).toBe(true);
   });
+
+  it('maintenance:daily_tick chạy playbook token_expiring', async () => {
+    const r = await dispatch(handlers, deps, { name: 'maintenance:daily_tick', id: '1', data: { tick: 'now' } });
+    expect(r).toEqual({ notified: 0, expired: 0, skipped: 0 });
+  });
 });
