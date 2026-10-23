@@ -2,6 +2,27 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [027] Thanh toán Stripe (test mode): checkout, cổng tự phục vụ, webhook, past_due, hủy gói, thông tin hóa đơn — 2026-10-23
+
+**Thay đổi**
+- DB: `app.billing_events` (chống xử lý webhook trùng, unique theo nhà cung cấp + mã sự kiện), `app.billing_profiles` (tên công ty, MST, địa chỉ, email hóa đơn). RLS (migration 0035–0036).
+- `packages/core/billing/stripe.ts`: Stripe REST bằng `fetch` (không thêm thư viện); số tiền tính bằng BigInt (USD theo cent nếu gói có giá USD, không thì VND; năm = 12 × 80%); `startStripeCheckout` (metadata workspace + gói, chỉ owner), `openStripePortal`, `setStripeCancel` (hủy/tiếp tục cuối kỳ); `verifyStripeSignature` (HMAC-SHA256, so sánh hằng thời gian, lệch tối đa 5 phút); `applyStripeEvent`: `checkout.session.completed` → gói active; `customer.subscription.updated` → trạng thái, ngày gia hạn, hủy cuối kỳ; `deleted` → Free; `invoice.payment_failed` → past_due (mở ân hạn 7 ngày, giữ mốc cũ khi lặp) + thông báo/E05 cho owner một lần; `invoice.paid` → active.
+- `packages/core/ops/billing-webhooks.ts`: tìm workspace theo mã subscription/customer Stripe (ưu tiên) hoặc metadata — truy vấn xuyên workspace có chú thích; xử lý trong transaction, mỗi sự kiện một lần.
+- `billing/profile.ts`: thông tin xuất hóa đơn (zod: MST chỉ số và gạch).
+- API: `POST /billing/checkout`, `POST /billing/portal`, `POST /billing/cancel`, `GET|PUT /billing/profile` (owner), `POST /webhooks/stripe` (chữ ký trên body thô). Chưa cấu hình khóa → 503 `SERVICE_UNAVAILABLE` (mã lỗi mới).
+- Giao diện ST03: "Đổi gói" (tháng/năm) → Stripe Checkout; "Quản lý thanh toán"; "Hủy gói"/"Tiếp tục gói"; form thông tin xuất hóa đơn. ST04 `/settings/billing/checkout?status=success|cancel` (không tự đổi gói theo query — chờ webhook).
+- `docs/onboarding.md` mục 6: chạy thanh toán thử với Stripe CLI. Tech-debt: phí tài khoản vượt hạn mức, hóa đơn VAT điện tử.
+
+**Test tự động**
+- `billing/stripe.test.ts` (14): chữ ký (đúng / sai secret / body sửa / quá 5 phút / header hỏng); số tiền USD/VND tháng/năm; checkout mang metadata + giá từ DB; chỉ owner; cổng + hủy cuối kỳ; webhook áp gói và **idempotent**; updated/deleted; payment_failed → past_due, một thông báo + một email, giữ mốc ân hạn, paid → active; invoice dạng API mới; workspace không xác định; **cách ly: sự kiện của B không chạm A kể cả khi metadata trỏ A**; thông tin hóa đơn.
+- E2E mới `billing.spec.ts`: ST03 Free 0/1, lưu thông tin hóa đơn, ST04 hủy.
+- `apps/web/.../billing.test.ts` (4): checkout owner/manager; hủy khi Free → 409; profile 200/422; webhook chữ ký sai 400 không đổi gói, đúng thì áp.
+- Bộ cách ly: probe 5 route mới; world B có subscription Stripe + thông tin hóa đơn (chuỗi bí mật không được lộ). `installTestServer` cài Stripe giả (test route không gọi mạng; không đổi assertion nào).
+
+**Vùng bảo vệ:** `packages/db/**` (2 bảng + RLS, migration 0035–0036).
+
+**PM kiểm tra:** cần khóa Stripe **test** — làm theo `docs/onboarding.md` mục 6: chọn gói Growth → thẻ 4242 → ST04 báo thành công, ST03 hiện Growth; `stripe trigger invoice.payment_failed` → banner đỏ + email; "Hủy gói" → hiện "Kết thúc ngày …".
+
 ## [026] Gói cấu hình trong DB, đếm tài khoản đang hoạt động, vượt hạn mức + ân hạn — 2026-10-23
 
 **Thay đổi**

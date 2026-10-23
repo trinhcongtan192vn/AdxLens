@@ -59,3 +59,12 @@ Xem `docs/architecture/L3-technical.md` mục 3. Tóm tắt:
 - `pnpm test:e2e` tự bật web và một worker riêng.
 - PDF báo cáo (R07): worker dùng Playwright Chromium. Lần đầu chạy `pnpm --filter @adxlens/worker exec playwright install chromium`. Môi trường triển khai worker-render cần Chromium (image Playwright).
 - Kích hoạt job ngay (dev/staging, không production): `pnpm job:trigger -- <tên job> '<payload JSON>'`, ví dụ `pnpm job:trigger -- maintenance:report_tick '{"tick":"manual"}'` (lịch gửi + digest đến giờ), `pnpm job:trigger -- notify:digest '{"workspaceId":"<uuid>","week":"2026-10-26"}'`. Payload được kiểm theo schema của job.
+
+## 6. Thanh toán thử (Stripe test mode)
+
+- Lấy khóa **test** (`sk_test_…`) từ Stripe Dashboard ở chế độ Test, điền `STRIPE_SECRET_KEY` trong `.env.local`. Không bao giờ dùng khóa live ở local/staging.
+- Webhook cục bộ: `stripe listen --forward-to localhost:3000/api/v1/webhooks/stripe`, chép `whsec_…` vào `STRIPE_WEBHOOK_SECRET`, khởi động lại `pnpm dev`.
+- Cài đặt → Gói & thanh toán → "Chọn gói" → thẻ thử `4242 4242 4242 4242` → ST04. Gói chỉ đổi khi webhook tới (trang ST04 không tự đổi gói).
+- Thử thanh toán thất bại: thẻ `4000 0000 0000 0341` hoặc `stripe trigger invoice.payment_failed` → banner thanh toán thất bại + email E05 (Mailpit).
+- Chưa có khóa: các nút thanh toán báo "Thanh toán chưa sẵn sàng" (API 503), phần còn lại của app chạy bình thường.
+- Giá gói: sửa dòng trong `app.billing_plans` (Supabase Studio). Stripe dùng `monthly_price_usd` nếu có, không thì VND.

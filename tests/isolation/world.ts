@@ -164,6 +164,15 @@ export async function seedWorld(db: Db) {
     status: 'past_due',
     pastDueSince: new Date('2026-10-20T00:00:00Z'),
     overLimitSince: new Date('2026-10-20T00:00:00Z'),
+    provider: 'stripe',
+    providerCustomerId: 'cus_beta_secret',
+    providerSubscriptionId: 'sub_beta_secret',
+  });
+  await db.insert(schema.billingProfiles).values({
+    workspaceId: b.workspace.id,
+    companyName: 'Beta Billing Secret',
+    taxCode: '0399999999',
+    invoiceEmail: 'beta-invoice-secret@beta.vn',
   });
 
   const world = {
@@ -216,6 +225,10 @@ export async function seedWorld(db: Db) {
       bDelivery!.id,
       'beta-secret@client.vn',
       'B'.repeat(43),
+      'cus_beta_secret',
+      'sub_beta_secret',
+      'Beta Billing Secret',
+      'beta-invoice-secret@beta.vn',
     ],
   };
   return world;
