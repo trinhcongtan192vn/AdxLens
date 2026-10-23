@@ -1110,7 +1110,8 @@
       "staff": "Team",
       "audit": "Admin log",
       "workspaces": "Workspaces",
-      "operations": "Operations"
+      "operations": "Operations",
+      "reconciliation": "Reconciliation"
     },
     "flags": {
       "title": "Feature flag matrix",
@@ -1348,6 +1349,29 @@
         "delayed": "Delayed",
         "failed": "Failed",
         "job": "Job"
+      }
+    },
+    "reconciliation": {
+      "title": "System-wide reconciliation",
+      "body": "Real ad accounts (no demo data, no disconnected connections) with days off Meta by more than 1% in the period. The 1% threshold is fixed; status comes from computed reconciliation results. Sharing is blocked when a day is off or the Client assignment is unconfirmed (same rule as reports).",
+      "days": "{days} days",
+      "onlyIssues": "Issues only",
+      "all": "All",
+      "empty": "No off, blocked or stale accounts.",
+      "emptyAll": "No real ad accounts yet.",
+      "noClient": "No Client",
+      "blocked": "Sharing blocked",
+      "ok": "Matches",
+      "unconfirmed": "Assignment unconfirmed",
+      "stale": "Not reconciled > 3 days",
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Ad account",
+        "warningDays": "Days off / checked",
+        "maxSpend": "Max spend delta",
+        "maxResults": "Max results delta",
+        "state": "State",
+        "lastChecked": "Last reconciled"
       }
     }
   },

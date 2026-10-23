@@ -1110,7 +1110,8 @@
       "staff": "Đội ngũ",
       "audit": "Nhật ký admin",
       "workspaces": "Workspace",
-      "operations": "Vận hành"
+      "operations": "Vận hành",
+      "reconciliation": "Đối chiếu"
     },
     "flags": {
       "title": "Ma trận cờ tính năng",
@@ -1348,6 +1349,29 @@
         "delayed": "Hẹn giờ",
         "failed": "Lỗi",
         "job": "Job"
+      }
+    },
+    "reconciliation": {
+      "title": "Đối chiếu toàn hệ thống",
+      "body": "Tài khoản QC thật (bỏ dữ liệu mẫu và kết nối đã ngắt) với số ngày lệch Meta > 1% trong kỳ. Ngưỡng 1% cố định; trạng thái lấy từ kết quả đối chiếu đã tính. Bị chặn chia sẻ khi có ngày lệch hoặc gán Client chưa xác nhận (cùng quy tắc báo cáo).",
+      "days": "{days} ngày",
+      "onlyIssues": "Chỉ có vấn đề",
+      "all": "Tất cả",
+      "empty": "Không có tài khoản lệch, bị chặn hay đối chiếu trễ.",
+      "emptyAll": "Chưa có tài khoản QC thật.",
+      "noClient": "Chưa gán Client",
+      "blocked": "Chặn chia sẻ",
+      "ok": "Khớp",
+      "unconfirmed": "Gán chưa xác nhận",
+      "stale": "Đối chiếu trễ > 3 ngày",
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Tài khoản QC",
+        "warningDays": "Ngày lệch / đã đối chiếu",
+        "maxSpend": "Lệch chi tiêu lớn nhất",
+        "maxResults": "Lệch kết quả lớn nhất",
+        "state": "Trạng thái",
+        "lastChecked": "Đối chiếu gần nhất"
       }
     }
   },

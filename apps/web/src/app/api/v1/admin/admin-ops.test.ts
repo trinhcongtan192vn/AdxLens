@@ -13,6 +13,7 @@ import { asUser, call, fakeQueues, installTestServer, uninstallTestServer } from
 import * as resync from './ad-accounts/[id]/resync/route';
 import * as audit from './audit/route';
 import * as operations from './operations/route';
+import * as recon from './reconciliation/route';
 import * as failed from './queues/[queue]/failed/route';
 import * as job from './queues/[queue]/jobs/[jobId]/route';
 
@@ -98,5 +99,19 @@ describe('vận hành admin', () => {
     expect((await call(job.POST, { user: op, params: { queue: 'sync', jobId: 'j1' }, body })).status).toBe(204);
     expect((await call(job.POST, { user: op, params: { queue: 'sync', jobId: 'j1' }, body })).status).toBe(404);
     expect(q.calls).toEqual(['remove execute:x1', 'retry sync:j1', 'retry sync:j1']);
+  });
+});
+
+describe('đối chiếu toàn hệ thống (admin)', () => {
+  it('người ngoài → 404; staff thấy tài khoản gán chưa xác nhận bị chặn chia sẻ; không trả chi tiêu', async () => {
+    const { workspace, owner } = await seedWorkspace(db);
+    expect((await call(recon.GET, { user: asUser(owner) })).status).toBe(404);
+    const conn = await seedConnection(db, workspace.id, owner.id);
+    await seedAdAccount(db, workspace.id, conn.id, { name: 'Mới gán' });
+    const op = asUser(await seedStaff(db, false));
+    const r = await call(recon.GET, { user: op, path: '/api/test?days=7&issues=1' });
+    expect(r.body).toMatchObject({ items: [{ account_name: 'Mới gán', share_blocked: true, stale: true }] });
+    expect(JSON.stringify(r.body)).not.toMatch(/spend_(internal|meta)/);
+    expect((await call(recon.GET, { user: op, path: '/api/test?days=365' })).status).toBe(422);
   });
 });

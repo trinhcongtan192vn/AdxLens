@@ -27,6 +27,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Link href="/admin/operations" className="text-fg-secondary hover:text-fg">
             {t('nav.operations')}
           </Link>
+          <Link href="/admin/reconciliation" className="text-fg-secondary hover:text-fg">
+            {t('nav.reconciliation')}
+          </Link>
           <Link href="/admin/incidents" className="text-fg-secondary hover:text-fg">
             {t('nav.incidents')}
           </Link>
