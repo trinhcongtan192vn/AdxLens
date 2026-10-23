@@ -8,4 +8,3 @@ Ghi mọi chỗ làm tạm: vị trí, lý do, cách sửa đúng, mốc dự ki
 | 2026-10-22 | `apps/web/src/app/(marketing)/page.tsx` nút "Xem báo cáo mẫu" → `/r/demo` | Trang báo cáo công khai và dữ liệu mẫu chưa có | Feature 021 (trang công khai) + 025 (tài khoản mẫu) phục vụ `/r/demo` | 025 |
 | 2026-10-23 | `packages/core/src/billing/plans.ts` → `currentPlanKey()` | Chưa có bảng subscription, mọi workspace trả gói Free (S04 hiện hạn mức theo gói này) | Đọc gói từ bảng subscription | 026 |
 | 2026-10-22 | `apps/web/src/server/deletion-status.ts` | Bảng yêu cầu xóa dữ liệu chưa có, mọi mã trả "không tìm thấy" | Feature 014 lưu yêu cầu xóa và mã xác nhận, tra theo mã | 014 |
-| 2026-10-23 | `apps/web/src/app/(setup)/connections/assign/assign-accounts.tsx` nút "Xong, bắt đầu đồng bộ" | Job backfill chưa có handler; nút chỉ chuyển tới C01 | Feature 012: xác nhận gán (hoặc nút này) enqueue `sync:backfill_account` + tạo sync run | 012 |

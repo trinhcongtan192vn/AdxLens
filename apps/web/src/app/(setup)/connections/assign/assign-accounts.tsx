@@ -181,7 +181,7 @@ export function AssignAccounts({
         <Link href="/connections" className={buttonVariants({ kind: 'secondary', size: 'm' })}>
           {tc('back')}
         </Link>
-        <Link href="/clients" className={buttonVariants({ kind: 'primary', size: 'm' })}>
+        <Link href="/connections/sync" className={buttonVariants({ kind: 'primary', size: 'm' })}>
           {t('finish')}
         </Link>
       </div>

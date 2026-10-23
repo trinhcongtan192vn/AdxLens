@@ -138,6 +138,13 @@ export const JOBS = {
     schema: z.object({ incidentId: uuid, playbook: z.string() }),
     jobId: (p) => `remediate:${p.incidentId}:${p.playbook}`,
   }),
+  // Mỗi giờ: tìm tài khoản đang 03:00 giờ địa phương và enqueue `sync:daily_account` (L3 6.3).
+  'maintenance:daily_sync_tick': def({
+    queue: 'maintenance',
+    workspaceScoped: false,
+    schema: z.object({ tick: z.string() }),
+    jobId: (p) => `daily_sync:${p.tick}`,
+  }),
   'maintenance:daily_tick': def({
     queue: 'maintenance',
     workspaceScoped: false,

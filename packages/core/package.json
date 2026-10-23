@@ -12,6 +12,7 @@
   "dependencies": {
     "@adxlens/config": "workspace:*",
     "@adxlens/db": "workspace:*",
+    "@adxlens/jobs": "workspace:*",
     "@adxlens/meta-client": "workspace:*",
     "drizzle-orm": "^0.45.4",
     "nodemailer": "^10.2.1",

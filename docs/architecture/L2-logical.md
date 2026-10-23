@@ -246,7 +246,7 @@ sequenceDiagram
     participant R as Worker: Reconcile
     participant N as Notification
 
-    U->>API: Xác nhận gán tài khoản vào Client
+    U->>API: Nhập tài khoản đã chọn (S04) — ADR-0005
     API->>Q: enqueue backfill(ad_account, 90d)
     Q->>W: job
     W->>META: cấu trúc campaign/adset/ad/creative
@@ -496,7 +496,7 @@ Chuẩn: REST, JSON, phiên bản trong đường dẫn (`/v1`). Mọi endpoint 
 
 | Job | Kích hoạt | Idempotency key | Ưu tiên |
 |---|---|---|---|
-| `backfill_account` | Sau khi xác nhận gán Client | account_id + range | Cao |
+| `backfill_account` | Khi nhập tài khoản ở S04 (ADR-0005); xác nhận gán chỉ chặn chia sẻ/gửi | account_id + range | Cao |
 | `daily_sync` | Lịch hằng ngày theo múi giờ tài khoản (sau khi Meta chốt ngày) | account_id + date | Trung bình |
 | `reconcile_account` | Sau mỗi sync | account_id + date range | Cao |
 | `run_audit` | Sau reconcile ok | account_id + snapshot version | Trung bình |

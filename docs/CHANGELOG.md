@@ -2,6 +2,29 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [012] Đồng bộ số liệu: backfill 90 ngày, daily sync, S06 — 2026-10-23
+
+**Thay đổi**
+- ADR-0005 (PM chọn): backfill bắt đầu ngay khi nhập tài khoản ở S04; xác nhận gán chỉ chặn chia sẻ/gửi. L2, L3 7.3 sửa cho khớp.
+- DB: `analytics.entities` (campaign/ad set/ad/creative; ngân sách numeric; `attrs` có optimization_goal, thumbnail…), `analytics.insights_daily` (cấp ad, `date` theo múi giờ ad account, tiền numeric(18,4), `results` + `result_type` theo mục tiêu tối ưu, `conversion_value`, cửa sổ attribution 7d_click_1d_view), `app.sync_runs` (backfill/daily, lô, số ngày, số dòng, mã lỗi). RLS cho cả ba.
+- `packages/core/ingestion`: chia lô 7 ngày (mới nhất trước), `startBackfill` (idempotent; lần trước lỗi thì tạo lần mới), `syncRange` (lô đầu đồng bộ cấu trúc, upsert insight theo khóa (tài khoản, loại, id, ngày), cộng tiến độ nguyên tử vì các lô chạy song song; xong thì tài khoản `ok`, `last_synced_at`, `active_30d` theo chi tiêu 30 ngày), `runDailySync` (3 ngày tới hôm qua; cùng ngày chạy rồi thì bỏ qua), `syncStatuses`. Lỗi token (190) → kết nối hết hạn, lỗi quyền → `no_access`, cả hai không retry; lỗi tạm thời ném để BullMQ retry, lần cuối ghi `META_RATE_LIMITED`/`META_ERROR`. Số tiền Meta đi thẳng chuỗi → numeric, không qua float.
+- Kết quả theo `optimization_goal` (mua hàng, lead, click, landing page view, tin nhắn…) và `custom_event_type` của ad set.
+- Worker: handler `sync:backfill_account`, `sync:daily_account`; scheduler mỗi giờ `maintenance:daily_sync_tick` tìm tài khoản đang 03:00 giờ địa phương (`core/ops/daily-sync.ts`, truy vấn xuyên workspace có chú thích lý do) và enqueue daily sync. `dispatch` truyền `finalAttempt`.
+- API: `POST /ad-accounts/import` bắt đầu backfill; `GET /api/v1/ad-accounts/{id}/sync-status` (L3 10.2; đối chiếu = null tới 013); `POST /api/v1/ad-accounts/{id}/sync` (thử lại).
+- Giao diện S06 Tiến độ đồng bộ (Penpot): thanh tiến độ, "N% · x / y tài khoản", bảng Tài khoản | Tiến độ (Xong / Đang chạy N% / Lỗi) | Đối chiếu (— tới 013), tự làm mới khi đang chạy, banner lỗi theo nguyên nhân + "Thử lại đồng bộ" hoặc "Kết nối lại với Meta", "Tiếp tục" khi xong. S05 "Xong, bắt đầu đồng bộ" → S06. Không hiển thị "còn khoảng N phút" và "sẽ email khi xong" (chưa có ước lượng tin cậy và email — 023).
+- E2E: Playwright khởi động worker riêng (`webServer` thứ hai, chờ log khởi động).
+
+**Test tự động**
+- `packages/core/src/ingestion/ingestion.test.ts` (11): chia lô, kết quả theo goal, chuỗi tiền không qua float, backfill trọn 90 ngày **tổng chi tiêu từng ngày khớp insight cấp tài khoản của Meta mock**, tiến độ giữa chừng, idempotent (không lần mới, không nhân đôi dòng), ngày theo múi giờ tài khoản, token thu hồi, rate limit retry + lần cuối, mất quyền, không đồng bộ tài khoản workspace khác, daily sync 3 ngày + bỏ qua chạy lại.
+- `apps/worker/src/handlers/sync.test.ts` (4): mọi lô qua dispatch, `finalAttempt`, scheduler đúng tài khoản 03:00 + ngày theo múi giờ, bỏ qua kết nối hết hạn.
+- `apps/web/src/lib/sync-progress.test.ts` (3); API import → 13 job backfill, sync-status, thử lại khi đang chạy không tạo lần mới.
+- Bộ cách ly: dữ liệu B có sync run + entity + insight; probe job `sync:backfill_account`, `sync:daily_account` (+ biến thể dùng tài khoản B); probe 2 route mới.
+- E2E `clients-assign.spec.ts`: thêm S06 chờ worker đồng bộ xong 2 tài khoản → Tiếp tục → C01.
+
+**Vùng bảo vệ:** `packages/db/**` (3 bảng + RLS, migration 0012–0013). Không chạm token (dùng `withConnectionToken` có sẵn).
+
+**PM kiểm tra:** `pnpm dev` → kết nối Meta (mock) → S04 chọn → S05 → "Xong, bắt đầu đồng bộ" → S06 chạy tới 100% trong vài giây. Supabase Studio: `analytics.insights_daily` có dữ liệu 90 ngày, cột tiền kiểu numeric.
+
 ## [011] Gán tài khoản QC cho Client: S05, C01, khung C02 — 2026-10-23
 
 **Thay đổi**

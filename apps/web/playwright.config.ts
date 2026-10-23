@@ -22,10 +22,19 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } }],
-  webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:3000/api/health',
-    reuseExistingServer: true,
-    timeout: 180_000,
-  },
+  webServer: [
+    {
+      command: 'pnpm dev',
+      url: 'http://localhost:3000/api/health',
+      reuseExistingServer: true,
+      timeout: 180_000,
+    },
+    // Worker riêng cho E2E (đồng bộ S04/S06); chờ dòng log khởi động.
+    {
+      command: 'pnpm --filter @adxlens/worker dev',
+      wait: { stdout: /"meta_mock":true/ },
+      reuseExistingServer: true,
+      timeout: 120_000,
+    },
+  ],
 });
