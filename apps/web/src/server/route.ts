@@ -5,9 +5,11 @@ import type { Db } from '@adxlens/db';
 import { assertEnabled, type FlagKey } from '@adxlens/core/flags';
 import { AppError, isAppError, scopedLogger, type Actor, type Logger } from '@adxlens/core/shared';
 import { assertCan, isStaff, resolveActor, type Permission } from '@adxlens/core/tenancy';
+import type { EmailSender } from '@adxlens/core/notification';
 import type { Enqueue } from '@adxlens/jobs';
 import { getAuthUser, type AuthUser } from './auth';
 import { deps } from './deps';
+import type { ObjectStorage } from './storage';
 
 export const WORKSPACE_HEADER = 'x-workspace-id';
 export const WORKSPACE_COOKIE = 'ws';
@@ -19,6 +21,8 @@ type BaseCtx = {
   params: Record<string, string>;
   db: Db;
   enqueue: Enqueue;
+  email: EmailSender;
+  storage: ObjectStorage;
   log: Logger;
 };
 export type PublicCtx = BaseCtx;
@@ -74,6 +78,13 @@ export function requestedWorkspaceId(req: Request): string | null {
 }
 
 const UUID = z.string().uuid();
+
+/** Tham số đường dẫn dạng uuid; sai định dạng → 404 (không để lỗi Postgres thành 500). */
+export function uuidParam(ctx: { params: Record<string, string> }, name: string): string {
+  const v = ctx.params[name];
+  if (!v || !UUID.safeParse(v).success) throw new AppError('NOT_FOUND', 'Không tìm thấy');
+  return v;
+}
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 /** Chặn CSRF cho request ghi dùng cookie: Origin phải trùng host (request Bearer không bị chặn). */
@@ -114,9 +125,9 @@ export function route<
     });
     try {
       assertSameOrigin(req);
-      const { db, enqueue } = deps();
+      const { db, enqueue, email, storage } = deps();
       const params = (await routeCtx?.params) ?? {};
-      const base: BaseCtx = { req, params, db, enqueue, log };
+      const base: BaseCtx = { req, params, db, enqueue, email, storage, log };
       let ctx: PublicCtx | UserCtx | WorkspaceRouteCtx | StaffCtx = base;
 
       if (spec.auth !== 'public') {
@@ -143,8 +154,8 @@ export function route<
       }
 
       const query = spec.query ? spec.query.parse(Object.fromEntries(new URL(req.url).searchParams)) : undefined;
-      const rawBody = await readBody(req);
-      const body = spec.body ? spec.body.parse(rawBody) : undefined;
+      // Chỉ đọc body JSON khi route khai báo schema; route upload tự đọc multipart.
+      const body = spec.body ? spec.body.parse(await readBody(req)) : undefined;
 
       const result = await spec.handler(ctx as CtxFor<A>, { body, query } as never);
       if (result instanceof Response) return result;

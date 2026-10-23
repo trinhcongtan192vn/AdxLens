@@ -76,6 +76,11 @@ describe('thành viên và lời mời', () => {
     expect(await peekInvitation(db, token)).toMatchObject({
       status: 'valid',
       email: 'buyer@agency.vn',
+      role: 'buyer',
+      clientNames: [client.name],
+      allClients: false,
+      inviterRole: 'owner',
+      daysLeft: 7,
     });
 
     const buyer = await seedUser(db, 'buyer@agency.vn');
@@ -90,7 +95,8 @@ describe('thành viên và lời mời', () => {
     const ctx = await ownerCtx();
     const past = { now: () => new Date(Date.now() - 8 * 86_400_000) };
     const { token } = await createInvitation(ctx, { email: 'a@b.vn', role: 'manager' }, past);
-    expect(await peekInvitation(db, token)).toEqual({ status: 'expired' });
+    // A06 · hết hạn hiện tên workspace; không lộ gì khác (email, vai trò).
+    expect(await peekInvitation(db, token)).toEqual({ status: 'expired', workspaceName: ctx.workspace.name });
     const u = await seedUser(db, 'a@b.vn');
     await expect(acceptInvitation(db, { token, userId: u.id, email: 'a@b.vn' })).rejects.toMatchObject({
       code: 'CONFLICT',
@@ -104,6 +110,14 @@ describe('thành viên và lời mời', () => {
     await expect(acceptInvitation(db, { token, userId: u.id, email: 'khac@b.vn' })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
+  });
+
+  it('A06: buyer chưa gán Client thì không phải "tất cả Client"; manager không giới hạn thì là tất cả', async () => {
+    const ctx = await ownerCtx();
+    const b = await createInvitation(ctx, { email: 'b@x.vn', role: 'buyer' });
+    const m = await createInvitation(ctx, { email: 'm@x.vn', role: 'manager' });
+    expect(await peekInvitation(db, b.token)).toMatchObject({ allClients: false, clientNames: [] });
+    expect(await peekInvitation(db, m.token)).toMatchObject({ allClients: true });
   });
 
   it('token sai không lộ thông tin', async () => {

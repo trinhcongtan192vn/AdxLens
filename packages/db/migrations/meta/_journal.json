@@ -57,6 +57,13 @@
       "when": 1792686669189,
       "tag": "0007_rls_auth_throttle",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792713307453,
+      "tag": "0008_workspace_currency_sender",
+      "breakpoints": true
     }
   ]
 }

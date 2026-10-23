@@ -9,12 +9,18 @@ export async function supabaseAuthProvider(): Promise<AuthProvider> {
   const sb = await supabaseServer();
   return {
     async signUp({ email, password, fullName, redirectTo }) {
-      const { error } = await sb.auth.signUp({
+      const { data, error } = await sb.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: redirectTo, data: { full_name: fullName } },
       });
-      return { error: error ? { code: error.code, status: error.status } : null };
+      if (error) return { error: { code: error.code, status: error.status } };
+      // Khi bật xác minh email, Supabase không báo lỗi cho email đã có tài khoản mà trả user
+      // với identities rỗng.
+      if (data.user && (data.user.identities?.length ?? 0) === 0) {
+        return { error: { code: 'user_already_exists', status: 422 } };
+      }
+      return { error: null };
     },
     async signIn({ email, password }) {
       const { error } = await sb.auth.signInWithPassword({ email, password });

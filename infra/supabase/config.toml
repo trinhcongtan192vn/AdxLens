@@ -118,6 +118,22 @@ enabled = true
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
+# Bucket của AdxLens (L3 4.2): logo công khai qua CDN; PDF báo cáo riêng tư (signed URL 1 giờ).
+[storage.buckets.brand]
+public = true
+file_size_limit = "1MiB"
+allowed_mime_types = ["image/png", "image/svg+xml"]
+
+[storage.buckets.reports]
+public = false
+file_size_limit = "20MiB"
+allowed_mime_types = ["application/pdf"]
+
+[storage.buckets.creatives]
+public = false
+file_size_limit = "5MiB"
+allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "image/gif"]
+
 # Uncomment to configure local storage buckets
 # [storage.buckets.images]
 # public = false
