@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
@@ -23,6 +24,7 @@ import {
 import { ReconBadge } from '@/components/recon-badge';
 import { kpiDelta } from '@/lib/kpi';
 import { worstRecon } from '@/lib/recon';
+import { buyerOnboarding } from '@adxlens/core/recommendation';
 import { getPageContext } from '@/server/page-context';
 
 export async function generateMetadata() {
@@ -37,6 +39,8 @@ function healthTone(score: number) {
 /** O01 Tổng quan agency (PRD P0-11): theo Client và tài khoản, không thống kê theo media buyer. */
 export default async function OverviewPage() {
   const pc = await getPageContext();
+  // A08 (P1-11): buyer mới vào lần đầu → màn chào mừng theo vai trò (sau cờ Gợi ý).
+  if (pc.flags.p1_recommendations && (await buyerOnboarding(pc.ctx))) redirect('/welcome');
   const t = await getTranslations('overview');
   const format = await getFormatter();
   const { clients, unassigned } = await agencyOverview(pc.ctx);

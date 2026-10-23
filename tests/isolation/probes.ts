@@ -148,6 +148,8 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     crossParams: (w) => ({ id: w.b.finding.id }),
     body: () => ({ kind: 'seen' }),
   },
+  'GET /api/v1/recommendations/outcomes': { kind: 'workspace' },
+  'DELETE /api/v1/me/onboarding': { kind: 'workspace' },
   'GET /api/v1/recommendations': { kind: 'workspace', query: () => ({ week: '2026-10-19' }) },
   'PATCH /api/v1/recommendations/[id]': {
     kind: 'workspace',

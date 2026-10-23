@@ -1440,6 +1440,47 @@
     "actions": {
       "creative_loser": "Tắt hoặc giảm phân bổ cho creative thua ({ads} quảng cáo)",
       "creative_winner": "Tăng phân bổ cho creative đang thắng"
-    }
+    },
+    "results": "Kết quả trước / sau →"
+  },
+  "outcomes": {
+    "title": "Kết quả trước / sau",
+    "causality": "So sánh 7 ngày trước và 7 ngày sau ngày đánh dấu \"Đã làm\" (không tính chính ngày đó). Đây không phải bằng chứng nhân quả: mùa vụ, ngân sách và các thay đổi khác cũng ảnh hưởng tới số liệu.",
+    "cols": {
+      "item": "Việc đã làm",
+      "doneOn": "Ngày làm",
+      "metric": "Chỉ số đo",
+      "before": "7 ngày trước",
+      "after": "7 ngày sau",
+      "change": "Thay đổi"
+    },
+    "metric": {
+      "cpa": "Chi phí / kết quả",
+      "ctr": "CTR",
+      "results": "Kết quả",
+      "spend": "Chi tiêu"
+    },
+    "scope": {
+      "entity": "đối tượng",
+      "account": "cả tài khoản"
+    },
+    "waiting": "Chưa đủ 7 ngày sau, có kết quả từ {date}",
+    "notMeasured": "Không đo",
+    "notMeasuredBody": "Loại việc này không có chỉ số đo trước / sau.",
+    "emptyTitle": "Chưa có việc nào được đánh dấu \"Đã làm\"",
+    "emptyBody": "Đánh dấu \"Đã làm\" ở Việc tuần này để theo dõi kết quả."
+  },
+  "welcome": {
+    "title": "Chào {name}, bắt đầu với AdxLens",
+    "intro": "Bạn không cần cấu hình gì. AdxLens đã đọc dữ liệu các tài khoản quảng cáo bạn phụ trách và chuẩn bị việc cần làm mỗi tuần.",
+    "clientsTitle": "Client bạn phụ trách",
+    "client": "{name} · {count} tài khoản",
+    "noClients": "Chưa được giao Client nào. Hãy nhờ Owner gán Client cho bạn.",
+    "howTitle": "Mỗi tuần làm gì",
+    "step1": "Mở \"Việc tuần này\": {count} việc đang chờ, xếp theo tác động.",
+    "step2": "Việc được gán cho bạn: {count}. Đổi trạng thái khi làm xong.",
+    "step3": "Xem \"Creative\" để biết creative nào thắng, thua hay sắp mệt.",
+    "start": "Bắt đầu với việc tuần này",
+    "creatives": "Xem creative"
   }
 }

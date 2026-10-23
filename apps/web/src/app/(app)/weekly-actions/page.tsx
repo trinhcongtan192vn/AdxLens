@@ -108,6 +108,10 @@ export default async function WeeklyActionsPage({
         <Link href={href({ mine: !mine })} className={chip(mine)}>
           {t('mine')}
         </Link>
+        <div className="flex-1" />
+        <Link href="/weekly-actions/results" className="text-body text-link hover:underline">
+          {t('results')}
+        </Link>
       </div>
       {!r.week ? (
         <Card>

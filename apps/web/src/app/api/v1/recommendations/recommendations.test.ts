@@ -14,6 +14,8 @@ import {
 import { asUser, call, installTestServer, uninstallTestServer } from '../../../../test-utils';
 import * as assigneesRoute from './[id]/assignees/route';
 import * as itemRoute from './[id]/route';
+import * as onboardingRoute from '../me/onboarding/route';
+import * as outcomesRoute from './outcomes/route';
 import * as listRoute from './route';
 
 const db = testDb();
@@ -78,6 +80,25 @@ describe('API Weekly Action List (P101)', () => {
         })
       ).status,
     ).toBe(404);
+    expect((await call(outcomesRoute.GET, { user, workspaceId: ws })).status).toBe(404);
+    expect((await call(onboardingRoute.DELETE, { method: 'DELETE', user, workspaceId: ws })).status).toBe(404);
+  });
+
+  it('cờ bật: kết quả trước/sau (việc vừa làm → chờ đủ 7 ngày); đóng màn chào mừng', async () => {
+    const { ws, user } = await setup(true);
+    const [item] = ((await call(listRoute.GET, { user, workspaceId: ws })).body as { items: { id: string }[] }).items;
+    await call(itemRoute.PATCH, {
+      method: 'PATCH',
+      user,
+      workspaceId: ws,
+      params: { id: item!.id },
+      body: { status: 'done' },
+    });
+    const r = await call(outcomesRoute.GET, { user, workspaceId: ws });
+    expect((r.body as { items: { state: string }[] }).items).toEqual([
+      expect.objectContaining({ state: 'not_measured' }),
+    ]);
+    expect((await call(onboardingRoute.DELETE, { method: 'DELETE', user, workspaceId: ws })).status).toBe(204);
   });
 
   it('cờ bật: danh sách, đổi trạng thái (bỏ qua cần lý do), người nhận việc', async () => {

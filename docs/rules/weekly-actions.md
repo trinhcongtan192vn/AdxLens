@@ -27,3 +27,15 @@ Nguồn: `packages/core/src/recommendation/weekly.ts`. Đổi giá trị cần t
 | khác | 50% | 20 phút |
 
 **Checklist cờ `p1_recommendations`:** Báo cáo (P0) đã bật ≥ 14 ngày; tỷ lệ phát hiện bị đánh dấu "sai" trong 30 ngày ≤ 20%.
+
+## Kết quả trước / sau (P1-08, P105)
+
+Với việc "Đã làm": so chỉ số chính 7 ngày trước với 7 ngày sau ngày làm (theo múi giờ tài khoản, bỏ chính ngày làm). Chưa đủ 7 ngày sau → "chờ". Trang luôn ghi: đây không phải bằng chứng nhân quả.
+
+| Loại | Chỉ số | Phạm vi |
+|---|---|---|
+| creative_fatigue | CTR (tăng là tốt) | đối tượng |
+| budget_misallocation, fragmentation, spend_no_conversion, creative_loser | Chi phí / kết quả (giảm là tốt) | cả tài khoản |
+| starved_winner, learning_limited, creative_winner | Kết quả (tăng là tốt) | đối tượng |
+| conversion_tracking | Kết quả | cả tài khoản |
+| account_hygiene | không đo | — |
