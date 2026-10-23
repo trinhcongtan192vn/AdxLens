@@ -75,3 +75,9 @@ Xem `docs/architecture/L3-technical.md` mục 3. Tóm tắt:
 - Webhook: PayOS cần URL công khai → dùng tunnel (vd. `cloudflared tunnel --url http://localhost:3000`) và khai báo `<tunnel>/api/v1/webhooks/payos` trong kênh thanh toán. Không có webhook vẫn thử được: khi PayOS chuyển về ST04, trang tự tra trạng thái đơn.
 - Cài đặt → Gói & thanh toán → phương thức "QR / chuyển khoản (VND)" → "Chọn gói" → trang PayOS → thanh toán → ST04.
 - PayOS trả theo kỳ: job `maintenance:daily_tick` nhắc gia hạn trước 7 và 1 ngày; hết kỳ chưa trả → quá hạn (ân hạn 7 ngày) → Free. Thử ngay: `pnpm job:trigger -- maintenance:daily_tick '{"tick":"manual"}'`.
+
+## 8. Thực thi trên Meta (P2a) — chỉ local / staging
+
+- Mọi lời gọi ghi đi qua `packages/core/execution` (ADR-0008). Local dùng Meta giả (`META_MOCK=1`): ghi vào bộ nhớ của worker, đọc lại được.
+- Test tích hợp trên tài khoản Meta **test** (bắt buộc trước khi merge thay đổi `execution` và trước khi bật cờ cho khách): đặt `APP_ENV=staging`, `META_WRITE_TEST_ACCOUNTS=act_…` (danh sách cho phép), `META_TEST_WRITE_TOKEN` (token người dùng test), rồi `pnpm execution:check -- <ad_id> <adset_id>`. Script từ chối đối tượng ngoài danh sách, chạy đủ: tạm dừng/bật lại ad và ad set, ngân sách +5% rồi trả lại, nhân bản (bản sao PAUSED — xóa tay).
+- Thử ở local với Meta giả: `META_MOCK=1 META_WRITE_TEST_ACCOUNTS=act_100000001 pnpm execution:check -- <ad_id> <adset_id>` (lấy id ad và ad set có ngân sách ngày của tài khoản `act_100000001` trong bảng `analytics.entities` sau khi đồng bộ).

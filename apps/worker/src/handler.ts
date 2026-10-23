@@ -1,4 +1,5 @@
 import type { TokenKeys } from '@adxlens/core/connections';
+import type { MetaWriter } from '@adxlens/core/execution';
 import type { EmailSender } from '@adxlens/core/notification';
 import type { LlmClient } from '@adxlens/core/reporting';
 import type { Logger } from '@adxlens/core/shared';
@@ -12,6 +13,8 @@ export type WorkerServices = {
   enqueue: Enqueue;
   meta: MetaReadApi;
   tokenKeys: TokenKeys;
+  /** Lớp ghi Meta — chỉ handler `execute:*` dùng, qua Execution Gateway (ADR-0008). */
+  metaWriter: MetaWriter;
   email: EmailSender;
   /** URL gốc của web app (link trong email). */
   appUrl: string;

@@ -1197,6 +1197,11 @@
         "label": "Được giao việc",
         "title": "Bạn được giao việc: {item}",
         "body": "Tài khoản {account}."
+      },
+      "action_executed": {
+        "label": "Hành động đã thực hiện",
+        "title": "Đã thực hiện: {item}",
+        "body": "Thay đổi đã được áp dụng và xác minh trên Meta."
       }
     },
     "settings": {

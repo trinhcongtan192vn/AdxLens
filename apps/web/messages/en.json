@@ -1197,6 +1197,11 @@
         "label": "Assigned to me",
         "title": "Assigned to you: {item}",
         "body": "Account {account}."
+      },
+      "action_executed": {
+        "label": "Action completed",
+        "title": "Done: {item}",
+        "body": "The change was applied and verified on Meta."
       }
     },
     "settings": {
