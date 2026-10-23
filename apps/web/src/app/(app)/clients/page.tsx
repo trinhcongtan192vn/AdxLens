@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { listClientOverview, unconfirmedCount } from '@adxlens/core/connections';
 import { accountReconciliation } from '@adxlens/core/reconciliation';
+import { agencyOverview } from '@adxlens/core/reporting';
 import { worstRecon } from '@/lib/recon';
 import { can } from '@adxlens/core/tenancy';
 import { getPageContext } from '@/server/page-context';
@@ -11,10 +12,11 @@ export async function generateMetadata() {
   return { title: t('clients') };
 }
 
-/** C01 Clients (D, E, BR01) — Penpot. Chi tiêu/health điền từ 015+. */
+/** C01 Clients (D, E, BR01) — Penpot. Cột báo cáo cuối điền ở 019+. */
 export default async function ClientsPage() {
   const pc = await getPageContext();
   const [clients, unconfirmed] = await Promise.all([listClientOverview(pc.ctx), unconfirmedCount(pc.ctx)]);
+  const overview = new Map((await agencyOverview(pc.ctx)).clients.map((c) => [c.id, c]));
   const recon = await accountReconciliation(
     pc.ctx,
     clients.flatMap((c) => c.accounts.map((a) => a.id)),
@@ -26,6 +28,9 @@ export default async function ClientsPage() {
       clients={clients.map((c) => ({
         id: c.id,
         name: c.name,
+        spend30: overview.get(c.id)?.spend30 ?? {},
+        health: overview.get(c.id)?.health ?? null,
+        highIssues: overview.get(c.id)?.highIssues ?? 0,
         recon: worstRecon(c.accounts.map((a) => recon.get(a.id)!).filter(Boolean)),
         accounts: c.accounts.map((a) => ({
           id: a.id,

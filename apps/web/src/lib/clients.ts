@@ -3,6 +3,10 @@ export type ClientRow = {
   name: string;
   accounts: { id: string; name: string; metaAccountId: string; confirmed: boolean; expired: boolean }[];
   recon?: { status: 'ok' | 'warning' | 'pending'; maxSpendDeltaPct: string | null };
+  /** Chi tiêu 30 ngày theo tiền tệ, health thấp nhất, số vấn đề cao (O01/C01). */
+  spend30?: Record<string, string>;
+  health?: number | null;
+  highIssues?: number;
 };
 
 const norm = (s: string) =>

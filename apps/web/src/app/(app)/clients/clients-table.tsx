@@ -3,7 +3,7 @@
 import { Building2, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useMemo, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import {
@@ -41,6 +41,7 @@ export function ClientsTable({
   canManage: boolean;
 }) {
   const t = useTranslations('clients');
+  const format = useFormatter();
   const tc = useTranslations('common');
   const router = useRouter();
   const [q, setQ] = useState('');
@@ -141,13 +142,24 @@ export function ClientsTable({
                           {t('accountsCount', { count: c.accounts.length })}
                         </span>
                       </TD>
-                      <TD numeric muted>
-                        —
+                      <TD numeric>
+                        {Object.entries(c.spend30 ?? {})
+                          .map(
+                            ([cur, v]) =>
+                              `${format.number(Number(v), { maximumFractionDigits: cur === 'VND' ? 0 : 2 })} ${cur}`,
+                          )
+                          .join(' · ') || '—'}
                       </TD>
-                      <TD muted>—</TD>
-                      <TD numeric muted>
-                        —
+                      <TD>
+                        {c.health === null || c.health === undefined ? (
+                          <span className="text-fg-tertiary">—</span>
+                        ) : (
+                          <Badge tone={c.health >= 80 ? 'success' : c.health >= 60 ? 'warning' : 'danger'}>
+                            {c.health}
+                          </Badge>
+                        )}
                       </TD>
+                      <TD numeric>{c.highIssues || '—'}</TD>
                       <TD>
                         {c.recon && c.recon.status !== 'pending' ? (
                           <Link href={`/clients/${c.id}/reconciliation`}>

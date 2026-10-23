@@ -815,5 +815,65 @@
       "spend_drop": "Spend drop (%)",
       "click_drop": "Click drop (%)"
     }
+  },
+  "overview": {
+    "title": "Overview",
+    "spend7": "7-day spend",
+    "spend30": "30-day spend",
+    "highIssues": "High-severity issues",
+    "mismatch": "Accounts with mismatched data",
+    "clients": "Clients",
+    "multiCurrency": "Multiple currencies, not summed",
+    "cols": {
+      "client": "Client",
+      "accounts": "Ad accounts",
+      "spend7": "7-day spend",
+      "spend30": "30-day spend",
+      "health": "Health",
+      "highIssues": "High issues",
+      "reconciliation": "Reconciliation"
+    },
+    "unassignedTitle": "Accounts without a Client",
+    "unassignedBody": "{count, plural, one {# account has} other {# accounts have}} data but no Client yet.",
+    "assign": "Assign Client",
+    "emptyTitle": "No ad data yet",
+    "emptyBody": "Connect Meta (read-only) and pick accounts to see the agency overview.",
+    "connect": "Connect Meta",
+    "footnote": "Dates in each account's time zone · through yesterday · amounts in account currency, not converted.",
+    "healthHint": "Client health = its lowest account."
+  },
+  "entities": {
+    "level": {
+      "campaign": "Campaign",
+      "adset": "Ad set",
+      "ad": "Ad"
+    },
+    "cols": {
+      "status": "Status",
+      "spend": "Spend",
+      "impressions": "Impressions",
+      "clicks": "Clicks",
+      "ctr": "CTR",
+      "results": "Results",
+      "cpa": "CPA",
+      "roas": "ROAS"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "CAMPAIGN_PAUSED": "Campaign paused",
+      "ADSET_PAUSED": "Ad set paused",
+      "ARCHIVED": "Archived",
+      "DELETED": "Deleted",
+      "WITH_ISSUES": "With issues",
+      "DISAPPROVED": "Disapproved",
+      "PENDING_REVIEW": "Pending review"
+    },
+    "empty": {
+      "campaign": "No campaigns in this period.",
+      "adset": "No ad sets in this period.",
+      "ad": "No ads in this period."
+    },
+    "footnote": "{from} → {to} · attribution 7d click / 1d view · account time zone"
   }
 }
