@@ -491,3 +491,27 @@ export async function ruleEvaluationsFor(ctx: ActorCtx, ruleId: string, limit = 
     .orderBy(desc(ruleEvaluations.evaluatedAt))
     .limit(limit);
 }
+
+/**
+ * CHỈ LOCAL (ADR-0012 mục 4): giả lập `days` ngày chạy thử — ghi đánh giá shadow cho từng ngày trong quá khứ và
+ * lùi mốc bắt đầu shadow, để PM thử luồng bật live trên máy dev. CLI kiểm `APP_ENV=local` trước khi gọi.
+ */
+export async function simulateShadowDays(ctx: WorkspaceCtx, ruleId: string, days: number, clock: Clock = systemClock) {
+  const now = clock.now();
+  let recorded = 0;
+  for (let i = days; i >= 1; i--) {
+    const at = { now: () => new Date(now.getTime() - i * 86_400_000) };
+    if ((await shadowEvaluate(ctx, ruleId, at)).status === 'recorded') recorded++;
+  }
+  await ctx.db
+    .update(automationRules)
+    .set({ shadowStartedAt: new Date(now.getTime() - days * 86_400_000), updatedAt: now })
+    .where(
+      and(
+        eq(automationRules.workspaceId, ctx.workspaceId),
+        eq(automationRules.id, ruleId),
+        eq(automationRules.mode, 'shadow'),
+      ),
+    );
+  return { recorded };
+}

@@ -129,6 +129,27 @@ export const JOB_PROBES: Record<string, JobProbe> = {
     },
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, actionId: p!.actionId }),
   },
+  'rules:shadow_evaluate': {
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [r] = await db
+        .insert(schema.automationRules)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          name: 'Probe rule',
+          level: 'ad',
+          condition: [{ metric: 'spend', op: 'gte', value: '0' }],
+          action: { type: 'pause_ad' },
+          guardrails: {},
+          createdBy: w.a.owner.id,
+          shadowStartedAt: new Date(),
+        })
+        .returning();
+      return { ruleId: r!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, ruleId: p!.ruleId, tick: 'probe' }),
+  },
   'recommend:build': {
     prepare: backfillForA,
     payload: (w) => ({ workspaceId: w.a.workspace.id, week: '2026-10-19' }),

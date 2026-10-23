@@ -31,6 +31,7 @@ import {
   GUARDRAIL_DEFAULTS,
   setRuleMode,
   shadowEvaluate,
+  simulateShadowDays,
   type RuleInput,
 } from './index';
 
@@ -259,5 +260,18 @@ describe('backtest và shadow (P2-11, P2-13)', () => {
       status: 'done',
     });
     expect((await listRuleTemplates(s.ctx))[0]).toMatchObject({ key: 'pause_adset_no_results', doneCount: 1 });
+  });
+});
+
+describe('giả lập thời gian (chỉ local)', () => {
+  it('ghi đánh giá cho N ngày trước và lùi mốc shadow → đủ điều kiện thời gian để bật live', async () => {
+    const s = await setup();
+    await s.ad('101', tired);
+    const r = await createRule(s.ctx, fatigueInput(s.acc.id), clock);
+    const out = await simulateShadowDays({ db, workspaceId: s.workspaceId }, r.id, 14, clock);
+    expect(out.recorded).toBe(14);
+    expect((await ruleEvaluationsFor(s.ctx, r.id)).length).toBe(14);
+    const [row] = await db.select().from(schema.automationRules).where(eq(schema.automationRules.id, r.id));
+    expect(row!.shadowStartedAt?.toISOString()).toBe(new Date(NOW.getTime() - 14 * 86_400_000).toISOString());
   });
 });
