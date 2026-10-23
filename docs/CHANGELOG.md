@@ -2,6 +2,16 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [049] Admin: bảng đối chiếu toàn hệ thống — 2026-10-23
+
+**Thay đổi**
+- `/admin/reconciliation` (+ `GET /api/v1/admin/reconciliation?days=&issues=`): mọi tài khoản QC thật (bỏ dữ liệu mẫu, kết nối đã ngắt) với số ngày lệch > 1% / số ngày đã đối chiếu trong 7 hoặc 30 ngày, ngày lệch gần nhất, độ lệch chi tiêu / kết quả lớn nhất (chuỗi decimal từ DB), trạng thái **Chặn chia sẻ** (cùng quy tắc báo cáo ADR-0007: có ngày lệch hoặc gán chưa xác nhận), **Đối chiếu trễ > 3 ngày**; mặc định chỉ hiện tài khoản có vấn đề. Nút Chạy lại đồng bộ trên từng dòng.
+- `core/ops/reconciliation-board.ts`: dùng `status` đã tính bởi core/reconciliation — **không tính lại ngưỡng 1%**; không trả chi tiêu.
+
+**Test tự động:** `reconciliation-board.test.ts` (đếm ngày lệch trong kỳ, bỏ ngày ngoài kỳ, độ lệch lớn nhất dạng decimal, chặn chia sẻ, đối chiếu trễ, bỏ demo / kết nối đã ngắt); `admin-ops.test.ts` (404 người ngoài, không trả chi tiêu, `days` > 90 → 422).
+
+**PM kiểm tra:** `/admin/reconciliation` → "Tất cả" → TRON_GLAMPING "Khớp", 0 ngày lệch.
+
 ## [fix] Tóm tắt báo cáo mẫu viết hoa chữ đầu câu — 2026-10-23
 
 **Thay đổi:** tóm tắt mẫu (khi không dùng LLM) một tài khoản bắt đầu bằng "chi tiêu …" chữ thường (PM thấy ở R03). Nay "Chi tiêu …" / "Spend …"; nhiều tài khoản vẫn "Tên: chi tiêu …". Số liệu và bộ kiểm tra số không đổi.

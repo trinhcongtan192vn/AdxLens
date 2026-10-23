@@ -396,6 +396,10 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     kind: 'exempt',
     reason: 'Staff chạy lại / bỏ job lỗi; queue ghi Meta không chạy lại (admin-ops.test.ts)',
   },
+  'GET /api/v1/admin/reconciliation': {
+    kind: 'exempt',
+    reason: 'Staff: bảng đối chiếu mọi workspace (có chủ đích), không trả chi tiêu (admin-ops.test.ts)',
+  },
   'GET /api/v1/admin/staff': { kind: 'exempt', reason: 'Staff: danh sách đội AdxLens, không theo workspace' },
   'POST /api/v1/admin/staff': { kind: 'exempt', reason: 'Superadmin thêm staff (admin-roles.test.ts)' },
   'PATCH /api/v1/admin/staff/[userId]': { kind: 'exempt', reason: 'Superadmin đổi vai trò staff' },
