@@ -2,6 +2,16 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [tooling] Mở app local bằng một cú double-click — 2026-10-23
+
+**Thay đổi**
+- `Mo-AdxLens.cmd` (gốc repo) và `pnpm start:local` (`scripts/start-local.mjs`): bật Docker Desktop nếu cần → `pnpm install` khi lockfile đổi → Redis + Supabase → `.env.local` (chỉ điền key Supabase còn trống; không tạo lại khóa mã hóa token) → migration → tài khoản staff `pm@adxlens.local` / `AdxLens@local1` → web + worker → mở trình duyệt. App đang chạy sẵn thì chỉ mở trình duyệt.
+- `.gitattributes`: file `.cmd` giữ CRLF.
+
+**Test tự động:** `scripts/lib/start-local.test.ts` (đọc `supabase status`, điền key còn trống, không ghi đè key đã có, không đổi khóa token).
+
+**PM kiểm tra:** double-click `Mo-AdxLens.cmd` → trình duyệt mở trang đăng nhập → đăng nhập bằng tài khoản PM ở trên.
+
 ## [045] E2E luồng implementation-guide Phần 4, diễn tập 3 sự cố — 2026-10-23
 
 **Thay đổi**

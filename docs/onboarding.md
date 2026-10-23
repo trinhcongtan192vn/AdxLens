@@ -15,6 +15,10 @@ Supabase CLI cài qua `pnpm install` (gói `supabase`), không cần cài riêng
 
 ## 2. Chạy lần đầu
 
+**Cách nhanh (PM test thủ công):** double-click `Mo-AdxLens.cmd` ở gốc repo (hoặc `pnpm start:local`). Script tự mở Docker Desktop nếu chưa chạy, `pnpm install` khi lockfile đổi, bật Redis + Supabase, tạo `.env.local` (chỉ điền key Supabase còn trống, không tạo lại khóa mã hóa token), chạy migration, tạo tài khoản staff `pm@adxlens.local` / `AdxLens@local1` (bật cờ được), bật web + worker rồi mở trình duyệt. Đóng cửa sổ để tắt app. Chỉ dùng ở local.
+
+Cách từng bước:
+
 ```powershell
 pnpm install
 pnpm env:init            # tạo .env.local, sinh khóa ngẫu nhiên
