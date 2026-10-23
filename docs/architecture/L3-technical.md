@@ -481,7 +481,7 @@ Các bảng còn lại (`recommendations`, `report_schedules`, `automation_rules
 | Mục | Giá trị / Việc cần làm |
 |---|---|
 | Loại app | Business |
-| Quyền P0–P1 | `ads_read`, `business_management` (để liệt kê ad account), `email` |
+| Quyền P0–P1 | `ads_read`, `business_management` (để liệt kê ad account). Không xin `email`: không dùng, và Facebook Login for Business báo "Invalid Scopes: email" |
 | Quyền P2 | thêm `ads_management` qua luồng OAuth riêng (re-authorize) |
 | App Review | Bắt đầu từ V0; cần video demo, chính sách quyền riêng tư, Business Verification |
 | Phiên bản API | Dùng phiên bản mới nhất tại thời điểm E4; ghi vào `META_API_VERSION` |

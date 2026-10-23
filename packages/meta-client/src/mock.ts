@@ -260,8 +260,8 @@ export class MockMetaRead implements MetaReadApi {
 
   async grantedScopes(token: string) {
     return token.includes('write')
-      ? ['ads_read', 'business_management', 'email', 'ads_management']
-      : ['ads_read', 'business_management', 'email'];
+      ? ['ads_read', 'business_management', 'ads_management']
+      : ['ads_read', 'business_management'];
   }
 
   async listAdAccounts() {

@@ -50,7 +50,7 @@ export default async function ExplainPermissionsPage() {
         {t('viewDemo')}
       </Link>
       <p className="mt-4 text-small text-fg-tertiary">
-        {t('scopes', { scopes: READ_SCOPES.filter((s) => s !== 'email').join(', ') })}
+        {t('scopes', { scopes: READ_SCOPES.join(', ') })}
       </p>
     </SetupShell>
   );

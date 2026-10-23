@@ -2,6 +2,15 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [fix] Bỏ quyền `email` khi kết nối Meta — 2026-10-23
+
+**Thay đổi**
+- `READ_SCOPES` chỉ còn `ads_read`, `business_management` (`WRITE_SCOPES` thêm `ads_management`). PM test với Meta App thật (Facebook Login for Business) bị chặn: "Invalid Scopes: email". Quyền `email` không được dùng ở đâu. Cập nhật L3 mục quyền, mock, trang S02.
+
+**Test tự động:** `packages/meta-client/src/oauth.test.ts` (danh sách scope, URL đăng nhập đúng scope / redirect_uri / state).
+
+**PM kiểm tra:** Kết nối → Kết nối Meta → trang Facebook hiện hộp cấp quyền, không còn lỗi "Invalid Scopes".
+
 ## [tooling] Mở app local bằng một cú double-click — 2026-10-23
 
 **Thay đổi**
