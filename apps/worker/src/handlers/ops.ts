@@ -1,3 +1,4 @@
+import { purgeConnectionData } from '@adxlens/core/connections';
 import { remediateHealth, runHealthChecks, runTokenExpiringPlaybook } from '@adxlens/core/ops';
 import type { HandlerMap } from '../handler';
 
@@ -21,4 +22,8 @@ export const opsHandlers: HandlerMap = {
     if (r.notified || r.expired) log.info(r, 'token_expiring');
     return r;
   },
+
+  // Xóa dữ liệu quảng cáo 7 ngày sau khi ngắt kết nối (L3 5.5, P0-22).
+  'maintenance:purge_connection_data': async (p, { db, email, appUrl }) =>
+    purgeConnectionData({ db, workspaceId: p.workspaceId }, p.connectionId, { email, appUrl }),
 };

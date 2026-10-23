@@ -68,6 +68,14 @@ export const JOB_PROBES: Record<string, JobProbe> = {
     prepare: backfillForA,
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, date: p!.to }),
   },
+  'maintenance:purge_connection_data': {
+    prepare: async (db, w) => realConnectionForA(db, w),
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, connectionId: p!.connectionId }),
+  },
+  // Workspace A nhưng kết nối của B: không được xóa gì của B.
+  'maintenance:purge_connection_data#cross': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, connectionId: w.b.connection.id }),
+  },
   'reconcile:account': {
     prepare: backfillForA,
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, from: p!.from, to: p!.to }),

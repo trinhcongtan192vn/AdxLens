@@ -205,7 +205,8 @@
         "status": {
           "pending": "Request received, waiting to be processed.",
           "in_progress": "Deleting data.",
-          "done": "Data deleted."
+          "done": "Data deleted.",
+          "cancelled": "The request was cancelled because the account was reconnected."
         }
       }
     }
@@ -633,5 +634,25 @@
       "attribution": "Ads Manager may be showing an attribution window other than 7d click / 1d view."
     },
     "footnote": "Matches Meta · updated {time} · attribution 7d click / 1d view · {currency} · {timezone}"
+  },
+  "disconnect": {
+    "title": "Meta connections",
+    "account": "Meta account",
+    "accounts": "Ad accounts",
+    "status": "Status",
+    "statuses": {
+      "active": "Active",
+      "expired": "Expired",
+      "revoked": "Disconnected"
+    },
+    "disconnect": "Disconnect and delete data",
+    "dialogTitle": "Disconnect Meta?",
+    "dialogBody": "The access token is deleted immediately and syncing stops. Synced ad data for {count, plural, one {# ad account} other {# ad accounts}} will be deleted after {days} days (committed within {deadline} days). Report links using these accounts are locked. Reconnecting before then cancels the deletion.",
+    "facebookHint": "To remove AdxLens's permission on Facebook entirely: Settings › Apps and websites › AdxLens › Remove.",
+    "understand": "I understand the data will be deleted",
+    "confirm": "Disconnect",
+    "done": "Disconnected. Confirmation code {code}.",
+    "pendingBanner": "Data deletion pending (code {code}): deleting on {date}. Reconnect before then to cancel.",
+    "doneBanner": "Data of the old connection was deleted (code {code}) on {date}."
   }
 }
