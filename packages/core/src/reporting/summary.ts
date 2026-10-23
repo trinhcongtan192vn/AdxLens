@@ -77,10 +77,16 @@ export function templateSummary(c: ReportContent): string {
     const rc = pctChange(a.kpis.results, a.prevKpis.results);
     const change = (v: number | null) => (v === null ? '' : `${v >= 0 ? '+' : ''}${nf(v)}%`);
     const head = c.accounts.length > 1 ? `${a.name}: ` : '';
+    // Một tài khoản: câu đứng đầu tóm tắt → viết hoa chữ đầu ("Chi tiêu…"); nhiều tài khoản: sau "Tên: " giữ thường.
+    const sentence = (s: string) => (head ? head + s : s.charAt(0).toUpperCase() + s.slice(1));
     lines.push(
       en
-        ? `${head}spend ${spend} ${a.currency}${sc === null ? '' : ` (${change(sc)} vs the previous period)`}, ${nf(a.kpis.results)} results${rc === null ? '' : ` (${change(rc)})`}${a.kpis.cpa ? `, cost per result ${nf(Number(a.kpis.cpa), { maximumFractionDigits: a.currency === 'VND' ? 0 : 2 })} ${a.currency}` : ''}.`
-        : `${head}chi tiêu ${spend} ${a.currency}${sc === null ? '' : ` (${change(sc)} so với kỳ trước)`}, ${nf(a.kpis.results)} kết quả${rc === null ? '' : ` (${change(rc)})`}${a.kpis.cpa ? `, chi phí mỗi kết quả ${nf(Number(a.kpis.cpa), { maximumFractionDigits: a.currency === 'VND' ? 0 : 2 })} ${a.currency}` : ''}.`,
+        ? sentence(
+            `spend ${spend} ${a.currency}${sc === null ? '' : ` (${change(sc)} vs the previous period)`}, ${nf(a.kpis.results)} results${rc === null ? '' : ` (${change(rc)})`}${a.kpis.cpa ? `, cost per result ${nf(Number(a.kpis.cpa), { maximumFractionDigits: a.currency === 'VND' ? 0 : 2 })} ${a.currency}` : ''}.`,
+          )
+        : sentence(
+            `chi tiêu ${spend} ${a.currency}${sc === null ? '' : ` (${change(sc)} so với kỳ trước)`}, ${nf(a.kpis.results)} kết quả${rc === null ? '' : ` (${change(rc)})`}${a.kpis.cpa ? `, chi phí mỗi kết quả ${nf(Number(a.kpis.cpa), { maximumFractionDigits: a.currency === 'VND' ? 0 : 2 })} ${a.currency}` : ''}.`,
+          ),
     );
   }
   const high = c.findings.filter((f) => f.severity === 'high').length;

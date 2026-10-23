@@ -92,7 +92,7 @@ describe('báo cáo (R02, R03)', () => {
     expect(isBlocked(r.integrity)).toBe(false);
     // Không có LLM → tóm tắt mẫu (P0-16).
     expect(r.summarySource).toBe('template');
-    expect(r.summaryText).toContain('chi tiêu');
+    expect(r.summaryText).toMatch(/^Chi tiêu /); // trước: toContain('chi tiêu') — câu đầu nay viết hoa
   });
 
   it('toàn vẹn (ADR-0007): chưa xác nhận gán hoặc ngày lệch trong kỳ → bị khóa chia sẻ, vẫn tạo được', async () => {
