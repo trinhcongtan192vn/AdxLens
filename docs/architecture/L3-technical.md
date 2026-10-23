@@ -541,7 +541,7 @@ status = 'ok' nếu spend_delta_pct ≤ 1 và results_delta_pct ≤ 1, ngược 
 
 ### 7.3 Chuỗi job P0
 ```
-confirm_assignment → sync:backfill_account (7 ngày/lô)
+import_accounts (S04, ADR-0005) → sync:backfill_account (7 ngày/lô)
   → reconcile:account(range)
       → ok: audit:run(account) → report:build(nếu có yêu cầu/lịch) → pdf:render (nếu cần) → notify:*
       → warning: notify:internal_alert

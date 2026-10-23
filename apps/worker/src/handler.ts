@@ -17,6 +17,8 @@ export type WorkerServices = {
 export type JobDeps = WorkerServices & {
   log: Logger;
   jobId: string;
+  /** Lần thử cuối (BullMQ không retry nữa): handler ghi lỗi bền vững trước khi ném. */
+  finalAttempt: boolean;
 };
 
 export type JobHandler<N extends JobName> = (payload: JobPayload<N>, deps: JobDeps) => Promise<unknown>;

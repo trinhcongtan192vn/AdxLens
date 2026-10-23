@@ -1,4 +1,4 @@
-import type { Db } from '@adxlens/db';
+import { schema, type Db } from '@adxlens/db';
 import { seedAdAccount, seedClient, seedConnection, seedMember, seedWorkspace } from '@adxlens/db/testing';
 
 /**
@@ -27,6 +27,37 @@ export async function seedWorld(db: Db) {
     confirmed: true,
   });
 
+  // Dữ liệu đồng bộ của B (012): lần chạy, cấu trúc, insight — job/route của A không được chạm.
+  const [bRun] = await db
+    .insert(schema.syncRuns)
+    .values({
+      workspaceId: b.workspace.id,
+      adAccountId: bAdAccount.id,
+      kind: 'backfill',
+      dateFrom: '2026-07-25',
+      dateTo: '2026-10-22',
+      status: 'running',
+      batchesTotal: 13,
+      daysTotal: 90,
+    })
+    .returning();
+  await db.insert(schema.entities).values({
+    workspaceId: b.workspace.id,
+    adAccountId: bAdAccount.id,
+    entityType: 'campaign',
+    metaId: '999000111',
+    name: 'Beta Campaign Secret',
+  });
+  await db.insert(schema.insightsDaily).values({
+    workspaceId: b.workspace.id,
+    adAccountId: bAdAccount.id,
+    entityType: 'ad',
+    metaId: '999000111222',
+    date: '2026-10-20',
+    spend: '123456.0000',
+    attributionWindow: '7d_click_1d_view',
+  });
+
   const world = {
     a: {
       workspace: a.workspace,
@@ -43,6 +74,7 @@ export async function seedWorld(db: Db) {
       client: bClient,
       connection: bConnection,
       adAccount: bAdAccount,
+      syncRun: bRun!,
     },
     /** Chuỗi của B tuyệt đối không được xuất hiện trong phản hồi cho ngữ cảnh A. */
     bFingerprints: [
@@ -59,6 +91,8 @@ export async function seedWorld(db: Db) {
       bAdAccount.id,
       bAdAccount.name,
       'act_999999',
+      bRun!.id,
+      'Beta Campaign Secret',
     ],
   };
   return world;

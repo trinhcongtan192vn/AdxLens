@@ -126,6 +126,7 @@ export async function seedAdAccount(
     clientId?: string | null;
     confirmed?: boolean;
     currency?: string;
+    timezone?: string;
   } = {},
 ) {
   const [a] = await db
@@ -136,7 +137,7 @@ export async function seedAdAccount(
       metaAccountId: opts.metaAccountId ?? `act_${Math.floor(Math.random() * 1e9)}`,
       name: opts.name ?? 'Tài khoản QC',
       currency: opts.currency ?? 'VND',
-      timezone: 'Asia/Ho_Chi_Minh',
+      timezone: opts.timezone ?? 'Asia/Ho_Chi_Minh',
       clientId: opts.clientId ?? null,
       assignmentStatus: opts.confirmed ? 'confirmed' : 'suggested',
     })

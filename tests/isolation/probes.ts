@@ -101,6 +101,16 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: (w) => ({ id: w.a.adAccount.id }),
     crossParams: (w) => ({ id: w.b.adAccount.id }),
   },
+  'GET /api/v1/ad-accounts/[id]/sync-status': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.adAccount.id }),
+    crossParams: (w) => ({ id: w.b.adAccount.id }),
+  },
+  'POST /api/v1/ad-accounts/[id]/sync': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.adAccount.id }),
+    crossParams: (w) => ({ id: w.b.adAccount.id }),
+  },
   'GET /api/v1/clients': { kind: 'workspace' },
   'POST /api/v1/clients': { kind: 'workspace', body: () => ({ name: 'Client mới' }) },
   'GET /api/v1/clients/[id]': {

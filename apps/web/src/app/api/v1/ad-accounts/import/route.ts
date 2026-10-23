@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { importAccounts } from '@adxlens/core/connections';
+import { startBackfill } from '@adxlens/core/ingestion';
 import { route } from '@/server/route';
 
-/** POST /ad-accounts/import (L3 10.2): nhập tài khoản đã chọn, nhận gợi ý Client. */
+/** POST /ad-accounts/import (L3 10.2): nhập tài khoản đã chọn, nhận gợi ý Client, bắt đầu backfill (ADR-0005). */
 export const POST = route({
   auth: 'workspace',
   permission: 'connections.manage',
@@ -18,6 +19,7 @@ export const POST = route({
       connectionId: body.connection_id,
       metaAccountIds: body.meta_account_ids,
     });
+    for (const i of items) await startBackfill(ctx, i.adAccountId, { enqueue: ctx.enqueue });
     return {
       items: items.map((i) => ({
         ad_account_id: i.adAccountId,

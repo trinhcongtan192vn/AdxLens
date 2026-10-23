@@ -16,7 +16,7 @@ export class UnknownJobError extends Error {
 export async function dispatch(
   handlers: HandlerMap,
   deps: WorkerServices,
-  job: { name: string; id: string; data: unknown },
+  job: { name: string; id: string; data: unknown; attempt?: number; maxAttempts?: number },
 ): Promise<unknown> {
   if (!(job.name in JOBS)) throw new UnknownJobError(job.name);
   const name = job.name as JobName;
@@ -29,5 +29,6 @@ export async function dispatch(
     job: name,
     ...(workspaceId ? { workspace_id: workspaceId } : {}),
   });
-  return handler(payload, { ...deps, log, jobId: job.id });
+  const finalAttempt = (job.attempt ?? 1) >= (job.maxAttempts ?? 1);
+  return handler(payload, { ...deps, log, jobId: job.id, finalAttempt });
 }

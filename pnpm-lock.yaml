@@ -177,6 +177,9 @@ importers:
       '@adxlens/db':
         specifier: workspace:*
         version: link:../db
+      '@adxlens/jobs':
+        specifier: workspace:*
+        version: link:../jobs
       '@adxlens/meta-client':
         specifier: workspace:*
         version: link:../meta-client

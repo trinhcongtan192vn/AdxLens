@@ -6,11 +6,14 @@ import * as authorize from './meta/authorize/route';
 import * as callback from './meta/callback/route';
 import * as available from './[id]/ad-accounts/route';
 import * as importRoute from '../ad-accounts/import/route';
+import * as syncStatusRoute from '../ad-accounts/[id]/sync-status/route';
+import * as syncRoute from '../ad-accounts/[id]/sync/route';
 
 const db = testDb();
+let server: ReturnType<typeof installTestServer>;
 beforeEach(async () => {
   await truncateAll(db);
-  installTestServer(db);
+  server = installTestServer(db);
 });
 afterEach(() => uninstallTestServer());
 afterAll(() => closeTestDb());
@@ -119,5 +122,21 @@ describe('OAuth Meta (META_MOCK=1)', () => {
     });
     expect(r.status).toBe(200);
     expect(r.body).toMatchObject({ items: [{ meta_account_id: 'act_100000001', assignment_status: 'suggested' }] });
+
+    // ADR-0005: nhập xong là backfill 90 ngày (13 lô 7 ngày).
+    const backfills = server.enqueue.calls.filter((c) => c.name === 'sync:backfill_account');
+    expect(backfills).toHaveLength(13);
+    const adAccountId = (r.body as { items: { ad_account_id: string }[] }).items[0]!.ad_account_id;
+    const st = await call(syncStatusRoute.GET, { user: u, workspaceId: workspace.id, params: { id: adAccountId } });
+    expect(st.body).toMatchObject({
+      status: 'queued',
+      progress: { days_done: 0, days_total: 90 },
+      reconciliation: null,
+    });
+
+    // Đang chạy → thử lại không tạo lần mới.
+    const again = await call(syncRoute.POST, { user: u, workspaceId: workspace.id, params: { id: adAccountId } });
+    expect(again.body).toMatchObject({ created: false });
+    expect(server.enqueue.calls.filter((c) => c.name === 'sync:backfill_account')).toHaveLength(13);
   });
 });

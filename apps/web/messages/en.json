@@ -562,5 +562,29 @@
     "noAccounts": "This Client has no ad accounts.",
     "backToClients": "Clients",
     "reconnect": "Reconnect"
+  },
+  "sync": {
+    "title": "Syncing 90 days of data",
+    "doneTitle": "90 days of data synced",
+    "summary": "{percent}% · {done} / {total} accounts. You can close this page; syncing continues.",
+    "emptyTitle": "There are no ad accounts to sync yet.",
+    "connect": "Connect Meta",
+    "retry": "Retry sync",
+    "reconnect": "Reconnect to Meta",
+    "cols": {
+      "account": "Account",
+      "progress": "Progress",
+      "reconciliation": "Reconciliation"
+    },
+    "status": {
+      "done": "Done",
+      "failed": "Error",
+      "running": "Running {percent}%"
+    },
+    "errors": {
+      "TRANSIENT": "Sync stopped at {percent}%: Meta returned a temporary error. Data already synced is kept.",
+      "META_NO_ACCESS": "Sync stopped at {percent}%: access to the ad account was lost. Check permissions in Business Manager, then retry.",
+      "META_TOKEN_INVALID": "Sync stopped at {percent}%: the Meta connection expired. Reconnect to continue."
+    }
   }
 }

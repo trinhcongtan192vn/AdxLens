@@ -2,10 +2,10 @@ import { expect, test } from '@playwright/test';
 import { signUpAndCreateWorkspace } from './helpers';
 
 /**
- * F1 bước 3–4 (META_MOCK=1): kết nối Meta giả → S04 chọn tài khoản → S05 gán Client → C01 → C02.
+ * F1 (META_MOCK=1): kết nối Meta giả → S04 chọn tài khoản → S05 gán Client → S06 đồng bộ → C01 → C02.
  * Mock Meta có 4 tài khoản; ở đây chọn 2 để kiểm tra banner "còn N dòng".
  */
-test('S04 → S05 gán Client → C01 → C02', async ({ page }) => {
+test('S04 → S05 gán Client → S06 đồng bộ → C01 → C02', async ({ page }) => {
   await signUpAndCreateWorkspace(page, { workspace: 'Agency Gán' });
 
   await page.goto('/connections/new');
@@ -37,7 +37,13 @@ test('S04 → S05 gán Client → C01 → C02', async ({ page }) => {
   await rows.nth(1).getByRole('button', { name: 'Xác nhận' }).click();
   await expect(page.getByText('Tất cả tài khoản đã được gán Client.')).toBeVisible();
 
+  // S06: worker (chạy cùng `pnpm dev`) backfill 90 ngày từ Meta giả.
   await page.getByRole('link', { name: 'Xong, bắt đầu đồng bộ' }).click();
+  await expect(page).toHaveURL(/\/connections\/sync/);
+  await expect(page.getByRole('progressbar')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Đồng bộ xong dữ liệu 90 ngày' })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText('100% · 2 / 2 tài khoản')).toBeVisible();
+  await page.getByRole('link', { name: 'Tiếp tục' }).click();
   await expect(page).toHaveURL(/\/clients$/);
   await expect(page.getByText(/2 Client · 2 tài khoản/)).toBeVisible();
   await expect(page.getByText('tài khoản chưa xác nhận Client')).toHaveCount(0);
