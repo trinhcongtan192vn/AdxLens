@@ -169,3 +169,20 @@ Mỗi bước in ĐẠT / LỖI; sự cố hiện ở `/admin/incidents` (kèm c
 3. Đọc `docs/tech-debt.md`, đề xuất thứ tự ưu tiên lại.
 4. Thay đổi đầu tiên: một mục nhỏ trong tech-debt, theo `.github/pull_request_template.md`.
 
+## 15. Trang admin (đội AdxLens, ADR-0013)
+
+| Trang | Việc | Ai sửa được |
+|---|---|---|
+| `/admin/workspaces` | Tra cứu theo tên / email thành viên; chi tiết gói, kết nối (không token), tài khoản, đồng bộ, cờ, sự cố | Gói: superadmin |
+| `/admin/operations` | Đồng bộ lỗi / kẹt (chạy lại), hàng đợi (chạy lại / bỏ job lỗi; `execute` chỉ bỏ), Meta API 60 phút | Mọi staff |
+| `/admin/reconciliation` | Tài khoản lệch > 1%, bị chặn chia sẻ, đối chiếu trễ | Mọi staff (chạy lại đồng bộ) |
+| `/admin/execution` | Hành động 7 ngày, lỗi, breaker mở, rule live | Đóng breaker: superadmin |
+| `/admin/billing` | Gói (giá), quá hạn / vượt hạn mức, đơn PayOS, webhook | Superadmin |
+| `/admin/deletions` | Yêu cầu xóa dữ liệu, quá hạn | Chỉ xem |
+| `/admin/flags` | Ma trận cờ; operator gửi đề xuất, superadmin duyệt | Superadmin bật |
+| `/admin/incidents`, `/admin/kill-switch` | Sự cố; kill switch toàn cục | Bật: mọi staff; tắt: superadmin |
+| `/admin/staff`, `/admin/audit` | Đội ngũ; nhật ký thao tác admin (chỉ thêm) | Superadmin |
+| `/admin/system` | Sức khỏe, lịch định kỳ, email cảnh báo, thông báo bảo trì | Superadmin |
+| `/admin/emails` | Xem trước mẫu email | Chỉ xem |
+
+Mọi thao tác ghi đều bắt buộc lý do và ghi vào `/admin/audit`. Tạo staff local: `pnpm seed:staff -- --email … --password … [--can-enable-flags]` (có cờ = superadmin) hoặc superadmin thêm ở `/admin/staff`.

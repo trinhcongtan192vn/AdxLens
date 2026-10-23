@@ -12,3 +12,6 @@
 
 ## 3. Không làm
 - Không khôi phục token đã xóa; không trì hoãn purge quá 30 ngày.
+
+## Theo dõi ở trang admin
+- `/admin/deletions`: mọi yêu cầu xóa, hạn xóa; **Quá hạn** (qua hạn > 1 ngày mà chưa xong) nổi lên đầu → kiểm worker / job `maintenance:daily_tick` ở `/admin/operations` và `/admin/system` (lịch "Trễ").

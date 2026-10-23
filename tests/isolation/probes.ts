@@ -400,6 +400,34 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     kind: 'exempt',
     reason: 'Staff: bảng đối chiếu mọi workspace (có chủ đích), không trả chi tiêu (admin-ops.test.ts)',
   },
+  'GET /api/v1/admin/billing': {
+    kind: 'exempt',
+    reason: 'Staff: gói và thanh toán mọi workspace (admin-extra.test.ts)',
+  },
+  'PATCH /api/v1/admin/billing/plans/[key]': { kind: 'exempt', reason: 'Superadmin sửa giá gói (toàn hệ thống)' },
+  'POST /api/v1/admin/workspaces/[id]/billing': {
+    kind: 'exempt',
+    reason: 'Superadmin tặng gói / gia hạn ân hạn cho workspace bất kỳ, có nhật ký (admin-extra.test.ts)',
+  },
+  'GET /api/v1/admin/deletions': {
+    kind: 'exempt',
+    reason: 'Staff: yêu cầu xóa dữ liệu mọi workspace (chính sách Meta)',
+  },
+  'GET /api/v1/admin/execution': { kind: 'exempt', reason: 'Staff: thực thi mọi workspace, chỉ đọc' },
+  'POST /api/v1/admin/execution/breakers/[adAccountId]': {
+    kind: 'exempt',
+    reason: 'Superadmin đóng breaker (lý do + nhật ký), không gọi Meta (admin-extra.test.ts)',
+  },
+  'GET /api/v1/admin/system': { kind: 'exempt', reason: 'Staff: sức khỏe hệ thống, không lộ secret' },
+  'PUT /api/v1/admin/system/alert-emails': {
+    kind: 'exempt',
+    reason: 'Superadmin đặt email cảnh báo đội (toàn hệ thống)',
+  },
+  'PUT /api/v1/admin/system/maintenance': {
+    kind: 'exempt',
+    reason: 'Superadmin đặt thông báo bảo trì (toàn hệ thống)',
+  },
+  'GET /api/v1/admin/emails': { kind: 'exempt', reason: 'Staff: xem trước mẫu email bằng dữ liệu mẫu cố định' },
   'GET /api/v1/admin/staff': { kind: 'exempt', reason: 'Staff: danh sách đội AdxLens, không theo workspace' },
   'POST /api/v1/admin/staff': { kind: 'exempt', reason: 'Superadmin thêm staff (admin-roles.test.ts)' },
   'PATCH /api/v1/admin/staff/[userId]': { kind: 'exempt', reason: 'Superadmin đổi vai trò staff' },

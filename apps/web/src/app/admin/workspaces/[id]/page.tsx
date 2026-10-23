@@ -6,6 +6,7 @@ import { adminWorkspaceDetail } from '@adxlens/core/ops';
 import { isAppError } from '@adxlens/core/shared';
 import { Badge, Card, CardHeader, PageHeader, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
 import { FLAG_LABEL } from '@/lib/admin';
+import { AdminAction } from '../../admin-action';
 import { ResyncButton } from '../../operations/ops-actions';
 import { requireStaff } from '@/server/admin-context';
 import { deps } from '@/server/deps';
@@ -19,7 +20,7 @@ const UUID = /^[0-9a-f-]{36}$/;
 
 /** Chi tiết workspace cho hỗ trợ khách (chỉ thông tin vận hành; không token, không số liệu quảng cáo). */
 export default async function AdminWorkspaceDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireStaff();
+  const { staff } = await requireStaff();
   const { id } = await params;
   if (!UUID.test(id)) notFound();
   const t = await getTranslations('admin.workspaces');
@@ -72,6 +73,38 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
             <dt className="text-fg-secondary">{t('billing.grace')}</dt>
             <dd>{dt(d.billing.graceUntil)}</dd>
           </dl>
+          {staff.role === 'superadmin' ? (
+            <div className="flex gap-2 px-4 pb-3">
+              <AdminAction
+                testId="comp-plan"
+                label={t('billing.comp')}
+                title={t('billing.compTitle', { workspace: d.workspace.name })}
+                path={`admin/workspaces/${d.workspace.id}/billing`}
+                base={{ action: 'comp' }}
+                done={t('billing.saved')}
+                fields={[
+                  {
+                    name: 'plan',
+                    label: t('billing.plan'),
+                    kind: 'select',
+                    initial: d.billing.subscribedPlan,
+                    options: ['free', 'starter', 'growth', 'scale'].map((k) => ({ value: k, label: k })),
+                  },
+                ]}
+              />
+              {d.billing.graceUntil ? (
+                <AdminAction
+                  testId="extend-grace"
+                  label={t('billing.extendGrace')}
+                  title={t('billing.extendTitle', { workspace: d.workspace.name })}
+                  path={`admin/workspaces/${d.workspace.id}/billing`}
+                  base={{ action: 'extend_grace' }}
+                  done={t('billing.saved')}
+                  fields={[{ name: 'days', label: t('billing.days'), kind: 'number', as: 'int', initial: '7' }]}
+                />
+              ) : null}
+            </div>
+          ) : null}
         </Section>
 
         <Section title={t('sections.flags')}>

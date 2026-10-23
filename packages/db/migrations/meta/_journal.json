@@ -372,6 +372,20 @@
       "when": 1792767627556,
       "tag": "0052_admin_roles_audit_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1792771634846,
+      "tag": "0053_system_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1792771635805,
+      "tag": "0054_system_settings_rls",
+      "breakpoints": true
     }
   ]
 }

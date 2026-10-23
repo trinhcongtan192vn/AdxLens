@@ -61,6 +61,7 @@ export function fakeQueues(failed: Record<string, FailedJob[]> = {}): QueueAdmin
     failed: async (q, limit) => (failed[q] ?? []).slice(0, limit),
     retry: async (q, id) => (calls.push(`retry ${q}:${id}`), take(q, id)),
     remove: async (q, id) => (calls.push(`remove ${q}:${id}`), take(q, id)),
+    schedules: async () => [],
   };
 }
 

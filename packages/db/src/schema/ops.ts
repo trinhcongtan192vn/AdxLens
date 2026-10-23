@@ -84,3 +84,14 @@ export const adminAuditLog = app.table(
   },
   (t) => [index().on(t.at), index().on(t.actorUserId, t.at), index().on(t.workspaceId)],
 );
+
+/**
+ * Cấu hình vận hành toàn hệ thống chỉnh từ trang admin (ADR-0013): email nhận cảnh báo đội, thông báo bảo trì.
+ * Không chứa secret (Slack webhook vẫn ở biến môi trường). RLS bật, không policy cho người dùng.
+ */
+export const systemSettings = app.table('system_settings', {
+  key: text('key').primaryKey(),
+  value: jsonb('value').$type<Record<string, unknown>>().notNull(),
+  updatedBy: uuid('updated_by'),
+  updatedAt: tsz('updated_at').notNull().defaultNow(),
+});

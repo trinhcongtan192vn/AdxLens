@@ -1,6 +1,6 @@
 import 'server-only';
 import { getEnv } from '@adxlens/config/env';
-import { registerIncidentSink, teamAlertSink } from '@adxlens/core/ops';
+import { mergeAlertRecipients, opsAlertEmails, registerIncidentSink, teamAlertSink } from '@adxlens/core/ops';
 import { deps } from './deps';
 
 let registered = false;
@@ -11,10 +11,8 @@ export function registerWebIncidentSink(): void {
   registered = true;
   registerIncidentSink(async (a) => {
     const env = getEnv();
-    const recipients = (env.OPS_ALERT_EMAILS ?? '')
-      .split(',')
-      .map((x) => x.trim())
-      .filter(Boolean);
+    // `OPS_ALERT_EMAILS` + danh sách superadmin đặt ở /admin/system (đọc lúc gửi).
+    const recipients = mergeAlertRecipients(env.OPS_ALERT_EMAILS, await opsAlertEmails(deps().db));
     if (!recipients.length && !env.OPS_SLACK_WEBHOOK_URL) return;
     await teamAlertSink({
       email: deps().email,

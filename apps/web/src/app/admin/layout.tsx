@@ -14,10 +14,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const t = await getTranslations('admin');
   return (
     <div className="min-h-screen bg-canvas">
-      <header className="flex h-12 items-center gap-3 border-b border-line bg-surface px-6">
+      <header className="flex min-h-12 flex-wrap items-center gap-3 border-b border-line bg-surface px-6 py-2">
         <span className="text-h3 font-semibold text-brand">{t('brand')}</span>
         <Badge tone="warning">{t('internal')}</Badge>
-        <nav className="ml-6 flex gap-4 text-body">
+        <nav className="ml-6 flex flex-wrap gap-x-4 gap-y-1 text-body">
           <Link href="/admin/workspaces" className="text-fg-secondary hover:text-fg">
             {t('nav.workspaces')}
           </Link>
@@ -30,6 +30,15 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Link href="/admin/reconciliation" className="text-fg-secondary hover:text-fg">
             {t('nav.reconciliation')}
           </Link>
+          <Link href="/admin/execution" className="text-fg-secondary hover:text-fg">
+            {t('nav.execution')}
+          </Link>
+          <Link href="/admin/billing" className="text-fg-secondary hover:text-fg">
+            {t('nav.billing')}
+          </Link>
+          <Link href="/admin/deletions" className="text-fg-secondary hover:text-fg">
+            {t('nav.deletions')}
+          </Link>
           <Link href="/admin/incidents" className="text-fg-secondary hover:text-fg">
             {t('nav.incidents')}
           </Link>
@@ -41,6 +50,12 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           </Link>
           <Link href="/admin/audit" className="text-fg-secondary hover:text-fg">
             {t('nav.audit')}
+          </Link>
+          <Link href="/admin/system" className="text-fg-secondary hover:text-fg">
+            {t('nav.system')}
+          </Link>
+          <Link href="/admin/emails" className="text-fg-secondary hover:text-fg">
+            {t('nav.emails')}
           </Link>
         </nav>
         <div className="flex-1" />

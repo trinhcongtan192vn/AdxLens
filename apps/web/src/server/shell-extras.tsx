@@ -7,6 +7,7 @@ import { killSwitchState } from '@adxlens/core/execution';
 import { connectionHealth, demoConnection } from '@adxlens/core/connections';
 import { DemoActions } from '@/components/demo-actions';
 import { unreadCount } from '@adxlens/core/notification';
+import { activeMaintenanceNotice } from '@adxlens/core/ops';
 import { can } from '@adxlens/core/tenancy';
 import { Banner } from '@adxlens/ui';
 import type { PageContext } from './page-context';
@@ -94,8 +95,28 @@ export function registerUnreadSource(s: (pc: PageContext) => Promise<number>): v
   unreadSource = s;
 }
 
+/** Thông báo bảo trì của đội AdxLens (ADR-0013), hiện thêm trên banner hệ thống, theo ngôn ngữ người dùng. */
+async function maintenanceBanner(pc: PageContext): Promise<ReactNode> {
+  const n = await activeMaintenanceNotice(pc.ctx.db);
+  if (!n) return null;
+  return (
+    <div data-testid="maintenance-banner">
+      <Banner tone="info">{pc.user.locale === 'en' ? n.messageEn : n.messageVi}</Banner>
+    </div>
+  );
+}
+
 export async function getShellExtras(pc: PageContext): Promise<{ unread: number; banner: ReactNode }> {
-  const banner = await systemBanner(pc);
+  const [maintenance, banner] = await Promise.all([maintenanceBanner(pc), systemBanner(pc)]);
   const unread = unreadSource ? await unreadSource(pc) : await unreadCount(pc.ctx, pc.actor.userId);
-  return { unread, banner: banner ? <div className="px-4 pt-4">{banner}</div> : null };
+  return {
+    unread,
+    banner:
+      maintenance || banner ? (
+        <div className="flex flex-col gap-2 px-4 pt-4">
+          {maintenance}
+          {banner}
+        </div>
+      ) : null,
+  };
 }
