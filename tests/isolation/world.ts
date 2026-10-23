@@ -144,7 +144,7 @@ export async function seedWorld(db: Db) {
       afterExpected: { status: 'PAUSED' },
       afterState: { status: 'PAUSED' },
       status: 'success',
-      idempotencyKey: 'beta-action-secret',
+      idempotencyKey: `beta-action-${b.workspace.id}`,
     })
     .returning();
 
