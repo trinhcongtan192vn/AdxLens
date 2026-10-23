@@ -49,6 +49,25 @@ export async function seedWorld(db: Db) {
     metaId: '999000111',
     name: 'Beta Campaign Secret',
   });
+  // Creative + ad của B (P103): creative library của A không được thấy.
+  await db.insert(schema.entities).values([
+    {
+      workspaceId: b.workspace.id,
+      adAccountId: bAdAccount.id,
+      entityType: 'creative',
+      metaId: '999000333',
+      name: 'Beta Creative Secret',
+      attrs: { thumbnail_url: 'https://img.test/beta-creative-secret.jpg' },
+    },
+    {
+      workspaceId: b.workspace.id,
+      adAccountId: bAdAccount.id,
+      entityType: 'ad',
+      metaId: '999000111222',
+      name: 'Beta Ad Secret',
+      attrs: { creative_id: '999000333' },
+    },
+  ]);
   await db.insert(schema.insightsDaily).values({
     workspaceId: b.workspace.id,
     adAccountId: bAdAccount.id,
@@ -89,9 +108,9 @@ export async function seedWorld(db: Db) {
     })
     .returning();
 
-  // Cờ P0 bật cho A (qua core/flags, như PM bật) để probe chạy hết logic route sau cờ.
+  // Cờ P0/P1 bật cho A (qua core/flags, như PM bật) để probe chạy hết logic route sau cờ.
   const pm = await seedStaff(db, true);
-  for (const key of ['p0_reports'] as const) {
+  for (const key of ['p0_reports', 'p1_recommendations'] as const) {
     await enableFlag(db, {
       workspaceId: a.workspace.id,
       key,
@@ -236,6 +255,8 @@ export async function seedWorld(db: Db) {
       'cus_beta_secret',
       'sub_beta_secret',
       'Beta Billing Secret',
+      'Beta Creative Secret',
+      'beta-creative-secret',
       'beta-order-secret',
       'beta-invoice-secret@beta.vn',
     ],
