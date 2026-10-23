@@ -8,7 +8,8 @@ function keys(obj: unknown, prefix = ''): string[] {
 }
 
 function placeholders(s: string): string[] {
-  return [...s.matchAll(/\{(\w+)/g)].map((m) => m[1]!).sort();
+  // Chỉ biến ICU thật: `{ten}` hoặc `{ten, number|plural|select…}` (không tính chữ trong nhánh select).
+  return [...new Set([...s.matchAll(/\{(\w+)\s*[,}]/g)].map((m) => m[1]!))].sort();
 }
 
 describe('i18n vi/en', () => {

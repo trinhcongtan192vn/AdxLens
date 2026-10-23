@@ -5,3 +5,4 @@ export * from './playbooks';
 export * from './data-deletion';
 export * from './public-share';
 export * from './admin';
+export * from './report-schedules';

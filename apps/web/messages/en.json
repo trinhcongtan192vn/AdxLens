@@ -1138,7 +1138,7 @@
       "report_postponed": {
         "label": "Scheduled report postponed",
         "title": "Report to {client} postponed",
-        "body": "Reason: {reason}. Once fixed, it goes out on the next run."
+        "body": "Reason: {reason, select, unconfirmed {an account has no confirmed Client} reconciliation {figures differ from Ads Manager by more than 1%} connection_revoked {the Meta connection was disconnected} other {the report could not be built}}. Once fixed, it goes out on the next run."
       },
       "billing_failed": {
         "label": "Payment failed",
@@ -1149,6 +1149,16 @@
         "label": "Meta action failed",
         "title": "Meta action failed",
         "body": "{action}: {reason}. No change was kept."
+      },
+      "report_needs_approval": {
+        "label": "Scheduled report awaiting approval",
+        "title": "Report for {client} awaiting approval",
+        "body": "\"{report}\" was built on schedule and needs your approval before it goes to the client."
+      },
+      "weekly_digest": {
+        "label": "Weekly summary",
+        "title": "Weekly summary {week}",
+        "body": "{summary}"
       }
     },
     "settings": {
@@ -1160,6 +1170,76 @@
       "always": "Always on",
       "save": "Save",
       "saved": "Notification settings saved"
+    }
+  },
+  "schedules": {
+    "title": "Report schedules",
+    "link": "Schedules",
+    "add": "+ Add schedule",
+    "emptyTitle": "No schedules yet",
+    "emptyBody": "Send reports to clients automatically every week or month. Reports go out only when figures match Ads Manager and every account has a confirmed Client.",
+    "weekly": "Weekly, {weekday} at {hour}:00 ({timezone})",
+    "monthly": "Monthly, day {day} at {hour}:00 ({timezone})",
+    "weekdays": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    },
+    "modes": {
+      "auto": "Send automatically",
+      "approval": "Approve before sending"
+    },
+    "deliveries": {
+      "link": "Report link",
+      "pdf": "Link + PDF attachment"
+    },
+    "recipients": "Recipients",
+    "enabled": "On",
+    "disabled": "Off",
+    "edit": "Edit",
+    "delete": "Delete schedule",
+    "deleteConfirm": "Delete this schedule? Reports already sent are kept.",
+    "history": "Recent deliveries",
+    "noHistory": "Not run yet.",
+    "approve": "Approve & send",
+    "approved": "Approved, sending",
+    "status": {
+      "pending_approval": "Awaiting approval",
+      "approved": "Approved",
+      "sent": "Sent",
+      "postponed": "Postponed",
+      "failed": "Failed"
+    },
+    "reasons": {
+      "unconfirmed": "Account without confirmed Client",
+      "reconciliation": "Figures off by > 1%",
+      "connection_revoked": "Meta connection disconnected",
+      "build_failed": "Report could not be built"
+    },
+    "form": {
+      "titleNew": "Add schedule",
+      "titleEdit": "Edit schedule",
+      "client": "Client",
+      "cadence": "Frequency",
+      "cadences": {
+        "weekly": "Weekly",
+        "monthly": "Monthly"
+      },
+      "weekday": "Day",
+      "monthDay": "Day of month (1–28)",
+      "hour": "Send hour",
+      "timezone": "Time zone",
+      "mode": "Sending",
+      "delivery": "Email content",
+      "locale": "Report language",
+      "localeClient": "Client default",
+      "recipients": "Recipient emails (comma separated, up to 10)",
+      "save": "Save schedule",
+      "periodNote": "Each delivery covers the period that just ended (last week or last month)."
     }
   }
 }

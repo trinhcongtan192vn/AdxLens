@@ -1138,7 +1138,7 @@
       "report_postponed": {
         "label": "Báo cáo theo lịch bị hoãn",
         "title": "Hoãn gửi báo cáo cho {client}",
-        "body": "Lý do: {reason}. Xử lý xong, báo cáo sẽ gửi ở lần chạy tiếp theo."
+        "body": "Lý do: {reason, select, unconfirmed {có tài khoản chưa xác nhận gán Client} reconciliation {số liệu lệch hơn 1% so với Ads Manager} connection_revoked {kết nối Meta đã bị ngắt} other {không dựng được báo cáo}}. Xử lý xong, báo cáo sẽ gửi ở lần chạy tiếp theo."
       },
       "billing_failed": {
         "label": "Thanh toán không thành công",
@@ -1149,6 +1149,16 @@
         "label": "Hành động trên Meta thất bại",
         "title": "Hành động trên Meta thất bại",
         "body": "{action}: {reason}. Không có thay đổi nào được giữ lại."
+      },
+      "report_needs_approval": {
+        "label": "Báo cáo theo lịch chờ duyệt",
+        "title": "Báo cáo cho {client} chờ duyệt",
+        "body": "Báo cáo \"{report}\" đã dựng xong theo lịch và chờ bạn duyệt trước khi gửi khách."
+      },
+      "weekly_digest": {
+        "label": "Tổng kết tuần",
+        "title": "Tổng kết tuần {week}",
+        "body": "{summary}"
       }
     },
     "settings": {
@@ -1160,6 +1170,76 @@
       "always": "Luôn bật",
       "save": "Lưu",
       "saved": "Đã lưu cài đặt thông báo"
+    }
+  },
+  "schedules": {
+    "title": "Lịch gửi báo cáo",
+    "link": "Lịch gửi",
+    "add": "+ Thêm lịch",
+    "emptyTitle": "Chưa có lịch gửi",
+    "emptyBody": "Tự động gửi báo cáo cho khách hằng tuần hoặc hằng tháng. Báo cáo chỉ gửi khi số liệu khớp Ads Manager và mọi tài khoản đã xác nhận gán.",
+    "weekly": "Hằng tuần, {weekday} lúc {hour}:00 ({timezone})",
+    "monthly": "Hằng tháng, ngày {day} lúc {hour}:00 ({timezone})",
+    "weekdays": {
+      "1": "thứ Hai",
+      "2": "thứ Ba",
+      "3": "thứ Tư",
+      "4": "thứ Năm",
+      "5": "thứ Sáu",
+      "6": "thứ Bảy",
+      "7": "Chủ nhật"
+    },
+    "modes": {
+      "auto": "Gửi tự động",
+      "approval": "Cần duyệt trước khi gửi"
+    },
+    "deliveries": {
+      "link": "Link báo cáo",
+      "pdf": "Link + PDF đính kèm"
+    },
+    "recipients": "Người nhận",
+    "enabled": "Đang bật",
+    "disabled": "Đã tắt",
+    "edit": "Sửa",
+    "delete": "Xóa lịch",
+    "deleteConfirm": "Xóa lịch gửi này? Báo cáo đã gửi vẫn giữ nguyên.",
+    "history": "Lần gửi gần đây",
+    "noHistory": "Chưa chạy lần nào.",
+    "approve": "Duyệt & gửi",
+    "approved": "Đã duyệt, đang gửi",
+    "status": {
+      "pending_approval": "Chờ duyệt",
+      "approved": "Đã duyệt",
+      "sent": "Đã gửi",
+      "postponed": "Đã hoãn",
+      "failed": "Lỗi"
+    },
+    "reasons": {
+      "unconfirmed": "Có tài khoản chưa xác nhận gán",
+      "reconciliation": "Số liệu lệch > 1%",
+      "connection_revoked": "Kết nối Meta đã ngắt",
+      "build_failed": "Không dựng được báo cáo"
+    },
+    "form": {
+      "titleNew": "Thêm lịch gửi",
+      "titleEdit": "Sửa lịch gửi",
+      "client": "Client",
+      "cadence": "Tần suất",
+      "cadences": {
+        "weekly": "Hằng tuần",
+        "monthly": "Hằng tháng"
+      },
+      "weekday": "Thứ",
+      "monthDay": "Ngày trong tháng (1–28)",
+      "hour": "Giờ gửi",
+      "timezone": "Múi giờ",
+      "mode": "Cách gửi",
+      "delivery": "Nội dung email",
+      "locale": "Ngôn ngữ báo cáo",
+      "localeClient": "Theo Client",
+      "recipients": "Email người nhận (cách nhau bằng dấu phẩy, tối đa 10)",
+      "save": "Lưu lịch",
+      "periodNote": "Mỗi lần gửi là báo cáo của kỳ vừa kết thúc (tuần trước hoặc tháng trước)."
     }
   }
 }

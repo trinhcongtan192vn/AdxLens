@@ -15,6 +15,8 @@ export type WorkerServices = {
   email: EmailSender;
   /** URL gốc của web app (link trong email). */
   appUrl: string;
+  /** Gốc link báo cáo công khai (`PUBLIC_REPORT_URL`). */
+  publicReportUrl: string;
   /** LLM cho tóm tắt báo cáo; null khi không cấu hình ANTHROPIC_API_KEY (dùng tóm tắt mẫu). */
   llm: LlmClient | null;
   /** In trang nội bộ thành PDF A4 (Playwright). */

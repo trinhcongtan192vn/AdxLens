@@ -2,6 +2,26 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [024a] Lịch gửi báo cáo (R05): tự động / cần duyệt, hoãn khi chưa toàn vẹn, PDF đính kèm — 2026-10-23
+
+**Thay đổi**
+- DB: `app.report_schedules` (Client, hằng tuần theo thứ / hằng tháng ngày 1–28, giờ gửi theo múi giờ của lịch, tự động / cần duyệt, link / link + PDF, ngôn ngữ, người nhận), `app.report_deliveries` (mỗi lần chạy theo kỳ `2026-W43` / `2026-10`, duy nhất theo lịch + kỳ). RLS.
+- `packages/core/reporting/schedule.ts` (PRD P0-17, P0-24): kiểm cấu hình (email chuẩn hóa + bỏ trùng, ≤ 10; múi giờ hợp lệ), kỳ = tuần trước (thứ Hai–Chủ nhật) hoặc tháng trước theo múi giờ của lịch, `isDue` theo giờ địa phương. `runSchedule`: dựng báo cáo kỳ ngay trong job (không LLM số), kiểm toàn vẹn → **hoãn** (chưa xác nhận gán / lệch > 1% / kết nối ngắt / không dựng được) và báo account manager kèm lý do (bắt buộc, có email); cần duyệt → chờ duyệt + báo người lập lịch; tự động → link công khai hạn 30 ngày gửi từng người nhận (E04, tên agency, reply-to email báo cáo của agency, PDF đính kèm khi chọn) + báo "đã gửi". Idempotent theo kỳ. `approveDelivery` → đánh dấu đã duyệt và enqueue gửi lại (job kiểm toàn vẹn lần nữa, dùng lại báo cáo đã dựng).
+- Email hỗ trợ tệp đính kèm. Loại thông báo mới `report_needs_approval`; lý do hoãn hiển thị bằng chữ (vi/en).
+- Worker: `notify:scheduled_report` (kiểm cờ `p0_reports` ở đầu job; PDF qua trang in ký 10 phút), `maintenance:report_tick` mỗi giờ (lịch đến giờ → enqueue kỳ vừa kết thúc). `core/ops/report-schedules.ts` liệt kê lịch đang bật xuyên workspace (có chú thích lý do).
+- API (cờ `p0_reports`): `GET|POST /api/v1/report-schedules`, `PATCH|DELETE /api/v1/report-schedules/{id}`, `POST /api/v1/report-deliveries/{id}/approve`.
+- Giao diện R05 `/reports/schedules`: danh sách lịch (mô tả lịch, cách gửi, người nhận, lần gửi gần đây với trạng thái + lý do, "Duyệt & gửi"), thêm/sửa/xóa, trống. Nút "Lịch gửi" ở R01.
+
+**Test tự động**
+- `schedule.test.ts` (7): giờ chạy/kỳ tuần & tháng + múi giờ; kiểm cấu hình; tự động gửi đúng người nhận + link 30 ngày + thông báo + chạy lại bỏ qua; PDF đính kèm; chưa xác nhận gán → hoãn, không gửi khách, không tạo link, báo kèm lý do; cần duyệt → duyệt → gửi, không dựng lần hai.
+- API `schedules.test.ts` (2): cờ tắt 404; tạo/danh sách/sửa/xóa, buyer 403, dữ liệu sai 422.
+- Bộ cách ly: dữ liệu B có lịch + lần gửi; probe 5 route (+ tài nguyên B) và job `notify:scheduled_report` dùng lịch B.
+- **Test đổi:** `apps/web/src/i18n/messages.test.ts` — hàm lấy biến nội suy trước coi chữ trong nhánh ICU `select` là biến (ví dụ `{có…}`); nay chỉ lấy biến thật (`{ten}` / `{ten, …}`). Ý nghĩa kiểm tra giữ nguyên.
+
+**Vùng bảo vệ:** `packages/db/**` (2 bảng + RLS, migration 0027–0028).
+
+**PM kiểm tra:** (cờ báo cáo bật) Báo cáo → Lịch gửi → thêm lịch "Cần duyệt", giờ hiện tại → trong vòng 1 giờ (hoặc lệnh kích hoạt ở 024b) có lần gửi "Chờ duyệt" → Duyệt & gửi → Mailpit có email khách.
+
 ## [023] Thông báo: trung tâm thông báo (X05), cài đặt (ST05), email theo loại, E01 song ngữ — 2026-10-23
 
 **Thay đổi**

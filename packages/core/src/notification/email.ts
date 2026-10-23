@@ -8,6 +8,8 @@ export type EmailMessage = {
   /** Mặc định EMAIL_FROM; email báo cáo có thể dùng địa chỉ của agency (ST01). */
   from?: string;
   replyTo?: string;
+  /** Tệp đính kèm (PDF báo cáo theo lịch). */
+  attachments?: { filename: string; content: Uint8Array; contentType: string }[];
 };
 
 export type EmailSender = { send(msg: EmailMessage): Promise<void> };
@@ -35,6 +37,15 @@ export function smtpEmailSender(cfg: {
         html: msg.html,
         text: msg.text,
         ...(msg.replyTo ? { replyTo: msg.replyTo } : {}),
+        ...(msg.attachments?.length
+          ? {
+              attachments: msg.attachments.map((a) => ({
+                filename: a.filename,
+                content: Buffer.from(a.content),
+                contentType: a.contentType,
+              })),
+            }
+          : {}),
       });
     },
   };

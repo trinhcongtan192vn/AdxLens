@@ -101,7 +101,8 @@ export const JOBS = {
     queue: 'notify',
     workspaceScoped: true,
     schema: z.object({ ...ws, scheduleId: uuid, period: z.string() }),
-    jobId: (p) => `notify:schedule:${p.scheduleId}:${p.period}`,
+    // Theo phút: duyệt rồi gửi lại cùng kỳ không bị trùng job cũ; chống trùng kỳ nằm ở report_deliveries.
+    jobId: (p) => `notify:schedule:${p.scheduleId}:${p.period}:${Math.floor(Date.now() / 60_000)}`,
   }),
   'execute:action': def({
     queue: 'execute',
@@ -145,6 +146,13 @@ export const JOBS = {
     workspaceScoped: false,
     schema: z.object({ tick: z.string() }),
     jobId: (p) => `daily_sync:${p.tick}`,
+  }),
+  // Mỗi giờ: lịch gửi báo cáo đến giờ (theo múi giờ của lịch) → enqueue `notify:scheduled_report`.
+  'maintenance:report_tick': def({
+    queue: 'maintenance',
+    workspaceScoped: false,
+    schema: z.object({ tick: z.string() }),
+    jobId: (p) => `report_tick:${p.tick}`,
   }),
   'maintenance:daily_tick': def({
     queue: 'maintenance',

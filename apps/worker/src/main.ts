@@ -45,6 +45,7 @@ const services: WorkerServices = {
     from: env.EMAIL_FROM,
   }),
   appUrl: env.APP_URL,
+  publicReportUrl: env.PUBLIC_REPORT_URL,
   renderPdf,
   uploadReport: (path, bytes) => {
     if (!env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('Thiếu SUPABASE_SERVICE_ROLE_KEY');
