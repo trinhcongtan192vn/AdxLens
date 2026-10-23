@@ -288,6 +288,13 @@
       "when": 1792731134752,
       "tag": "0040_rls_recommendations",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1792731998696,
+      "tag": "0041_membership_onboarded",
+      "breakpoints": true
     }
   ]
 }

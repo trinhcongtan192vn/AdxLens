@@ -56,6 +56,8 @@ export const memberships = app.table(
       .array()
       .notNull()
       .default(sql`'{}'::uuid[]`),
+    /** A08 (P1-11): thời điểm người dùng đóng màn chào mừng theo vai trò. */
+    onboardedAt: tsz('onboarded_at'),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

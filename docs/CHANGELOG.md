@@ -2,6 +2,22 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [032] Kết quả trước / sau (P105), onboarding media buyer (A08) — 2026-10-23
+
+**Thay đổi**
+- `packages/core/recommendation/outcomes.ts` (P1-08): `listOutcomes` so chỉ số chính 7 ngày trước / 7 ngày sau ngày "Đã làm" (múi giờ tài khoản, bỏ ngày làm); chỉ số và phạm vi theo loại gợi ý (bảng ở `docs/rules/weekly-actions.md`); trạng thái chờ đủ ngày / không đo; % thay đổi có dấu tính bằng thập phân; buyer chỉ thấy Client được gán.
+- `recommendation/onboarding.ts` (P1-11): `buyerOnboarding` (Client được giao, số việc tuần này, việc gán cho mình) và `dismissOnboarding`. DB: `memberships.onboarded_at` (migration 0041).
+- API: `GET /recommendations/outcomes`, `DELETE /me/onboarding` — kiểm cờ `p1_recommendations`.
+- Trang P105 `/weekly-actions/results` (banner giới hạn nhân quả, trạng thái chờ / không đo, thay đổi tô màu theo hướng tốt); link từ P101. A08 `/welcome`: buyer mở Tổng quan lần đầu khi cờ Gợi ý bật → màn chào mừng, không cần cấu hình; "Bắt đầu" hoặc "Xem creative" đóng màn.
+
+**Test tự động**
+- `recommendation/outcomes.test.ts` (6): % có dấu; CPA cấp tài khoản giảm → cải thiện, bỏ ngày làm; CTR đúng ad giảm → không cải thiện; chờ đủ 7 ngày / không đo / chỉ việc đã làm; buyer + cách ly; onboarding chỉ cho buyer, đóng rồi không hiện.
+- `recommendations.test.ts` (+1, + cờ tắt cho 2 route mới). Bộ cách ly: probe 2 route. E2E `creatives.spec.ts` (+ P105). A08 chưa có E2E riêng (cần luồng mời buyer) — có test core + route.
+
+**Vùng bảo vệ:** `packages/db/**` (1 cột, migration 0041).
+
+**PM kiểm tra:** Việc tuần này → đánh dấu "Đã làm" → "Kết quả trước / sau" hiện "chờ … ngày". Mời một buyer (gán Client), đăng nhập bằng buyer khi cờ Gợi ý bật → màn chào mừng.
+
 ## [031] Weekly Action List (P101–P102), trạng thái + gán việc, thông báo cho media buyer, checklist cờ P1 — 2026-10-23
 
 **Thay đổi**

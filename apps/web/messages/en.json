@@ -1440,6 +1440,47 @@
     "actions": {
       "creative_loser": "Pause or reduce delivery for the losing creative ({ads} ads)",
       "creative_winner": "Shift more delivery to the winning creative"
-    }
+    },
+    "results": "Before / after results →"
+  },
+  "outcomes": {
+    "title": "Before / after results",
+    "causality": "Compares the 7 days before and the 7 days after the day an action was marked \"Done\" (that day excluded). This is not proof of cause: seasonality, budgets and other changes also move the numbers.",
+    "cols": {
+      "item": "Completed action",
+      "doneOn": "Done on",
+      "metric": "Measured by",
+      "before": "7 days before",
+      "after": "7 days after",
+      "change": "Change"
+    },
+    "metric": {
+      "cpa": "Cost / result",
+      "ctr": "CTR",
+      "results": "Results",
+      "spend": "Spend"
+    },
+    "scope": {
+      "entity": "item",
+      "account": "whole account"
+    },
+    "waiting": "Needs 7 days after; results from {date}",
+    "notMeasured": "Not measured",
+    "notMeasuredBody": "This action type has no before / after metric.",
+    "emptyTitle": "No actions marked \"Done\" yet",
+    "emptyBody": "Mark actions \"Done\" in This week's actions to follow their results."
+  },
+  "welcome": {
+    "title": "Hi {name}, get started with AdxLens",
+    "intro": "Nothing to set up. AdxLens already reads the ad accounts you handle and prepares your weekly actions.",
+    "clientsTitle": "Your clients",
+    "client": "{name} · {count} accounts",
+    "noClients": "No clients assigned yet. Ask the owner to assign clients to you.",
+    "howTitle": "Your week",
+    "step1": "Open \"This week's actions\": {count} waiting, ranked by impact.",
+    "step2": "Assigned to you: {count}. Update the status when done.",
+    "step3": "Check \"Creatives\" for winners, losers and creatives about to fatigue.",
+    "start": "Start with this week",
+    "creatives": "View creatives"
   }
 }

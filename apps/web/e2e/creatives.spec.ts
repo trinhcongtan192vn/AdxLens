@@ -54,4 +54,12 @@ test('P103 creative library → P104 so sánh (sau cờ Gợi ý)', async ({ pag
   await rows.first().getByRole('button').first().click();
   await expect(page.getByRole('dialog', { name: 'Chi tiết gợi ý' })).toBeVisible();
   await expect(page.getByText('Vì sao')).toBeVisible();
+
+  // P105: việc vừa "Đã làm" → hiện ở Kết quả trước / sau, kèm lưu ý nhân quả.
+  await page.keyboard.press('Escape');
+  await rows.first().getByRole('combobox', { name: 'Trạng thái' }).selectOption('done');
+  await expect(page.getByText('Đã lưu').first()).toBeVisible();
+  await page.getByRole('link', { name: 'Kết quả trước / sau →' }).click();
+  await expect(page.getByText(/không phải bằng chứng nhân quả/)).toBeVisible();
+  await expect(page.getByTestId('outcome-row')).toHaveCount(1);
 });
