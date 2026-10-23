@@ -2,6 +2,26 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [050–053] Admin: thanh toán, xóa dữ liệu, thực thi, hệ thống, thông báo bảo trì, mẫu email — 2026-10-23
+
+**Thay đổi** (ADR-0013 mục 6–7)
+- **Thanh toán** `/admin/billing`: bảng gói (giá VND / USD, tài khoản kèm, phí vượt, quyền — quyền chỉ xem); superadmin **Sửa** (tiền là chuỗi số nguyên đồng, không float; lần đầu sửa tạo dòng `billing_plans` từ mặc định). Workspace quá hạn / vượt hạn mức, 50 đơn PayOS và 50 sự kiện webhook gần nhất (không trả link thanh toán hay mã khách của nhà cung cấp). Ở `/admin/workspaces/<id>`: **Đặt gói thủ công** (chỉ khi không thanh toán qua Stripe / PayOS) và **Gia hạn ân hạn** 1–14 ngày (lùi mốc bắt đầu ân hạn).
+- **Xóa dữ liệu** `/admin/deletions`: mọi yêu cầu xóa (mã, nguồn, trạng thái, hạn xóa); **quá hạn** khi qua hạn > 1 ngày mà chưa xong, nổi lên đầu.
+- **Thực thi** `/admin/execution`: số hành động 7 ngày theo trạng thái, hành động thất bại gần đây, **breaker đang mở** (superadmin **Đóng breaker**, bắt buộc lý do — `core/execution/controls.ts` `closeBreakerByStaff`, không gọi Meta, ghi audit của workspace + nhật ký admin), rule đang chạy thật.
+- **Hệ thống** `/admin/system`: phiên bản, kiểm thực thi của phiên bản, sự cố mở theo mức, smoke sau deploy gần nhất, **lịch định kỳ** (lần chạy kế tiếp; "Trễ" khi quá 5 phút → worker có thể dừng). **Kênh cảnh báo đội**: superadmin đặt email nhận (tối đa 20) — web và worker gộp với `OPS_ALERT_EMAILS` lúc gửi; Slack chỉ hiện đã / chưa cấu hình. **Thông báo bảo trì**: vi + en, tự tắt theo giờ, hiện banner trong app cho mọi khách (`app.system_settings`, migration 0053–0054).
+- **Mẫu email** `/admin/emails`: xem trước mọi mẫu (lời mời, token sắp hết hạn, xóa dữ liệu, digest, báo cáo theo lịch, mọi email thông báo) vi / en bằng dữ liệu mẫu cố định, trong iframe `sandbox` (không chạy script). Không gửi email.
+- Thanh điều hướng admin xuống dòng khi hẹp (13 mục).
+
+**Test tự động**
+- `packages/core/src/ops/admin-extra.test.ts`: sửa giá (chuỗi số, float → 422, quyền gói giữ nguyên), operator → 403; tặng gói bị chặn khi đang thanh toán qua cổng; gia hạn ân hạn đúng số ngày, ngoài 1–14 → 422, không có ân hạn → 409; yêu cầu xóa quá hạn; breaker: operator 403, lý do bắt buộc, đóng rồi → 404; email cảnh báo gộp / bỏ trùng; bảo trì cần đủ vi / en, tự hết hạn; lịch trễ; mọi mẫu email dựng được.
+- `apps/web/src/app/api/v1/admin/admin-extra.test.ts`: người ngoài 404 ở 10 route; operator xem được, 5 thao tác ghi → 403; superadmin sửa giá / tặng gói / bật bảo trì; trang hệ thống không lộ Slack webhook.
+- E2E `admin-ops.spec.ts`: tra cứu theo email → chi tiết; các trang vận hành / đối chiếu / thực thi / xóa dữ liệu; sửa gói; bật bảo trì → **khách thấy banner** → tắt → banner mất; mẫu email; nhật ký.
+- Bộ cách ly: 10 route mới khai báo `exempt` có lý do.
+
+**Vùng bảo vệ:** `packages/db/**` (migration 0053–0054 `system_settings` + RLS), `packages/core/execution/**` (thêm `closeBreakerByStaff`: chỉ đặt lại breaker như `closeBreaker` của khách, không gọi Meta, không nới guardrail — **cần PM chạy staging** theo quy trình execution).
+
+**PM kiểm tra:** `/admin/system` → Thông báo bảo trì → bật → mở app bằng tài khoản khách thấy banner → tắt. `/admin/billing` → Sửa gói → `/pricing` thấy giá mới. `/admin/emails` xem từng mẫu.
+
 ## [049] Admin: bảng đối chiếu toàn hệ thống — 2026-10-23
 
 **Thay đổi**

@@ -56,6 +56,20 @@ export function queueAdmin(): QueueAdmin {
       await j.retry('failed');
       return true;
     },
+    schedules: async () =>
+      (
+        await Promise.all(
+          Object.keys(QUEUES).map(async (name) =>
+            (await queue(name)!.getJobSchedulers()).map((s) => ({
+              queue: name,
+              name: s.name,
+              pattern: s.pattern ?? null,
+              everyMs: s.every ? Number(s.every) : null,
+              next: s.next ? new Date(s.next) : null,
+            })),
+          ),
+        )
+      ).flat(),
     remove: async (name, id) => {
       const j = await queue(name)?.getJob(id);
       if (!j || !(await j.isFailed())) return false;

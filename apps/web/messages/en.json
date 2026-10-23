@@ -1111,7 +1111,12 @@
       "audit": "Admin log",
       "workspaces": "Workspaces",
       "operations": "Operations",
-      "reconciliation": "Reconciliation"
+      "reconciliation": "Reconciliation",
+      "execution": "Execution",
+      "billing": "Billing",
+      "deletions": "Data deletion",
+      "system": "System",
+      "emails": "Email templates"
     },
     "flags": {
       "title": "Feature flag matrix",
@@ -1244,7 +1249,14 @@
         "kill_switch_off": "Global kill switch off",
         "sync_resync": "Re-sync",
         "queue_retry": "Retry failed job",
-        "queue_discard": "Discard failed job"
+        "queue_discard": "Discard failed job",
+        "billing_plan_update": "Edit plan",
+        "billing_comp_plan": "Set plan manually",
+        "billing_extend_grace": "Extend grace",
+        "execution_breaker_close": "Close breaker",
+        "settings_alert_emails": "Change alert emails",
+        "settings_maintenance_on": "Turn on maintenance notice",
+        "settings_maintenance_off": "Turn off maintenance notice"
       }
     },
     "workspaces": {
@@ -1279,7 +1291,13 @@
         "accounts": "Active accounts / limit",
         "overLimit": "Over limit",
         "periodEnd": "Period ends",
-        "grace": "Grace until"
+        "grace": "Grace until",
+        "comp": "Set plan manually",
+        "compTitle": "Set plan manually for {workspace}",
+        "extendGrace": "Extend grace",
+        "extendTitle": "Extend grace for {workspace}",
+        "days": "Days (1–14)",
+        "saved": "Plan updated"
       },
       "cols": {
         "name": "Workspace",
@@ -1372,6 +1390,139 @@
         "maxResults": "Max results delta",
         "state": "State",
         "lastChecked": "Last reconciled"
+      }
+    },
+    "reasonRequired": "Reason (required, ≥ 5 characters)",
+    "billing": {
+      "title": "Billing",
+      "plansTitle": "Plans",
+      "defaultConfig": "code default",
+      "edit": "Edit",
+      "editTitle": "Edit plan {plan}",
+      "saved": "Plan saved",
+      "entitlementsNote": "Plan entitlements are read-only: one-click approval / automation need Growth or higher (PM decision), not changed here.",
+      "attentionTitle": "Needs attention: past due or over limit ({count})",
+      "attentionEmpty": "No workspace is past due or over limit.",
+      "pastDue": "Past due",
+      "overLimit": "Over limit",
+      "ordersTitle": "Recent PayOS orders",
+      "eventsTitle": "Recent webhook events",
+      "none": "None yet.",
+      "cols": {
+        "plan": "Plan",
+        "priceVnd": "Price/month (VND)",
+        "priceUsd": "Price/month (USD)",
+        "included": "Included accounts",
+        "extra": "Extra account fee (VND)",
+        "entitlements": "Entitlements",
+        "workspace": "Workspace",
+        "status": "Status",
+        "since": "Since",
+        "order": "Order",
+        "amount": "Amount",
+        "at": "At",
+        "event": "Event"
+      }
+    },
+    "deletions": {
+      "title": "Data deletion requests",
+      "body": "Track the committed deletion deadline (Meta policy). The worker deletes on time; requests overdue by more than a day need a check (data-deletion runbook).",
+      "overdueCount": "{count} overdue requests",
+      "empty": "No data deletion requests yet.",
+      "deletedWorkspace": "(deleted workspace)",
+      "overdue": "Overdue",
+      "cols": {
+        "code": "Code",
+        "workspace": "Workspace",
+        "source": "Source",
+        "status": "Status",
+        "purgeAfter": "Purge by",
+        "completed": "Completed"
+      }
+    },
+    "execution": {
+      "title": "Execution on Meta",
+      "last7": "Last 7 days, all workspaces",
+      "status": {
+        "success": "Succeeded",
+        "failed": "Failed",
+        "pending": "Pending",
+        "undone": "Undone",
+        "canceled": "Canceled"
+      },
+      "breakersTitle": "Open breakers ({count})",
+      "breakersEmpty": "No open breakers.",
+      "closeBreaker": "Close breaker",
+      "closeTitle": "Close breaker of {account} (allows writes to Meta again)",
+      "closed": "Breaker closed",
+      "superOnly": "Superadmin only",
+      "failedTitle": "Recent failed actions",
+      "liveTitle": "Live rules ({count})",
+      "none": "None.",
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Ad account",
+        "failures": "Consecutive failures",
+        "openedAt": "Opened",
+        "action": "Action",
+        "result": "Result code",
+        "rule": "Rule",
+        "liveSince": "Live since"
+      }
+    },
+    "system": {
+      "title": "System",
+      "healthTitle": "Health",
+      "version": "Version",
+      "executionCheck": "Execution check (this version)",
+      "passed": "Passed",
+      "failed": "Failed",
+      "notRun": "Not run",
+      "incidents": "Open incidents",
+      "smoke": "Post-deploy smoke",
+      "smokeOk": "Passed",
+      "smokeFailed": "Failed",
+      "smokeNone": "No failure recorded",
+      "alertsTitle": "Team alert channels",
+      "edit": "Edit",
+      "saved": "Saved",
+      "emailsLabel": "Alert emails (one per line, max 20)",
+      "emails": "Emails (set here)",
+      "envEmails": "OPS_ALERT_EMAILS (environment)",
+      "slack": "Slack webhook",
+      "configured": "Configured",
+      "notConfigured": "Not configured",
+      "yes": "Yes",
+      "no": "No",
+      "alertsNote": "High and medium severity incidents go to both these emails and OPS_ALERT_EMAILS. The Slack webhook is a secret, so it is set through environment variables only.",
+      "maintenanceTitle": "Maintenance notice",
+      "maintenanceActive": "Show to every customer",
+      "messageVi": "Vietnamese text",
+      "messageEn": "English text",
+      "endsAt": "Turn off at (empty = until turned off)",
+      "maintenanceOn": "Showing",
+      "maintenanceOff": "No maintenance notice.",
+      "until": "until {at}",
+      "untilOff": "until turned off",
+      "schedulesTitle": "Schedules",
+      "redisDown": "Cannot read Redis.",
+      "every": "every {minutes} min",
+      "late": "Late — worker may be down",
+      "cols": {
+        "job": "Job",
+        "when": "Schedule",
+        "next": "Next run"
+      }
+    },
+    "emails": {
+      "title": "Email templates",
+      "body": "Preview every email template with fixed sample data (not customer data). No email is sent.",
+      "keys": {
+        "invitation": "Member invitation",
+        "connection_expiring": "Meta connection expiring",
+        "data_deletion": "Data deletion",
+        "digest": "Weekly digest",
+        "scheduled_report": "Scheduled report"
       }
     }
   },

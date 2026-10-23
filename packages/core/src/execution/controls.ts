@@ -1,8 +1,14 @@
 import { and, eq } from 'drizzle-orm';
-import { schema } from '@adxlens/db';
+import { schema, type Db } from '@adxlens/db';
 import { listAdAccounts } from '@adxlens/core/connections';
 import { onFlagDisabled, registerFlagCheck } from '@adxlens/core/flags';
-import { getGlobalKillSwitch, latestExecutionCheck } from '@adxlens/core/ops';
+import {
+  assertSuperadmin,
+  getGlobalKillSwitch,
+  latestExecutionCheck,
+  recordAdminAction,
+  type StaffActor,
+} from '@adxlens/core/ops';
 import { AppError, systemClock, type ActorCtx, type Clock } from '@adxlens/core/shared';
 import { assertCan } from '@adxlens/core/tenancy';
 import { effectiveGuardrails } from './guardrails';
@@ -79,6 +85,48 @@ export async function closeBreaker(ctx: ActorCtx, adAccountId: string, clock: Cl
     actorUserId: ctx.actor.userId,
     event: 'circuit_breaker.closed',
     detail: { adAccountId },
+  });
+}
+
+/**
+ * Đội AdxLens đóng breaker từ trang admin (ADR-0013: chỉ superadmin, bắt buộc lý do — đóng breaker cho phép ghi Meta
+ * lại). Như `closeBreaker` của khách: đặt lại số lỗi liên tiếp, `closed_by` = staff, sự kiện kiểm toán của workspace và
+ * nhật ký admin. Không gọi Meta.
+ */
+export async function closeBreakerByStaff(
+  db: Db,
+  actor: StaffActor,
+  input: { workspaceId: string; adAccountId: string; reason: string },
+  clock: Clock = systemClock,
+): Promise<void> {
+  assertSuperadmin(actor, 'Chỉ superadmin đóng breaker');
+  const reason = input.reason.trim();
+  if (reason.length < 5) throw new AppError('VALIDATION_FAILED', 'Cần nhập lý do (≥ 5 ký tự)');
+  const rows = await db
+    .update(circuitBreakers)
+    .set({ open: false, consecutiveFailures: 0, closedBy: actor.userId, closedAt: clock.now() })
+    .where(
+      and(
+        eq(circuitBreakers.workspaceId, input.workspaceId),
+        eq(circuitBreakers.adAccountId, input.adAccountId),
+        eq(circuitBreakers.open, true),
+      ),
+    )
+    .returning({ id: circuitBreakers.adAccountId });
+  if (!rows.length) throw new AppError('NOT_FOUND', 'Không tìm thấy breaker đang mở');
+  await db.insert(auditEvents).values({
+    workspaceId: input.workspaceId,
+    actorUserId: actor.userId,
+    event: 'circuit_breaker.closed',
+    detail: { adAccountId: input.adAccountId, by: 'staff' },
+  });
+  await recordAdminAction(db, {
+    actorUserId: actor.userId,
+    action: 'execution.breaker_close',
+    targetType: 'ad_account',
+    targetId: input.adAccountId,
+    workspaceId: input.workspaceId,
+    reason,
   });
 }
 

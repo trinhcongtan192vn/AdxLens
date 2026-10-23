@@ -52,6 +52,7 @@ function fakeQueues(): QueueAdmin & { calls: string[] } {
     ],
     retry: async (q, id) => (calls.push(`retry ${q}:${id}`), id === 'j1'),
     remove: async (q, id) => (calls.push(`remove ${q}:${id}`), id === 'j1'),
+    schedules: async () => [],
   };
 }
 

@@ -23,7 +23,9 @@ Trang `/admin` (AD01–AD04) có một loại staff với cờ `can_enable_flags
    | Kill switch toàn cục: bật | ✅ | ✅ (dừng khẩn cấp) |
    | Kill switch toàn cục: tắt | ✅ | ❌ |
    | Sửa gói / giá, tặng gói, gia hạn ân hạn | ✅ | ❌ |
-   | Xem, chạy lại đồng bộ, retry job, đóng breaker | ✅ | ✅ |
+   | Xem, chạy lại đồng bộ, retry / bỏ job lỗi | ✅ | ✅ |
+   | Đóng circuit breaker (cho phép ghi Meta lại) | ✅ | ❌ (chặt hơn bản đầu: an toàn thực thi) |
+   | Email cảnh báo đội, thông báo bảo trì | ✅ | ❌ |
 
    Không được còn 0 superadmin (không gỡ / hạ vai trò superadmin cuối cùng; không tự hạ vai trò mình).
 3. **Đề xuất bật cờ** (`app.flag_proposals`, trong `core/flags`): operator tạo (workspace, cờ, lý do); superadmin
@@ -34,6 +36,9 @@ Trang `/admin` (AD01–AD04) có một loại staff với cờ `can_enable_flags
    nào, hành động, đối tượng, workspace (nếu có), lý do, chi tiết. Không ghi token, body request hay dữ liệu quảng cáo.
 5. Truy vấn xuyên workspace của trang admin chỉ ở `packages/core/ops`, có ghi chú lý do; route `auth: 'staff'` được
    khai báo trong bộ test cách ly (exempt có lý do + test riêng chặn người không phải staff).
+
+6. **Cấu hình vận hành** (`app.system_settings`): email nhận cảnh báo đội (gộp với `OPS_ALERT_EMAILS`) và thông báo bảo trì (vi + en, hiện cho mọi khách, tự tắt theo giờ). Slack webhook là secret → vẫn chỉ ở biến môi trường.
+7. **Thanh toán:** superadmin sửa giá / số tài khoản kèm / phí vượt (tiền dạng chuỗi số nguyên, numeric); **quyền của gói không sửa từ admin** (P2 cần Growth+). Đặt gói thủ công chỉ khi workspace không thanh toán qua cổng. Gia hạn ân hạn 1–14 ngày mỗi lần (không đổi chính sách 7 ngày).
 
 ## Không làm
 - Không sửa guardrails mặc định, ngưỡng đối chiếu 1%, ngưỡng rule audit từ admin (chỉ xem).

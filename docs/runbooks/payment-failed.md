@@ -13,3 +13,7 @@
 
 ## 3. Không làm
 - Không đổi gói trực tiếp trong DB production; không nới ân hạn ngoài ADR.
+
+## Ở trang admin
+- `/admin/billing`: workspace quá hạn / vượt hạn mức, đơn PayOS và sự kiện webhook gần đây.
+- Hỗ trợ khách (superadmin, bắt buộc lý do, ghi `/admin/audit`): `/admin/workspaces/<id>` → **Gia hạn ân hạn** 1–14 ngày, hoặc **Đặt gói thủ công** khi khách không thanh toán qua cổng (design partner, chuyển khoản tay).

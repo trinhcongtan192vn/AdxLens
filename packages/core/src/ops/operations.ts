@@ -123,6 +123,13 @@ export async function metaApiUsage(db: DbOrTx, opts: { minutes?: number } = {}, 
 // ---------- Hàng đợi BullMQ ----------
 
 export type QueueCounts = { queue: string; waiting: number; active: number; delayed: number; failed: number };
+export type ScheduleInfo = {
+  queue: string;
+  name: string;
+  pattern: string | null;
+  everyMs: number | null;
+  next: Date | null;
+};
 export type FailedJob = { id: string; name: string; reason: string | null; attempts: number; failedAt: Date | null };
 
 /** Cổng tới BullMQ (web cài bản thật, test cài bản giả). Không bao giờ trả payload của job. */
@@ -131,6 +138,8 @@ export interface QueueAdmin {
   failed(queue: string, limit: number): Promise<FailedJob[]>;
   retry(queue: string, jobId: string): Promise<boolean>;
   remove(queue: string, jobId: string): Promise<boolean>;
+  /** Lịch định kỳ (BullMQ job scheduler) và lần chạy kế tiếp. */
+  schedules(): Promise<ScheduleInfo[]>;
 }
 
 /** Queue có lời gọi GHI lên Meta: không bao giờ chạy lại (ADR-0008: ghi không retry, kiểm tay trên Ads Manager). */

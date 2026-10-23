@@ -1111,7 +1111,12 @@
       "audit": "Nhật ký admin",
       "workspaces": "Workspace",
       "operations": "Vận hành",
-      "reconciliation": "Đối chiếu"
+      "reconciliation": "Đối chiếu",
+      "execution": "Thực thi",
+      "billing": "Thanh toán",
+      "deletions": "Xóa dữ liệu",
+      "system": "Hệ thống",
+      "emails": "Mẫu email"
     },
     "flags": {
       "title": "Ma trận cờ tính năng",
@@ -1244,7 +1249,14 @@
         "kill_switch_off": "Tắt kill switch toàn cục",
         "sync_resync": "Chạy lại đồng bộ",
         "queue_retry": "Chạy lại job lỗi",
-        "queue_discard": "Bỏ job lỗi"
+        "queue_discard": "Bỏ job lỗi",
+        "billing_plan_update": "Sửa gói",
+        "billing_comp_plan": "Đặt gói thủ công",
+        "billing_extend_grace": "Gia hạn ân hạn",
+        "execution_breaker_close": "Đóng breaker",
+        "settings_alert_emails": "Đổi email cảnh báo",
+        "settings_maintenance_on": "Bật thông báo bảo trì",
+        "settings_maintenance_off": "Tắt thông báo bảo trì"
       }
     },
     "workspaces": {
@@ -1279,7 +1291,13 @@
         "accounts": "Tài khoản active / hạn mức",
         "overLimit": "Vượt hạn mức",
         "periodEnd": "Hết kỳ",
-        "grace": "Ân hạn đến"
+        "grace": "Ân hạn đến",
+        "comp": "Đặt gói thủ công",
+        "compTitle": "Đặt gói thủ công cho {workspace}",
+        "extendGrace": "Gia hạn ân hạn",
+        "extendTitle": "Gia hạn ân hạn cho {workspace}",
+        "days": "Số ngày (1–14)",
+        "saved": "Đã cập nhật gói"
       },
       "cols": {
         "name": "Workspace",
@@ -1372,6 +1390,139 @@
         "maxResults": "Lệch kết quả lớn nhất",
         "state": "Trạng thái",
         "lastChecked": "Đối chiếu gần nhất"
+      }
+    },
+    "reasonRequired": "Lý do (bắt buộc, ≥ 5 ký tự)",
+    "billing": {
+      "title": "Thanh toán",
+      "plansTitle": "Gói",
+      "defaultConfig": "mặc định trong code",
+      "edit": "Sửa",
+      "editTitle": "Sửa gói {plan}",
+      "saved": "Đã lưu gói",
+      "entitlementsNote": "Quyền của từng gói chỉ xem: Duyệt 1 click / Tự động hóa cần Growth trở lên (quyết định PM), không đổi ở đây.",
+      "attentionTitle": "Cần chú ý: quá hạn hoặc vượt hạn mức ({count})",
+      "attentionEmpty": "Không có workspace quá hạn hay vượt hạn mức.",
+      "pastDue": "Quá hạn",
+      "overLimit": "Vượt hạn mức",
+      "ordersTitle": "Đơn PayOS gần đây",
+      "eventsTitle": "Sự kiện webhook gần đây",
+      "none": "Chưa có.",
+      "cols": {
+        "plan": "Gói",
+        "priceVnd": "Giá/tháng (VND)",
+        "priceUsd": "Giá/tháng (USD)",
+        "included": "Tài khoản kèm gói",
+        "extra": "Phí tài khoản vượt (VND)",
+        "entitlements": "Quyền",
+        "workspace": "Workspace",
+        "status": "Trạng thái",
+        "since": "Từ",
+        "order": "Đơn",
+        "amount": "Số tiền",
+        "at": "Lúc",
+        "event": "Sự kiện"
+      }
+    },
+    "deletions": {
+      "title": "Yêu cầu xóa dữ liệu",
+      "body": "Theo dõi hạn cam kết xóa dữ liệu (chính sách Meta). Worker tự xóa khi tới hạn; quá hạn > 1 ngày mà chưa xong cần kiểm tra (runbook data-deletion).",
+      "overdueCount": "{count} yêu cầu quá hạn",
+      "empty": "Chưa có yêu cầu xóa dữ liệu.",
+      "deletedWorkspace": "(workspace đã xóa)",
+      "overdue": "Quá hạn",
+      "cols": {
+        "code": "Mã",
+        "workspace": "Workspace",
+        "source": "Nguồn",
+        "status": "Trạng thái",
+        "purgeAfter": "Hạn xóa",
+        "completed": "Xong lúc"
+      }
+    },
+    "execution": {
+      "title": "Thực thi trên Meta",
+      "last7": "7 ngày gần nhất, mọi workspace",
+      "status": {
+        "success": "Thành công",
+        "failed": "Thất bại",
+        "pending": "Đang chờ",
+        "undone": "Đã hoàn tác",
+        "canceled": "Đã hủy"
+      },
+      "breakersTitle": "Breaker đang mở ({count})",
+      "breakersEmpty": "Không có breaker nào đang mở.",
+      "closeBreaker": "Đóng breaker",
+      "closeTitle": "Đóng breaker của {account} (cho phép ghi Meta lại)",
+      "closed": "Đã đóng breaker",
+      "superOnly": "Chỉ superadmin",
+      "failedTitle": "Hành động thất bại gần đây",
+      "liveTitle": "Rule đang chạy thật ({count})",
+      "none": "Không có.",
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Tài khoản QC",
+        "failures": "Lỗi liên tiếp",
+        "openedAt": "Mở lúc",
+        "action": "Hành động",
+        "result": "Mã kết quả",
+        "rule": "Rule",
+        "liveSince": "Chạy thật từ"
+      }
+    },
+    "system": {
+      "title": "Hệ thống",
+      "healthTitle": "Sức khỏe",
+      "version": "Phiên bản",
+      "executionCheck": "Kiểm thực thi (phiên bản này)",
+      "passed": "Đạt",
+      "failed": "Lỗi",
+      "notRun": "Chưa chạy",
+      "incidents": "Sự cố đang mở",
+      "smoke": "Smoke sau deploy",
+      "smokeOk": "Đạt",
+      "smokeFailed": "Lỗi",
+      "smokeNone": "Chưa có lỗi nào được ghi",
+      "alertsTitle": "Kênh cảnh báo đội",
+      "edit": "Sửa",
+      "saved": "Đã lưu",
+      "emailsLabel": "Email nhận cảnh báo (mỗi dòng một email, tối đa 20)",
+      "emails": "Email (đặt ở đây)",
+      "envEmails": "OPS_ALERT_EMAILS (môi trường)",
+      "slack": "Slack webhook",
+      "configured": "Đã cấu hình",
+      "notConfigured": "Chưa cấu hình",
+      "yes": "Có",
+      "no": "Không",
+      "alertsNote": "Sự cố mức cao và trung bình gửi tới cả email đặt ở đây và OPS_ALERT_EMAILS. Slack webhook là secret nên chỉ đặt qua biến môi trường.",
+      "maintenanceTitle": "Thông báo bảo trì",
+      "maintenanceActive": "Hiện cho mọi khách",
+      "messageVi": "Nội dung tiếng Việt",
+      "messageEn": "Nội dung tiếng Anh",
+      "endsAt": "Tự tắt lúc (để trống = đến khi tắt)",
+      "maintenanceOn": "Đang hiện",
+      "maintenanceOff": "Không có thông báo bảo trì.",
+      "until": "đến {at}",
+      "untilOff": "đến khi tắt",
+      "schedulesTitle": "Lịch định kỳ",
+      "redisDown": "Không đọc được Redis.",
+      "every": "mỗi {minutes} phút",
+      "late": "Trễ — worker có thể đang dừng",
+      "cols": {
+        "job": "Job",
+        "when": "Lịch",
+        "next": "Lần chạy kế tiếp"
+      }
+    },
+    "emails": {
+      "title": "Mẫu email",
+      "body": "Xem trước mọi mẫu email bằng dữ liệu mẫu cố định (không phải dữ liệu khách). Không gửi email.",
+      "keys": {
+        "invitation": "Lời mời thành viên",
+        "connection_expiring": "Kết nối Meta sắp hết hạn",
+        "data_deletion": "Xóa dữ liệu",
+        "digest": "Tổng kết tuần",
+        "scheduled_report": "Báo cáo theo lịch"
       }
     }
   },

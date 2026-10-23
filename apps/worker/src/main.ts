@@ -4,7 +4,13 @@ import { getDb } from '@adxlens/db';
 import { keysFromEnv, metaReadApi, recordMetaCall } from '@adxlens/core/connections';
 import { createMetaWriter } from '@adxlens/core/execution';
 import { smtpEmailSender } from '@adxlens/core/notification';
-import { registerHealthCheck, registerIncidentSink, teamAlertSink } from '@adxlens/core/ops';
+import {
+  mergeAlertRecipients,
+  opsAlertEmails,
+  registerHealthCheck,
+  registerIncidentSink,
+  teamAlertSink,
+} from '@adxlens/core/ops';
 import { anthropicClient } from '@adxlens/core/reporting';
 import { signPayload } from '@adxlens/core/shared';
 import { closeRenderer, renderPdf, supabaseWorkerStorage } from './render';
@@ -68,18 +74,17 @@ const services: WorkerServices = {
   throttleQueue: (q, ms) => queues[q].rateLimit(ms),
 };
 
-// Kênh báo đội AdxLens cho sự cố P1/P2 (043).
-registerIncidentSink(
-  teamAlertSink({
+// Kênh báo đội AdxLens cho sự cố P1/P2 (043). Email: `OPS_ALERT_EMAILS` + danh sách đặt ở admin (đọc lúc gửi).
+registerIncidentSink(async (a) => {
+  const recipients = mergeAlertRecipients(env.OPS_ALERT_EMAILS, await opsAlertEmails(db));
+  if (!recipients.length && !env.OPS_SLACK_WEBHOOK_URL) return;
+  await teamAlertSink({
     email: services.email,
-    recipients: (env.OPS_ALERT_EMAILS ?? '')
-      .split(',')
-      .map((x) => x.trim())
-      .filter(Boolean),
+    recipients,
     slackWebhookUrl: env.OPS_SLACK_WEBHOOK_URL,
     appUrl: env.APP_URL,
-  }),
-);
+  })(a);
+});
 
 // Tín hiệu sức khỏe: backlog queue sync (L3 mục 12: > 100 → cảnh báo).
 registerHealthCheck({
