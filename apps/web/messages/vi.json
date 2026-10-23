@@ -1083,7 +1083,7 @@
     "staff": "Staff",
     "nav": {
       "flags": "Ma trận cờ",
-      "incidents": "Sự cố & playbook",
+      "incidents": "Sự cố",
       "killSwitch": "Kill switch"
     },
     "flags": {
@@ -1135,6 +1135,38 @@
       "turnOff": "Tắt toàn cục",
       "pmOnly": "Chỉ PM được bật/tắt.",
       "done": "Đã cập nhật, hủy {count} hành động đang chờ"
+    },
+    "incidents": {
+      "nav": "Sự cố",
+      "title": "Sự cố & playbook",
+      "all": "Tất cả",
+      "status": {
+        "open": "Đang mở",
+        "mitigated": "Đã giảm thiểu",
+        "resolved": "Đã xử lý"
+      },
+      "cols": {
+        "severity": "Mức",
+        "title": "Sự cố",
+        "kind": "Loại",
+        "occurrences": "Số lần",
+        "status": "Trạng thái",
+        "opened": "Mở lúc"
+      },
+      "emptyTitle": "Không có sự cố",
+      "emptyBody": "Sự cố do kiểm tra sức khỏe, đối chiếu, thực thi hoặc deploy mở sẽ hiện ở đây.",
+      "runs": "Lần chạy playbook",
+      "noRuns": "Chưa có lần chạy playbook.",
+      "mitigate": "Đã giảm thiểu",
+      "resolve": "Đã xử lý",
+      "updated": "Đã cập nhật sự cố",
+      "detail": "Chi tiết",
+      "runResult": {
+        "done": "Đã chạy",
+        "skipped": "Bỏ qua",
+        "failed": "Lỗi",
+        "escalated": "Leo thang (báo PM)"
+      }
     }
   },
   "notifications": {

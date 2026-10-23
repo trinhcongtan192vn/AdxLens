@@ -4,7 +4,7 @@ import { getDb } from '@adxlens/db';
 import { keysFromEnv, metaReadApi, recordMetaCall } from '@adxlens/core/connections';
 import { createMetaWriter } from '@adxlens/core/execution';
 import { smtpEmailSender } from '@adxlens/core/notification';
-import { registerHealthCheck } from '@adxlens/core/ops';
+import { registerHealthCheck, registerIncidentSink, teamAlertSink } from '@adxlens/core/ops';
 import { anthropicClient } from '@adxlens/core/reporting';
 import { signPayload } from '@adxlens/core/shared';
 import { closeRenderer, renderPdf, supabaseWorkerStorage } from './render';
@@ -67,6 +67,19 @@ const services: WorkerServices = {
   llm: env.ANTHROPIC_API_KEY ? anthropicClient({ apiKey: env.ANTHROPIC_API_KEY, model: env.ANTHROPIC_MODEL }) : null,
   throttleQueue: (q, ms) => queues[q].rateLimit(ms),
 };
+
+// Kênh báo đội AdxLens cho sự cố P1/P2 (043).
+registerIncidentSink(
+  teamAlertSink({
+    email: services.email,
+    recipients: (env.OPS_ALERT_EMAILS ?? '')
+      .split(',')
+      .map((x) => x.trim())
+      .filter(Boolean),
+    slackWebhookUrl: env.OPS_SLACK_WEBHOOK_URL,
+    appUrl: env.APP_URL,
+  }),
+);
 
 // Tín hiệu sức khỏe: backlog queue sync (L3 mục 12: > 100 → cảnh báo).
 registerHealthCheck({

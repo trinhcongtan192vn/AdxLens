@@ -2,6 +2,7 @@ import { and, desc, eq, gte, inArray, sql } from 'drizzle-orm';
 import type { DbOrTx } from '@adxlens/db';
 import { schema } from '@adxlens/db';
 import { systemClock, type Clock } from '@adxlens/core/shared';
+import { dispatchIncidentAlert } from './alerts';
 
 const { opsIncidents, opsPlaybookRuns } = schema;
 
@@ -23,6 +24,19 @@ export type IncidentInput = {
  * Mở sự cố, hoặc tăng số lần nếu cùng fingerprint đang mở. Hàm trong module ops được phép đọc
  * xuyên workspace: sự cố là dữ liệu vận hành nội bộ (CLAUDE.md quy tắc 1, ngoại lệ có ghi chú).
  */
+function alertOf(r: typeof opsIncidents.$inferSelect, escalated: boolean) {
+  return {
+    id: r.id,
+    kind: r.kind,
+    severity: r.severity,
+    title: r.title,
+    fingerprint: r.fingerprint,
+    workspaceId: r.workspaceId,
+    occurrences: r.occurrences,
+    escalated,
+  };
+}
+
 export async function openIncident(db: DbOrTx, input: IncidentInput) {
   const [existing] = await db
     .select({ id: opsIncidents.id, severity: opsIncidents.severity })
@@ -37,6 +51,7 @@ export async function openIncident(db: DbOrTx, input: IncidentInput) {
       .set({ occurrences: sql`${opsIncidents.occurrences} + 1`, ...(escalate ? { severity: input.severity } : {}) })
       .where(eq(opsIncidents.id, existing.id))
       .returning();
+    if (escalate) await dispatchIncidentAlert(alertOf(row!, true));
     return { incident: row!, created: false };
   }
   const [row] = await db
@@ -52,6 +67,8 @@ export async function openIncident(db: DbOrTx, input: IncidentInput) {
       detail: input.detail ?? {},
     })
     .returning();
+  // Kênh báo đội AdxLens (P1/P2): sự cố mới hoặc vừa nâng mức.
+  await dispatchIncidentAlert(alertOf(row!, false));
   return { incident: row!, created: true };
 }
 
@@ -75,6 +92,19 @@ export async function listIncidents(
   const q = db.select().from(opsIncidents);
   const filtered = opts.status?.length ? q.where(inArray(opsIncidents.status, opts.status)) : q;
   return filtered.orderBy(desc(opsIncidents.createdAt)).limit(opts.limit ?? 100);
+}
+
+/** AD03 chi tiết sự cố + các lần chạy playbook (staff). */
+export async function incidentDetail(db: DbOrTx, id: string) {
+  const [i] = await db.select().from(opsIncidents).where(eq(opsIncidents.id, id));
+  if (!i) return null;
+  const runs = await db
+    .select()
+    .from(opsPlaybookRuns)
+    .where(eq(opsPlaybookRuns.incidentId, id))
+    .orderBy(desc(opsPlaybookRuns.at))
+    .limit(50);
+  return { ...i, runs };
 }
 
 export async function openP1Count(db: DbOrTx, workspaceId: string): Promise<number> {

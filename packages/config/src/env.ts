@@ -60,6 +60,9 @@ export const integrationsEnvSchema = z.object({
   SMTP_PORT: z.coerce.number().int().default(54325),
   SMTP_USER: optionalString,
   SMTP_PASS: optionalString,
+  /** Kênh báo đội AdxLens cho sự cố P1/P2 (043): email cách nhau dấu phẩy, Slack incoming webhook. */
+  OPS_ALERT_EMAILS: optionalString,
+  OPS_SLACK_WEBHOOK_URL: optionalString,
   STRIPE_SECRET_KEY: optionalString,
   STRIPE_PUBLISHABLE_KEY: optionalString,
   STRIPE_WEBHOOK_SECRET: optionalString,

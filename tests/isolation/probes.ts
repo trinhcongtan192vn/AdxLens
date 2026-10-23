@@ -361,6 +361,12 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: (w) => ({ id: w.a.adAccount.id }),
     crossParams: (w) => ({ id: w.b.adAccount.id }),
   },
+  'GET /api/v1/admin/incidents': {
+    kind: 'exempt',
+    reason: 'Trang nội bộ staff: sự cố vận hành, không theo workspace; có test ở admin.test.ts',
+  },
+  'GET /api/v1/admin/incidents/[id]': { kind: 'exempt', reason: 'Trang nội bộ staff: sự cố vận hành' },
+  'POST /api/v1/admin/incidents/[id]': { kind: 'exempt', reason: 'Trang nội bộ staff: đổi trạng thái sự cố vận hành' },
   'GET /api/v1/admin/kill-switch': {
     kind: 'exempt',
     reason: 'Trang nội bộ staff: công tắc toàn hệ thống, không đọc dữ liệu nghiệp vụ theo workspace',
