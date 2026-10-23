@@ -256,3 +256,15 @@ describe('deep link Ads Manager', () => {
     );
   });
 });
+
+describe('bộ quy tắc thật trên dữ liệu mock (có mẫu cài sẵn)', () => {
+  it('phát hiện creative fatigue, ad thắng bị bỏ đói, phân mảnh đúng đối tượng', async () => {
+    const { ctx, adAccountId } = await synced();
+    const r = await runAudit(ctx, adAccountId, { clock });
+    expect(r.status).toBe('ok');
+    const found = (await listFindings(ctx, adAccountId, { limit: 200 })).items.map((f) => `${f.ruleId}:${f.metaId}`);
+    expect(found).toContain('creative_fatigue:23010000000');
+    expect(found).toContain('starved_winner:23010000102');
+    expect(found).toContain('fragmentation:23012000');
+  });
+});

@@ -655,5 +655,37 @@
     "pendingBanner": "Data deletion pending (code {code}): deleting on {date}. Reconnect before then to cancel.",
     "doneBanner": "Data of the old connection was deleted (code {code}) on {date}."
   },
-  "rules": {}
+  "rules": {
+    "groups": {
+      "creative": "Creative",
+      "budget": "Budget",
+      "structure": "Structure",
+      "learning": "Learning phase",
+      "waste": "Wasted spend",
+      "hygiene": "Account hygiene",
+      "tracking": "Conversion tracking"
+    },
+    "creative_fatigue": {
+      "name": "Creative fatigue",
+      "why": "Frequency rose {freqRise, number}% (to {freq, number}) while CTR fell {ctrDrop, number}% versus the previous 7 days.",
+      "what": "Refresh the creative, or lower this ad's budget while preparing a new one.",
+      "impact": "7-day spend × (1 − current CTR / previous 7-day CTR)"
+    },
+    "budget_misallocation": {
+      "name": "Spend concentrated on low performance",
+      "why": "This ad set takes {share, number}% of spend for its goal but its CPA is {ratio, number}× the median of ad sets with the same goal.",
+      "what": "Shift budget to ad sets near or below the median CPA; review this ad set's audience and creative.",
+      "impact": "7-day spend × (1 − median CPA / ad set CPA)"
+    },
+    "starved_winner": {
+      "name": "Starved winner",
+      "why": "CPA is {better, number}% better than its ad set, yet the ad gets only {share, number}% of the ad set's spend.",
+      "what": "Move this ad into its own ad set, or turn off weaker ads so budget reaches the winner."
+    },
+    "fragmentation": {
+      "name": "Fragmented ad sets",
+      "why": "{weak}/{total} active ad sets have small budgets or limited learning; none gets enough events to optimise.",
+      "what": "Merge small ad sets with similar audiences, or use campaign budget (CBO) so Meta can allocate."
+    }
+  }
 }

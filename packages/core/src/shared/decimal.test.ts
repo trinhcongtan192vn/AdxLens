@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compareDecimal, deltaPct, fromScaled, sumDecimal, toScaled } from './decimal';
+import { compareDecimal, deltaPct, fromScaled, mulRatio, sumDecimal, toScaled } from './decimal';
 
 describe('số thập phân cố định', () => {
   it('chuyển đổi không mất chính xác', () => {
@@ -22,5 +22,12 @@ describe('số thập phân cố định', () => {
   it('so sánh', () => {
     expect(compareDecimal('1.000000', '1')).toBe(0);
     expect(compareDecimal('1.000001', '1')).toBe(1);
+  });
+
+  it('tiền × tỷ lệ', () => {
+    expect(mulRatio('2850000', 0.5)).toBe('1425000.0000');
+    expect(mulRatio('100.0001', 0.333333)).toBe('33.3333'); // 33,33333…
+    expect(mulRatio('1.0001', 0.5)).toBe('0.5001'); // 0,50005 làm tròn nửa lên
+    expect(mulRatio('0', 0.9)).toBe('0.0000');
   });
 });

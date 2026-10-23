@@ -57,3 +57,13 @@ export function compareDecimal(a: string, b: string, scale = 6): number {
   const y = toScaled(b, scale);
   return x === y ? 0 : x < y ? -1 : 1;
 }
+
+/** Tiền × tỷ lệ (tỷ lệ làm tròn 6 chữ số), kết quả numeric 4 chữ số — dùng cho tác động ước tính. */
+export function mulRatio(amount: string, ratio: number, scale = MONEY_SCALE): string {
+  if (!Number.isFinite(ratio)) throw new Error('Tỷ lệ không hợp lệ');
+  const r = BigInt(Math.round(ratio * 1_000_000));
+  const a = toScaled(amount, scale);
+  const prod = a * r;
+  const half = prod >= 0n ? 500_000n : -500_000n;
+  return fromScaled((prod + half) / 1_000_000n, scale);
+}

@@ -655,5 +655,37 @@
     "pendingBanner": "Đang chờ xóa dữ liệu (mã {code}): xóa vào {date}. Kết nối lại trước ngày đó để hủy.",
     "doneBanner": "Đã xóa dữ liệu của kết nối cũ (mã {code}) ngày {date}."
   },
-  "rules": {}
+  "rules": {
+    "groups": {
+      "creative": "Creative",
+      "budget": "Ngân sách",
+      "structure": "Cấu trúc",
+      "learning": "Giai đoạn học",
+      "waste": "Chi tiêu lãng phí",
+      "hygiene": "Vệ sinh tài khoản",
+      "tracking": "Theo dõi chuyển đổi"
+    },
+    "creative_fatigue": {
+      "name": "Creative mệt",
+      "why": "Tần suất tăng {freqRise, number}% (lên {freq, number}) trong khi CTR giảm {ctrDrop, number}% so với 7 ngày trước.",
+      "what": "Thay creative mới, hoặc giảm ngân sách cho ad này trong lúc chuẩn bị creative.",
+      "impact": "Chi tiêu 7 ngày × (1 − CTR hiện tại / CTR 7 ngày trước)"
+    },
+    "budget_misallocation": {
+      "name": "Chi tiêu dồn vào nơi hiệu quả thấp",
+      "why": "Ad set chiếm {share, number}% chi tiêu của mục tiêu này nhưng CPA gấp {ratio, number} lần trung vị các ad set cùng mục tiêu.",
+      "what": "Chuyển bớt ngân sách sang ad set có CPA gần trung vị hoặc tốt hơn; kiểm tra đối tượng và creative của ad set này.",
+      "impact": "Chi tiêu 7 ngày × (1 − CPA trung vị / CPA ad set)"
+    },
+    "starved_winner": {
+      "name": "Ad thắng bị bỏ đói",
+      "why": "CPA tốt hơn ad set {better, number}% nhưng ad chỉ nhận {share, number}% chi tiêu của ad set.",
+      "what": "Tách ad này sang ad set riêng hoặc tắt bớt ad kém để ngân sách đến ad thắng."
+    },
+    "fragmentation": {
+      "name": "Phân mảnh ad set",
+      "why": "{weak}/{total} ad set đang chạy có ngân sách nhỏ hoặc học hạn chế; mỗi ad set không đủ sự kiện để tối ưu.",
+      "what": "Gộp các ad set nhỏ cùng đối tượng, hoặc dùng ngân sách campaign (CBO) để Meta phân bổ."
+    }
+  }
 }
