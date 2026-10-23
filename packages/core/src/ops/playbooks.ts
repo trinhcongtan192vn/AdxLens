@@ -4,6 +4,7 @@ import { schema } from '@adxlens/db';
 import { connectionExpiringEmail, notify, type EmailSender } from '@adxlens/core/notification';
 import { systemClock, type Clock } from '@adxlens/core/shared';
 import { registerHealthCheck, type HealthResult } from './health';
+import { runWorkerStuckPlaybook } from './stuck';
 import { openIncident, runPlaybook } from './incidents';
 
 const { metaConnections, users, workspaces, jobAudit } = schema;
@@ -148,6 +149,12 @@ export async function remediateHealth(
       },
       clock,
     );
+  }
+  // worker_stuck: hành động / đồng bộ kẹt (không chạy lại lời gọi ghi).
+  const stuck = results.stuck_work;
+  if (stuck && !stuck.ok) {
+    const r = await runWorkerStuckPlaybook(db, clock);
+    if (r.result !== 'ok') out.worker_stuck = r.result;
   }
   return out;
 }

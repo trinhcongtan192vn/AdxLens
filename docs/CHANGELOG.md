@@ -2,6 +2,34 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [043] Trang sự cố AD03, playbook worker_stuck và deploy_smoke_failed, kênh báo đội — 2026-10-23
+
+**Thay đổi**
+- `core/ops/stuck.ts`:
+  - Tín hiệu `stuck_work` trong `ops:health_check`: hành động "đang thực hiện" quá 15 phút; đồng bộ "đang chạy" quá 3 giờ.
+  - Playbook `worker_stuck` (tối đa 3 lần / giờ, vượt → leo thang):
+    - hành động kẹt → thất bại `stuck_check_manually`. **Không chạy lại lời gọi ghi** (ADR-0008). Mở sự cố P1;
+    - đồng bộ kẹt → thất bại `stalled` để chạy lại;
+    - hết kẹt → đóng sự cố.
+  - `recordDeploySmoke`: smoke lỗi → sự cố P1 `deploy_smoke_failed` + lần chạy "leo thang (báo PM)" (rollback do PM / nền tảng deploy); đạt → đóng.
+- `core/ops/alerts.ts`: kênh báo đội AdxLens (`registerIncidentSink`, `teamAlertSink`): sự cố **P1/P2 mới hoặc vừa nâng mức** → email `OPS_ALERT_EMAILS` và/hoặc Slack `OPS_SLACK_WEBHOOK_URL`; nội dung chỉ mức, loại, tiêu đề chung, link AD03 (không tên khách / campaign / token); kênh lỗi không làm hỏng việc mở sự cố. Đăng ký ở worker và web. **Bỏ mục tech-debt "đội AdxLens chưa có kênh cảnh báo riêng"**.
+- `incidentDetail`; API `GET /admin/incidents`, `GET|POST /admin/incidents/{id}` (staff).
+- Trang AD03 `/admin/incidents`: lọc trạng thái, mức, số lần, chi tiết (detail đã che), lần chạy playbook, "Đã giảm thiểu" / "Đã xử lý".
+- `pnpm smoke -- <base_url>`: kiểm `/api/health`, `/`, `/pricing`, `/r/demo`, `/login`; lỗi → thoát mã 1 + ghi sự cố (khi có `DATABASE_URL`).
+
+**Test tự động**
+- `ops/stuck.test.ts` (5):
+  - hành động kẹt → thất bại kiểm tra thủ công + P1, hành động mới không bị chạm; đồng bộ kẹt → stalled;
+  - giới hạn 3 lần / giờ → leo thang; hết kẹt đóng sự cố;
+  - smoke lỗi / đạt;
+  - kênh báo đội chỉ gửi P1/P2 mới hoặc nâng mức;
+  - email + Slack đúng nội dung, kênh lỗi không làm hỏng.
+- `admin.test.ts` (+1): AD03 không phải staff 404, staff xem / chi tiết / xử lý. Bộ cách ly: 3 route admin miễn trừ có lý do.
+
+**Vùng bảo vệ:** không (ops; playbook không đụng execution ngoài việc đánh dấu thất bại hành động kẹt, không gọi Meta).
+
+**PM kiểm tra:** `/admin/incidents` (sau khi bật kill switch toàn cục ở 037 sẽ có sự cố P1); `pnpm smoke -- http://localhost:3000` khi đang chạy `pnpm dev`.
+
 ## [041] Rule live tạo hành động tự động qua gateway, hiệu quả tự động hóa (P215) — 2026-10-23
 
 > Chạm `packages/core/execution` — **cần PM chạy staging trước khi merge `develop → main`**; đây là đường ghi `tier=auto` (ADR-0012).

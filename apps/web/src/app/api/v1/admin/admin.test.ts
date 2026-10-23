@@ -6,6 +6,8 @@ import * as checklist from './workspaces/[id]/flags/[key]/checklist/route';
 import * as toggle from './workspaces/[id]/flags/[key]/route';
 import * as history from './workspaces/[id]/flag-history/route';
 import * as killSwitch from './kill-switch/route';
+import * as incident from './incidents/[id]/route';
+import * as incidents from './incidents/route';
 
 const db = testDb();
 beforeEach(async () => {
@@ -93,5 +95,30 @@ describe('API kill switch toàn cục (AD04)', () => {
       active: true,
       reason: 'Sự cố thực thi',
     });
+  });
+});
+
+describe('API sự cố (AD03)', () => {
+  it('không phải staff → 404; staff xem danh sách + chi tiết, đánh dấu đã xử lý', async () => {
+    const { openIncident } = await import('@adxlens/core/ops');
+    const { owner } = await seedWorkspace(db);
+    expect((await call(incidents.GET, { user: asUser(owner) })).status).toBe(404);
+    const { incident: inc } = await openIncident(db, {
+      kind: 'worker_stuck',
+      severity: 'P2',
+      source: 'health_check',
+      title: 'Đồng bộ bị kẹt',
+      fingerprint: 'worker_stuck',
+    });
+    const staff = asUser(await seedStaff(db, false));
+    const list = await call(incidents.GET, { user: staff, path: '/api/test?status=open' });
+    expect((list.body as { items: { id: string }[] }).items.map((i) => i.id)).toEqual([inc.id]);
+    const d = await call(incident.GET, { user: staff, params: { id: inc.id } });
+    expect(d.body).toMatchObject({ id: inc.id, runs: [] });
+    expect(
+      (await call(incident.POST, { user: staff, params: { id: inc.id }, body: { status: 'resolved' } })).status,
+    ).toBe(204);
+    const after = await call(incidents.GET, { user: staff, path: '/api/test?status=open' });
+    expect((after.body as { items: unknown[] }).items).toEqual([]);
   });
 });

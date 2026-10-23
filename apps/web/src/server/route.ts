@@ -9,8 +9,11 @@ import type { EmailSender } from '@adxlens/core/notification';
 import type { Enqueue } from '@adxlens/jobs';
 import { getAuthUser, type AuthUser } from './auth';
 import { deps } from './deps';
+import { registerWebIncidentSink } from './ops-alerts';
 import { API_LIMIT_PER_MINUTE } from './rate-limit';
 import type { ObjectStorage } from './storage';
+
+registerWebIncidentSink();
 
 export const WORKSPACE_HEADER = 'x-workspace-id';
 export const WORKSPACE_COOKIE = 'ws';

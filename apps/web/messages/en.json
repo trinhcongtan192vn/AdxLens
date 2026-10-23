@@ -1083,7 +1083,7 @@
     "staff": "Staff",
     "nav": {
       "flags": "Flag matrix",
-      "incidents": "Incidents & playbooks",
+      "incidents": "Incidents",
       "killSwitch": "Kill switch"
     },
     "flags": {
@@ -1135,6 +1135,38 @@
       "turnOff": "Turn off globally",
       "pmOnly": "Only the PM can change this.",
       "done": "Updated, {count} pending actions canceled"
+    },
+    "incidents": {
+      "nav": "Incidents",
+      "title": "Incidents & playbooks",
+      "all": "All",
+      "status": {
+        "open": "Open",
+        "mitigated": "Mitigated",
+        "resolved": "Resolved"
+      },
+      "cols": {
+        "severity": "Severity",
+        "title": "Incident",
+        "kind": "Kind",
+        "occurrences": "Count",
+        "status": "Status",
+        "opened": "Opened"
+      },
+      "emptyTitle": "No incidents",
+      "emptyBody": "Incidents opened by health checks, reconciliation, execution or deploys appear here.",
+      "runs": "Playbook runs",
+      "noRuns": "No playbook runs yet.",
+      "mitigate": "Mitigated",
+      "resolve": "Resolved",
+      "updated": "Incident updated",
+      "detail": "Details",
+      "runResult": {
+        "done": "Ran",
+        "skipped": "Skipped",
+        "failed": "Failed",
+        "escalated": "Escalated (PM notified)"
+      }
     }
   },
   "notifications": {
