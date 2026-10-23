@@ -139,6 +139,18 @@ const TEXT: Record<string, Record<Locale, (p: P) => { subject: string; body: str
       cta: 'Update payment',
     }),
   },
+  billing_renewal: {
+    vi: (p) => ({
+      subject: `Gói ${p.plan} hết hạn ngày ${p.date}`,
+      body: `Gói ${p.plan} của workspace hết hạn ngày ${p.date}. Thanh toán kỳ tiếp theo để không bị gián đoạn.`,
+      cta: 'Gia hạn',
+    }),
+    en: (p) => ({
+      subject: `Your ${p.plan} plan expires on ${p.date}`,
+      body: `The workspace's ${p.plan} plan expires on ${p.date}. Pay for the next period to avoid interruption.`,
+      cta: 'Renew',
+    }),
+  },
   action_failed: {
     vi: (p) => ({
       subject: 'Hành động trên Meta thất bại',

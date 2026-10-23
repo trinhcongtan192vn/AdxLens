@@ -168,6 +168,14 @@ export async function seedWorld(db: Db) {
     providerCustomerId: 'cus_beta_secret',
     providerSubscriptionId: 'sub_beta_secret',
   });
+  await db.insert(schema.paymentOrders).values({
+    workspaceId: b.workspace.id,
+    provider: 'payos',
+    planKey: 'scale',
+    period: 'annual',
+    amountVnd: '33504000',
+    checkoutUrl: 'https://pay.payos.test/beta-order-secret',
+  });
   await db.insert(schema.billingProfiles).values({
     workspaceId: b.workspace.id,
     companyName: 'Beta Billing Secret',
@@ -228,6 +236,7 @@ export async function seedWorld(db: Db) {
       'cus_beta_secret',
       'sub_beta_secret',
       'Beta Billing Secret',
+      'beta-order-secret',
       'beta-invoice-secret@beta.vn',
     ],
   };

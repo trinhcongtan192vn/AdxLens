@@ -1,5 +1,5 @@
 import { purgeConnectionData } from '@adxlens/core/connections';
-import { remediateHealth, runHealthChecks, runTokenExpiringPlaybook } from '@adxlens/core/ops';
+import { remediateHealth, runHealthChecks, runPayosRenewals, runTokenExpiringPlaybook } from '@adxlens/core/ops';
 import type { HandlerMap } from '../handler';
 
 export const opsHandlers: HandlerMap = {
@@ -17,10 +17,13 @@ export const opsHandlers: HandlerMap = {
   },
 
   // Hằng ngày: playbook token_expiring (L2 11.2).
-  'maintenance:daily_tick': async (_payload, { db, email, appUrl, log }) => {
+  'maintenance:daily_tick': async (_payload, { db, email, appUrl, log, enqueue }) => {
     const r = await runTokenExpiringPlaybook(db, { email, appUrl });
     if (r.notified || r.expired) log.info(r, 'token_expiring');
-    return r;
+    // Gia hạn PayOS (028): nhắc trước 7 / 1 ngày, hết kỳ → quá hạn hoặc về Free.
+    const renewals = await runPayosRenewals(db, { enqueue });
+    if (renewals.reminded || renewals.pastDue || renewals.canceled) log.info(renewals, 'payos renewals');
+    return { ...r, renewals };
   },
 
   // Xóa dữ liệu quảng cáo 7 ngày sau khi ngắt kết nối (L3 5.5, P0-22).

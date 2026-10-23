@@ -260,6 +260,20 @@
       "when": 1792728389438,
       "tag": "0036_rls_billing_events",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1792729103316,
+      "tag": "0037_payment_orders",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1792729104400,
+      "tag": "0038_rls_payment_orders",
+      "breakpoints": true
     }
   ]
 }

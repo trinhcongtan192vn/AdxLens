@@ -284,6 +284,10 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     kind: 'workspace',
     body: () => ({ companyName: 'Alpha Co', taxCode: '0312345678', invoiceEmail: 'billing@alpha.vn' }),
   },
+  'POST /api/v1/webhooks/payos': {
+    kind: 'exempt',
+    reason: 'Webhook PayOS: xác minh chữ ký, tìm workspace theo mã đơn trong core/ops (có test cách ly riêng)',
+  },
   'POST /api/v1/webhooks/stripe': {
     kind: 'exempt',
     reason: 'Webhook Stripe: xác minh chữ ký, tìm workspace theo mã Stripe trong core/ops (có test cách ly riêng)',

@@ -1,25 +1,29 @@
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { resetEnvCache } from '@adxlens/config/env';
-import { billingStatus, signStripePayload } from '@adxlens/core/billing';
+import { billingStatus, payosSignature, signStripePayload } from '@adxlens/core/billing';
 import { closeTestDb, seedMember, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
 import { asUser, call, installTestServer, uninstallTestServer } from '../../../test-utils';
 import * as cancelRoute from './billing/cancel/route';
 import * as checkoutRoute from './billing/checkout/route';
 import * as profileRoute from './billing/profile/route';
+import * as payosWebhookRoute from './webhooks/payos/route';
 import * as webhookRoute from './webhooks/stripe/route';
 
 const db = testDb();
 let server: ReturnType<typeof installTestServer>;
 const SECRET = 'whsec_route_test';
+const PAYOS_KEY = 'payos_checksum_route_test';
 beforeEach(async () => {
   await truncateAll(db);
   server = installTestServer(db);
   process.env.STRIPE_WEBHOOK_SECRET = SECRET;
+  process.env.PAYOS_CHECKSUM_KEY = PAYOS_KEY;
   resetEnvCache();
 });
 afterEach(() => {
   uninstallTestServer();
   delete process.env.STRIPE_WEBHOOK_SECRET;
+  delete process.env.PAYOS_CHECKSUM_KEY;
   resetEnvCache();
 });
 afterAll(() => closeTestDb());
@@ -98,5 +102,33 @@ describe('API thanh toán (027)', () => {
     });
     expect(ok.status).toBe(200);
     expect((await billingStatus({ db, workspaceId: workspace.id })).effectivePlan).toBe('growth');
+  });
+
+  it('PayOS: checkout trả link QR; webhook chữ ký sai → 400; đúng → gói active; lặp → không gia hạn thêm', async () => {
+    const { workspace, owner } = await seedWorkspace(db);
+    const co = await call(checkoutRoute.POST, {
+      user: asUser(owner),
+      workspaceId: workspace.id,
+      body: { plan: 'starter', period: 'monthly', method: 'payos' },
+    });
+    expect(co.status).toBe(200);
+    const orderCode = Number(
+      String((co.body as { url: string }).url)
+        .split('/')
+        .pop(),
+    );
+    expect(server.payos.links.get(orderCode)).toBe(590000n);
+    const data = { orderCode, amount: 590000, code: '00', desc: 'success', reference: 'FT1' };
+    const bad = await call(payosWebhookRoute.POST, {
+      body: { code: '00', success: true, data, signature: payosSignature(data, 'wrong') },
+    });
+    expect(bad.status).toBe(400);
+    expect((await billingStatus({ db, workspaceId: workspace.id })).effectivePlan).toBe('free');
+    const body = { code: '00', success: true, data, signature: payosSignature(data, PAYOS_KEY) };
+    expect((await call(payosWebhookRoute.POST, { body })).status).toBe(200);
+    const s1 = await billingStatus({ db, workspaceId: workspace.id });
+    expect(s1.effectivePlan).toBe('starter');
+    expect((await call(payosWebhookRoute.POST, { body })).status).toBe(200);
+    expect((await billingStatus({ db, workspaceId: workspace.id })).currentPeriodEnd).toEqual(s1.currentPeriodEnd);
   });
 });
