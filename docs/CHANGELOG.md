@@ -2,6 +2,27 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [016] Quy tắc audit (phần 1): creative fatigue, phân bổ ngân sách, ad thắng bị bỏ đói, phân mảnh — 2026-10-23
+
+**Thay đổi**
+- 4 quy tắc trong `packages/core/src/insight/rules/` (ngưỡng trong `docs/rules/README.md`, chờ PM duyệt sau E4; đổi qua `app.rule_configs`):
+  - `creative_fatigue` (ad): tần suất ≥ 2,5 tăng ≥ 20% và CTR giảm ≥ 25%; tác động = chi tiêu 7 ngày × mức giảm CTR.
+  - `budget_misallocation` (ad set): CPA ≥ 1,5× trung vị các ad set cùng mục tiêu tối ưu, chiếm ≥ 15% chi tiêu; tác động = chi tiêu × (1 − CPA trung vị / CPA).
+  - `starved_winner` (ad): CPA ≤ 0,7× ad set nhưng chi tiêu ≤ 15%; không ước tính tiền.
+  - `fragmentation` (campaign): ≥ 4 và ≥ 50% ad set ngân sách nhỏ (theo tiền tệ) hoặc học hạn chế.
+- Trùng lặp đối tượng **không triển khai**: API không có dữ liệu (PRD 9.4 "chỉ khi API có dữ liệu"); ghi trong `docs/rules/README.md`.
+- `mulRatio` (tiền × tỷ lệ trên BigInt) cho tác động ước tính.
+- Văn bản vi/en `rules.<id>.name/why/what/impact` + nhãn nhóm; số định dạng theo locale (ICU).
+
+**Test tự động**
+- `rules-1.test.ts` (12): mỗi quy tắc có fixture phát hiện đúng (mức độ, tác động), **không đủ dữ liệu → không phát hiện**, biên ngưỡng, khác mục tiêu không so, ngưỡng theo tiền tệ.
+- `insight.test.ts` (+1): chạy bộ quy tắc thật trên dữ liệu mock → bắt đúng 3 mẫu cài sẵn (fatigue, ad thắng bị bỏ đói, phân mảnh).
+- `apps/web/src/server/translate.test.ts` (2): mọi quy tắc có văn bản ở cả hai ngôn ngữ, dịch không sót placeholder. `decimal.test.ts` (+1).
+
+**Vùng bảo vệ:** không.
+
+**PM kiểm tra:** duyệt bảng ngưỡng ở `docs/rules/README.md`; giao diện phát hiện ở 018.
+
 ## [015] Insight engine: hợp đồng quy tắc, phát hiện, phản hồi, health score — 2026-10-23
 
 **Thay đổi**
