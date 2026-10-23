@@ -1,4 +1,4 @@
-import { boolean, integer, numeric, text, uuid } from 'drizzle-orm/pg-core';
+import { boolean, integer, numeric, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { app, createdAt, tsz, updatedAt } from './_common';
 import { workspaces } from './tenancy';
 
@@ -41,6 +41,36 @@ export const subscriptions = app.table('subscriptions', {
   cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
   pastDueSince: tsz('past_due_since'),
   overLimitSince: tsz('over_limit_since'),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
+/**
+ * Sự kiện webhook thanh toán đã xử lý (027/028): chống xử lý trùng (idempotent). `workspace_id` có khi
+ * xác định được workspace; sự kiện không thuộc workspace nào vẫn lưu để không xử lý lại.
+ */
+export const billingEvents = app.table(
+  'billing_events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    provider: text('provider', { enum: BILLING_PROVIDERS }).notNull(),
+    eventId: text('event_id').notNull(),
+    type: text('type').notNull(),
+    workspaceId: uuid('workspace_id').references(() => workspaces.id, { onDelete: 'cascade' }),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex('billing_events_provider_event_uq').on(t.provider, t.eventId)],
+);
+
+/** Thông tin xuất hóa đơn (ST03): tên công ty, mã số thuế, địa chỉ, email nhận hóa đơn. */
+export const billingProfiles = app.table('billing_profiles', {
+  workspaceId: uuid('workspace_id')
+    .primaryKey()
+    .references(() => workspaces.id, { onDelete: 'cascade' }),
+  companyName: text('company_name').notNull(),
+  taxCode: text('tax_code'),
+  address: text('address'),
+  invoiceEmail: text('invoice_email').notNull(),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });

@@ -246,6 +246,20 @@
       "when": 1792727717038,
       "tag": "0034_billing_seed",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1792728388342,
+      "tag": "0035_billing_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1792728389438,
+      "tag": "0036_rls_billing_events",
+      "breakpoints": true
     }
   ]
 }

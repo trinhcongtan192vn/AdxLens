@@ -276,6 +276,18 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
     crossParams: (w) => ({ id: w.b.delivery.id }),
   },
+  'POST /api/v1/billing/checkout': { kind: 'workspace', body: () => ({ plan: 'growth', period: 'monthly' }) },
+  'POST /api/v1/billing/portal': { kind: 'workspace' },
+  'POST /api/v1/billing/cancel': { kind: 'workspace', body: () => ({ cancel: true }) },
+  'GET /api/v1/billing/profile': { kind: 'workspace' },
+  'PUT /api/v1/billing/profile': {
+    kind: 'workspace',
+    body: () => ({ companyName: 'Alpha Co', taxCode: '0312345678', invoiceEmail: 'billing@alpha.vn' }),
+  },
+  'POST /api/v1/webhooks/stripe': {
+    kind: 'exempt',
+    reason: 'Webhook Stripe: xác minh chữ ký, tìm workspace theo mã Stripe trong core/ops (có test cách ly riêng)',
+  },
   'POST /api/v1/demo': { kind: 'workspace' },
   'DELETE /api/v1/demo': { kind: 'workspace' },
   'GET /api/v1/clients': { kind: 'workspace' },

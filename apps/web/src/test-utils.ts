@@ -1,5 +1,7 @@
 // Chỉ dùng trong test: gọi Route Handler trực tiếp với user giả.
 import type { Db } from '@adxlens/db';
+import type { StripeApi } from '@adxlens/core/billing';
+import { setStripeForTests } from '@/server/stripe';
 import { memoryEmailSender } from '@adxlens/core/notification';
 import { recordingEnqueue } from '@adxlens/jobs';
 import { setAuthResolverForTest, setPasswordVerifierForTest, type AuthUser } from './server/auth';
@@ -12,6 +14,26 @@ import type { RouteHandler } from './server/route';
 const users = new Map<string, AuthUser>();
 
 /** Bật chế độ test: user lấy từ header `x-test-user`, DB test, enqueue ghi lại. */
+/** Stripe giả cho test route: ghi lại lời gọi, không gọi mạng. */
+export function fakeStripe() {
+  const calls: { op: string; args: unknown }[] = [];
+  const api: StripeApi & { calls: typeof calls } = {
+    calls,
+    async createCheckoutSession(p) {
+      calls.push({ op: 'checkout', args: p });
+      return { id: 'cs_test', url: 'https://checkout.stripe.test/cs_test' };
+    },
+    async createPortalSession(p) {
+      calls.push({ op: 'portal', args: p });
+      return { url: 'https://billing.stripe.test/portal' };
+    },
+    async setCancelAtPeriodEnd(id, cancel) {
+      calls.push({ op: 'cancel', args: { id, cancel } });
+    },
+  };
+  return api;
+}
+
 export function installTestServer(db: Db) {
   const enqueue = recordingEnqueue();
   const email = memoryEmailSender();
@@ -25,7 +47,9 @@ export function installTestServer(db: Db) {
   // Mật khẩu đúng trong test là "correct-password".
   setPasswordVerifierForTest(async (_email, password) => password === 'correct-password');
   setAccountOpsForTest({ changePassword: async () => ({ ok: true }), signOutOthers: async () => {} });
-  return { enqueue, email, storage, rateLimiter };
+  const stripe = fakeStripe();
+  setStripeForTests(stripe);
+  return { enqueue, email, storage, rateLimiter, stripe };
 }
 
 export function uninstallTestServer() {
@@ -33,6 +57,7 @@ export function uninstallTestServer() {
   setAuthResolverForTest(null);
   setPasswordVerifierForTest(null);
   setAccountOpsForTest(null);
+  setStripeForTests(null);
   users.clear();
 }
 
