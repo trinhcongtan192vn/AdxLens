@@ -27,6 +27,9 @@ const status = spawnSync('pnpm', ['exec', 'supabase', 'status', '--workdir', 'in
 });
 if (status.status !== 0) run('pnpm', ['exec', 'supabase', 'start', '--workdir', 'infra']);
 
+console.log('» Storage buckets (brand, reports, creatives — infra/supabase/config.toml)…');
+run('pnpm', ['exec', 'supabase', 'seed', 'buckets', '--workdir', 'infra']);
+
 console.log('» Migration database…');
 run('pnpm', ['db:migrate']);
 
