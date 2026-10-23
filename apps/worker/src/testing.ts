@@ -11,12 +11,17 @@ export const TEST_TOKEN_KEY = Buffer.alloc(32, 7).toString('base64');
 export function testWorkerServices(db: Db, now?: () => Date) {
   const enqueue = recordingEnqueue();
   const email = memoryEmailSender();
+  const throttled: { queue: string; ms: number }[] = [];
   const services: WorkerServices = {
+    appUrl: 'http://localhost:3000',
+    throttleQueue: async (queue, ms) => {
+      throttled.push({ queue, ms });
+    },
     db,
     enqueue,
     email,
     meta: new MockMetaRead(now),
     tokenKeys: keysFromEnv({ TOKEN_ENC_KEY_V1: TEST_TOKEN_KEY }).keys,
   };
-  return { services, enqueue, email };
+  return { services, enqueue, email, throttled };
 }

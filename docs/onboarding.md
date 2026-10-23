@@ -50,3 +50,10 @@ Xem `docs/architecture/L3-technical.md` mục 3. Tóm tắt:
 - `packages/db`, `packages/meta-client`, `packages/jobs`, `packages/ui`, `packages/config`.
 
 `pnpm lint` chạy thêm `scripts/check-boundaries.mjs`: chặn import sâu giữa module và chặn mọi chỗ ngoài `packages/core/execution` dùng phần ghi của Meta.
+
+## 5. Đồng bộ, đối chiếu, vận hành
+
+- `pnpm dev` chạy cả worker: nhập tài khoản ở S04 → backfill 90 ngày (lô 7 ngày) → đối chiếu với Meta (ngưỡng 1%). `META_MOCK=1` dùng dữ liệu giả (tài khoản "Thời trang Linh" lệch 1,4% ở ngày cách hôm nay 3 ngày để thử luồng lệch).
+- Lịch định kỳ (worker): `ops:health_check` mỗi 5 phút (kèm playbook `meta_rate_limited`), daily sync mỗi giờ cho tài khoản đang 03:00 giờ địa phương, `maintenance:daily_tick` 09:00 giờ Việt Nam (playbook `token_expiring`).
+- Báo cáo E4 (độ lệch + mức phủ dữ liệu theo tài khoản, Markdown): `pnpm e4:report -- --workspace <uuid> [--days 30]`. Chỉ chạy ở local/staging.
+- `pnpm test:e2e` tự bật web và một worker riêng.

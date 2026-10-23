@@ -10,6 +10,8 @@ import { addDays } from '@adxlens/core/shared';
 import { resolveActor } from '@adxlens/core/tenancy';
 import {
   accountReconciliation,
+  coverageMarkdown,
+  dataCoverageReport,
   RECONCILE_RETRY_DELAY_MS,
   RECONCILIATION_THRESHOLD_PCT,
   reconcileAccount,
@@ -177,5 +179,31 @@ describe('đối chiếu tài khoản', () => {
       .from(schema.reconciliationResults)
       .where(eq(schema.reconciliationResults.adAccountId, adAccountId));
     expect(rows).toEqual([]);
+  });
+});
+
+describe('báo cáo E4', () => {
+  it('đếm ngày dữ liệu, đối chiếu, mức phủ chỉ số và cấu trúc; chỉ trong workspace', async () => {
+    const { ctx, adAccountId } = await synced(MOCK_DISCREPANCY.account);
+    await reconcileAccount(
+      ctx,
+      { adAccountId, from: '2026-10-09', to: '2026-10-22' },
+      { meta, keys: KEYS.keys, clock },
+    );
+    const other = await synced('act_100000001');
+    const rows = await dataCoverageReport(ctx, { from: '2026-10-09', to: '2026-10-22' });
+    expect(rows).toHaveLength(1);
+    const r = rows[0]!;
+    expect(r.adAccountId).not.toBe(other.adAccountId);
+    expect(r).toMatchObject({
+      daysWithData: 14,
+      reconciliation: { days: 14, warningDays: 1 },
+      entities: { campaign: 3 },
+    });
+    expect(r.coverage.frequency).toBe(1);
+    expect(r.coverage.conversionValue).toBeGreaterThan(0);
+    expect(r.creativesWithThumbnail).toBe(r.entities.creative);
+    const md = coverageMarkdown(rows, { from: '2026-10-09', to: '2026-10-22' });
+    expect(md).toContain('| Thời trang Linh (act_100000002) | 14 | 14 | 1 |');
   });
 });

@@ -2,6 +2,26 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [013b] Playbook meta_rate_limited, token_expiring; báo cáo E4 — 2026-10-23
+
+**Thay đổi**
+- `packages/core/ops/playbooks.ts` (L2 11.2):
+  - `meta_rate_limited`: health check `meta_rate_limit` (job_audit 15 phút gần nhất: ≥ 20 lời gọi và > 20% bị rate limit → lỗi, sự cố P2); playbook hoãn queue `sync` 15 phút (BullMQ `rateLimit`), tối đa 3 lần/giờ rồi leo thang. Chạy ngay sau `ops:health_check`.
+  - `token_expiring`: job `maintenance:daily_tick` (lên lịch 09:00 giờ Việt Nam) quét kết nối sắp hết hạn trong 7 ngày → email người kết nối (1 lần/ngày/kết nối). Token dài hạn của Meta không làm mới được phía server nên hành động là nhắc kết nối lại. Đã quá hạn → kết nối "hết hạn", sự cố P3, email báo đã hết hạn. Truy vấn xuyên workspace có chú thích lý do (module ops).
+- Email `connectionExpiringEmail` (vi/en), link tới trang Kết nối.
+- Worker: dịch vụ `appUrl`, `throttleQueue`.
+- Báo cáo E4: `dataCoverageReport` (theo workspace: ngày có dữ liệu, ngày đối chiếu, ngày lệch, lệch chi tiêu lớn nhất, tỷ lệ phủ tần suất/doanh thu/kết quả, loại kết quả, số campaign/ad set/ad/creative, creative có thumbnail, video, learning stage, ngân sách) + `pnpm e4:report -- --workspace <uuid> [--days 30]` in Markdown (chặn chạy ở production).
+- `docs/onboarding.md` mục 5: đồng bộ, đối chiếu, lịch định kỳ, E4.
+
+**Test tự động**
+- `packages/core/src/ops/playbooks.test.ts` (5): email nhắc + giới hạn 1 lần/ngày, bỏ qua kết nối còn xa/không hạn, quá hạn → hết hạn + sự cố + email không chứa token, ngưỡng rate limit (dưới 20 lời gọi, đúng 20%), hoãn queue 3 lần rồi leo thang, kiểm tra ổn thì không chạy.
+- `apps/worker/src/dispatch.test.ts` (+1): `maintenance:daily_tick`.
+- `reconciliation.test.ts` (+1): báo cáo E4 đúng số và chỉ trong workspace, Markdown.
+
+**Vùng bảo vệ:** không.
+
+**PM kiểm tra:** `pnpm e4:report -- --workspace <id workspace đã đồng bộ> --days 14` in bảng; với tài khoản thật của design partner (staging) đây là báo cáo E4.
+
 ## [013a] Đối chiếu số liệu với Meta (ngưỡng 1%), D04 — 2026-10-23
 
 **Thay đổi**
