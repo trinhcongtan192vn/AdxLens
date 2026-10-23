@@ -8,3 +8,4 @@ export * from './reconciliation';
 export * from './deletion';
 export * from './insight';
 export * from './reporting';
+export * from './notification';

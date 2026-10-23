@@ -1,14 +1,10 @@
-import { getTranslations } from 'next-intl/server';
-import { Card, EmptyState } from '@adxlens/ui';
+import { getNotificationSettings } from '@adxlens/core/notification';
 import { getPageContext } from '@/server/page-context';
+import { NotificationSettingsForm } from './settings-form';
 
-/** ST05 Thông báo — đầy đủ ở feature 023. */
+/** ST05 Thông báo: nhận gì trong app / qua email; sự cố số liệu, token, thanh toán luôn bật. */
 export default async function NotificationSettingsPage() {
-  await getPageContext();
-  const t = await getTranslations();
-  return (
-    <Card>
-      <EmptyState title={t('settings.notifications')} description={t('placeholder.comingSoon')} />
-    </Card>
-  );
+  const pc = await getPageContext();
+  const items = await getNotificationSettings(pc.ctx, pc.actor.userId);
+  return <NotificationSettingsForm items={items} />;
 }

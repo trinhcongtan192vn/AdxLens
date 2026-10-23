@@ -10,6 +10,7 @@ import {
   type Clock,
   type WorkspaceCtx,
 } from '@adxlens/core/shared';
+import { notify } from '@adxlens/core/notification';
 import { assertCan } from '@adxlens/core/tenancy';
 import { getReport, isBlocked, reportIntegrity } from './report';
 
@@ -159,10 +160,22 @@ export async function publicShareState(
   };
 }
 
-/** Ghi lượt xem (cho thông báo "báo cáo đã được khách mở", 023). */
+/** Ghi lượt xem; lần mở đầu tiên báo người tạo link "khách đã mở báo cáo" (P0-25). */
 export async function recordShareView(ctx: WorkspaceCtx, linkId: string, clock: Clock = systemClock) {
-  await ctx.db
+  const [row] = await ctx.db
     .update(shareLinks)
     .set({ viewCount: sql`${shareLinks.viewCount} + 1`, lastViewedAt: clock.now() })
-    .where(and(eq(shareLinks.workspaceId, ctx.workspaceId), eq(shareLinks.id, linkId)));
+    .where(and(eq(shareLinks.workspaceId, ctx.workspaceId), eq(shareLinks.id, linkId)))
+    .returning({ views: shareLinks.viewCount, createdBy: shareLinks.createdBy, reportId: shareLinks.reportId });
+  if (row?.views === 1) {
+    const report = await getReport({ ...ctx, actor: SYSTEM_ACTOR }, row.reportId).catch(() => null);
+    const content = (report?.content ?? {}) as { client?: { name?: string } };
+    await notify(ctx, {
+      kind: 'report_viewed',
+      recipients: { userIds: [row.createdBy] },
+      params: { client: content.client?.name ?? '', report: report?.edits.title || content.client?.name || '' },
+      link: `/reports/${row.reportId}`,
+      dedupeKey: `viewed:${linkId}`,
+    });
+  }
 }

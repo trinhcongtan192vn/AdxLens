@@ -1097,5 +1097,69 @@
         "overrideTag": "override"
       }
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAll": "Mark all as read",
+    "emptyTitle": "No notifications yet",
+    "emptyBody": "Updates about syncing, data, tokens and reports appear here.",
+    "unread": "Unread",
+    "kinds": {
+      "sync_done": {
+        "label": "Sync finished",
+        "title": "{account} is synced",
+        "body": "90 days of data for {account} are ready."
+      },
+      "reconciliation_warning": {
+        "label": "Figures differ from Ads Manager",
+        "title": "{account} differs from Ads Manager by more than 1%",
+        "body": "Days affected: {dates}. Related reports can't be shared for now; we re-sync and reconcile again in 24 hours."
+      },
+      "token_expiring": {
+        "label": "Meta connection expiring",
+        "title": "Meta connection expires in {days} days",
+        "body": "Reconnect Meta (read-only) so syncing is not interrupted."
+      },
+      "token_expired": {
+        "label": "Meta connection expired",
+        "title": "Meta connection expired",
+        "body": "Syncing has stopped. Reconnect so reports keep matching Ads Manager."
+      },
+      "report_viewed": {
+        "label": "Client opened a report",
+        "title": "{client} opened the report",
+        "body": "Your client opened \"{report}\"."
+      },
+      "report_sent": {
+        "label": "Scheduled report sent",
+        "title": "Report sent to {client}",
+        "body": "\"{report}\" was sent on schedule."
+      },
+      "report_postponed": {
+        "label": "Scheduled report postponed",
+        "title": "Report to {client} postponed",
+        "body": "Reason: {reason}. Once fixed, it goes out on the next run."
+      },
+      "billing_failed": {
+        "label": "Payment failed",
+        "title": "Payment failed",
+        "body": "Update your payment method to avoid service interruption."
+      },
+      "action_failed": {
+        "label": "Meta action failed",
+        "title": "Meta action failed",
+        "body": "{action}: {reason}. No change was kept."
+      }
+    },
+    "settings": {
+      "title": "What you receive",
+      "intro": "Choose what you get in the app and by email. Alerts about data issues, the Meta connection and billing are always on.",
+      "kind": "Type",
+      "inApp": "In app",
+      "email": "Email",
+      "always": "Always on",
+      "save": "Save",
+      "saved": "Notification settings saved"
+    }
   }
 }

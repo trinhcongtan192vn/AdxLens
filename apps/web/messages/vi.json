@@ -1097,5 +1097,69 @@
         "overrideTag": "vượt checklist"
       }
     }
+  },
+  "notifications": {
+    "title": "Thông báo",
+    "markAll": "Đánh dấu đã đọc tất cả",
+    "emptyTitle": "Chưa có thông báo",
+    "emptyBody": "Thông báo về đồng bộ, số liệu, token và báo cáo sẽ hiện ở đây.",
+    "unread": "Chưa đọc",
+    "kinds": {
+      "sync_done": {
+        "label": "Đồng bộ xong",
+        "title": "Đồng bộ xong {account}",
+        "body": "Dữ liệu 90 ngày của {account} đã sẵn sàng."
+      },
+      "reconciliation_warning": {
+        "label": "Số liệu lệch so với Ads Manager",
+        "title": "Số liệu {account} lệch hơn 1% so với Ads Manager",
+        "body": "Ngày lệch: {dates}. Báo cáo liên quan tạm khóa chia sẻ; hệ thống tự đồng bộ và đối chiếu lại sau 24 giờ."
+      },
+      "token_expiring": {
+        "label": "Kết nối Meta sắp hết hạn",
+        "title": "Kết nối Meta hết hạn sau {days} ngày",
+        "body": "Kết nối lại Meta (chỉ đọc) để đồng bộ không bị gián đoạn."
+      },
+      "token_expired": {
+        "label": "Kết nối Meta đã hết hạn",
+        "title": "Kết nối Meta đã hết hạn",
+        "body": "Đồng bộ đã dừng. Kết nối lại để báo cáo tiếp tục khớp Ads Manager."
+      },
+      "report_viewed": {
+        "label": "Khách mở báo cáo",
+        "title": "{client} đã mở báo cáo",
+        "body": "Khách đã mở báo cáo \"{report}\"."
+      },
+      "report_sent": {
+        "label": "Báo cáo đã gửi theo lịch",
+        "title": "Đã gửi báo cáo cho {client}",
+        "body": "Báo cáo \"{report}\" đã được gửi theo lịch."
+      },
+      "report_postponed": {
+        "label": "Báo cáo theo lịch bị hoãn",
+        "title": "Hoãn gửi báo cáo cho {client}",
+        "body": "Lý do: {reason}. Xử lý xong, báo cáo sẽ gửi ở lần chạy tiếp theo."
+      },
+      "billing_failed": {
+        "label": "Thanh toán không thành công",
+        "title": "Thanh toán không thành công",
+        "body": "Cập nhật phương thức thanh toán để tránh gián đoạn dịch vụ."
+      },
+      "action_failed": {
+        "label": "Hành động trên Meta thất bại",
+        "title": "Hành động trên Meta thất bại",
+        "body": "{action}: {reason}. Không có thay đổi nào được giữ lại."
+      }
+    },
+    "settings": {
+      "title": "Nhận thông báo",
+      "intro": "Chọn nhận gì trong app và qua email. Thông báo về sự cố số liệu, kết nối Meta và thanh toán luôn bật.",
+      "kind": "Loại",
+      "inApp": "Trong app",
+      "email": "Email",
+      "always": "Luôn bật",
+      "save": "Lưu",
+      "saved": "Đã lưu cài đặt thông báo"
+    }
   }
 }

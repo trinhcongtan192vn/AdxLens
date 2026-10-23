@@ -121,6 +121,16 @@ export async function seedWorld(db: Db) {
     .values({ workspaceId: b.workspace.id, reportId: bReport!.id, token: 'B'.repeat(43), createdBy: b.owner.id })
     .returning();
 
+  const [bNote] = await db
+    .insert(schema.notifications)
+    .values({
+      workspaceId: b.workspace.id,
+      userId: b.owner.id,
+      kind: 'sync_done',
+      params: { account: 'Beta Ads Secret' },
+    })
+    .returning();
+
   const world = {
     a: {
       workspace: a.workspace,
@@ -141,6 +151,7 @@ export async function seedWorld(db: Db) {
       finding: bFinding!,
       report: bReport!,
       shareLink: bShare!,
+      notification: bNote!,
     },
     /** Chuỗi của B tuyệt đối không được xuất hiện trong phản hồi cho ngữ cảnh A. */
     bFingerprints: [
@@ -163,6 +174,7 @@ export async function seedWorld(db: Db) {
       'Beta Ad Secret',
       bReport!.id,
       bShare!.id,
+      bNote!.id,
       'B'.repeat(43),
     ],
   };

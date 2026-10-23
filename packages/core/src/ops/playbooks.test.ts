@@ -33,6 +33,9 @@ describe('playbook token_expiring', () => {
     expect(email.sent[0]).toMatchObject({ to: owner.email });
     expect(email.sent[0]!.subject).toContain('hết hạn sau 3 ngày');
     expect(email.sent[0]!.text).toContain('http://app/connections');
+    // Trung tâm thông báo: cùng nội dung, không gửi email lần nữa.
+    const notes = await db.select().from(schema.notifications);
+    expect(notes).toMatchObject([{ kind: 'token_expiring', params: { days: 3 }, emailStatus: 'none' }]);
     // Lần 2 trong ngày: vượt giới hạn → không gửi lại.
     expect(await runTokenExpiringPlaybook(db, deps)).toEqual({ notified: 0, expired: 0, skipped: 1 });
     expect(email.sent).toHaveLength(1);

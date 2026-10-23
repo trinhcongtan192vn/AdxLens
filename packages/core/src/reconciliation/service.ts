@@ -4,6 +4,7 @@ import type { Enqueue } from '@adxlens/jobs';
 import { DEFAULT_ATTRIBUTION, MetaApiError, type MetaInsight, type MetaReadApi } from '@adxlens/meta-client';
 import { markConnectionExpired, withConnectionToken, type TokenKeys } from '@adxlens/core/connections';
 import { startManualSync } from '@adxlens/core/ingestion';
+import { notify } from '@adxlens/core/notification';
 import { openIncident, resolveIncidentsByFingerprint, runPlaybook } from '@adxlens/core/ops';
 import {
   addDays,
@@ -239,6 +240,18 @@ export async function reconcileAccount(
       adAccountId: account.id,
       detail: { dates: warningDates, max_spend_delta_pct: maxSpend },
     });
+    // P0-25: báo người phụ trách (owner/manager xem được Client) — loại bắt buộc, có email.
+    await notify(
+      ctx,
+      {
+        kind: 'reconciliation_warning',
+        recipients: { roles: ['owner', 'manager'], clientId: account.clientId },
+        params: { account: account.name, dates: warningDates.join(', ') },
+        link: account.clientId ? `/clients/${account.clientId}/reconciliation?account=${account.id}` : '/connections',
+        dedupeKey: `recon:${account.id}:${warningDates.join(',')}`,
+      },
+      { enqueue: deps.enqueue },
+    );
     const enqueue = deps.enqueue;
     if (enqueue) {
       await runPlaybook(

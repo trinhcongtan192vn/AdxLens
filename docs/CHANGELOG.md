@@ -2,6 +2,30 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [023] Thông báo: trung tâm thông báo (X05), cài đặt (ST05), email theo loại, E01 song ngữ — 2026-10-23
+
+**Thay đổi**
+- DB: `app.notifications` (một dòng mỗi người nhận, khóa i18n + tham số, link, đã đọc, trạng thái email, khóa chống trùng), `app.notification_settings` (theo người dùng × loại). RLS.
+- `packages/core/notification/service.ts` (PRD P0-25): loại thông báo `sync_done`, `reconciliation_warning`, `token_expiring`, `token_expired`, `report_viewed`, `report_sent`, `report_postponed`, `billing_failed`, `action_failed`. **Loại bắt buộc** (sự cố số liệu, token, thanh toán, hành động thất bại, báo cáo bị hoãn) luôn bật cả trong app và email. `notify()` chọn người nhận theo vai trò + quyền xem Client (manager giới hạn Client khác, buyer không thuộc vai trò bị loại), theo cài đặt, chống trùng theo sự kiện, enqueue `notify:send_email`. Gửi email theo locale người nhận, ghi trạng thái. Danh sách, số chưa đọc, đánh dấu đã đọc (chỉ của mình), cài đặt.
+- Mẫu email theo loại (vi/en, cùng nội dung với trung tâm thông báo) `templates/alerts.ts`; E06 token dùng playbook có sẵn + thêm vào trung tâm thông báo.
+- Sự kiện đã nối: backfill xong → "đồng bộ xong"; đối chiếu lệch → người phụ trách (bắt buộc, có email); token sắp/đã hết hạn → trung tâm thông báo; khách mở link báo cáo lần đầu → người tạo link. (`report_sent`/`report_postponed` ở 024, `billing_failed` ở 027, `action_failed` ở 036.)
+- Worker `notify:send_email`.
+- API: `GET|POST /api/v1/notifications` (danh sách đã dịch + chưa đọc / đọc tất cả), `POST /api/v1/notifications/{id}/read`, `GET|PATCH /api/v1/me/notification-settings`.
+- Giao diện: X05 `/notifications` (chưa đọc nổi bật, bấm mở + đánh dấu đã đọc, đọc tất cả, trống); số chưa đọc thật trên menu tài khoản; ST05 Cài đặt › Thông báo (bảng loại × trong app / email, loại bắt buộc "Luôn bật" không tắt được).
+- E01: mẫu email xác minh và đặt lại mật khẩu song ngữ của Supabase Auth (`infra/supabase/templates/`, cấu hình trong `config.toml`).
+
+**Test tự động**
+- `packages/core/src/notification/notification.test.ts` (4): người nhận theo vai trò + quyền Client, email chỉ khi bật, chống trùng; cài đặt thường/bắt buộc, `email: false`; gửi email theo locale + trạng thái + không gửi lại; đánh dấu đọc chỉ của mình; mọi loại có mẫu email.
+- Thêm khẳng định vào test luồng: backfill xong có 1 thông báo; đối chiếu lệch có thông báo (email queued) và chạy lại không báo trùng; khách mở link 2 lần → 1 thông báo; playbook token tạo thông báo trong app.
+- API `notifications.test.ts` (3): danh sách đã dịch/đọc/đọc tất cả; cài đặt; mọi loại có nhãn/tiêu đề/nội dung vi+en.
+- Bộ cách ly: dữ liệu B có thông báo; probe 5 route + job `notify:send_email` dùng thông báo B.
+- E2E: đăng ký đi qua mẫu email xác minh mới.
+- **Test đổi:** `reconciliation.test.ts` — trước khẳng định `enqueue` đúng 1 lệnh (job đồng bộ lại); nay đối chiếu lệch còn enqueue email thông báo, nên lọc theo tên job (vẫn đúng 1 job đồng bộ lại, và đúng 1 email sau 2 lần chạy).
+
+**Vùng bảo vệ:** `packages/db/**` (2 bảng + RLS, migration 0025–0026), `infra/**` (mẫu email Supabase Auth + cấu hình template). Rủi ro: cần khởi động lại Supabase local để nạp mẫu; staging cấu hình mẫu tương ứng trên Supabase dashboard.
+
+**PM kiểm tra:** Thông báo trên menu tài khoản sau khi đồng bộ; Cài đặt › Thông báo bật email "Đồng bộ xong" → lần sau có email ở Mailpit; email xác minh khi đăng ký có hai ngôn ngữ.
+
 ## [042] Trang nội bộ bật/tắt cờ (AD01, AD02) + E2E báo cáo đầy đủ — 2026-10-23
 
 **Thay đổi**

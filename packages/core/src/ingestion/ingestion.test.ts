@@ -118,6 +118,10 @@ describe('backfill 90 ngày', () => {
 
     const [acc] = await db.select().from(schema.adAccounts).where(eq(schema.adAccounts.id, adAccountId));
     expect(acc).toMatchObject({ syncStatus: 'ok', active30d: true });
+    // P0-25: owner nhận "đồng bộ xong" một lần.
+    const notes = await db.select().from(schema.notifications).where(eq(schema.notifications.kind, 'sync_done'));
+    expect(notes).toHaveLength(1);
+    expect(notes[0]).toMatchObject({ userId: ctx.actor.userId, link: `/accounts/${adAccountId}` });
 
     // Tổng chi tiêu theo ngày (numeric, so chuỗi) khớp insight cấp tài khoản của Meta.
     const perDay = await db.execute<{ date: string; spend: string }>(sql`

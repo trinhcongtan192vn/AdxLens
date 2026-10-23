@@ -134,7 +134,12 @@ describe('trang công khai (R06)', () => {
     const st = await publicShareState(ctx, open, { unlocked: false, clock });
     expect(st).toMatchObject({ state: 'ok', reportId, showBadge: true });
     await recordShareView(ctx, open.id, clock);
-    expect((await findShareByToken(db, open.token))!.viewCount).toBe(1);
+    await recordShareView(ctx, open.id, clock);
+    expect((await findShareByToken(db, open.token))!.viewCount).toBe(2);
+    // P0-25: lần mở đầu tiên báo người tạo link (một lần).
+    const viewed = await db.select().from(schema.notifications).where(eq(schema.notifications.kind, 'report_viewed'));
+    expect(viewed).toHaveLength(1);
+    expect(viewed[0]).toMatchObject({ userId: ctx.actor.userId, params: { client: 'Linh' } });
 
     const locked = await createShareLink(ctx, reportId, { password: 'mat-khau' }, clock);
     expect((await publicShareState(ctx, locked, { unlocked: false, clock })).state).toBe('password');
