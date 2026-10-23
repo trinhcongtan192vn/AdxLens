@@ -71,6 +71,23 @@ export async function seedWorld(db: Db) {
     status: 'ok',
   });
 
+  const [bFinding] = await db
+    .insert(schema.findings)
+    .values({
+      workspaceId: b.workspace.id,
+      adAccountId: bAdAccount.id,
+      ruleId: 'test_rule',
+      ruleGroup: 'test',
+      entityType: 'ad',
+      metaId: '999000111222',
+      entityName: 'Beta Ad Secret',
+      severity: 'high',
+      evidence: {},
+      explanation: { why: { key: 'x' }, whatToDo: { key: 'y' }, deepLink: null },
+      snapshotVersion: 'v1',
+    })
+    .returning();
+
   const world = {
     a: {
       workspace: a.workspace,
@@ -88,6 +105,7 @@ export async function seedWorld(db: Db) {
       connection: bConnection,
       adAccount: bAdAccount,
       syncRun: bRun!,
+      finding: bFinding!,
     },
     /** Chuỗi của B tuyệt đối không được xuất hiện trong phản hồi cho ngữ cảnh A. */
     bFingerprints: [
@@ -106,6 +124,8 @@ export async function seedWorld(db: Db) {
       'act_999999',
       bRun!.id,
       'Beta Campaign Secret',
+      bFinding!.id,
+      'Beta Ad Secret',
     ],
   };
   return world;

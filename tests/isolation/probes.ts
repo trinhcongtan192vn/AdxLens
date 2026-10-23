@@ -132,6 +132,22 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     kind: 'exempt',
     reason: 'Callback của Meta: xác thực bằng chữ ký HMAC, thu hồi theo meta_user_id (core/ops, có test riêng)',
   },
+  'GET /api/v1/ad-accounts/[id]/findings': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.adAccount.id }),
+    crossParams: (w) => ({ id: w.b.adAccount.id }),
+  },
+  'GET /api/v1/findings/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.finding.id }),
+  },
+  'POST /api/v1/findings/[id]/feedback': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.finding.id }),
+    body: () => ({ kind: 'seen' }),
+  },
   'GET /api/v1/clients': { kind: 'workspace' },
   'POST /api/v1/clients': { kind: 'workspace', body: () => ({ name: 'Client mới' }) },
   'GET /api/v1/clients/[id]': {

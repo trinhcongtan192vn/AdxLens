@@ -654,5 +654,6 @@
     "done": "Disconnected. Confirmation code {code}.",
     "pendingBanner": "Data deletion pending (code {code}): deleting on {date}. Reconnect before then to cancel.",
     "doneBanner": "Data of the old connection was deleted (code {code}) on {date}."
-  }
+  },
+  "rules": {}
 }
