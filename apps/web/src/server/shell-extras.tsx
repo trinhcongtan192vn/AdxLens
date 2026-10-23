@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { billingStatus } from '@adxlens/core/billing';
+import { killSwitchState } from '@adxlens/core/execution';
 import { connectionHealth, demoConnection } from '@adxlens/core/connections';
 import { DemoActions } from '@/components/demo-actions';
 import { unreadCount } from '@adxlens/core/notification';
@@ -32,6 +33,26 @@ async function systemBanner(pc: PageContext): Promise<ReactNode> {
         {t('tokenExpired', { count: health.expired.length })}
       </Banner>
     );
+  }
+  // X04 kill switch (P2a): mọi thay đổi trên Meta đang tạm dừng.
+  if (pc.flags.p2a_approve) {
+    const k = await killSwitchState(pc.ctx);
+    if (k.global || k.workspace) {
+      return (
+        <Banner
+          tone="danger"
+          action={
+            k.workspace && can(pc.actor.role, 'guardrails.manage') ? (
+              <Link href="/settings/guardrails" className="text-body font-medium underline">
+                {t('openKillSwitch')}
+              </Link>
+            ) : null
+          }
+        >
+          {k.global ? t('killSwitchGlobal') : t('killSwitch')}
+        </Banner>
+      );
+    }
   }
   // X04 past_due + vượt hạn mức (026, PRD 13.3).
   const billing = await billingStatus(pc.ctx);

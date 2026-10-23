@@ -4,6 +4,8 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { createMetaWriter, runWriteSelfTest } from '@adxlens/core/execution';
+import { recordExecutionCheck } from '@adxlens/core/ops';
+import { createDb } from '@adxlens/db';
 
 const envFile = path.resolve(import.meta.dirname, '../../../../.env.local');
 if (existsSync(envFile)) process.loadEnvFile(envFile);
@@ -27,7 +29,19 @@ async function main() {
   });
   const steps = await runWriteSelfTest(writer, token, { allowedAccounts: allowed, adId, adsetId });
   for (const s of steps) console.log(`${s.ok ? 'ĐẠT ' : 'LỖI '} ${s.action.padEnd(28)} ${s.target}  ${s.detail}`);
-  if (steps.some((s) => !s.ok)) process.exit(1);
+  const passed = steps.every((s) => s.ok);
+  // Ghi kết quả cho checklist cờ duyệt hành động (theo APP_VERSION của bản deploy).
+  if (process.env.DATABASE_URL) {
+    const { db, close } = createDb(process.env.DATABASE_URL);
+    await recordExecutionCheck(db, {
+      appVersion: process.env.APP_VERSION ?? 'local',
+      appEnv: env,
+      passed: passed && !mock,
+      steps: steps.map((s) => ({ action: s.action, ok: s.ok })),
+    });
+    await close();
+  }
+  if (!passed) process.exit(1);
 }
 
 main().catch((e: unknown) => {

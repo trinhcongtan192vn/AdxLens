@@ -5,6 +5,7 @@ import * as matrix from './workspaces/route';
 import * as checklist from './workspaces/[id]/flags/[key]/checklist/route';
 import * as toggle from './workspaces/[id]/flags/[key]/route';
 import * as history from './workspaces/[id]/flag-history/route';
+import * as killSwitch from './kill-switch/route';
 
 const db = testDb();
 beforeEach(async () => {
@@ -74,5 +75,23 @@ describe('API admin cờ (AD01, AD02)', () => {
       body: { enabled: false, reason: 'x' },
     });
     expect(short.status).toBe(422);
+  });
+});
+
+describe('API kill switch toàn cục (AD04)', () => {
+  it('không phải staff → 404; staff xem được nhưng không đổi; PM bật/tắt (cần lý do)', async () => {
+    const { owner } = await seedWorkspace(db);
+    expect((await call(killSwitch.GET, { user: asUser(owner) })).status).toBe(404);
+    const staff = asUser(await seedStaff(db, false));
+    const pm = asUser(await seedStaff(db, true));
+    expect((await call(killSwitch.GET, { user: staff })).body).toMatchObject({ active: false });
+    expect((await call(killSwitch.POST, { user: staff, body: { active: true, reason: 'thử bật' } })).status).toBe(403);
+    expect((await call(killSwitch.POST, { user: pm, body: { active: true, reason: 'x' } })).status).toBe(422);
+    const on = await call(killSwitch.POST, { user: pm, body: { active: true, reason: 'Sự cố thực thi' } });
+    expect(on.status).toBe(200);
+    expect((await call(killSwitch.GET, { user: staff })).body).toMatchObject({
+      active: true,
+      reason: 'Sự cố thực thi',
+    });
   });
 });

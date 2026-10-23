@@ -2,6 +2,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { enableFlag } from '@adxlens/core/flags';
 import { closeTestDb, seedMember, seedStaff, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
 import { asUser, call, installTestServer, uninstallTestServer } from '../../../../test-utils';
+import * as killRoute from '../kill-switch/route';
 import * as route from './route';
 
 const db = testDb();
@@ -54,5 +55,34 @@ describe('API guardrails (P205)', () => {
     expect((loose.body as { error: { code: string } }).error.code).toBe('GUARDRAIL_VIOLATION');
     const m = asUser(await seedMember(db, workspace.id, 'manager'));
     expect((await call(route.GET, { user: m, workspaceId: workspace.id })).status).toBe(403);
+  });
+});
+
+describe('API kill switch workspace (P205)', () => {
+  it('cờ tắt → 404; cờ bật: Owner bật (cần lý do) / tắt, GET trả trạng thái', async () => {
+    const { workspace, owner } = await seedWorkspace(db);
+    const u = asUser(owner);
+    expect((await call(killRoute.GET, { user: u, workspaceId: workspace.id })).status).toBe(404);
+    const pm = await seedStaff(db, true);
+    for (const key of ['p0_reports', 'p1_recommendations', 'p2a_approve'] as const) {
+      await enableFlag(db, {
+        workspaceId: workspace.id,
+        key,
+        staffUserId: pm.id,
+        reason: 'test kill switch',
+        override: true,
+      });
+    }
+    expect(
+      (await call(killRoute.POST, { user: u, workspaceId: workspace.id, body: { active: true, reason: '' } })).status,
+    ).toBe(422);
+    const on = await call(killRoute.POST, {
+      user: u,
+      workspaceId: workspace.id,
+      body: { active: true, reason: 'Khách yêu cầu' },
+    });
+    expect(on.body).toEqual({ canceled: 0 });
+    const g = await call(killRoute.GET, { user: u, workspaceId: workspace.id });
+    expect((g.body as { workspace: { active: boolean } }).workspace.active).toBe(true);
   });
 });

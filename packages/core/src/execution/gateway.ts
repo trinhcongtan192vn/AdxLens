@@ -7,6 +7,7 @@ import { isEnabled } from '@adxlens/core/flags';
 import { MetaApiError } from '@adxlens/meta-client';
 import type { MetaWriteApi, WritableObject } from '@adxlens/meta-client/write';
 import { notify } from '@adxlens/core/notification';
+import { openIncident } from '@adxlens/core/ops';
 import {
   addDays,
   AppError,
@@ -18,7 +19,7 @@ import {
 } from '@adxlens/core/shared';
 import { canApproveActions } from '@adxlens/core/tenancy';
 import { checkGuardrails, effectiveGuardrails, type ActionType, type GuardrailViolation } from './guardrails';
-import { breakerOpen, killSwitchState, recordFailure, recordSuccess } from './safety';
+import { breakerOpen, cancelPending, killSwitchState, recordFailure, recordSuccess } from './safety';
 
 const { actions, actionLogs, adAccounts, entities } = schema;
 
@@ -464,7 +465,22 @@ export async function executeAction(
     },
     { enqueue: deps.enqueue },
   );
-  if (opened) await log(ctx, a.id, 'circuit_breaker_opened', { ad_account_id: account.id });
+  // Playbook `execution_failed` (L3 12): mọi thất bại mở / gom sự cố; breaker vừa mở → P1 và hủy hành động đang
+  // chờ của tài khoản (hệ thống tự về trạng thái an toàn trước khi PM xử lý).
+  await openIncident(ctx.db, {
+    kind: 'execution_failed',
+    severity: opened ? 'P1' : 'P2',
+    source: 'execution',
+    title: opened ? 'Tạm khóa thực thi do lỗi liên tiếp' : 'Hành động trên Meta thất bại',
+    fingerprint: `execution_failed:${account.id}`,
+    workspaceId: ctx.workspaceId,
+    adAccountId: account.id,
+    detail: { action_id: a.id, action_type: a.actionType, result: outcome.code },
+  });
+  if (opened) {
+    await log(ctx, a.id, 'circuit_breaker_opened', { ad_account_id: account.id });
+    await cancelPending(ctx, 'circuit_breaker_open', { adAccountId: account.id });
+  }
   return r;
 }
 

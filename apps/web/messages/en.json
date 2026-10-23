@@ -453,7 +453,10 @@
     "pastDue": "The current period of your plan is unpaid. Pay within 7 days to keep your plan.",
     "overLimit": "This workspace has {active} active accounts, over the plan limit of {limit}. After 7 days, accounts over the limit stop updating.",
     "overLimitExpired": "The grace period has ended: only {limit} accounts within the limit keep updating. Existing data is kept.",
-    "openBilling": "View plan"
+    "openBilling": "View plan",
+    "killSwitch": "Kill switch is on: AdxLens makes no changes on Meta.",
+    "killSwitchGlobal": "AdxLens has paused all changes on Meta for a safety check. Data and reports keep working normally.",
+    "openKillSwitch": "View kill switch"
   },
   "connect": {
     "step": "Setup · step {n}/{total}",
@@ -1081,7 +1084,7 @@
     "nav": {
       "flags": "Flag matrix",
       "incidents": "Incidents & playbooks",
-      "killSwitch": "Global kill switch"
+      "killSwitch": "Kill switch"
     },
     "flags": {
       "title": "Feature flag matrix",
@@ -1119,6 +1122,19 @@
         "noHistory": "No changes yet.",
         "overrideTag": "override"
       }
+    },
+    "killSwitch": {
+      "nav": "Kill switch",
+      "title": "Global kill switch",
+      "body": "Stops every change on Meta for every workspace and cancels pending actions. Use during an execution incident.",
+      "state": "State",
+      "on": "On",
+      "off": "Off",
+      "reason": "Reason (required)",
+      "turnOn": "Turn on globally",
+      "turnOff": "Turn off globally",
+      "pmOnly": "Only the PM can change this.",
+      "done": "Updated, {count} pending actions canceled"
     }
   },
   "notifications": {
@@ -1612,5 +1628,25 @@
       "CONFLICT": "The action is already running or no longer applies.",
       "NOT_FOUND": "Item not found."
     }
+  },
+  "killSwitch": {
+    "title": "Kill switch",
+    "on": "On",
+    "off": "Off",
+    "body": "Turning on the kill switch immediately stops every change AdxLens makes on Meta for this workspace and cancels pending actions.",
+    "reason": "Reason: {reason}",
+    "turnOn": "Turn on kill switch",
+    "turnOff": "Turn off kill switch",
+    "globalOn": "The system-wide kill switch is on: all changes on Meta are paused.",
+    "confirmTitle": "Turn on the kill switch?",
+    "confirmBody": "Pending actions are canceled and no new action runs until you turn it off.",
+    "reasonLabel": "Reason (required, ≥ 5 characters)",
+    "onToast": "Kill switch on, {count} pending actions canceled",
+    "offToast": "Kill switch off",
+    "breakers": "Accounts locked after repeated failures",
+    "locked": "Locked",
+    "failures": "{count} failures in a row",
+    "unlock": "Unlock",
+    "breakerClosed": "Account unlocked"
   }
 }
