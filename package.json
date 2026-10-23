@@ -10,6 +10,7 @@
     "env:init": "node scripts/env-init.mjs",
     "seed:staff": "tsx scripts/seed-staff.ts",
     "e4:report": "tsx scripts/e4-report.ts",
+    "job:trigger": "pnpm --filter @adxlens/worker exec tsx src/cli/trigger.ts",
     "build": "turbo run build",
     "lint": "eslint . && node scripts/check-boundaries.mjs",
     "typecheck": "turbo run typecheck",

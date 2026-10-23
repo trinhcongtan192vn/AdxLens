@@ -57,4 +57,15 @@ describe('dispatch', () => {
     expect(r).toEqual({ status: 'flag_off' });
     expect(t.rendered).toEqual([]);
   });
+
+  it('notify:digest: cờ tắt → không gửi', async () => {
+    const t = testWorkerServices(db);
+    const r = await dispatch(handlers, t.services, {
+      name: 'notify:digest',
+      id: '1',
+      data: { workspaceId: '00000000-0000-4000-8000-000000000001', week: '2026-10-26' },
+    });
+    expect(r).toEqual({ status: 'flag_off' });
+    expect(t.email.sent).toEqual([]);
+  });
 });

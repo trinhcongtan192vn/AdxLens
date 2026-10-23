@@ -102,6 +102,10 @@ export const JOB_PROBES: Record<string, JobProbe> = {
   'notify:scheduled_report': {
     payload: (w) => ({ workspaceId: w.a.workspace.id, scheduleId: w.b.schedule.id, period: '2026-W43' }),
   },
+  // Digest của A: chụp health / gửi chỉ trong A (cờ p0 bật cho A trong world).
+  'notify:digest': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, week: '2026-10-26' }),
+  },
   'reconcile:account': {
     prepare: backfillForA,
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, from: p!.from, to: p!.to }),

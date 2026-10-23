@@ -2,6 +2,24 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [024b] Digest tuần (E03), lệnh kích hoạt job cho dev — 2026-10-23
+
+**Thay đổi**
+- DB: `app.health_snapshots` (health theo tài khoản × tuần) để digest so "thay đổi sức khỏe" với tuần trước. RLS.
+- `packages/core/reporting/digest.ts` (PRD P0-19): gửi thứ Hai 08:00 theo múi giờ workspace cho từng owner/manager **theo phạm vi Client của họ**: health hiện tại + thay đổi so tuần trước, vấn đề mới trong 7 ngày (số mức cao), số ngày lệch đối chiếu, số báo cáo khách được lên lịch trong tuần. Chụp health tuần này mỗi lần chạy. Tôn trọng cài đặt "Tổng kết tuần" (mặc định email, không trong app); chống gửi trùng theo tuần. Email E03 song ngữ, bảng theo tài khoản (health thấp trước). Không có văn bản do LLM.
+- `notify()` thêm `forceRecord` (lưu dòng chống trùng cho email gửi riêng).
+- Worker: `notify:digest` (kiểm cờ `p0_reports` ở đầu job); `maintenance:report_tick` mỗi giờ cũng enqueue digest cho workspace đang thứ Hai 08:00. `core/ops/report-schedules.ts`: múi giờ mọi workspace (xuyên workspace có chú thích).
+- `pnpm job:trigger -- <job> '<payload JSON>'`: kích hoạt job ngay ở dev/staging (kiểm payload theo schema, chặn production). Hướng dẫn trong `docs/onboarding.md`. ESLint cho phép `console` trong `src/cli/`.
+
+**Test tự động**
+- `digest.test.ts` (3): thời điểm thứ Hai 08:00 theo múi giờ; gửi owner + manager giới hạn Client (manager không thấy tài khoản Client khác), chụp health, không gửi trùng, tuần sau hiện thay đổi; tắt email thì không gửi.
+- Worker: `notify:digest` cờ tắt → không gửi. Bộ cách ly: probe job `notify:digest` cho A không đổi dữ liệu B.
+- Kiểm thủ công: `pnpm job:trigger` enqueue job hợp lệ, từ chối payload sai.
+
+**Vùng bảo vệ:** `packages/db/**` (1 bảng + RLS, migration 0029–0030).
+
+**PM kiểm tra:** `pnpm job:trigger -- notify:digest '{"workspaceId":"<id>","week":"<thứ Hai tuần này>"}'` (cờ báo cáo bật) → Mailpit có email "Tổng kết tuần".
+
 ## [024a] Lịch gửi báo cáo (R05): tự động / cần duyệt, hoãn khi chưa toàn vẹn, PDF đính kèm — 2026-10-23
 
 **Thay đổi**

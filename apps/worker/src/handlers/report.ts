@@ -1,6 +1,15 @@
 import { isEnabled } from '@adxlens/core/flags';
-import { enabledReportSchedules } from '@adxlens/core/ops';
-import { buildReport, isDue, renderReportPdf, runSchedule, schedulePeriod } from '@adxlens/core/reporting';
+import { enabledReportSchedules, workspaceTimezones } from '@adxlens/core/ops';
+import {
+  buildReport,
+  digestWeek,
+  isDigestDue,
+  isDue,
+  renderReportPdf,
+  runSchedule,
+  schedulePeriod,
+  sendWeeklyDigest,
+} from '@adxlens/core/reporting';
 import { SYSTEM_ACTOR } from '@adxlens/core/shared';
 import type { HandlerMap } from '../handler';
 
@@ -64,6 +73,16 @@ export const reportHandlers: HandlerMap = {
         period: schedulePeriod(s, now).key,
       });
     }
-    return { enqueued: due.length };
+    // Digest tuần: thứ Hai 08:00 theo múi giờ workspace (P0-19).
+    const digests = (await workspaceTimezones(db)).filter((w) => isDigestDue(w.timezone, now));
+    for (const w of digests) await enqueue('notify:digest', { workspaceId: w.id, week: digestWeek(w.timezone, now) });
+    return { enqueued: due.length, digests: digests.length };
+  },
+
+  // E03 digest tuần (P0-19). Kiểm cờ ở đầu job.
+  'notify:digest': async (p, { db, email, appUrl }) => {
+    const ctx = { db, workspaceId: p.workspaceId };
+    if (!(await isEnabled(ctx, 'p0_reports'))) return { status: 'flag_off' };
+    return sendWeeklyDigest(ctx, p.week, { email, appUrl });
   },
 };

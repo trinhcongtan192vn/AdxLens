@@ -58,3 +58,4 @@ Xem `docs/architecture/L3-technical.md` mục 3. Tóm tắt:
 - Báo cáo E4 (độ lệch + mức phủ dữ liệu theo tài khoản, Markdown): `pnpm e4:report -- --workspace <uuid> [--days 30]`. Chỉ chạy ở local/staging.
 - `pnpm test:e2e` tự bật web và một worker riêng.
 - PDF báo cáo (R07): worker dùng Playwright Chromium. Lần đầu chạy `pnpm --filter @adxlens/worker exec playwright install chromium`. Môi trường triển khai worker-render cần Chromium (image Playwright).
+- Kích hoạt job ngay (dev/staging, không production): `pnpm job:trigger -- <tên job> '<payload JSON>'`, ví dụ `pnpm job:trigger -- maintenance:report_tick '{"tick":"manual"}'` (lịch gửi + digest đến giờ), `pnpm job:trigger -- notify:digest '{"workspaceId":"<uuid>","week":"2026-10-26"}'`. Payload được kiểm theo schema của job.

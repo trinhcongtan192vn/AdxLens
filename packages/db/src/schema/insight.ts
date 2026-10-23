@@ -1,4 +1,4 @@
-import { bigserial, boolean, index, jsonb, text, unique, uuid } from 'drizzle-orm/pg-core';
+import { bigserial, boolean, index, integer, jsonb, primaryKey, text, unique, uuid } from 'drizzle-orm/pg-core';
 import { app, createdAt, money, tsz, updatedAt } from './_common';
 import { adAccounts } from './connections';
 
@@ -73,4 +73,20 @@ export const ruleConfigs = app.table(
     updatedAt: updatedAt(),
   },
   (t) => [unique().on(t.ruleId, t.workspaceId).nullsNotDistinct()],
+);
+
+/** Health score theo tuần (digest P0-19: "thay đổi sức khỏe tài khoản" so với tuần trước). */
+export const healthSnapshots = app.table(
+  'health_snapshots',
+  {
+    workspaceId: uuid('workspace_id').notNull(),
+    adAccountId: uuid('ad_account_id')
+      .notNull()
+      .references(() => adAccounts.id, { onDelete: 'cascade' }),
+    /** Thứ Hai của tuần (YYYY-MM-DD). */
+    week: text('week').notNull(),
+    score: integer('score').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.adAccountId, t.week] }), index().on(t.workspaceId)],
 );
