@@ -102,3 +102,44 @@ export async function setPlanNow(workspaceName: string, planKey: 'growth' | 'sca
     await close();
   }
 }
+
+/** Giả lập 14 ngày chạy thử cho mọi rule shadow của workspace (như `pnpm rules:simulate`, chỉ DB local). */
+export async function simulateShadowNow(workspaceName: string, days = 14): Promise<void> {
+  const { createDb, schema } = await import('@adxlens/db');
+  const { and, eq } = await import('drizzle-orm');
+  const { simulateShadowDays } = await import('@adxlens/core/execution');
+  const { db, close } = createDb(process.env.DATABASE_URL!);
+  try {
+    const [ws] = await db.select().from(schema.workspaces).where(eq(schema.workspaces.name, workspaceName));
+    const rules = await db
+      .select()
+      .from(schema.automationRules)
+      .where(and(eq(schema.automationRules.workspaceId, ws!.id), eq(schema.automationRules.mode, 'shadow')));
+    for (const r of rules) await simulateShadowDays({ db, workspaceId: ws!.id }, r.id, days);
+  } finally {
+    await close();
+  }
+}
+
+/** Đánh giá ngay các rule live (thay cho tick 30 phút); hành động enqueue cho worker E2E thực hiện. */
+export async function evaluateLiveRulesNow(workspaceName: string): Promise<void> {
+  const { createDb, schema } = await import('@adxlens/db');
+  const { and, eq } = await import('drizzle-orm');
+  const { liveEvaluate } = await import('@adxlens/core/execution');
+  const { bullEnqueue, createQueues, redisConnection } = await import('../../worker/src/queues');
+  const { db, close } = createDb(process.env.DATABASE_URL!);
+  const connection = redisConnection(process.env.REDIS_URL ?? 'redis://127.0.0.1:6379');
+  const queues = createQueues(connection);
+  try {
+    const [ws] = await db.select().from(schema.workspaces).where(eq(schema.workspaces.name, workspaceName));
+    const rules = await db
+      .select()
+      .from(schema.automationRules)
+      .where(and(eq(schema.automationRules.workspaceId, ws!.id), eq(schema.automationRules.mode, 'live')));
+    for (const r of rules) await liveEvaluate({ db, workspaceId: ws!.id }, r.id, { enqueue: bullEnqueue(queues) });
+  } finally {
+    await Promise.all(Object.values(queues).map((q) => q.close()));
+    await connection.quit();
+    await close();
+  }
+}

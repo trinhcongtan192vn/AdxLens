@@ -129,6 +129,27 @@ export const JOB_PROBES: Record<string, JobProbe> = {
     },
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, actionId: p!.actionId }),
   },
+  'rules:evaluate': {
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [r] = await db
+        .insert(schema.automationRules)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          name: 'Probe live rule',
+          level: 'ad',
+          condition: [{ metric: 'spend', op: 'gte', value: '0' }],
+          action: { type: 'pause_ad' },
+          guardrails: {},
+          mode: 'live',
+          createdBy: w.a.owner.id,
+        })
+        .returning();
+      return { ruleId: r!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, ruleId: p!.ruleId, tick: 'probe' }),
+  },
   'rules:shadow_evaluate': {
     prepare: async (db, w) => {
       const { schema } = await import('@adxlens/db');

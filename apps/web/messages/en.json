@@ -1771,6 +1771,20 @@
       "GUARDRAIL_VIOLATION": "Outside safety limits: budget change max ±15%, limits can only be stricter than the workspace.",
       "VALIDATION_FAILED": "Check the conditions / action (increases need a cap; level must match the action).",
       "NOT_FOUND": "Account not found."
+    },
+    "results": {
+      "note": "Last 30 days. \"Spend in the 7 days before pausing\" is what the item spent in the 7 days before the rule paused it — for reference only, not proof of real savings. Undo rate target ≤ 5%.",
+      "emptyTitle": "No automatic actions yet",
+      "emptyBody": "Live rules show their results here.",
+      "cols": {
+        "rule": "Rule",
+        "mode": "Mode",
+        "total": "Actions",
+        "success": "Succeeded",
+        "failed": "Failed",
+        "undoRate": "Undo rate",
+        "pausedSpend": "Spend in 7 days before pausing"
+      }
     }
   }
 }

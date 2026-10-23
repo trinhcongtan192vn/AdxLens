@@ -2,6 +2,36 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [041] Rule live tạo hành động tự động qua gateway, hiệu quả tự động hóa (P215) — 2026-10-23
+
+> Chạm `packages/core/execution` — **cần PM chạy staging trước khi merge `develop → main`**; đây là đường ghi `tier=auto` (ADR-0012).
+
+**Thay đổi**
+- `gateway.ts` → `requestAutoAction`: hành động `tier=auto` qua **đúng** cổng an toàn của duyệt tay (cờ duyệt hành động + cờ tự chạy, gói, kill switch, breaker, quyền ghi) và guardrails `auto` (giờ yên lặng theo giờ tài khoản, không bật lại / nhân bản, giới hạn số hành động/ngày = min(workspace, rule), loại trừ của workspace + rule); mỗi đối tượng không bị cùng rule thao tác lại trong 24 giờ; nhật ký `auto_requested`.
+- `rules.ts`:
+  - `liveEvaluate` (`evaluate_rules`): đánh giá trên snapshot, tạo hành động cho từng đối tượng khớp, ghi `rule_evaluations` (id hành động đã tạo, lý do bị chặn).
+  - `automationEffectiveness` (P2-14, 30 ngày): hành động / thành công / thất bại / hoàn tác (mục tiêu ≤ 5%) / chi tiêu 7 ngày trước của đối tượng bị tạm dừng (ước tính, ghi rõ không phải nhân quả).
+- Worker `rules:evaluate` (kiểm cờ ở đầu job); `maintenance:rules_tick` (040) enqueue cho rule live.
+- API `GET /automation-rules/effectiveness`. Trang P215 `/automation/results` (tỷ lệ hoàn tác tô màu theo mục tiêu 5%). Nhật ký hành động hiện "Hệ thống" là người duyệt của hành động tự động.
+
+**Test tự động**
+- `execution/gateway.test.ts` (+4):
+  - rule live tạo đúng số hành động theo giới hạn/ngày của rule, `tier=auto`, worker thực hiện, đánh giá ghi id + lý do chặn, lần sau trong 24 giờ không lặp;
+  - **giờ yên lặng, kill switch, tắt cờ tự chạy → không tạo hành động** (lý do được ghi);
+  - rule không live → bỏ qua;
+  - hiệu quả: tổng / thành công / hoàn tác / tỷ lệ.
+- Coverage `packages/core/execution`: **97,9% dòng**.
+- Worker: `rules:evaluate` **cờ tắt → không chạy**. Route: `effectiveness` cờ tắt 404. Bộ cách ly: probe job `rules:evaluate` + route mới.
+- **E2E mới `p2b.spec.ts`**:
+  1. mẫu → sửa điều kiện → backtest → lưu chạy thử ("Bật chạy thật" bị khóa);
+  2. giả lập 14 ngày → 14 lần đánh giá, mở khóa → bật chạy thật;
+  3. rule tạo hành động tự động → worker thực hiện → nhật ký "Thành công", người duyệt "Hệ thống";
+  4. P215 có dòng.
+
+**Vùng bảo vệ:** `packages/core/execution/**`.
+
+**PM kiểm tra:** theo `p2b.spec.ts` trên develop (Meta mock, `pnpm rules:simulate`); trên staging với tài khoản test trước khi bật cờ tự động hóa cho khách (L3 18.3: P2a ≥ 8 tuần, hoàn tác ≤ 5%).
+
 ## [040] Shadow mode chạy định kỳ (P214), lệnh giả lập thời gian chỉ ở local — 2026-10-23
 
 **Thay đổi**
