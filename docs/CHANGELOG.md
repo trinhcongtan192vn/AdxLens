@@ -2,6 +2,16 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [fix] Đồng bộ tài khoản Meta thật bị treo ở `adcreatives` — 2026-10-23
+
+**Thay đổi**
+- PM đồng bộ tài khoản thật "TRON_GLAMPING": tiến độ đứng ở 0%. `job_audit` cho thấy `act_…/adcreatives` trả **HTTP 500, mã 1** lặp lại (Meta: "Please reduce the amount of data you're asking for") vì trang 500 creative có `thumbnail_url` quá nặng; mỗi lần client lại thử y nguyên → lô đồng bộ không xong.
+- `MetaHttp.paginate`: gặp mã 1 khi trang còn thu nhỏ được → thử lại **cùng trang với `limit` ÷4** (tối thiểu 25), không thử lại y nguyên; các trang sau dùng `limit` nhỏ hơn (theo URL `next` của Meta). Ở trang nhỏ nhất vẫn lỗi → thử lại như lỗi tạm thời rồi báo lỗi như cũ.
+
+**Test tự động:** `http.test.ts` — trang nặng tự giảm 500 → 125 → 31 rồi đọc được, không chờ backoff; ở `limit` 25 vẫn lỗi thì thử lại theo `maxAttempts` rồi ném lỗi mã 1.
+
+**PM kiểm tra:** mở lại màn đồng bộ — TRON_GLAMPING chạy tiếp (nếu báo lỗi thì bấm "Đồng bộ lại").
+
 ## [047] Admin: tra cứu workspace (hỗ trợ khách) — 2026-10-23
 
 **Thay đổi**
