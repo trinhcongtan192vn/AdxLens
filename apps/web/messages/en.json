@@ -1918,7 +1918,13 @@
       "creative_loser": "Pause or reduce delivery for the losing creative ({ads} ads)",
       "creative_winner": "Shift more delivery to the winning creative"
     },
-    "results": "Before / after results →"
+    "results": "Before / after results →",
+    "bulk": {
+      "selected": "{count} selected",
+      "clear": "Clear",
+      "all": "Select all (max 20)",
+      "select": "Select: {action}"
+    }
   },
   "outcomes": {
     "title": "Before / after results",
@@ -2129,7 +2135,13 @@
       "quiet_hours": "Outside allowed hours.",
       "no_auto_resume": "No automatic resume.",
       "no_auto_duplicate": "No automatic duplicate."
-    }
+    },
+    "bulkButton": "Preview & approve ({count})",
+    "bulkTitle": "Approve {count} suggestions",
+    "bulkConfirm": "Approve {count} actions",
+    "bulkNote": "Only executable suggestions without guardrail violations are sent. Each action is still re-checked, executed and verified as with single approval; see results in the Action log.",
+    "bulkQueued": "{count} actions sent",
+    "bulkOk": "Sent"
   },
   "automation": {
     "title": "Automation rules",

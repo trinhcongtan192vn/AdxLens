@@ -2,6 +2,18 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [059] Duyệt hàng loạt từ Việc tuần này (B2) — 2026-10-24
+
+**Thay đổi**
+- Việc tuần này (khi cờ Duyệt 1 click bật, người có quyền cập nhật gợi ý): cột chọn cho gợi ý "Đề xuất" (tối đa 20, "Chọn tất cả"), nút **Xem trước & duyệt (n)** → hộp thoại liệt kê từng gợi ý: loại hành động, đối tượng, **trước → sau**, vi phạm guardrails / thiếu quyền, "không tự động được"; chỉ gửi gợi ý thực hiện được. Sau khi gửi hiện kết quả từng cái.
+- `POST /api/v1/recommendations/bulk-approve` (`{ ids }`, 1–20, sau cờ `p2a_approve`) → `execution.approveRecommendations`: **lần lượt từng gợi ý qua `approveRecommendation`** (cờ, gói, kill switch, breaker, quyền theo Client, guardrails; "số hành động / ngày" tính dần theo từng cái). Một cái lỗi nghiệp vụ không dừng cả lô (trả `code`, `message`); lỗi hệ thống ném lên. **Có id không thuộc workspace → 404 cả lô.** Không có đường tắt nào qua guardrails.
+
+**Test tự động:** `gateway.test.ts` (lô 3 gợi ý: 2 thực hiện + 1 không tự động được → CONFLICT, bỏ trùng id, đúng 2 hành động; id của workspace khác → NOT_FOUND cả lô; rỗng / > 20 → VALIDATION_FAILED); `bulk-approve.test.ts` (cờ tắt → 404; id lạ → 404; > 20 → 422; buyer → bị chặn); bộ cách ly: route mới với `crossBody` id gợi ý của B → bị từ chối.
+
+**Vùng bảo vệ:** `packages/core/execution/**` (`approveRecommendations` chỉ gọi lại đường duyệt sẵn có) — **cần PM chạy staging** trước khi merge main.
+
+**PM kiểm tra:** bật cờ Duyệt 1 click cho workspace mẫu (Meta giả) → Việc tuần này → chọn 2–3 gợi ý → Xem trước & duyệt → Nhật ký hành động có từng hành động.
+
 ## [058] Báo cáo sâu: đối tượng / vị trí / khu vực, quảng cáo chi nhiều nhất, nhận xét agency (A4) — 2026-10-24
 
 **Thay đổi**

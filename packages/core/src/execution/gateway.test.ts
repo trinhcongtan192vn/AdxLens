@@ -27,6 +27,7 @@ import {
   listActions,
   minorUnits,
   previewAction,
+  approveRecommendations,
   proposalForRecommendation,
   requestAction,
   undoAction,
@@ -623,6 +624,32 @@ describe('duyệt từ gợi ý (P202, P2-03)', () => {
     const bctx = { db, workspaceId: s.workspaceId, actor: (await resolveActor(db, s.workspaceId, buyer.id))! };
     expect(await proposalForRecommendation(bctx, r2.id)).toMatchObject({ executable: true, canApprove: false });
     await expect(approveRecommendation(bctx, r2.id, s)).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+
+  it('duyệt hàng loạt (B2): từng gợi ý qua gateway, cái lỗi không dừng cả lô; id lạ / workspace khác → 404 cả lô', async () => {
+    const s = await setup();
+    const a1 = await s.ad(0);
+    const a2 = await s.ad(1);
+    const r1 = await rec(s, 'creative_fatigue', 'ad', a1.metaId);
+    const r2 = await rec(s, 'account_hygiene', 'adset', 'x');
+    const r3 = await rec(s, 'creative_fatigue', 'ad', a2.metaId);
+    const out = await approveRecommendations(s.ctx, [r1.id, r2.id, r3.id, r1.id], s);
+    expect(out.map((r) => [r.id, r.ok, r.ok ? null : r.code])).toEqual([
+      [r1.id, true, null],
+      [r2.id, false, 'CONFLICT'],
+      [r3.id, true, null],
+    ]);
+    const acts = await db.select().from(schema.actions).where(eq(schema.actions.workspaceId, s.workspaceId));
+    expect(acts.filter((x) => x.tier === 'approve')).toHaveLength(2);
+
+    const other = await setup();
+    const foreign = await rec(other, 'creative_fatigue', 'ad', (await other.ad()).metaId);
+    await expect(approveRecommendations(s.ctx, [r1.id, foreign.id], s)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(approveRecommendations(s.ctx, [], s)).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+    const many = Array.from({ length: 21 }, () => r1.id).map(
+      (_, i) => `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
+    );
+    await expect(approveRecommendations(s.ctx, many, s)).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
   });
 
   it('gợi ý của workspace khác → 404', async () => {
