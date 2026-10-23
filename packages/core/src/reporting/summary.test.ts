@@ -114,10 +114,11 @@ describe('sinh tóm tắt', () => {
   it('không có LLM → tóm tắt mẫu, số trong mẫu đều qua kiểm tra', async () => {
     const r = await generateSummary(content(), {});
     expect(r).toMatchObject({ source: 'template', attempts: 0 });
-    expect(r.text).toContain('chi tiêu 15.000.000 VND (+25% so với kỳ trước), 120 kết quả (+20%)');
+    // Một tài khoản: câu đầu viết hoa (trước đây "chi tiêu…" chữ thường đầu tóm tắt).
+    expect(r.text.startsWith('Chi tiêu 15.000.000 VND (+25% so với kỳ trước), 120 kết quả (+20%)')).toBe(true);
     expect(checkNumbers(r.text, summaryFacts(content()), 'vi').ok).toBe(true);
     const en = templateSummary(content('en'));
-    expect(en).toContain('spend 15,000,000 VND (+25% vs the previous period)');
+    expect(en.startsWith('Spend 15,000,000 VND (+25% vs the previous period)')).toBe(true);
     expect(checkNumbers(en, summaryFacts(content('en')), 'en').ok).toBe(true);
   });
 

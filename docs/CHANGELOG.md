@@ -2,6 +2,12 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [fix] Tóm tắt báo cáo mẫu viết hoa chữ đầu câu — 2026-10-23
+
+**Thay đổi:** tóm tắt mẫu (khi không dùng LLM) một tài khoản bắt đầu bằng "chi tiêu …" chữ thường (PM thấy ở R03). Nay "Chi tiêu …" / "Spend …"; nhiều tài khoản vẫn "Tên: chi tiêu …". Số liệu và bộ kiểm tra số không đổi.
+
+**Test đổi (lý do):** `summary.test.ts` và `report.test.ts` trước khẳng định chuỗi chữ thường `'chi tiêu …'` / `'spend …'` (`toContain`); nay khẳng định chặt hơn: tóm tắt **bắt đầu** bằng "Chi tiêu …" / "Spend …".
+
 ## [048] Admin: vận hành đồng bộ, hàng đợi job, mức dùng Meta API — 2026-10-23
 
 **Thay đổi**
