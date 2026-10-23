@@ -2,6 +2,21 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [040] Shadow mode chạy định kỳ (P214), lệnh giả lập thời gian chỉ ở local — 2026-10-23
+
+**Thay đổi**
+- Job `maintenance:rules_tick` mỗi 30 phút: enqueue `rules:shadow_evaluate` (rule shadow) / `rules:evaluate` (rule live, 041) cho từng rule — truy vấn xuyên workspace có chú thích (`core/ops`), chỉ trả định danh.
+- Worker `rules:shadow_evaluate`: kiểm cờ tự động hóa ở đầu job; ghi `would_do` một lần mỗi ngày dữ liệu (đã có ở 039). Trang chi tiết rule (P214) hiện các lần đánh giá, đối tượng khớp, lý do bị chặn.
+- `simulateShadowDays` + `pnpm rules:simulate -- <rule_id> [--days 14]`: **chỉ chạy khi `APP_ENV=local`** — ghi đánh giá shadow cho N ngày trước và lùi mốc bắt đầu shadow để thử luồng bật chạy thật trên máy dev.
+
+**Test tự động**
+- `execution/rules.test.ts` (+1): giả lập 14 ngày → 14 lần đánh giá, mốc shadow lùi đúng 14 ngày.
+- Worker `dispatch.test.ts` (+1): `rules:shadow_evaluate` **cờ tắt → không chạy**. Bộ cách ly: probe job `rules:shadow_evaluate` (rule của A, B không đổi).
+
+**Vùng bảo vệ:** `packages/core/execution/**` (thêm hàm giả lập, không đổi đường ghi).
+
+**PM kiểm tra:** tạo rule (039) → `pnpm rules:simulate -- <rule_id>` → chi tiết rule hiện 14 lần đánh giá, "Đã chạy thử 14/14 ngày", nút "Bật chạy thật" mở (khi cờ + gói đủ).
+
 ## [039] Rule tự động: mô hình, rule builder từ mẫu (P211, P212), backtest (P213) — 2026-10-23
 
 > Chạm `packages/core/execution` — **cần PM duyệt ADR-0012 và chạy staging trước khi merge `develop → main`**.

@@ -6,6 +6,7 @@ import { opsHandlers } from './ops';
 import { recommendHandlers } from './recommend';
 import { reconcileHandlers } from './reconcile';
 import { reportHandlers } from './report';
+import { rulesHandlers } from './rules';
 import { syncHandlers } from './sync';
 
 /** Handler theo tên job. Feature sau thêm handler của mình vào đây. */
@@ -17,5 +18,6 @@ export const handlers: HandlerMap = {
   ...recommendHandlers,
   ...reconcileHandlers,
   ...reportHandlers,
+  ...rulesHandlers,
   ...syncHandlers,
 };

@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import type { DbOrTx } from '@adxlens/db';
 import { schema } from '@adxlens/db';
 import { systemClock, type Clock } from '@adxlens/core/shared';
@@ -129,4 +129,16 @@ export async function latestExecutionCheck(db: DbOrTx, appVersion: string) {
     .orderBy(desc(opsExecutionChecks.ranAt))
     .limit(1);
   return r ?? null;
+}
+
+/**
+ * Rule tự động cần đánh giá (P2b): truy vấn XUYÊN WORKSPACE có chủ đích cho scheduler — chỉ trả định danh;
+ * mỗi job sau đó chạy trong đúng workspace và tự kiểm cờ.
+ */
+export async function activeAutomationRules(db: DbOrTx) {
+  const { automationRules } = schema;
+  return db
+    .select({ id: automationRules.id, workspaceId: automationRules.workspaceId, mode: automationRules.mode })
+    .from(automationRules)
+    .where(inArray(automationRules.mode, ['shadow', 'live']));
 }

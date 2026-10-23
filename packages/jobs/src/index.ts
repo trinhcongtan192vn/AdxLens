@@ -154,6 +154,13 @@ export const JOBS = {
     schema: z.object({ tick: z.string() }),
     jobId: (p) => `report_tick:${p.tick}`,
   }),
+  // Mỗi 30 phút: rule tự động shadow / live → enqueue đánh giá từng rule (P2b, ADR-0012).
+  'maintenance:rules_tick': def({
+    queue: 'maintenance',
+    workspaceScoped: false,
+    schema: z.object({ tick: z.string() }),
+    jobId: (p) => `rules_tick:${p.tick}`,
+  }),
   'maintenance:daily_tick': def({
     queue: 'maintenance',
     workspaceScoped: false,

@@ -13,6 +13,7 @@
     "job:trigger": "pnpm --filter @adxlens/worker exec tsx src/cli/trigger.ts",
     "execution:check": "pnpm --filter @adxlens/worker exec tsx src/cli/execution-check.ts",
     "killswitch": "pnpm --filter @adxlens/worker exec tsx src/cli/killswitch.ts",
+    "rules:simulate": "pnpm --filter @adxlens/worker exec tsx src/cli/rules-simulate.ts",
     "build": "turbo run build",
     "lint": "eslint . && node scripts/check-boundaries.mjs",
     "typecheck": "turbo run typecheck",
