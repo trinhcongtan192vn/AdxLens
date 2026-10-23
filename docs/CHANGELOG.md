@@ -2,6 +2,17 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [fix] Tài khoản của kết nối đã ngắt không còn hiện để gán / đồng bộ — 2026-10-23
+
+**Thay đổi**
+- PM thấy màn gán Client (S05) liệt kê cả 3 tài khoản Meta giả của kết nối đã ngắt (đang chờ xóa 7 ngày) cạnh tài khoản thật. `listAdAccounts` nay mặc định bỏ tài khoản của kết nối `revoked` (S05, S06, Client, Tổng quan, Creative, rule builder…); `unconfirmedCount` cũng bỏ chúng. `includeRevoked: true` chỉ dùng ở nhật ký hành động và breaker để vẫn hiện tên tài khoản của lịch sử.
+
+**Test tự động:** `assignment.test.ts` — tài khoản của kết nối đã ngắt không có trong danh sách gán, không tính vào "chưa xác nhận"; `includeRevoked` vẫn trả về.
+
+**Vùng bảo vệ:** `packages/core/connections/**` (truy vấn danh sách tài khoản, không chạm token), `packages/core/execution/**` (log.ts, controls.ts chỉ truyền `includeRevoked: true`, hành vi giữ nguyên).
+
+**PM kiểm tra:** ngắt một kết nối → màn gán Client và trang Client không còn tài khoản của kết nối đó; nhật ký hành động cũ vẫn hiện tên tài khoản.
+
 ## [fix] Bỏ quyền `email` khi kết nối Meta — 2026-10-23
 
 **Thay đổi**

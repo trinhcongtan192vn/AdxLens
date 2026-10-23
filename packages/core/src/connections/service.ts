@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, isNull, lte, or } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, lte, ne, or } from 'drizzle-orm';
 import type { DbOrTx } from '@adxlens/db';
 import { schema } from '@adxlens/db';
 import type { MetaAdAccount } from '@adxlens/meta-client';
@@ -222,8 +222,12 @@ export async function importAccounts(ctx: ActorCtx, input: { connectionId: strin
   return out;
 }
 
-/** Danh sách tài khoản QC đã nhập; buyer chỉ thấy tài khoản của Client được gán. */
-export async function listAdAccounts(ctx: ActorCtx, opts: { clientId?: string } = {}) {
+/**
+ * Danh sách tài khoản QC đã nhập; buyer chỉ thấy tài khoản của Client được gán. Mặc định bỏ tài khoản của kết nối
+ * đã ngắt (`revoked`, dữ liệu đang chờ xóa) — chúng không được gán, đồng bộ hay báo cáo nữa. `includeRevoked` chỉ cho
+ * nơi cần tên tài khoản của lịch sử (nhật ký hành động, breaker).
+ */
+export async function listAdAccounts(ctx: ActorCtx, opts: { clientId?: string; includeRevoked?: boolean } = {}) {
   const rows = await ctx.db
     .select({
       id: adAccounts.id,
@@ -249,6 +253,7 @@ export async function listAdAccounts(ctx: ActorCtx, opts: { clientId?: string } 
       and(
         eq(adAccounts.workspaceId, ctx.workspaceId),
         opts.clientId ? eq(adAccounts.clientId, opts.clientId) : undefined,
+        opts.includeRevoked ? undefined : ne(metaConnections.status, 'revoked'),
       ),
     )
     .orderBy(asc(adAccounts.name));

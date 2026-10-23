@@ -1,4 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { eq } from 'drizzle-orm';
+import { schema } from '@adxlens/db';
 import {
   closeTestDb,
   seedAdAccount,
@@ -39,6 +41,20 @@ describe('gán tài khoản QC cho Client (S05)', () => {
     const r = await assignAdAccount(ctx, acc.id, { clientId: client.id });
     expect(r).toMatchObject({ clientId: client.id, assignmentStatus: 'confirmed' });
     expect(await unconfirmedCount(ctx)).toBe(0);
+  });
+
+  it('tài khoản của kết nối đã ngắt (chờ xóa) không hiện để gán, không tính vào chưa xác nhận', async () => {
+    const { ctx, acc, ws } = await setup();
+    const old = await seedConnection(db, ws, ctx.actor.userId);
+    const gone = await seedAdAccount(db, ws, old.id, { name: 'Cà phê Nhà Rang' });
+    await db.update(schema.metaConnections).set({ status: 'revoked' }).where(eq(schema.metaConnections.id, old.id));
+
+    expect((await listAdAccounts(ctx)).map((a) => a.id)).toEqual([acc.id]);
+    expect(await unconfirmedCount(ctx)).toBe(1);
+    // Nhật ký hành động / breaker vẫn cần tên tài khoản cũ.
+    expect((await listAdAccounts(ctx, { includeRevoked: true })).map((a) => a.id).sort()).toEqual(
+      [acc.id, gone.id].sort(),
+    );
   });
 
   it('tạo Client mới khi gán', async () => {
