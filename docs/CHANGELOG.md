@@ -2,6 +2,14 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [fix] Trang Client luôn có lối vào "Đối chiếu số liệu" — 2026-10-23
+
+**Thay đổi:** badge đối chiếu (dẫn tới D04, nơi có nút "Chạy lại đồng bộ") trước chỉ hiện khi đã có kết quả đối chiếu; Client mới đồng bộ lần đầu (hoặc đồng bộ lỗi) không có đường bấm chạy lại. Nay hiện khi Client có ít nhất một tài khoản QC (badge "Chưa đối chiếu").
+
+**Test tự động:** E2E `clients-assign.spec.ts` vẫn đi qua badge tới D04 (không đổi).
+
+**PM kiểm tra:** Client mới gán tài khoản, chưa đồng bộ xong → cạnh tên Client có "Chưa đối chiếu" → bấm → D04 có nút "Chạy lại đồng bộ".
+
 ## [fix] Đồng bộ tài khoản Meta thật bị treo ở `adcreatives` — 2026-10-23
 
 **Thay đổi**
