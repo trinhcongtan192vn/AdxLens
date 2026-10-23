@@ -34,7 +34,7 @@ export default tseslint.config(
   },
   {
     // Script dòng lệnh được in ra console.
-    files: ['scripts/**', '**/scripts/**', '**/*.config.*'],
+    files: ['scripts/**', '**/scripts/**', '**/src/cli/**', '**/*.config.*'],
     rules: { 'no-console': 'off' },
   },
   {

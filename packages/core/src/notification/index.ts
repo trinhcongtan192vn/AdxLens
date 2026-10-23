@@ -6,3 +6,4 @@ export * from './templates/deletion';
 export * from './service';
 export * from './templates/alerts';
 export * from './templates/scheduled-report';
+export * from './templates/digest';

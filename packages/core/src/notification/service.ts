@@ -95,6 +95,8 @@ export async function notify(
     link?: string | null;
     dedupeKey?: string | null;
     email?: false;
+    /** Luôn lưu dòng (đã đọc nếu không bật trong app) — để chống trùng cho email gửi riêng (digest). */
+    forceRecord?: boolean;
   },
   deps: { enqueue?: Enqueue } = {},
 ): Promise<{ created: number; emailed: number }> {
@@ -105,7 +107,7 @@ export async function notify(
   for (const userId of userIds) {
     const s = settings.get(userId)!;
     const wantEmail = s.email && input.email !== false && Boolean(deps.enqueue);
-    if (!s.inApp && !wantEmail) continue;
+    if (!s.inApp && !wantEmail && !input.forceRecord) continue;
     const [row] = await ctx.db
       .insert(notifications)
       .values({

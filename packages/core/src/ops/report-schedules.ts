@@ -21,3 +21,8 @@ export async function enabledReportSchedules(db: Db) {
     .from(schema.reportSchedules)
     .where(eq(schema.reportSchedules.enabled, true));
 }
+
+/** Múi giờ của mọi workspace cho digest tuần (xuyên workspace có chủ đích, chỉ trả định danh + múi giờ). */
+export async function workspaceTimezones(db: Db) {
+  return db.select({ id: schema.workspaces.id, timezone: schema.workspaces.defaultTimezone }).from(schema.workspaces);
+}
