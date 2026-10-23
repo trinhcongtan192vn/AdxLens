@@ -31,6 +31,8 @@ export const reports = app.table(
     content: jsonb('content').$type<Record<string, unknown>>(),
     edits: jsonb('edits').$type<ReportEdits>().notNull().default({}),
     summaryText: text('summary_text'),
+    /** `llm` (đã qua kiểm tra số) hoặc `template` (tóm tắt mẫu không LLM). */
+    summarySource: text('summary_source', { enum: ['llm', 'template'] }),
     reconciliationStatus: text('reconciliation_status', { enum: ['ok', 'warning'] }),
     integrity: jsonb('integrity').$type<ReportIntegrity>(),
     templateVersion: text('template_version').notNull(),

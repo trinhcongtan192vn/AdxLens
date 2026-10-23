@@ -1,5 +1,6 @@
 import type { TokenKeys } from '@adxlens/core/connections';
 import type { EmailSender } from '@adxlens/core/notification';
+import type { LlmClient } from '@adxlens/core/reporting';
 import type { Logger } from '@adxlens/core/shared';
 import type { Db } from '@adxlens/db';
 import type { Enqueue, JobName, JobPayload } from '@adxlens/jobs';
@@ -14,6 +15,8 @@ export type WorkerServices = {
   email: EmailSender;
   /** URL gốc của web app (link trong email). */
   appUrl: string;
+  /** LLM cho tóm tắt báo cáo; null khi không cấu hình ANTHROPIC_API_KEY (dùng tóm tắt mẫu). */
+  llm: LlmClient | null;
   /** Hoãn xử lý một queue trong `ms` (playbook `meta_rate_limited`). */
   throttleQueue: (queue: 'sync', ms: number) => Promise<void>;
 };

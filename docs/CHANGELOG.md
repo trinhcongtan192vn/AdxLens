@@ -2,6 +2,24 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [020] Tóm tắt LLM có kiểm tra số; tóm tắt mẫu khi không có API key — 2026-10-23
+
+**Thay đổi**
+- `packages/core/reporting/summary.ts` (PRD P0-16, CLAUDE.md quy tắc 5):
+  - Tập số được phép (`summaryFacts`): KPI, % thay đổi so kỳ trước, CTR, health, số tài khoản, số vấn đề (và mức cao), tác động ước tính — viết theo locale báo cáo.
+  - Prompt chỉ chứa tập số + mã quy tắc; **không** đưa tên tài khoản/chiến dịch (dữ liệu người dùng, quy tắc 10). Yêu cầu không bịa/không làm tròn khác/không nhắc ngày.
+  - Kiểm tra số: trích mọi số theo định dạng locale (vi "1.234,5", en "1,234.5"), bỏ ngày; mỗi số phải khớp một giá trị cho phép (±0,5% tương đối hoặc ±0,05). Không qua → sinh lại (tối đa 2 lần) → tóm tắt mẫu không LLM. LLM lỗi → tóm tắt mẫu, không chặn báo cáo.
+  - Client Anthropic Messages API bằng `fetch` (không thêm SDK), model `ANTHROPIC_MODEL` (mặc định claude-sonnet-5-5), max_tokens 600, nhiệt độ 0,2. Không có `ANTHROPIC_API_KEY` → tóm tắt mẫu.
+- `report:build` sinh tóm tắt khi dựng; cột `reports.summary_source` (`llm` | `template`). R03 ghi rõ nguồn tóm tắt.
+
+**Test tự động**
+- `packages/core/src/reporting/summary.test.ts` (12): trích số vi/en + bỏ ngày, số bịa bị bắt, giảm viết không dấu vẫn khớp, tập số đủ loại, prompt không chứa tên tài khoản (thử chèn lệnh), mẫu vi/en và số trong mẫu tự qua kiểm tra, LLM đúng → dùng, bịa 3 lần → mẫu (đếm lần gọi), lần 2 đúng → dùng, lỗi mạng → mẫu, client Anthropic gọi đúng định dạng / lỗi HTTP.
+- `report.test.ts`: báo cáo dựng có tóm tắt mẫu.
+
+**Vùng bảo vệ:** `packages/db/**` (1 cột, migration 0022).
+
+**PM kiểm tra:** không có key → R03 ghi "Tóm tắt tự động từ số liệu (không dùng AI)". Có key ở staging → "Tóm tắt do AI viết… đã được kiểm tra".
+
 ## [019] Dựng báo cáo: nội dung có cấu trúc, mẫu vi/en, thương hiệu (sau cờ `p0_reports`) — 2026-10-23
 
 **Thay đổi**

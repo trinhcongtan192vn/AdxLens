@@ -88,6 +88,11 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
               {t('view.fix')}
             </Banner>
           ) : null}
+          {report.summarySource ? (
+            <p className="mb-2 text-caption text-fg-tertiary">
+              {report.summarySource === 'llm' ? t('view.summaryLlm') : t('view.summaryTemplate')}
+            </p>
+          ) : null}
           <Card className="px-4 py-6 sm:px-8">
             <ReportView
               content={content}

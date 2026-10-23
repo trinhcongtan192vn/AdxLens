@@ -4,6 +4,7 @@ import { getDb } from '@adxlens/db';
 import { keysFromEnv, metaReadApi, recordMetaCall } from '@adxlens/core/connections';
 import { smtpEmailSender } from '@adxlens/core/notification';
 import { registerHealthCheck } from '@adxlens/core/ops';
+import { anthropicClient } from '@adxlens/core/reporting';
 import { rootLogger } from '@adxlens/core/shared';
 import { QUEUES, type QueueName } from '@adxlens/jobs';
 import { dispatch } from './dispatch';
@@ -42,6 +43,7 @@ const services: WorkerServices = {
     from: env.EMAIL_FROM,
   }),
   appUrl: env.APP_URL,
+  llm: env.ANTHROPIC_API_KEY ? anthropicClient({ apiKey: env.ANTHROPIC_API_KEY, model: env.ANTHROPIC_MODEL }) : null,
   throttleQueue: (q, ms) => queues[q].rateLimit(ms),
 };
 

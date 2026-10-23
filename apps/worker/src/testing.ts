@@ -14,6 +14,7 @@ export function testWorkerServices(db: Db, now?: () => Date) {
   const throttled: { queue: string; ms: number }[] = [];
   const services: WorkerServices = {
     appUrl: 'http://localhost:3000',
+    llm: null,
     throttleQueue: async (queue, ms) => {
       throttled.push({ queue, ms });
     },
