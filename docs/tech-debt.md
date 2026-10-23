@@ -9,3 +9,4 @@ Ghi mọi chỗ làm tạm: vị trí, lý do, cách sửa đúng, mốc dự ki
 | 2026-10-23 | `packages/core/src/billing/plans.ts` → `currentPlanKey()` | Chưa có bảng subscription, mọi workspace trả gói Free (S04 hiện hạn mức theo gói này) | Đọc gói từ bảng subscription | 026 |
 | 2026-10-23 | D04 nút "Báo số liệu lệch" | Màn X06 Hỗ trợ chưa gán feature (roadmap câu hỏi 6) | Thêm nút khi có X06 | Khi PM chốt X06 |
 | 2026-10-23 | `packages/core/reconciliation` khi lệch | Chưa gửi cảnh báo nội bộ (L3 6.4 `notify:internal_alert`), chưa đặt `reports.reconciliation_status` | 023 gửi cảnh báo nội bộ; 019/021 đánh dấu báo cáo + chặn chia sẻ | 019–023 |
+| 2026-10-23 | D01, D02, D03, O01 (giao diện) | Plugin Penpot bị trình duyệt tạm ngưng khi dựng các màn này; bố cục theo design system và các màn đã đối chiếu, chưa so từng khung | So với khung Penpot D01/D02/D03/O01 khi plugin hoạt động, chỉnh khoảng cách/thứ tự khối | Trước khi PM review cuối |

@@ -2,6 +2,25 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [018a] Giao diện phát hiện: D01 tổng quan tài khoản, D02 danh sách, D03 chi tiết — 2026-10-23
+
+**Thay đổi**
+- `packages/core/reporting/metrics.ts`: KPI theo tài khoản (chi tiêu, kết quả, hiển thị, click, doanh thu; CTR; CPA/ROAS/CPM chia thập phân không float), chuỗi theo ngày đủ ngày (ngày thiếu = 0), bảng theo cấp campaign/ad set/ad. Áp quyền buyer theo Client. `divDecimal` trong `shared/decimal`.
+- D01 `/accounts/{id}`: hàng KPI so với kỳ trước (màu theo tốt/xấu, CPA tăng = đỏ), biểu đồ xu hướng (Recharts: chi tiêu cột, kết quả đường), health score + thành phần theo nhóm, 5 phát hiện nổi bật, badge đối chiếu, dòng nguồn số liệu. Kỳ theo bộ chọn trên thanh trên, ngày theo múi giờ tài khoản.
+- D02 `/accounts/{id}/findings`: lọc mức độ / trạng thái / nhóm (chip), bảng mức độ, phát hiện + đối tượng + lý do, nhóm, tác động ước tính, cập nhật, trạng thái; trống.
+- D03 drawer (`?finding=`): vì sao, nên làm gì, tác động + cách tính, bằng chứng (chỉ số tuần trước → tuần này), mở trong Ads Manager, dòng "không do mô hình ngôn ngữ tạo", Đã xem / Đã làm / Bỏ qua (cần lý do) / Báo sai.
+- C02 tab Cài đặt: tên tài khoản QC mở D01. Thư viện `recharts` (L3 mục 2).
+- `docs/tech-debt.md`: so bố cục với Penpot khi plugin hoạt động (lần dựng này plugin bị trình duyệt tạm ngưng).
+
+**Test tự động**
+- `packages/core/src/reporting/metrics.test.ts` (5): KPI khớp tổng insight, CPA/ROAS, chuỗi ngày đủ, tổng campaign = tổng tài khoản, quyền buyer/workspace khác, không dữ liệu.
+- `apps/web/src/lib/kpi.test.ts` (2): delta tốt/xấu theo chỉ số. `decimal.test.ts` (+1).
+- E2E: C02 → D01 (health score) → D02 → D03 (nếu có phát hiện: mở, "Đã làm").
+
+**Vùng bảo vệ:** không.
+
+**PM kiểm tra:** Clients → Client → tab Cài đặt → bấm tài khoản → D01; "Xem tất cả phát hiện" → D02 → bấm một dòng → D03.
+
 ## [017] Quy tắc audit (phần 2): learning limited, chi tiêu không chuyển đổi, vệ sinh tài khoản, theo dõi chuyển đổi — 2026-10-23
 
 **Thay đổi**

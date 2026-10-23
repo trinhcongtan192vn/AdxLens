@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
@@ -139,7 +140,9 @@ export function ClientAccounts({
             {accounts.map((a) => (
               <TR key={a.id}>
                 <TD>
-                  <div>{a.name}</div>
+                  <Link href={`/accounts/${a.id}`} className="font-medium text-fg hover:text-brand">
+                    {a.name}
+                  </Link>
                   <div className="text-caption text-fg-tertiary">{a.metaAccountId}</div>
                 </TD>
                 <TD>
