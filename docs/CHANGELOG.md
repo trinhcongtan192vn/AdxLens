@@ -2,6 +2,22 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [034] Guardrails có test khóa, P205 — 2026-10-23
+
+**Thay đổi**
+- Module mới `packages/core/execution` (vùng bảo vệ). `guardrails.ts`: `GUARDRAIL_DEFAULTS` theo ADR-0001 A7 (±15% ngân sách mỗi hành động, ≤ 5 hành động/ngày/tài khoản, ≥ 3 ngày dữ liệu, không tự chạy 22:00–06:00 giờ tài khoản, breaker sau 3 lỗi) — **đóng băng và khóa giá trị bằng test**; `tighterViolations` (workspace chỉ được chặt hơn); `effectiveGuardrails` (dòng DB bị sửa tay lỏng hơn vẫn dùng mặc định); `saveGuardrails` (Owner, nới lỏng → 422 `GUARDRAIL_VIOLATION`); `checkGuardrails` thuần hàm cho gateway: loại trừ (kể cả cấp cha), số hành động/ngày, dữ liệu tối thiểu, ngân sách ±% tính thập phân, không có ngân sách ngày; với tự chạy: khung giờ yên lặng, **không tự bật lại**, **không tự nhân bản**.
+- DB: `app.guardrail_settings` + RLS (migration 0043–0044).
+- API `GET|PUT /guardrails` (Owner, sau cờ duyệt hành động). Trang P205 `/settings/guardrails` (tab "Guardrails" chỉ hiện khi cờ bật): mỗi trường ghi "Cố định: …" và chỉ cho siết chặt; danh sách ID không bao giờ thay đổi. Kill switch thêm vào P205 ở 037.
+- Quyền duyệt theo Client (Owner cấp cho buyer) và cột "Duyệt hành động" ở ST02 đã có từ trước (`canApproveActions`), gateway dùng ở 035.
+
+**Test tự động**
+- `execution/guardrails.test.ts` (9): **giá trị mặc định khóa + đóng băng**; mọi kiểu nới lỏng bị chặn; biên ±15% (15,01% bị chặn); số hành động, dữ liệu, loại trừ cấp cha; giờ yên lặng chỉ áp tự chạy; không tự bật lại / nhân bản; mặc định khi chưa cấu hình; dòng DB lỏng bị bỏ qua; chỉ Owner; cách ly.
+- `api/v1/guardrails/guardrails.test.ts` (2): **cờ tắt → 404**; Owner siết được, nới → 422, manager 403. Bộ cách ly: probe 2 route.
+
+**Vùng bảo vệ:** `packages/core/execution/**` (mới), `packages/db/**` (1 bảng + RLS, migration 0043–0044).
+
+**PM kiểm tra:** Cài đặt → Guardrails (khi cờ duyệt hành động bật): thử đặt 20% → bị từ chối; đặt 10% → lưu được.
+
 ## [033] ADR hành động ghi, lớp ghi Meta, nâng quyền ghi (P201) — 2026-10-23
 
 **Thay đổi**

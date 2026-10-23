@@ -1517,5 +1517,20 @@
     "revokeConfirm": "Thu hồi quyền ghi của kết nối này? Các hành động đang chờ sẽ không được thực hiện.",
     "enabledToast": "Đã bật quyền ghi",
     "revokedToast": "Đã thu hồi quyền ghi"
+  },
+  "guardrails": {
+    "title": "Guardrails",
+    "intro": "Giới hạn an toàn cho mọi thay đổi AdxLens thực hiện trên Meta. Giá trị cố định là mức tối đa; bạn chỉ có thể siết chặt hơn.",
+    "maxBudgetChangePct": "Thay đổi ngân sách tối đa mỗi lần (%)",
+    "maxActionsPerDay": "Số hành động tối đa mỗi ngày trên một tài khoản",
+    "minDataDays": "Số ngày dữ liệu tối thiểu trước khi thay đổi",
+    "quietStartHour": "Không tự chạy từ (giờ)",
+    "quietEndHour": "Đến (giờ)",
+    "breakerFailures": "Tạm khóa tài khoản sau số lỗi liên tiếp",
+    "excludeMetaIds": "Không bao giờ thay đổi (ID campaign / ad set / ad)",
+    "excludeHint": "Mỗi dòng một ID trên Meta.",
+    "fixed": "Cố định: {value}",
+    "looser": "Chỉ được đặt chặt hơn giá trị cố định.",
+    "looserField": "Lỏng hơn giá trị cố định"
   }
 }
