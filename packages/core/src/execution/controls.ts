@@ -140,16 +140,14 @@ export function registerExecutionHooks(opts: { appVersion: string; clock?: Clock
         .where(and(...conds))
         .returning({ id: actions.id });
       if (rows.length) {
-        await db
-          .insert(schema.actionLogs)
-          .values(
-            rows.map((r) => ({
-              workspaceId,
-              actionId: r.id,
-              event: 'canceled',
-              detail: { reason: 'feature_disabled' },
-            })),
-          );
+        await db.insert(schema.actionLogs).values(
+          rows.map((r) => ({
+            workspaceId,
+            actionId: r.id,
+            event: 'canceled',
+            detail: { reason: 'feature_disabled' },
+          })),
+        );
       }
     });
   }

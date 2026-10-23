@@ -18,7 +18,17 @@ import { startBackfill, syncRange } from '@adxlens/core/ingestion';
 import { listNotifications } from '@adxlens/core/notification';
 import { listIncidents } from '@adxlens/core/ops';
 import { resolveActor } from '@adxlens/core/tenancy';
-import { executeAction, getAction, listActions, minorUnits, previewAction, requestAction, undoAction } from './index';
+import {
+  approveRecommendation,
+  executeAction,
+  getAction,
+  listActions,
+  minorUnits,
+  previewAction,
+  proposalForRecommendation,
+  requestAction,
+  undoAction,
+} from './index';
 
 const db = testDb();
 afterAll(() => closeTestDb());
@@ -539,5 +549,86 @@ describe('playbook execution_failed', () => {
     expect(rb).toMatchObject({ status: 'canceled', resultCode: 'circuit_breaker_open' });
     const inc = (await listIncidents(db, {})).find((i) => i.kind === 'execution_failed');
     expect(inc?.severity).toBe('P1');
+  });
+});
+
+describe('duyệt từ gợi ý (P202, P2-03)', () => {
+  async function rec(s: Awaited<ReturnType<typeof setup>>, sourceKey: string, entityType: string, metaId: string) {
+    const [r] = await db
+      .insert(schema.recommendations)
+      .values({
+        workspaceId: s.workspaceId,
+        adAccountId: s.adAccountId,
+        week: '2026-10-19',
+        source: 'finding',
+        sourceKey,
+        entityType,
+        metaId,
+        entityName: metaId,
+        action: { key: 'x' },
+        why: { key: 'y' },
+        evidence: {},
+        confidence: '0.7',
+        effortMinutes: 10,
+        score: '1',
+      })
+      .returning();
+    return r!;
+  }
+
+  it('creative mệt → đề xuất tạm dừng ad; duyệt → "Đang làm"; thực hiện xong → gợi ý "Đã làm"', async () => {
+    const s = await setup();
+    const { metaId } = await s.ad();
+    const r = await rec(s, 'creative_fatigue', 'ad', metaId);
+    const p = await proposalForRecommendation(s.ctx, r.id);
+    expect(p).toMatchObject({
+      executable: true,
+      actionType: 'pause_ad',
+      before: { status: 'ACTIVE' },
+      after: { status: 'PAUSED' },
+      violations: [],
+      canApprove: true,
+      undoable: true,
+    });
+    const a = await approveRecommendation(s.ctx, r.id, s);
+    const [mid] = await db.select().from(schema.recommendations).where(eq(schema.recommendations.id, r.id));
+    expect(mid!.status).toBe('in_progress');
+    await s.run(a.id);
+    const [done] = await db.select().from(schema.recommendations).where(eq(schema.recommendations.id, r.id));
+    expect(done).toMatchObject({ status: 'done' });
+    expect(done!.doneAt).not.toBeNull();
+  });
+
+  it('phân bổ ngân sách kém → giảm đúng 15%, cảnh báo về giai đoạn học; không bao giờ tăng', async () => {
+    const s = await setup();
+    const { metaId, budget } = await s.adset();
+    const r = await rec(s, 'budget_misallocation', 'adset', metaId);
+    const p = await proposalForRecommendation(s.ctx, r.id);
+    const cur = BigInt(minorUnits(budget)!);
+    expect(p).toMatchObject({ actionType: 'set_adset_budget', after: { daily_budget: String((cur * 85n) / 100n) } });
+    expect(p.executable && p.warnings).toContain('learning_reset');
+    expect(p.executable && p.violations).toEqual([]);
+  });
+
+  it('gợi ý không thực hiện tự động được → không có đề xuất, duyệt → 409; buyer chưa được cấp quyền thấy canApprove=false', async () => {
+    const s = await setup();
+    const r = await rec(s, 'account_hygiene', 'adset', 'x');
+    expect(await proposalForRecommendation(s.ctx, r.id)).toEqual({ executable: false });
+    await expect(approveRecommendation(s.ctx, r.id, s)).rejects.toMatchObject({ code: 'CONFLICT' });
+    const { metaId } = await s.ad();
+    const r2 = await rec(s, 'creative_fatigue', 'ad', metaId);
+    const buyer = await seedMember(db, s.workspaceId, 'buyer', [s.clientId]);
+    const bctx = { db, workspaceId: s.workspaceId, actor: (await resolveActor(db, s.workspaceId, buyer.id))! };
+    expect(await proposalForRecommendation(bctx, r2.id)).toMatchObject({ executable: true, canApprove: false });
+    await expect(approveRecommendation(bctx, r2.id, s)).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+
+  it('gợi ý của workspace khác → 404', async () => {
+    const a = await setup();
+    const b = await setup();
+    const { metaId } = await b.ad();
+    const r = await rec(b, 'creative_fatigue', 'ad', metaId);
+    await expect(proposalForRecommendation(a.ctx, r.id)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(approveRecommendation(a.ctx, r.id, a)).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 });

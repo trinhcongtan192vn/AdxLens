@@ -22,9 +22,11 @@ import {
   TR,
 } from '@adxlens/ui';
 import { api } from '@/lib/api-client';
+import { ApproveAction } from './approve-dialog';
 
 export type ActionView = {
   id: string;
+  sourceKey: string;
   accountName: string;
   clientName: string | null;
   entityName: string;
@@ -45,7 +47,16 @@ const STATUS_TONE = { proposed: 'info', in_progress: 'warning', done: 'success',
 const SKIP_REASONS = ['not_relevant', 'wrong', 'later', 'other'] as const;
 
 /** P101 bảng việc + P102 drawer chi tiết (bằng chứng, tác động, độ tin cậy, công sức, trạng thái, người làm). */
-export function WeeklyActionsList({ items, canUpdate }: { items: ActionView[]; canUpdate: boolean }) {
+export function WeeklyActionsList({
+  items,
+  canUpdate,
+  canExecute = false,
+}: {
+  items: ActionView[];
+  canUpdate: boolean;
+  /** Cờ duyệt hành động bật: hiện nút duyệt thực hiện trên Meta (P202). */
+  canExecute?: boolean;
+}) {
   const t = useTranslations('weekly');
   const tc = useTranslations('common');
   const format = useFormatter();
@@ -106,7 +117,7 @@ export function WeeklyActionsList({ items, canUpdate }: { items: ActionView[]; c
           </THead>
           <TBody>
             {items.map((a, i) => (
-              <TR key={a.id} data-testid="weekly-row">
+              <TR key={a.id} data-testid="weekly-row" data-source={a.sourceKey}>
                 <TD muted>{i + 1}</TD>
                 <TD>
                   <button type="button" className="text-left hover:underline" onClick={() => openDrawer(a)}>
@@ -203,6 +214,11 @@ export function WeeklyActionsList({ items, canUpdate }: { items: ActionView[]; c
               <p className="text-small text-fg-secondary">
                 {t('skippedBecause', { reason: t(`skip.${open.skipReason}` as never) })}
               </p>
+            ) : null}
+            {canExecute && canUpdate && open.status !== 'done' && open.status !== 'skipped' ? (
+              <section className="border-t border-line pt-3">
+                <ApproveAction recommendationId={open.id} />
+              </section>
             ) : null}
             {open.deepLink ? (
               <a

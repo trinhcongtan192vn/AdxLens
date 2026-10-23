@@ -54,6 +54,7 @@ export default async function WeeklyActionsPage({
   };
   const items: ActionView[] = r.items.map((i) => ({
     id: i.id,
+    sourceKey: i.sourceKey,
     accountName: i.accountName,
     clientName: i.clientName,
     entityName: i.entityName ?? i.metaId,
@@ -122,7 +123,11 @@ export default async function WeeklyActionsPage({
           <EmptyState title={t('noneFiltered')} description={t('noneFilteredBody')} />
         </Card>
       ) : (
-        <WeeklyActionsList items={items} canUpdate={can(pc.actor.role, 'recommendations.update')} />
+        <WeeklyActionsList
+          items={items}
+          canUpdate={can(pc.actor.role, 'recommendations.update')}
+          canExecute={pc.flags.p2a_approve}
+        />
       )}
       <SourceFootnote className="mt-4">{t('footnote')}</SourceFootnote>
     </>

@@ -1648,5 +1648,32 @@
     "failures": "{count} failures in a row",
     "unlock": "Unlock",
     "breakerClosed": "Account unlocked"
+  },
+  "approve": {
+    "open": "Approve on Meta",
+    "title": "Approve action",
+    "confirm": "Approve and run",
+    "manualOnly": "This suggestion needs to be done manually in Ads Manager.",
+    "viewResult": "View result in the log",
+    "queued": "Approved. AdxLens is applying and verifying it on Meta.",
+    "beforeNote": "\"Before\" is from the latest sync. If the item has changed on Meta, AdxLens stops and does not overwrite it.",
+    "safety": "AdxLens checks the safety limits, applies the change once, then reads Meta back to verify.",
+    "noPermission": "You are not allowed to approve actions for this client. The owner can grant it in Settings › Members.",
+    "warnings": {
+      "not_undoable": "This action cannot be undone automatically.",
+      "learning_reset": "Changing the budget may send the ad set back into learning.",
+      "last_active_ad": "This is the last active ad in the ad set: the ad set will stop delivering."
+    },
+    "violations": {
+      "excluded": "The item is on the never-change list.",
+      "too_many_actions": "Reached the limit of {max} actions today for this account.",
+      "not_enough_data": "Fewer than {min} days of data.",
+      "budget_change_too_large": "Budget change exceeds {max}%.",
+      "no_daily_budget": "The ad set does not use a daily budget.",
+      "invalid_budget": "The new budget is invalid.",
+      "quiet_hours": "Outside allowed hours.",
+      "no_auto_resume": "No automatic resume.",
+      "no_auto_duplicate": "No automatic duplicate."
+    }
   }
 }

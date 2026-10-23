@@ -88,3 +88,17 @@ export async function generateWeeklyNow(workspaceName: string): Promise<void> {
     await close();
   }
 }
+
+/** Đặt gói cho workspace (thay cho thanh toán ở E2E) — gọi đúng hàm core, chỉ DB local của E2E. */
+export async function setPlanNow(workspaceName: string, planKey: 'growth' | 'scale' | 'starter'): Promise<void> {
+  const { createDb, schema } = await import('@adxlens/db');
+  const { eq } = await import('drizzle-orm');
+  const { setSubscription } = await import('@adxlens/core/billing');
+  const { db, close } = createDb(process.env.DATABASE_URL!);
+  try {
+    const [ws] = await db.select().from(schema.workspaces).where(eq(schema.workspaces.name, workspaceName));
+    await setSubscription({ db, workspaceId: ws!.id }, { planKey });
+  } finally {
+    await close();
+  }
+}

@@ -2,6 +2,37 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [038] Hộp thoại duyệt hành động từ gợi ý (P202) — 2026-10-23
+
+> Chạm `packages/core/execution` — **cần PM chạy staging trước khi merge `develop → main`**.
+
+**Thay đổi**
+- `core/execution/proposal.ts`: gợi ý → hành động v1:
+  - creative mệt → tạm dừng ad;
+  - chi tiêu không chuyển đổi → tạm dừng ad set;
+  - phân bổ ngân sách kém → **giảm** ngân sách ngày đúng 15% (không bao giờ tăng từ gợi ý);
+  - creative thua chỉ dùng ở 1 ad → tạm dừng ad đó;
+  - các loại khác → làm thủ công.
+
+  `proposalForRecommendation` trả trước / sau, vi phạm guardrails, cảnh báo (không hoàn tác được; ngân sách có thể đưa về giai đoạn học; tạm dừng ad cuối cùng đang chạy của ad set) và người xem có quyền duyệt không. `approveRecommendation` gửi qua đúng gateway, gợi ý chuyển "Đang làm"; gateway thành công → gợi ý "Đã làm".
+- API `GET /recommendations/{id}/proposal`, `POST /recommendations/{id}/approve` (202, theo L3 10.2) — sau cờ duyệt hành động.
+- Giao diện: drawer P102 có "Duyệt thực hiện trên Meta" (khi cờ bật) → P202: thay đổi trước → sau, ghi chú "trước theo lần đồng bộ gần nhất", cảnh báo, vi phạm guardrails (khóa nút), không có quyền (khóa nút); xác nhận → chuyển tới P204 theo dõi thực hiện + xác minh.
+
+**Test tự động**
+- `execution/gateway.test.ts` (+4): creative mệt → đề xuất tạm dừng, duyệt → "Đang làm", thực hiện → "Đã làm"; ngân sách giảm đúng 15% + cảnh báo; gợi ý thủ công → không đề xuất, duyệt 409; buyer chưa được cấp quyền → `canApprove=false`, duyệt 403; workspace khác 404.
+- `recommendations.test.ts` (+ **cờ tắt → 404** cho 2 route). Bộ cách ly: probe 2 route (gợi ý của B → 404).
+- **E2E mới `p2a.spec.ts`** (toàn luồng B7, Meta mock):
+  1. kết nối, PM bật 3 cờ, gói Growth;
+  2. P201 cấp quyền ghi;
+  3. P101 → P202 duyệt tạm dừng ad mệt;
+  4. worker thực hiện + xác minh (P204 "Thành công", dòng thời gian có "Đọc lại để xác minh");
+  5. hoàn tác → thành công, P203 có 2 dòng (1 "Đã hoàn tác");
+  6. P205 bật kill switch → banner X04.
+
+**Vùng bảo vệ:** `packages/core/execution/**`.
+
+**PM kiểm tra:** theo đúng các bước của `p2a.spec.ts` trên develop (Meta mock); trên staging với tài khoản Meta test trước khi bật cờ cho khách.
+
 ## [037] Kill switch (workspace + toàn cục, CLI dự phòng), circuit breaker, playbook execution_failed, checklist cờ duyệt hành động — 2026-10-23
 
 > Chạm `packages/core/execution` — **cần PM chạy staging trước khi merge `develop → main`**.
