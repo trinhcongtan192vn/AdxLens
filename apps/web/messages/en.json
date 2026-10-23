@@ -1675,5 +1675,102 @@
       "no_auto_resume": "No automatic resume.",
       "no_auto_duplicate": "No automatic duplicate."
     }
+  },
+  "automation": {
+    "title": "Automation rules",
+    "new": "New rule",
+    "detail": "Rule details",
+    "effectiveness": "Automation results",
+    "emptyTitle": "No automation rules yet",
+    "emptyBody": "Create a rule from a template. New rules always run in shadow for at least 14 days before acting for real.",
+    "cols": {
+      "name": "Name",
+      "account": "Account",
+      "action": "Action",
+      "mode": "Mode",
+      "since": "Since",
+      "date": "Data date",
+      "item": "Item",
+      "matched": "Matched",
+      "wouldDo": "Would do"
+    },
+    "modes": {
+      "shadow": "Shadow",
+      "live": "Live",
+      "paused": "Paused"
+    },
+    "templates": {
+      "pause_fatigued_ad": "Pause fatigued ads",
+      "pause_adset_no_results": "Pause ad sets spending without results",
+      "reduce_budget_high_cpa": "Cut budget of ad sets with rising CPA"
+    },
+    "template": "Template",
+    "doneCount": "done {count} times",
+    "fields": {
+      "name": "Rule name",
+      "account": "Ad account",
+      "when": "When an active {level} has (last 7 days):",
+      "metric": "Metric",
+      "op": "Compare",
+      "value": "Value",
+      "then": "then",
+      "changePct": "Budget change (%)",
+      "maxDailyBudget": "Daily budget cap (smallest currency unit)",
+      "maxPerDay": "Max actions per day (optional)"
+    },
+    "levels": {
+      "ad": "ad",
+      "adset": "ad set"
+    },
+    "metrics": {
+      "spend": "Spend",
+      "results": "Results",
+      "cpa": "Cost / result",
+      "ctr": "CTR (ratio)",
+      "frequency": "Frequency",
+      "ctr_change_pct": "CTR change vs last week (%)",
+      "cpa_change_pct": "CPA change vs last week (%)"
+    },
+    "remove": "Remove",
+    "addCondition": "+ Add condition",
+    "pctHint": "From −15 to +15. Increases need a cap.",
+    "maxHint": "Required for increases.",
+    "maxPerDayHint": "Can only be lower than the workspace limit.",
+    "runBacktest": "Run 30-day backtest",
+    "saveShadow": "Save and run in shadow",
+    "saved": "Rule saved in shadow mode",
+    "shadowNote": "A new rule only records what it would do (shadow). After at least 14 days you can turn it live; every change still goes through safety limits and the kill switch.",
+    "backtestTitle": "30-day backtest: {count} actions",
+    "backtestEmpty": "No day matched the conditions.",
+    "backtestNote": "The backtest uses stored data, not Meta; real results may differ.",
+    "summary": "When an active {level} has {conditions}, {action}.",
+    "shadowProgress": "Shadow for {days}/{min} days.",
+    "liveBlockers": {
+      "feature_disabled": "Automatic actions are not enabled for this workspace.",
+      "plan_required": "Requires the Growth plan or higher.",
+      "shadow_too_short": "Needs 14 days in shadow before going live."
+    },
+    "evaluations": "Evaluations",
+    "noEvaluations": "No evaluations yet",
+    "noEvaluationsBody": "Rules are evaluated every 30 minutes on synced data.",
+    "blocked": "blocked: {reason}",
+    "actionsCreated": "{count} actions created",
+    "evaluatedNote": "Last evaluation: {at}.",
+    "goLive": "Go live",
+    "toShadow": "Back to shadow",
+    "pause": "Pause rule",
+    "delete": "Delete",
+    "liveConfirm": "Go live? AdxLens will make changes on Meta automatically when the rule matches, within safety limits.",
+    "deleteConfirm": "Delete this rule?",
+    "modeSet": {
+      "shadow": "Back in shadow",
+      "live": "Rule is live",
+      "paused": "Rule paused"
+    },
+    "errors": {
+      "GUARDRAIL_VIOLATION": "Outside safety limits: budget change max ±15%, limits can only be stricter than the workspace.",
+      "VALIDATION_FAILED": "Check the conditions / action (increases need a cap; level must match the action).",
+      "NOT_FOUND": "Account not found."
+    }
   }
 }

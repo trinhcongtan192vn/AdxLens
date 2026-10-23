@@ -1675,5 +1675,102 @@
       "no_auto_resume": "Không tự bật lại.",
       "no_auto_duplicate": "Không tự nhân bản."
     }
+  },
+  "automation": {
+    "title": "Rule tự động",
+    "new": "Tạo rule",
+    "detail": "Chi tiết rule",
+    "effectiveness": "Hiệu quả tự động hóa",
+    "emptyTitle": "Chưa có rule tự động",
+    "emptyBody": "Tạo rule từ mẫu dựng sẵn. Rule mới luôn chạy thử (shadow) ít nhất 14 ngày trước khi được thực hiện thật.",
+    "cols": {
+      "name": "Tên",
+      "account": "Tài khoản",
+      "action": "Hành động",
+      "mode": "Chế độ",
+      "since": "Từ ngày",
+      "date": "Ngày dữ liệu",
+      "item": "Đối tượng",
+      "matched": "Khớp",
+      "wouldDo": "Sẽ làm"
+    },
+    "modes": {
+      "shadow": "Chạy thử",
+      "live": "Đang chạy",
+      "paused": "Tạm dừng"
+    },
+    "templates": {
+      "pause_fatigued_ad": "Tạm dừng quảng cáo mệt",
+      "pause_adset_no_results": "Tạm dừng nhóm chi tiêu không ra kết quả",
+      "reduce_budget_high_cpa": "Giảm ngân sách nhóm có CPA tăng mạnh"
+    },
+    "template": "Mẫu",
+    "doneCount": "{count} lần đã làm",
+    "fields": {
+      "name": "Tên rule",
+      "account": "Tài khoản quảng cáo",
+      "when": "Khi một {level} đang chạy có (7 ngày gần nhất):",
+      "metric": "Chỉ số",
+      "op": "So sánh",
+      "value": "Giá trị",
+      "then": "thì",
+      "changePct": "Thay đổi ngân sách (%)",
+      "maxDailyBudget": "Trần ngân sách ngày (đơn vị nhỏ nhất của tiền tệ)",
+      "maxPerDay": "Tối đa hành động mỗi ngày (không bắt buộc)"
+    },
+    "levels": {
+      "ad": "quảng cáo",
+      "adset": "nhóm quảng cáo"
+    },
+    "metrics": {
+      "spend": "Chi tiêu",
+      "results": "Kết quả",
+      "cpa": "Chi phí / kết quả",
+      "ctr": "CTR (tỷ lệ)",
+      "frequency": "Tần suất",
+      "ctr_change_pct": "CTR thay đổi so tuần trước (%)",
+      "cpa_change_pct": "CPA thay đổi so tuần trước (%)"
+    },
+    "remove": "Bỏ",
+    "addCondition": "+ Thêm điều kiện",
+    "pctHint": "Từ −15 đến +15. Tăng cần đặt trần.",
+    "maxHint": "Bắt buộc khi tăng ngân sách.",
+    "maxPerDayHint": "Chỉ được ít hơn giới hạn của workspace.",
+    "runBacktest": "Chạy backtest 30 ngày",
+    "saveShadow": "Lưu và chạy thử",
+    "saved": "Đã lưu rule ở chế độ chạy thử",
+    "shadowNote": "Rule mới chỉ ghi lại việc lẽ ra sẽ làm (chạy thử). Sau ít nhất 14 ngày, bạn có thể bật chạy thật; mọi thay đổi vẫn qua giới hạn an toàn và kill switch.",
+    "backtestTitle": "Backtest 30 ngày: {count} lần sẽ thực hiện",
+    "backtestEmpty": "Không có ngày nào khớp điều kiện.",
+    "backtestNote": "Backtest dùng số liệu đã lưu, không gọi Meta; kết quả thật có thể khác.",
+    "summary": "Khi một {level} đang chạy có {conditions} thì {action}.",
+    "shadowProgress": "Đã chạy thử {days}/{min} ngày.",
+    "liveBlockers": {
+      "feature_disabled": "Tính năng chạy tự động chưa được bật cho workspace.",
+      "plan_required": "Cần gói Growth trở lên.",
+      "shadow_too_short": "Cần chạy thử đủ 14 ngày trước khi chạy thật."
+    },
+    "evaluations": "Kết quả đánh giá",
+    "noEvaluations": "Chưa có lần đánh giá nào",
+    "noEvaluationsBody": "Rule được đánh giá mỗi 30 phút trên số liệu đã đồng bộ.",
+    "blocked": "bị chặn: {reason}",
+    "actionsCreated": "{count} hành động đã tạo",
+    "evaluatedNote": "Lần đánh giá gần nhất: {at}.",
+    "goLive": "Bật chạy thật",
+    "toShadow": "Về chạy thử",
+    "pause": "Tạm dừng rule",
+    "delete": "Xóa",
+    "liveConfirm": "Bật chạy thật? AdxLens sẽ tự thực hiện thay đổi trên Meta khi rule khớp, trong giới hạn an toàn.",
+    "deleteConfirm": "Xóa rule này?",
+    "modeSet": {
+      "shadow": "Đã chuyển về chạy thử",
+      "live": "Rule đang chạy thật",
+      "paused": "Đã tạm dừng rule"
+    },
+    "errors": {
+      "GUARDRAIL_VIOLATION": "Vượt giới hạn an toàn: thay đổi ngân sách tối đa ±15%, giới hạn chỉ được chặt hơn workspace.",
+      "VALIDATION_FAILED": "Kiểm tra lại điều kiện / hành động (tăng ngân sách cần trần; cấp phải khớp hành động).",
+      "NOT_FOUND": "Không tìm thấy tài khoản."
+    }
   }
 }

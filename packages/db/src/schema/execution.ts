@@ -122,3 +122,54 @@ export const circuitBreakers = app.table('circuit_breakers', {
   closedBy: uuid('closed_by'),
   closedAt: tsz('closed_at'),
 });
+
+export const RULE_MODES = ['shadow', 'live', 'paused'] as const;
+
+/** Rule tự động (P2b, ADR-0012, L3 18). Tạo mới luôn ở `shadow`. */
+export const automationRules = app.table(
+  'automation_rules',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id').notNull(),
+    adAccountId: uuid('ad_account_id')
+      .notNull()
+      .references(() => adAccounts.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    templateKey: text('template_key'),
+    level: text('level', { enum: ['ad', 'adset'] }).notNull(),
+    condition: jsonb('condition').$type<{ metric: string; op: string; value: string }[]>().notNull(),
+    action: jsonb('action').$type<{ type: string; changePct?: string; maxDailyBudget?: string }>().notNull(),
+    guardrails: jsonb('guardrails').$type<{ maxActionsPerDay?: number; excludeMetaIds?: string[] }>().notNull(),
+    mode: text('mode', { enum: RULE_MODES }).notNull().default('shadow'),
+    shadowStartedAt: tsz('shadow_started_at'),
+    liveSince: tsz('live_since'),
+    createdBy: uuid('created_by').notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index().on(t.workspaceId), index().on(t.mode)],
+);
+
+/** Kết quả mỗi lần đánh giá rule (shadow lẫn live, L3 18). */
+export const ruleEvaluations = app.table(
+  'rule_evaluations',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    workspaceId: uuid('workspace_id').notNull(),
+    ruleId: uuid('rule_id')
+      .notNull()
+      .references(() => automationRules.id, { onDelete: 'cascade' }),
+    mode: text('mode', { enum: RULE_MODES }).notNull(),
+    evaluatedAt: tsz('evaluated_at').notNull().defaultNow(),
+    asOfDate: text('as_of_date').notNull(),
+    matchedEntities: jsonb('matched_entities')
+      .$type<{ metaId: string; name: string | null; metrics: Record<string, string | null> }[]>()
+      .notNull(),
+    wouldDo: jsonb('would_do')
+      .$type<{ metaId: string; actionType: string; newDailyBudget?: string | null; blockedBy?: string | null }[]>()
+      .notNull(),
+    actionIds: uuid('action_ids').array(),
+    blockedByGuardrail: text('blocked_by_guardrail'),
+  },
+  (t) => [index().on(t.ruleId, t.evaluatedAt), index().on(t.workspaceId)],
+);
