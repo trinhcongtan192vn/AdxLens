@@ -27,6 +27,8 @@ export const NOTIFICATION_KINDS = {
   weekly_actions: { mandatory: false, inApp: true, email: true },
   action_assigned: { mandatory: false, inApp: true, email: false },
   action_executed: { mandatory: false, inApp: true, email: false },
+  budget_pacing: { mandatory: false, inApp: true, email: true },
+  anomaly: { mandatory: false, inApp: true, email: true },
 } as const;
 
 export type NotificationKind = keyof typeof NOTIFICATION_KINDS;

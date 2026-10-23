@@ -587,7 +587,25 @@
     "archiveConfirm": "Lưu trữ “{name}”? Tài khoản QC sẽ về trạng thái chưa gán. Báo cáo cũ vẫn được giữ.",
     "noAccounts": "Client này chưa có tài khoản QC.",
     "backToClients": "Clients",
-    "reconnect": "Kết nối lại"
+    "reconnect": "Kết nối lại",
+    "budget": {
+      "title": "Ngân sách tháng {month}",
+      "status": {
+        "on_track": "Đúng tiến độ",
+        "over": "Dự kiến vượt",
+        "under": "Dự kiến thiếu"
+      },
+      "edit": "Sửa ngân sách",
+      "set": "Đặt ngân sách tháng",
+      "empty": "Chưa đặt ngân sách tháng. Đặt ngân sách hợp đồng để theo dõi tốc độ chi và nhận cảnh báo khi dự kiến lệch quá 10%.",
+      "spent": "Đã chi {spent} / {amount} ({days}/{total} ngày)",
+      "projected": "dự kiến cả tháng {projected} ({pct})",
+      "dailyNeeded": "cần chi {amount}/ngày để vừa ngân sách",
+      "dialogTitle": "Ngân sách tháng {month}",
+      "amount": "Ngân sách ({currency})",
+      "hint": "Tính trên chi tiêu đến hết hôm qua của các tài khoản QC cùng tiền tệ. Cảnh báo Owner và Manager khi dự kiến vượt / thiếu quá 10% (từ ngày thứ 5 của tháng).",
+      "saved": "Đã lưu ngân sách"
+    }
   },
   "sync": {
     "title": "Đang đồng bộ dữ liệu 90 ngày",
@@ -1628,6 +1646,16 @@
         "label": "Hành động đã thực hiện",
         "title": "Đã thực hiện: {item}",
         "body": "Thay đổi đã được áp dụng và xác minh trên Meta."
+      },
+      "budget_pacing": {
+        "label": "Ngân sách tháng lệch tiến độ",
+        "title": "{client}: ngân sách tháng {month} {status, select, over {dự kiến vượt} other {dự kiến thiếu}} {pct}%",
+        "body": "Xem tiến độ chi và mức chi mỗi ngày cần điều chỉnh."
+      },
+      "anomaly": {
+        "label": "Biến động bất thường hằng ngày",
+        "title": "{account}: {summary}",
+        "body": "Ngày {date}. Kiểm tra trước khi khách hỏi."
       }
     },
     "settings": {

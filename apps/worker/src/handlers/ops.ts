@@ -1,5 +1,13 @@
 import { purgeConnectionData } from '@adxlens/core/connections';
-import { remediateHealth, runHealthChecks, runPayosRenewals, runTokenExpiringPlaybook } from '@adxlens/core/ops';
+import {
+  remediateHealth,
+  runHealthChecks,
+  runPayosRenewals,
+  runTokenExpiringPlaybook,
+  workspacesWithClientBudgets,
+} from '@adxlens/core/ops';
+import { runPacingAlerts } from '@adxlens/core/reporting';
+import { SYSTEM_ACTOR } from '@adxlens/core/shared';
 import type { HandlerMap } from '../handler';
 
 export const opsHandlers: HandlerMap = {
@@ -23,7 +31,19 @@ export const opsHandlers: HandlerMap = {
     // Gia hạn PayOS (028): nhắc trước 7 / 1 ngày, hết kỳ → quá hạn hoặc về Free.
     const renewals = await runPayosRenewals(db, { enqueue });
     if (renewals.reminded || renewals.pastDue || renewals.canceled) log.info(renewals, 'payos renewals');
-    return { ...r, renewals };
+    // Ngân sách tháng theo Client (A3): tháng hiện tại theo UTC ± 1 ngày (múi giờ tài khoản có thể sang tháng khác).
+    const now = new Date();
+    const months = [
+      ...new Set([-1, 0, 1].map((d) => new Date(now.getTime() + d * 86_400_000).toISOString().slice(0, 7))),
+    ];
+    const pacing = { checked: 0, alerted: 0 };
+    for (const workspaceId of await workspacesWithClientBudgets(db, months)) {
+      const p = await runPacingAlerts({ db, workspaceId, actor: SYSTEM_ACTOR }, { enqueue });
+      pacing.checked += p.checked;
+      pacing.alerted += p.alerted;
+    }
+    if (pacing.alerted) log.info(pacing, 'budget pacing');
+    return { ...r, renewals, pacing };
   },
 
   // Xóa dữ liệu quảng cáo 7 ngày sau khi ngắt kết nối (L3 5.5, P0-22).

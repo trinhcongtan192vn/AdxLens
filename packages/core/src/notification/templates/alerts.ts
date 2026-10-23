@@ -151,6 +151,30 @@ const TEXT: Record<string, Record<Locale, (p: P) => { subject: string; body: str
       cta: 'Renew',
     }),
   },
+  budget_pacing: {
+    vi: (p) => ({
+      subject: `${p.client}: ngân sách tháng ${p.month} dự kiến ${p.status === 'over' ? 'vượt' : 'thiếu'} ${p.pct}%`,
+      body: `Theo tốc độ chi hiện tại, Client ${p.client} sẽ ${p.status === 'over' ? 'chi vượt' : 'chi thiếu'} khoảng ${p.pct}% ngân sách tháng ${p.month}. Xem tiến độ và mức chi mỗi ngày cần điều chỉnh.`,
+      cta: 'Xem ngân sách',
+    }),
+    en: (p) => ({
+      subject: `${p.client}: ${p.month} budget projected ${p.status === 'over' ? 'over' : 'under'} by ${p.pct}%`,
+      body: `At the current pace, ${p.client} will ${p.status === 'over' ? 'overspend' : 'underspend'} its ${p.month} budget by about ${p.pct}%. See pacing and the daily spend needed.`,
+      cta: 'View budget',
+    }),
+  },
+  anomaly: {
+    vi: (p) => ({
+      subject: `${p.account}: ${p.summary}`,
+      body: `Ngày ${p.date}, tài khoản ${p.account} có biến động bất thường: ${p.summary}. Kiểm tra trước khi khách hỏi.`,
+      cta: 'Xem tài khoản',
+    }),
+    en: (p) => ({
+      subject: `${p.account}: ${p.summary}`,
+      body: `On ${p.date}, account ${p.account} had an unusual change: ${p.summary}. Check it before the client asks.`,
+      cta: 'View account',
+    }),
+  },
   weekly_actions: {
     vi: (p) => ({
       subject: `Việc tuần này: ${p.count} gợi ý`,

@@ -96,3 +96,16 @@ export async function executionOverview(db: DbOrTx, clock: Clock = systemClock) 
   ]);
   return { since, counts, failed, breakers, liveRules };
 }
+
+/**
+ * Workspace có ngân sách Client của tháng (roadmap A3) cho job `maintenance:daily_tick`: truy vấn XUYÊN WORKSPACE có
+ * chủ đích, chỉ trả id; mỗi workspace sau đó chạy cảnh báo trong đúng ngữ cảnh của nó.
+ */
+export async function workspacesWithClientBudgets(db: DbOrTx, months: string[]): Promise<string[]> {
+  if (!months.length) return [];
+  const rows = await db
+    .selectDistinct({ id: schema.clientBudgets.workspaceId })
+    .from(schema.clientBudgets)
+    .where(inArray(schema.clientBudgets.month, months));
+  return rows.map((r) => r.id);
+}

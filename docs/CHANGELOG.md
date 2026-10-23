@@ -2,6 +2,21 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [056] Ngân sách tháng theo Client + cảnh báo tốc độ chi (A3) — 2026-10-23
+
+**Thay đổi**
+- Trang Client: thẻ **Ngân sách tháng MM/YYYY** — đã chi / ngân sách (thanh tiến độ + vạch số ngày đã qua), **dự kiến cả tháng** theo tốc độ trung bình, trạng thái **Đúng tiến độ / Dự kiến vượt / Dự kiến thiếu** (±10%), **mức chi mỗi ngày còn lại** để vừa ngân sách. Owner / Manager đặt / sửa ngân sách (tiền tệ phải trùng tài khoản QC của Client).
+- Tính trên chi tiêu đến **hết hôm qua** theo múi giờ tài khoản, chỉ tài khoản cùng tiền tệ, bỏ kết nối đã ngắt. Tiền là decimal (chia chính xác trên BigInt, không qua tỷ lệ số thực); % chỉ để hiển thị.
+- **Cảnh báo** (`maintenance:daily_tick`, 09:00 VN): từ ngày thứ 5 của tháng, dự kiến vượt / thiếu > 10% → thông báo `budget_pacing` (trong app + email, tắt được ở ST05) cho Owner và Manager được xem Client; **một lần mỗi trạng thái mỗi tháng**, sửa ngân sách hoặc về đúng tiến độ thì đặt lại.
+- API `GET / PUT / DELETE /api/v1/clients/[id]/budget` (DELETE theo `?month=`). Bảng `app.client_budgets` (migration 0055–0056: RLS workspace, kiểm tháng `YYYY-MM`, số tiền > 0). `core/reporting/pacing.ts`; `core/ops` `workspacesWithClientBudgets` (xuyên workspace có chú thích, chỉ trả id).
+
+**Test tự động:** `pacing.test.ts` (chi đúng tháng, bỏ ngày tháng trước; dự kiến / mức chi mỗi ngày chính xác; ±10%; kiểm đầu vào số dương, tháng, tiền tệ; buyer → 403; cảnh báo một lần, đặt lại; < 5 ngày không cảnh báo). Bộ cách ly: 3 route mới (ngữ cảnh A không đọc / ghi ngân sách Client B).
+- **Test đổi (lý do):** `apps/worker/src/dispatch.test.ts` — kết quả `maintenance:daily_tick` thêm `pacing`; mở rộng kỳ vọng (giữ nguyên trường cũ), không nới.
+
+**Vùng bảo vệ:** `packages/db/**` (migration 0055–0056).
+
+**PM kiểm tra:** Client TRON_GLAMPING → "Đặt ngân sách tháng" (vd. bằng chi tiêu 30 ngày) → thẻ hiện tiến độ; đặt thấp hơn hẳn → "Dự kiến vượt"; `pnpm job:trigger -- maintenance:daily_tick '{"tick":"manual"}'` → thông báo (nếu đã qua ngày 5).
+
 ## [055] "Vì sao CPA thay đổi?" trong báo cáo và trang tài khoản (A1) — 2026-10-23
 
 **Thay đổi**

@@ -1,4 +1,7 @@
 import Link from 'next/link';
+import { clientPacing } from '@adxlens/core/reporting';
+import { localDate } from '@adxlens/core/shared';
+import { BudgetCard } from './budget-card';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { z } from 'zod';
@@ -54,6 +57,9 @@ export default async function ClientPage({
   const te = await getTranslations('entities');
   // Kỳ theo bộ chọn trên thanh trên, ngày theo múi giờ tài khoản đầu tiên của Client.
   const ranges = await currentRanges(accounts[0]?.timezone ?? 'Asia/Ho_Chi_Minh');
+  // A3: ngân sách tháng hiện tại (theo múi giờ tài khoản đầu tiên).
+  const pacing = accounts.length ? await clientPacing(pc.ctx, client.id) : null;
+  const budgetMonth = localDate(new Date(), accounts[0]?.timezone ?? 'Asia/Ho_Chi_Minh').slice(0, 7);
 
   return (
     <>
@@ -77,6 +83,15 @@ export default async function ClientPage({
         }
         actions={canManage ? <ClientActions id={client.id} name={client.name} /> : null}
       />
+      {accounts.length ? (
+        <BudgetCard
+          clientId={client.id}
+          pacing={pacing}
+          month={budgetMonth}
+          currency={pacing?.currency ?? accounts[0]!.currency}
+          canManage={canManage}
+        />
+      ) : null}
       <TabBar className="mb-4">
         {TABS.map((k) => (
           <Link

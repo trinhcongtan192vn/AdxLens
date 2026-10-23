@@ -501,6 +501,23 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: (w) => ({ id: w.a.client.id }),
     crossParams: (w) => ({ id: w.b.client.id }),
   },
+  'GET /api/v1/clients/[id]/budget': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.client.id }),
+    crossParams: (w) => ({ id: w.b.client.id }),
+  },
+  'PUT /api/v1/clients/[id]/budget': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.client.id }),
+    crossParams: (w) => ({ id: w.b.client.id }),
+    body: () => ({ month: '2026-10', amount: '1000000', currency: 'VND' }),
+  },
+  'DELETE /api/v1/clients/[id]/budget': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.client.id }),
+    crossParams: (w) => ({ id: w.b.client.id }),
+    query: () => ({ month: '2026-10' }),
+  },
   'PATCH /api/v1/clients/[id]': {
     kind: 'workspace',
     params: (w) => ({ id: w.a.client.id }),
