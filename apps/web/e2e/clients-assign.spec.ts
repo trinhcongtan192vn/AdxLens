@@ -68,4 +68,16 @@ test('S04 → S05 gán Client → S06 đồng bộ → C01 → C02', async ({ pa
 
   await page.goto('/clients');
   await expect(page.getByText('1 tài khoản chưa xác nhận Client')).toBeVisible();
+
+  // S07: ngắt kết nối → banner chờ xóa có mã → tra cứu ở trang hướng dẫn xóa dữ liệu.
+  await page.goto('/connections');
+  await page.getByRole('button', { name: 'Ngắt kết nối và xóa dữ liệu' }).click();
+  await expect(page.getByRole('button', { name: 'Ngắt kết nối', exact: true })).toBeDisabled();
+  await page.getByLabel('Tôi hiểu dữ liệu sẽ bị xóa').check();
+  await page.getByRole('button', { name: 'Ngắt kết nối', exact: true }).click();
+  const banner = page.getByText(/Đang chờ xóa dữ liệu \(mã XD-[A-Z0-9]{8}\)/);
+  await expect(banner).toBeVisible();
+  const code = (await banner.textContent())!.match(/XD-[A-Z0-9]{8}/)![0];
+  await page.goto(`/data-deletion?code=${code}`);
+  await expect(page.getByText('Đã nhận yêu cầu, đang chờ xử lý.')).toBeVisible();
 });

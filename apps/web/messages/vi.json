@@ -205,7 +205,8 @@
         "status": {
           "pending": "Đã nhận yêu cầu, đang chờ xử lý.",
           "in_progress": "Đang xóa dữ liệu.",
-          "done": "Đã xóa xong dữ liệu."
+          "done": "Đã xóa xong dữ liệu.",
+          "cancelled": "Yêu cầu đã hủy vì tài khoản được kết nối lại."
         }
       }
     }
@@ -633,5 +634,25 @@
       "attribution": "Ads Manager có thể đang hiển thị cửa sổ attribution khác 7d click / 1d view."
     },
     "footnote": "Khớp Meta · cập nhật {time} · attribution 7d click / 1d view · {currency} · {timezone}"
+  },
+  "disconnect": {
+    "title": "Kết nối Meta",
+    "account": "Tài khoản Meta",
+    "accounts": "Tài khoản QC",
+    "status": "Trạng thái",
+    "statuses": {
+      "active": "Đang hoạt động",
+      "expired": "Hết hạn",
+      "revoked": "Đã ngắt"
+    },
+    "disconnect": "Ngắt kết nối và xóa dữ liệu",
+    "dialogTitle": "Ngắt kết nối Meta?",
+    "dialogBody": "Token truy cập bị xóa ngay và đồng bộ dừng. Dữ liệu quảng cáo đã đồng bộ của {count, plural, other {# tài khoản QC}} sẽ bị xóa sau {days} ngày (cam kết trong {deadline} ngày). Link báo cáo dùng các tài khoản này bị khóa. Kết nối lại trước hạn sẽ hủy việc xóa.",
+    "facebookHint": "Muốn gỡ hẳn quyền của AdxLens trên Facebook: Cài đặt › Ứng dụng và trang web › AdxLens › Xóa.",
+    "understand": "Tôi hiểu dữ liệu sẽ bị xóa",
+    "confirm": "Ngắt kết nối",
+    "done": "Đã ngắt kết nối. Mã xác nhận {code}.",
+    "pendingBanner": "Đang chờ xóa dữ liệu (mã {code}): xóa vào {date}. Kết nối lại trước ngày đó để hủy.",
+    "doneBanner": "Đã xóa dữ liệu của kết nối cũ (mã {code}) ngày {date}."
   }
 }

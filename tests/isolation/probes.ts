@@ -123,6 +123,15 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     crossParams: (w) => ({ id: w.b.adAccount.id }),
     body: () => ({ from: '2026-10-20', to: '2026-10-22' }),
   },
+  'POST /api/v1/connections/[id]/disconnect': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.connection.id }),
+    crossParams: (w) => ({ id: w.b.connection.id }),
+  },
+  'POST /api/v1/webhooks/meta': {
+    kind: 'exempt',
+    reason: 'Callback của Meta: xác thực bằng chữ ký HMAC, thu hồi theo meta_user_id (core/ops, có test riêng)',
+  },
   'GET /api/v1/clients': { kind: 'workspace' },
   'POST /api/v1/clients': { kind: 'workspace', body: () => ({ name: 'Client mới' }) },
   'GET /api/v1/clients/[id]': {

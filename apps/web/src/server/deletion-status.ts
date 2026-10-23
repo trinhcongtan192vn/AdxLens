@@ -1,12 +1,10 @@
 import 'server-only';
+import { deletionStatusByCode } from '@adxlens/core/ops';
+import { deps } from './deps';
 
-export type DeletionStatus = 'pending' | 'in_progress' | 'done';
+export type DeletionStatus = 'pending' | 'in_progress' | 'done' | 'cancelled';
 
-/**
- * Tra trạng thái yêu cầu xóa dữ liệu theo mã xác nhận. Bảng yêu cầu xóa có ở feature 014
- * (ngắt kết nối và xóa dữ liệu); trước đó mọi mã đều "không tìm thấy".
- */
+/** Tra trạng thái yêu cầu xóa dữ liệu theo mã xác nhận (M05). Mã sai → null ("không tìm thấy"). */
 export async function lookupDeletionStatus(code: string): Promise<DeletionStatus | null> {
-  if (!/^XD-[A-Z0-9]{8}$/.test(code.trim().toUpperCase())) return null;
-  return null;
+  return (await deletionStatusByCode(deps().db, code))?.status ?? null;
 }

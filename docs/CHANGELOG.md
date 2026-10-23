@@ -2,6 +2,32 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [014] Ngắt kết nối và xóa dữ liệu (S07), data deletion callback — 2026-10-23
+
+**Thay đổi**
+- DB: `app.deletion_requests` (mã xác nhận `XD-XXXXXXXX`, nguồn user/meta_callback, trạng thái pending/in_progress/done/cancelled, hạn xóa). RLS.
+- `packages/core/connections/deletion.ts` (P0-22, L3 5.5, ADR-0001 A8):
+  - Ngắt kết nối: xóa token ngay (ghi đè rỗng), trạng thái `revoked`, tạo yêu cầu xóa, hẹn job `maintenance:purge_connection_data` sau 7 ngày, email xác nhận kèm mã. Gọi lại khi đang chờ → cùng mã.
+  - Purge: xóa kết nối và mọi dữ liệu quảng cáo (tài khoản QC, insight, cấu trúc, lần đồng bộ, đối chiếu — cascade), email "đã xóa". Kết nối lại trước hạn → hủy yêu cầu (hoàn tác nhầm lẫn). Chạy trước hạn → không xóa.
+  - Không gọi API ghi của Meta để thu hồi quyền (quy tắc 3); hộp thoại hướng dẫn gỡ ứng dụng trong cài đặt Facebook.
+  - `parseSignedRequest` (HMAC-SHA256, so sánh hằng thời gian).
+- `packages/core/ops/data-deletion.ts`: callback Meta thu hồi mọi kết nối của `meta_user_id` ở mọi workspace (chung một mã); tra trạng thái công khai theo mã. Truy vấn xuyên workspace có chú thích lý do.
+- API: `POST /api/v1/connections/{id}/disconnect`; `POST /api/v1/webhooks/meta` (form `signed_request`, trả `{ url, confirmation_code }` theo yêu cầu của Meta).
+- Giao diện: S02 thêm thẻ "Kết nối Meta" (tài khoản Meta, số tài khoản QC, trạng thái, "Ngắt kết nối và xóa dữ liệu"); S07 hộp thoại (giải thích xóa token ngay, xóa dữ liệu sau 7 ngày trong cam kết 30 ngày, khóa link báo cáo, phải tick "Tôi hiểu"); banner "Đang chờ xóa dữ liệu (mã …)" / "Đã xóa dữ liệu …". Trang M05 tra cứu mã hoạt động thật (thêm trạng thái "đã hủy").
+- `docs/tech-debt.md`: bỏ mục deletion-status (đã xong).
+
+**Test tự động**
+- `packages/core/src/connections/deletion.test.ts` (6): token xóa ngay + hẹn purge + email; purge trước hạn không xóa; purge đúng hạn xóa sạch 6 bảng; kết nối lại → hủy; gọi lại cùng mã; buyer/workspace khác bị chặn; callback Meta thu hồi đúng người dùng ở nhiều workspace, không chạm người khác; chữ ký sai/payload hỏng bị từ chối; mã không tồn tại.
+- `apps/web/src/app/api/v1/connections/disconnect.test.ts` (2): API ngắt kết nối (buyer 403, không lộ token), webhook chữ ký đúng/sai/thiếu.
+- Bộ cách ly: probe route disconnect (+ kết nối B), webhook miễn (có lý do); probe job purge (+ kết nối B).
+- E2E: ngắt kết nối từ S02 → banner có mã → trang M05 hiển thị "Đã nhận yêu cầu".
+
+**Vùng bảo vệ:** `packages/db/**` (1 bảng + RLS, migration 0016–0017), `packages/core/connections/**` (xóa token khi ngắt kết nối). Rủi ro: purge xóa cascade toàn bộ dữ liệu của kết nối — chỉ chạy khi đã quá hạn 7 ngày và kết nối chưa được kết nối lại (có test).
+
+**PM cần làm khi cấu hình Meta App:** Data Deletion Callback URL và Deauthorize Callback URL = `https://<APP_URL>/api/v1/webhooks/meta`; trang hướng dẫn xóa dữ liệu = `https://<APP_URL>/data-deletion`.
+
+**PM kiểm tra:** Kết nối → thẻ "Kết nối Meta" → "Ngắt kết nối và xóa dữ liệu" → tick → banner mã XD-…; Mailpit có email xác nhận; mở `/data-deletion?code=<mã>`.
+
 ## [013b] Playbook meta_rate_limited, token_expiring; báo cáo E4 — 2026-10-23
 
 **Thay đổi**

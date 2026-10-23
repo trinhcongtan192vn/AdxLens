@@ -113,6 +113,20 @@
       "when": 1792718672201,
       "tag": "0015_rls_reconciliation",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792719823074,
+      "tag": "0016_deletion_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792719824121,
+      "tag": "0017_rls_deletion",
+      "breakpoints": true
     }
   ]
 }
