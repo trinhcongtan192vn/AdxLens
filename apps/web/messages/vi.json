@@ -996,7 +996,9 @@
         "findings": "Vấn đề cần xử lý",
         "workDone": "Việc đã làm",
         "nextSteps": "Kế hoạch tiếp theo"
-      }
+      },
+      "summaryLlm": "Tóm tắt do AI viết từ số liệu đã tính; mọi con số đã được kiểm tra khớp dữ liệu.",
+      "summaryTemplate": "Tóm tắt tự động từ số liệu (không dùng AI)."
     }
   }
 }

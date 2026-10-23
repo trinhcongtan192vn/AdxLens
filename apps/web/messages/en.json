@@ -996,7 +996,9 @@
         "findings": "Issues to address",
         "workDone": "Work done",
         "nextSteps": "Next steps"
-      }
+      },
+      "summaryLlm": "Summary written by AI from computed figures; every number was checked against the data.",
+      "summaryTemplate": "Automatic summary from the figures (no AI)."
     }
   }
 }

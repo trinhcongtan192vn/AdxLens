@@ -90,6 +90,9 @@ describe('báo cáo (R02, R03)', () => {
     expect(c.source.matchedAt).not.toBeNull();
     expect(r.reconciliationStatus).toBe('ok');
     expect(isBlocked(r.integrity)).toBe(false);
+    // Không có LLM → tóm tắt mẫu (P0-16).
+    expect(r.summarySource).toBe('template');
+    expect(r.summaryText).toContain('chi tiêu');
   });
 
   it('toàn vẹn (ADR-0007): chưa xác nhận gán hoặc ngày lệch trong kỳ → bị khóa chia sẻ, vẫn tạo được', async () => {

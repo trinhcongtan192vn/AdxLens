@@ -1,0 +1,1 @@
+ALTER TABLE "app"."reports" ADD COLUMN "summary_source" text;

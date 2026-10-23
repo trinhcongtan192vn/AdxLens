@@ -8,6 +8,7 @@ import { accountReconciliation } from '@adxlens/core/reconciliation';
 import { addDays, AppError, daysBetween, notFound, systemClock, type ActorCtx, type Clock } from '@adxlens/core/shared';
 import { assertCan, getClient } from '@adxlens/core/tenancy';
 import { accountKpis, dailySeries, entityTable, type DateRange, type Kpis } from './metrics';
+import { generateSummary, type LlmClient } from './summary';
 
 const { reports, reconciliationResults, workspaces, clients } = schema;
 
@@ -135,6 +136,7 @@ export async function buildReport(
   ctx: ActorCtx,
   reportId: string,
   clock: Clock = systemClock,
+  deps: { llm?: LlmClient | null } = {},
 ): Promise<'ready' | 'failed'> {
   const r = await getReport(ctx, reportId);
   try {
@@ -231,6 +233,8 @@ export async function buildReport(
       findings: findingsOut.slice(0, REPORT_FINDINGS_LIMIT),
     };
     const integrity = await reportIntegrity(ctx, client.id, period);
+    // Tóm tắt (P0-16): LLM chỉ diễn giải số đã tính; không qua kiểm tra số → tóm tắt mẫu.
+    const summary = await generateSummary(content, { llm: deps.llm });
     await ctx.db
       .update(reports)
       .set({
@@ -239,6 +243,8 @@ export async function buildReport(
         integrity,
         reconciliationStatus: integrity.warningDates.length ? 'warning' : 'ok',
         builtAt: clock.now(),
+        summaryText: summary.text,
+        summarySource: summary.source,
         error: null,
       })
       .where(and(eq(reports.workspaceId, ctx.workspaceId), eq(reports.id, r.id)));
