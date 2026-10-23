@@ -1,10 +1,10 @@
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, isNull, ne, sql } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import { AppError, notFound, type ActorCtx } from '@adxlens/core/shared';
 import { archiveClient, assertCan, assertClientAccess, createClient, listClients } from '@adxlens/core/tenancy';
 import { listAdAccounts } from './service';
 
-const { adAccounts, clients } = schema;
+const { adAccounts, clients, metaConnections } = schema;
 
 async function getAccount(ctx: ActorCtx, adAccountId: string) {
   const [a] = await ctx.db
@@ -67,7 +67,14 @@ export async function unconfirmedCount(ctx: ActorCtx): Promise<number> {
   const [r] = await ctx.db
     .select({ n: sql<number>`count(*)::int` })
     .from(adAccounts)
-    .where(and(eq(adAccounts.workspaceId, ctx.workspaceId), eq(adAccounts.assignmentStatus, 'suggested')));
+    .innerJoin(metaConnections, eq(metaConnections.id, adAccounts.connectionId))
+    .where(
+      and(
+        eq(adAccounts.workspaceId, ctx.workspaceId),
+        eq(adAccounts.assignmentStatus, 'suggested'),
+        ne(metaConnections.status, 'revoked'),
+      ),
+    );
   return r?.n ?? 0;
 }
 

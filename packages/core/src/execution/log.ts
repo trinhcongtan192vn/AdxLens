@@ -15,7 +15,7 @@ export async function listActions(
   opts: { status?: (typeof schema.ACTION_STATUSES)[number]; adAccountId?: string; limit?: number } = {},
 ) {
   assertCan(ctx.actor, 'actions.view');
-  const accounts = await listAdAccounts(ctx);
+  const accounts = await listAdAccounts(ctx, { includeRevoked: true });
   const byId = new Map(accounts.map((a) => [a.id, a]));
   const ids = opts.adAccountId ? [opts.adAccountId].filter((id) => byId.has(id)) : [...byId.keys()];
   if (!ids.length) return [];
@@ -48,7 +48,7 @@ export async function getAction(ctx: ActorCtx, id: string) {
     .select()
     .from(actions)
     .where(and(eq(actions.workspaceId, ctx.workspaceId), eq(actions.id, id)));
-  const account = a && (await listAdAccounts(ctx)).find((x) => x.id === a.adAccountId);
+  const account = a && (await listAdAccounts(ctx, { includeRevoked: true })).find((x) => x.id === a.adAccountId);
   if (!a || !account) throw new AppError('NOT_FOUND', 'Không tìm thấy hành động');
   const logs = await ctx.db
     .select({ event: actionLogs.event, detail: actionLogs.detail, at: actionLogs.at })

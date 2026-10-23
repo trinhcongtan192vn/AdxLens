@@ -49,9 +49,7 @@ export default async function ExplainPermissionsPage() {
       <Link href="/demo" className="mt-4 block text-body text-link hover:underline">
         {t('viewDemo')}
       </Link>
-      <p className="mt-4 text-small text-fg-tertiary">
-        {t('scopes', { scopes: READ_SCOPES.join(', ') })}
-      </p>
+      <p className="mt-4 text-small text-fg-tertiary">{t('scopes', { scopes: READ_SCOPES.join(', ') })}</p>
     </SetupShell>
   );
 }

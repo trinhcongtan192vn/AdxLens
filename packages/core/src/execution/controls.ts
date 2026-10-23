@@ -48,7 +48,7 @@ export async function executionControls(ctx: ActorCtx) {
   assertCan(ctx.actor, 'guardrails.manage');
   const [k] = await ctx.db.select().from(killSwitches).where(eq(killSwitches.scopeKey, ctx.workspaceId));
   const state = await killSwitchState(ctx);
-  const accounts = new Map((await listAdAccounts(ctx)).map((a) => [a.id, a.name]));
+  const accounts = new Map((await listAdAccounts(ctx, { includeRevoked: true })).map((a) => [a.id, a.name]));
   const breakers = await ctx.db.select().from(circuitBreakers).where(eq(circuitBreakers.workspaceId, ctx.workspaceId));
   return {
     workspace: { active: state.workspace, reason: k?.reason ?? null, changedAt: k?.changedAt ?? null },
