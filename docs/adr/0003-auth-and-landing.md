@@ -12,7 +12,7 @@ Mốc L (landing, đăng ký, đăng nhập, workspace) không có trong L3. L3 
 1. **Nhà cung cấp:** Supabase Auth, chỉ email + mật khẩu ở bản đầu (magic link để sau). Bắt buộc xác minh email trước khi vào app (`enable_confirmations = true`), mật khẩu ≥ 8 ký tự.
 2. **Phiên:** cookie do `@supabase/ssr` quản lý; middleware làm mới phiên mỗi request; API chấp nhận thêm `Authorization: Bearer <jwt>` (L3 10.1).
 3. **Luồng (route group `(auth)` trong apps/web):**
-   - `/signup` (A01) → Supabase `signUp` với `emailRedirectTo=/auth/callback`; **không tiết lộ email đã tồn tại**: luôn chuyển tới A02 "kiểm tra email" với cùng thông điệp.
+   - `/signup` (A01) → Supabase `signUp` với `emailRedirectTo=/auth/callback`. **Email đã có tài khoản → báo "Email này đã có tài khoản. Hãy đăng nhập hoặc đặt lại mật khẩu."** theo Penpot "A01 · lỗi" (PM chốt 23/10/2026, thay yêu cầu "không tiết lộ" ở PROMPTS mốc L; PM chấp nhận rủi ro dò email ở màn đăng ký). Quên mật khẩu và đăng nhập vẫn không tiết lộ.
    - `/verify-email` (A02): gửi lại email xác minh.
    - `/auth/callback`: đổi mã (PKCE) lấy phiên, đồng bộ `app.users`, chuyển tới `next` (chỉ đường dẫn nội bộ) hoặc `/onboarding/workspace` nếu chưa có workspace.
    - `/login` (A03): lỗi sai thông tin chung chung, không nói email có tồn tại không.

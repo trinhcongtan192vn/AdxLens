@@ -24,6 +24,25 @@ export function getAuthUser(req?: Request): Promise<AuthUser | null> {
   return resolver(req);
 }
 
+type PasswordVerifier = (email: string, password: string) => Promise<boolean>;
+
+const supabaseVerifier: PasswordVerifier = async (email, password) => {
+  const supabase = await supabaseServer();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  return !error;
+};
+let verifier: PasswordVerifier = supabaseVerifier;
+
+/** Xác nhận lại mật khẩu cho thao tác nhạy cảm (chuyển quyền owner). */
+export function verifyPassword(email: string, password: string): Promise<boolean> {
+  return verifier(email, password);
+}
+
+export function setPasswordVerifierForTest(v: PasswordVerifier | null): void {
+  if (process.env.APP_ENV !== 'test') throw new Error('setPasswordVerifierForTest chỉ dùng trong test');
+  verifier = v ?? supabaseVerifier;
+}
+
 /**
  * Chỉ cho test: thay nguồn xác thực. Bị chặn ngoài APP_ENV=test để không thể thành đường vòng
  * xác thực trên staging/production.

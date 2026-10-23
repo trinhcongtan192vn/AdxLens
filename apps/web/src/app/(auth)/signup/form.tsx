@@ -23,7 +23,7 @@ export function SignUpForm() {
         <Field
           label={t('fields.workEmail')}
           htmlFor="email"
-          error={fieldError(state, 'email') ? t('fieldErrors.email') : undefined}
+          error={fieldError(state, 'email') === 'invalid' ? t('fieldErrors.email') : undefined}
         >
           <Input
             id="email"

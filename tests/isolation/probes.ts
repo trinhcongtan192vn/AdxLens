@@ -29,4 +29,48 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     body: (w) => ({ workspaceId: w.b.workspace.id }),
   },
   'POST /api/v1/me/preferences': { kind: 'user', body: () => ({ period: 'last30' }) },
+  'PATCH /api/v1/me/profile': { kind: 'user', body: () => ({ fullName: 'Tên mới' }) },
+  'POST /api/v1/me/password': {
+    kind: 'user',
+    body: () => ({ currentPassword: 'correct-password', password: 'mat-khau-moi-10', confirm: 'mat-khau-moi-10' }),
+  },
+  'DELETE /api/v1/me/sessions': { kind: 'user' },
+  'POST /api/v1/workspaces': {
+    kind: 'user',
+    body: () => ({ name: 'Agency Mới', timezone: 'Asia/Ho_Chi_Minh', currency: 'VND' }),
+  },
+  'GET /api/v1/workspace': { kind: 'workspace' },
+  'PATCH /api/v1/workspace': { kind: 'workspace', body: () => ({ name: 'Alpha 2' }) },
+  'DELETE /api/v1/workspace': { kind: 'workspace', body: () => ({ confirmName: 'sai-ten' }) },
+  'POST /api/v1/workspace/logo': { kind: 'workspace' },
+  'GET /api/v1/members': { kind: 'workspace' },
+  'POST /api/v1/members/invitations': {
+    kind: 'workspace',
+    body: (w) => ({ email: 'moi@alpha.vn', role: 'buyer', clientAccess: [w.a.client.id] }),
+  },
+  'DELETE /api/v1/members/invitations/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+  },
+  'POST /api/v1/members/invitations/[id]/resend': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+  },
+  'PATCH /api/v1/members/[userId]': {
+    kind: 'workspace',
+    params: (w) => ({ userId: w.a.manager.id }),
+    crossParams: (w) => ({ userId: w.b.manager.id }),
+    body: () => ({ role: 'buyer' }),
+  },
+  'DELETE /api/v1/members/[userId]': {
+    kind: 'workspace',
+    params: (w) => ({ userId: w.a.manager.id }),
+    crossParams: (w) => ({ userId: w.b.manager.id }),
+  },
+  'POST /api/v1/members/[userId]/transfer-ownership': {
+    kind: 'workspace',
+    params: (w) => ({ userId: w.a.manager.id }),
+    crossParams: (w) => ({ userId: w.b.manager.id }),
+    body: () => ({ password: 'correct-password' }),
+  },
 };

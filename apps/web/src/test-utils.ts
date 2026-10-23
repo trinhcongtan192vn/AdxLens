@@ -1,8 +1,11 @@
 // Chỉ dùng trong test: gọi Route Handler trực tiếp với user giả.
 import type { Db } from '@adxlens/db';
+import { memoryEmailSender } from '@adxlens/core/notification';
 import { recordingEnqueue } from '@adxlens/jobs';
-import { setAuthResolverForTest, type AuthUser } from './server/auth';
+import { setAuthResolverForTest, setPasswordVerifierForTest, type AuthUser } from './server/auth';
+import { setAccountOpsForTest } from './server/account';
 import { setDepsForTest } from './server/deps';
+import { memoryStorage } from './server/storage';
 import type { RouteHandler } from './server/route';
 
 const users = new Map<string, AuthUser>();
@@ -10,17 +13,24 @@ const users = new Map<string, AuthUser>();
 /** Bật chế độ test: user lấy từ header `x-test-user`, DB test, enqueue ghi lại. */
 export function installTestServer(db: Db) {
   const enqueue = recordingEnqueue();
-  setDepsForTest({ db, enqueue });
+  const email = memoryEmailSender();
+  const storage = memoryStorage();
+  setDepsForTest({ db, enqueue, email, storage });
   setAuthResolverForTest(async (req) => {
     const id = req?.headers.get('x-test-user');
     return id ? (users.get(id) ?? null) : null;
   });
-  return { enqueue };
+  // Mật khẩu đúng trong test là "correct-password".
+  setPasswordVerifierForTest(async (_email, password) => password === 'correct-password');
+  setAccountOpsForTest({ changePassword: async () => ({ ok: true }), signOutOthers: async () => {} });
+  return { enqueue, email, storage };
 }
 
 export function uninstallTestServer() {
   setDepsForTest(null);
   setAuthResolverForTest(null);
+  setPasswordVerifierForTest(null);
+  setAccountOpsForTest(null);
   users.clear();
 }
 

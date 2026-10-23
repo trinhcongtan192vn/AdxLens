@@ -36,6 +36,7 @@ export type AuthErrorCode =
   | 'email_not_confirmed'
   | 'weak_password'
   | 'terms_required'
+  | 'email_exists'
   | 'link_expired'
   | 'rate_limited'
   | 'unknown';
@@ -95,8 +96,8 @@ function isRateLimited(err: { code?: string; status?: number } | null | undefine
 }
 
 /**
- * Đăng ký: mọi kết quả (kể cả email đã tồn tại) đều trả 'ok' để chuyển tới màn "kiểm tra email"
- * — không tiết lộ email đã có tài khoản (PROMPTS mốc L). Chỉ báo lỗi về dữ liệu nhập.
+ * Đăng ký. Email đã có tài khoản → báo "email đã có tài khoản" theo Penpot "A01 · lỗi" (PM chốt
+ * 23/10/2026, ADR-0003 mục 3, thay yêu cầu "không tiết lộ" ở PROMPTS mốc L).
  */
 export async function signUpFlow(p: AuthProvider, raw: unknown, appUrl: string): Promise<FormState> {
   const parsed = signUpSchema.safeParse(raw);
@@ -117,6 +118,9 @@ export async function signUpFlow(p: AuthProvider, raw: unknown, appUrl: string):
     redirectTo: `${appUrl}/auth/callback`,
   });
   if (error?.code === 'weak_password') return { status: 'error', code: 'weak_password', fields: { password: 'weak' } };
+  if (error?.code === 'user_already_exists' || error?.code === 'email_exists') {
+    return { status: 'error', code: 'email_exists', fields: { email: 'exists' } };
+  }
   if (isRateLimited(error)) return { status: 'error', code: 'rate_limited' };
   return { status: 'ok' };
 }

@@ -76,8 +76,9 @@
 }
 
 @layer base {
+  /* Root giữ 16px để spacing theo rem của Tailwind khớp lưới 4px (h-12 = 48px như Penpot);
+     cỡ chữ nền 13px đặt ở body. */
   html {
-    font-size: 13px;
     -webkit-font-smoothing: antialiased;
   }
   body {

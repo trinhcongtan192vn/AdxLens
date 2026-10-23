@@ -59,12 +59,16 @@ describe('đăng ký (A01)', () => {
     );
   });
 
-  it('email đã tồn tại vẫn trả cùng kết quả như email mới (không tiết lộ)', async () => {
+  it('email đã có tài khoản → báo lỗi như Penpot "A01 · lỗi" (PM chốt 23/10/2026)', async () => {
     const existing = provider({
       signUp: async () => ({ error: { code: 'user_already_exists', status: 422 } }),
     });
-    const fresh = provider();
-    expect(await signUpFlow(existing, good, APP)).toEqual(await signUpFlow(fresh, good, APP));
+    expect(await signUpFlow(existing, good, APP)).toEqual({
+      status: 'error',
+      code: 'email_exists',
+      fields: { email: 'exists' },
+    });
+    expect(await signUpFlow(provider(), good, APP)).toEqual({ status: 'ok' });
   });
 
   it('mật khẩu ngắn hơn 10 ký tự bị từ chối trước khi gọi Supabase', async () => {

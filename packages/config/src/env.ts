@@ -56,6 +56,8 @@ export const integrationsEnvSchema = z.object({
   RESEND_API_KEY: optionalString,
   SMTP_HOST: z.string().default('127.0.0.1'),
   SMTP_PORT: z.coerce.number().int().default(54325),
+  SMTP_USER: optionalString,
+  SMTP_PASS: optionalString,
   STRIPE_SECRET_KEY: optionalString,
   STRIPE_PUBLISHABLE_KEY: optionalString,
   STRIPE_WEBHOOK_SECRET: optionalString,

@@ -23,7 +23,11 @@ export const workspaces = app.table('workspaces', {
   name: text('name').notNull(),
   defaultLocale: text('default_locale').notNull().default('vi'),
   defaultTimezone: text('default_timezone').notNull().default('Asia/Ho_Chi_Minh'),
+  /** A07 "Tiền tệ báo cáo"; số liệu từng tài khoản vẫn theo tiền tệ của tài khoản trên Meta. */
+  defaultCurrency: text('default_currency').notNull().default('VND'),
   brand: jsonb('brand').$type<WorkspaceBrand>().notNull().default({}),
+  /** ST01 "Email gửi báo cáo" (domain cần xác minh SPF/DKIM ở nhà cung cấp email, B4). */
+  reportFromEmail: text('report_from_email'),
   badgeRemoved: boolean('badge_removed').notNull().default(false),
   createdAt: createdAt(),
   updatedAt: updatedAt(),

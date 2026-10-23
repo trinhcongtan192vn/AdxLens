@@ -4,6 +4,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { closeTestDb, testDb, truncateAll } from '@adxlens/db/testing';
 import { asUser, call, installTestServer, uninstallTestServer } from '@/test-utils';
 import type { RouteHandler } from '@/server/route';
+import { workspaceFingerprint } from './fingerprint';
 import { ROUTE_PROBES } from './probes';
 import { seedWorld, type World } from './world';
 
@@ -76,6 +77,11 @@ describe('cách ly workspace: route API', () => {
       await truncateAll(db);
       const world = await seedWorld(db);
       const method = r.key.split(' ')[0]!;
+      const bBefore = await workspaceFingerprint(db, world.b.workspace.id);
+      const assertBUnchanged = async () =>
+        expect(await workspaceFingerprint(db, world.b.workspace.id), `${r.key} làm thay đổi dữ liệu workspace B`).toBe(
+          bBefore,
+        );
 
       if (probe.kind === 'user') {
         const res = await call(r.handler, {
@@ -86,6 +92,7 @@ describe('cách ly workspace: route API', () => {
         });
         expect(res.status, r.key).toBeLessThan(500);
         assertNoLeak(res.body, world, r.key);
+        await assertBUnchanged();
         continue;
       }
 
@@ -128,6 +135,7 @@ describe('cách ly workspace: route API', () => {
         body: probe.body?.(world),
       });
       expect([401, 403, 404], `${r.key} với X-Workspace-Id của B`).toContain(forged.status);
+      await assertBUnchanged();
     }
   });
 
