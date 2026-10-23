@@ -7,6 +7,7 @@ import { healthScores, listFindings } from '@adxlens/core/insight';
 import { accountReconciliation } from '@adxlens/core/reconciliation';
 import { addDays, AppError, daysBetween, notFound, systemClock, type ActorCtx, type Clock } from '@adxlens/core/shared';
 import { assertCan, getClient } from '@adxlens/core/tenancy';
+import { agencyWork, type AgencyWork } from './agency-work';
 import { accountKpis, dailySeries, entityTable, type DateRange, type Kpis } from './metrics';
 import { generateSummary, type LlmClient } from './summary';
 
@@ -52,6 +53,8 @@ export type ReportContent = {
     whatToDo: I18nText;
     impact: { amount: string; currency: string } | null;
   }[];
+  /** A2: việc agency đã làm trong kỳ, tổng hợp tự động (báo cáo cũ không có trường này). */
+  agencyWork?: AgencyWork | null;
 };
 
 /** Kỳ so sánh liền trước cùng độ dài. */
@@ -234,6 +237,7 @@ export async function buildReport(
       },
       accounts,
       findings: findingsOut.slice(0, REPORT_FINDINGS_LIMIT),
+      agencyWork: await agencyWork(ctx, ids, period),
     };
     const integrity = await reportIntegrity(ctx, client.id, period);
     // Tóm tắt (P0-16): LLM chỉ diễn giải số đã tính; không qua kiểm tra số → tóm tắt mẫu.

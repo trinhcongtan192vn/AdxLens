@@ -170,3 +170,16 @@ describe('client Anthropic', () => {
     await expect(bad.complete({ system: '', user: '', maxTokens: 1, temperature: 0 })).rejects.toThrow('LLM_HTTP_401');
   });
 });
+
+describe('tóm tắt có việc agency đã làm (A2)', () => {
+  it('thêm câu số thay đổi / việc đã xong, số nằm trong danh sách được kiểm', () => {
+    const c = {
+      ...content(),
+      agencyWork: { actions: [], tasks: [], findingsHandled: 2, totals: { actions: 4, tasks: 6 } },
+    };
+    const text = templateSummary(c);
+    expect(text).toContain('Trong kỳ, đội đã thực hiện 4 thay đổi trên Meta và hoàn thành 6 việc.');
+    expect(checkNumbers(text, summaryFacts(c), 'vi').ok).toBe(true);
+    expect(templateSummary(content())).not.toContain('Trong kỳ, đội');
+  });
+});
