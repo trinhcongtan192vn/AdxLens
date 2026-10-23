@@ -1,4 +1,4 @@
-import { date, index, jsonb, text, uuid } from 'drizzle-orm/pg-core';
+import { boolean, date, index, integer, jsonb, text, uuid } from 'drizzle-orm/pg-core';
 import { app, createdAt, tsz, updatedAt } from './_common';
 import { clients } from './tenancy';
 
@@ -44,4 +44,29 @@ export const reports = app.table(
     updatedAt: updatedAt(),
   },
   (t) => [index().on(t.workspaceId), index().on(t.clientId, t.createdAt)],
+);
+
+/**
+ * Link chia sẻ công khai (L3 5.2, PRD P0-14): token 32 byte ngẫu nhiên, thu hồi được, hạn tùy chọn, mật
+ * khẩu tùy chọn (scrypt). Trigger DB chặn tạo link khi báo cáo chưa toàn vẹn (ADR-0007, BR01).
+ */
+export const shareLinks = app.table(
+  'share_links',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id').notNull(),
+    reportId: uuid('report_id')
+      .notNull()
+      .references(() => reports.id, { onDelete: 'cascade' }),
+    token: text('token').notNull().unique(),
+    passwordHash: text('password_hash'),
+    showBadge: boolean('show_badge').notNull().default(true),
+    expiresAt: tsz('expires_at'),
+    revokedAt: tsz('revoked_at'),
+    viewCount: integer('view_count').notNull().default(0),
+    lastViewedAt: tsz('last_viewed_at'),
+    createdBy: uuid('created_by').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index().on(t.workspaceId), index().on(t.reportId)],
 );

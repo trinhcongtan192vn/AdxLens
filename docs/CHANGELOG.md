@@ -2,6 +2,25 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [021] Chia sẻ link công khai, trang báo cáo công khai mobile-first — 2026-10-23
+
+**Thay đổi**
+- DB: `app.share_links` (token 32 byte base64url, mật khẩu scrypt có muối, nhãn Powered by theo workspace lúc tạo, hạn, thu hồi, lượt xem). RLS.
+- **Trigger DB `app.guard_share_link`** (lớp chặn thứ hai, ADR-0007): không tạo được link khi báo cáo chưa sẵn sàng, Client có tài khoản chưa xác nhận gán, có ngày lệch > 1% trong kỳ, hoặc kết nối Meta đã ngắt.
+- `packages/core/reporting/share.ts`: tạo link (kiểm lại toàn vẹn tại thời điểm chia sẻ → 422 `REPORT_BLOCKED` kèm lý do), danh sách, thu hồi, trạng thái công khai (thu hồi / hết hạn / **tạm khóa** khi sau đó số liệu lệch hoặc kết nối bị ngắt — P0-22, P0-23 / cần mật khẩu / xem được), ghi lượt xem. `core/ops/public-share.ts`: tra token (xuyên workspace có chú thích lý do — người xem công khai không có workspace).
+- API: `GET|POST /api/v1/reports/{id}/share-links` (201, url công khai theo `PUBLIC_REPORT_URL`), `DELETE /api/v1/share-links/{id}`, `POST /api/v1/public/share/{token}/unlock` (đúng mật khẩu → cookie ký 12 giờ, chỉ cho link đó).
+- R04 `/reports/{id}/share` (dạng trang theo PM): tạo link (hạn 7/30/90 ngày hoặc không, mật khẩu tùy chọn, tự sao chép), danh sách (lượt xem, trạng thái, sao chép, thu hồi), trạng thái bị chặn BR01 kèm lý do và lối xử lý. Nút "Chia sẻ" ở R03.
+- R06 `/r/{token}`: trang công khai mobile-first dùng chung mẫu báo cáo; trạng thái hết hạn/thu hồi, tạm khóa, mật khẩu; `noindex`.
+
+**Test tự động**
+- `packages/core/src/reporting/share.test.ts` (7): token + hạn + mật khẩu băm/kiểm; chưa xác nhận gán → 422 **và trigger DB chặn ghi thẳng**; ngày lệch → chặn API + trigger; trạng thái công khai ok/mật khẩu/hết hạn/thu hồi + đếm lượt xem; link đã tạo bị khóa khi sau đó lệch hoặc ngắt kết nối, mở lại khi hết lệch; gỡ nhãn; muối ngẫu nhiên.
+- API `share.test.ts` (3): tạo/danh sách (không lộ hash)/thu hồi, 422 khi chưa xác nhận, mở khóa đúng/sai mật khẩu.
+- Bộ cách ly: dữ liệu B có link chia sẻ; probe 3 route (+ báo cáo/link B), unlock miễn (có lý do).
+
+**Vùng bảo vệ:** `packages/db/**` (1 bảng, RLS, **trigger chặn chia sẻ**, migration 0023–0024). Rủi ro: trigger chặn mọi insert share link khi dữ liệu chưa toàn vẹn — đúng ý đồ; lỗi trả `REPORT_BLOCKED`.
+
+**PM kiểm tra:** (cờ `p0_reports` bật) R03 → "Chia sẻ" → tạo link (thử có mật khẩu) → mở link ở cửa sổ ẩn danh/điện thoại; thu hồi → link báo "đã hết hạn hoặc bị thu hồi".
+
 ## [020] Tóm tắt LLM có kiểm tra số; tóm tắt mẫu khi không có API key — 2026-10-23
 
 **Thay đổi**
