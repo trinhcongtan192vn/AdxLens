@@ -34,8 +34,10 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } }],
   webServer: [
+    // CI đặt E2E_WEB_COMMAND="pnpm start" (sau `next build`): `next dev` biên dịch từng trang lần đầu truy cập nên
+    // trên runner CI chậm hơn timeout của bước; bản build giống production hơn và ổn định thời gian.
     {
-      command: 'pnpm dev',
+      command: process.env.E2E_WEB_COMMAND ?? 'pnpm dev',
       url: 'http://localhost:3000/api/health',
       reuseExistingServer: true,
       timeout: 180_000,
