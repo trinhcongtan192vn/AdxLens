@@ -2,6 +2,22 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [017] Quy tắc audit (phần 2): learning limited, chi tiêu không chuyển đổi, vệ sinh tài khoản, theo dõi chuyển đổi — 2026-10-23
+
+**Thay đổi**
+- 4 quy tắc (ngưỡng trong `docs/rules/README.md`, chờ PM duyệt):
+  - `learning_limited` (ad set): trạng thái `LEARNING_LIMITED` từ API, hoặc suy từ < 50 kết quả/7 ngày khi API không trả trạng thái; mức theo tỷ trọng chi tiêu.
+  - `spend_no_conversion` (ad set tối ưu chuyển đổi): chi tiêu 7 ngày vượt ngưỡng theo tiền tệ mà 0 kết quả, chỉ khi tài khoản vẫn có kết quả cùng mục tiêu ở nơi khác (tránh nhầm với lỗi theo dõi); tác động = toàn bộ chi tiêu.
+  - `account_hygiene`: tên mặc định/bản sao ở đối tượng đang chạy; campaign/ad set đang bật mà 7 ngày không chi tiêu.
+  - `conversion_tracking` (tài khoản): kết quả 3 ngày gần nhất giảm ≥ 70% so với 14 ngày trước trong khi chi tiêu và click không giảm tương ứng.
+- Bộ v1 đủ 8 quy tắc trong `RULES`; văn bản vi/en.
+
+**Test tự động**
+- `rules-2.test.ts` (12): fixture phát hiện đúng, **không đủ dữ liệu → không phát hiện**, biên, mục tiêu click không áp dụng, cả tài khoản không có kết quả thì không báo lãng phí, chi tiêu cũng giảm thì không báo lỗi theo dõi, nhận diện tên mặc định.
+- `insight.test.ts`: chạy đủ 8 quy tắc trên mock bắt thêm "chi tiêu không chuyển đổi" (ad set Sở thích) và "học hạn chế" (ad set traffic).
+
+**Vùng bảo vệ:** không.
+
 ## [016] Quy tắc audit (phần 1): creative fatigue, phân bổ ngân sách, ad thắng bị bỏ đói, phân mảnh — 2026-10-23
 
 **Thay đổi**
