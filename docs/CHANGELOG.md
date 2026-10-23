@@ -2,6 +2,20 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [055] "Vì sao CPA thay đổi?" trong báo cáo và trang tài khoản (A1) — 2026-10-23
+
+**Thay đổi**
+- Khối **Vì sao CPA tăng / giảm?** ở báo cáo (dưới số liệu chính, ẩn cùng mục KPI) và trang tổng quan tài khoản (D01):
+  - CPA kỳ trước → kỳ này (%), **phân rã theo yếu tố**: CPA = CPM ÷ CTR (click liên kết / hiển thị) ÷ tỷ lệ chuyển đổi (kết quả / click); mỗi yếu tố có % thay đổi và % thay đổi CPA nó giải thích (phân rã log, cộng = 100%).
+  - **Chiến dịch đóng góp nhiều nhất** (tối đa 3, cùng chiều thay đổi): phân rã cộng chính xác ΔCPA = Σ[(chi_i − CPA₁·kq_i)/KQ] giữa hai kỳ; hiện CPA chiến dịch trước → sau và % đóng góp.
+  - Chỉ giải thích khi **mỗi kỳ ≥ 10 kết quả**, có hiển thị và click, và CPA đổi **≥ 5%** — thiếu dữ liệu thì không hiện (thà không giải thích còn hơn sai).
+- Tóm tắt báo cáo thêm câu "CPA tăng X% chủ yếu do … ; chiến dịch "…" chiếm Y% mức thay đổi". Theo quyết định PM, **LLM được diễn giải** phần này: các số phân rã được đưa vào danh sách kiểm số (`summaryFacts`, nhãn `account_N.cpa_factor.*`, `cpa_driver_campaign_N.*`) — LLM không tạo số; **tên chiến dịch không đưa vào prompt** (CLAUDE.md quy tắc 10).
+- `core/reporting/cpa-change.ts` (`explainCpaChange`, hàm thuần); `ReportContent.accounts[].cpaChange` (tùy chọn). Tiền (CPA, chi tiêu) giữ chuỗi decimal từ số liệu; chỉ tỷ lệ % dùng số thực.
+
+**Test tự động:** `cpa-change.test.ts` (CVR giảm một nửa → CPA ×2, yếu tố CVR 100%; đóng góp chiến dịch đúng chiều và xếp hạng; thiếu kết quả / click hoặc CPA đổi < 5% → null); `summary.test.ts` (câu giải thích qua kiểm số, tên chiến dịch không nằm trong danh sách gửi LLM).
+
+**PM kiểm tra:** Client TRON_GLAMPING → trang tài khoản (kỳ 30 ngày) → khối "Vì sao CPA …" (nếu CPA đổi ≥ 5% và đủ dữ liệu); tạo báo cáo → khối cùng nội dung + câu trong tóm tắt.
+
 ## [054] Báo cáo: "Agency đã làm gì trong kỳ" tự động (A2) — 2026-10-23
 
 **Thay đổi**

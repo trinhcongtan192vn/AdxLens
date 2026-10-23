@@ -3,7 +3,8 @@ import { getFormatter, getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import { healthScores, listFindings } from '@adxlens/core/insight';
 import { accountReconciliation } from '@adxlens/core/reconciliation';
-import { accountKpis, dailySeries } from '@adxlens/core/reporting';
+import { accountKpis, dailySeries, entityTable, explainCpaChange } from '@adxlens/core/reporting';
+import { CpaChangeBlock } from '@/report/report-view';
 import {
   Badge,
   buttonVariants,
@@ -40,17 +41,25 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
   const format = await getFormatter();
   const locale = pc.user.locale === 'en' ? 'en' : 'vi';
   const { cur, prev } = await currentRanges(account.timezone);
-  const [kc, kp, series, health, top, recon] = await Promise.all([
+  const [kc, kp, series, health, top, recon, campsCur, campsPrev] = await Promise.all([
     accountKpis(pc.ctx, [account.id], cur),
     accountKpis(pc.ctx, [account.id], prev),
     dailySeries(pc.ctx, [account.id], cur),
     healthScores(pc.ctx, [account.id]),
     listFindings(pc.ctx, account.id, { limit: 5 }),
     accountReconciliation(pc.ctx, [account.id]),
+    entityTable(pc.ctx, [account.id], 'campaign', cur),
+    entityTable(pc.ctx, [account.id], 'campaign', prev),
   ]);
   const h = health.get(account.id)!;
   const r = recon.get(account.id)!;
   const k = kc.get(account.id)!;
+  // A1: vì sao CPA thay đổi so với kỳ trước (null khi không đủ dữ liệu hoặc gần như không đổi).
+  const cpaChange = explainCpaChange(k, kp.get(account.id)!, { current: campsCur, previous: campsPrev });
+  const trep = await getTranslations('report');
+  const nf = (v: number, o: Intl.NumberFormatOptions = {}) => format.number(v, o as never);
+  const moneyCur = (v: string | null, cur: string) =>
+    v === null ? '—' : `${format.number(Number(v), { maximumFractionDigits: cur === 'VND' ? 0 : 2 })} ${cur}`;
   const money = (v: string | null) =>
     v === null ? '—' : format.number(Number(v), { maximumFractionDigits: account.currency === 'VND' ? 0 : 2 });
 
@@ -85,6 +94,15 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
         }
       />
       <KpiRow cur={k} prev={kp.get(account.id)!} currency={account.currency} />
+      {cpaChange ? (
+        <CpaChangeBlock
+          x={cpaChange}
+          currency={account.currency}
+          t={(key, v) => trep(key as never, v as never)}
+          money={moneyCur}
+          nf={nf}
+        />
+      ) : null}
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader title={t('trend')} />

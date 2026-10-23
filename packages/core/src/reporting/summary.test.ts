@@ -183,3 +183,43 @@ describe('tóm tắt có việc agency đã làm (A2)', () => {
     expect(templateSummary(content())).not.toContain('Trong kỳ, đội');
   });
 });
+
+describe('tóm tắt giải thích CPA (A1)', () => {
+  it('câu "CPA tăng … chủ yếu do …" qua kiểm số; tên chiến dịch không vào danh sách gửi LLM', () => {
+    const base = content();
+    const c = {
+      ...base,
+      accounts: base.accounts.map((a) => ({
+        ...a,
+        cpaChange: {
+          current: '125000',
+          previous: '100000',
+          changePct: 25,
+          factors: [
+            { key: 'cvr' as const, changePct: -18.5, sharePct: 82.3 },
+            { key: 'cpm' as const, changePct: 4.2, sharePct: 17.7 },
+            { key: 'ctr' as const, changePct: 0, sharePct: 0 },
+          ],
+          drivers: [
+            {
+              metaId: 'c1',
+              name: 'TG_T9_TRUNGTHU',
+              sharePct: 64.5,
+              cpa: '150000',
+              previousCpa: '90000',
+              spend: '500000',
+            },
+          ],
+        },
+      })),
+    };
+    const text = templateSummary(c);
+    expect(text).toContain(
+      'CPA tăng 25% chủ yếu do tỷ lệ chuyển đổi giảm 18,5%; chiến dịch "TG_T9_TRUNGTHU" chiếm 64,5% mức thay đổi.',
+    );
+    const facts = summaryFacts(c);
+    expect(JSON.stringify(facts)).not.toContain('TG_T9_TRUNGTHU');
+    const withoutName = text.replace('"TG_T9_TRUNGTHU"', '"chiến dịch"');
+    expect(checkNumbers(withoutName, facts, 'vi').ok).toBe(true);
+  });
+});

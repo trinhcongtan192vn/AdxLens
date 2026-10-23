@@ -8,6 +8,7 @@ import { accountReconciliation } from '@adxlens/core/reconciliation';
 import { addDays, AppError, daysBetween, notFound, systemClock, type ActorCtx, type Clock } from '@adxlens/core/shared';
 import { assertCan, getClient } from '@adxlens/core/tenancy';
 import { agencyWork, type AgencyWork } from './agency-work';
+import { explainCpaChange, type CpaChange } from './cpa-change';
 import { accountKpis, dailySeries, entityTable, type DateRange, type Kpis } from './metrics';
 import { generateSummary, type LlmClient } from './summary';
 
@@ -43,6 +44,8 @@ export type ReportContent = {
     health: number;
     reconciliation: { status: 'ok' | 'warning' | 'pending'; maxSpendDeltaPct: string | null };
     topCampaigns: { name: string | null; spend: string; results: number; cpa: string | null; roas: string | null }[];
+    /** A1: vì sao CPA thay đổi so với kỳ trước (null = không đủ dữ liệu / gần như không đổi). */
+    cpaChange?: CpaChange | null;
   }[];
   findings: {
     accountId: string;
@@ -161,9 +164,10 @@ export async function buildReport(
     const accounts: ReportContent['accounts'] = [];
     const findingsOut: ReportContent['findings'] = [];
     for (const a of accs) {
-      const [daily, camps, f] = await Promise.all([
+      const [daily, camps, prevCamps, f] = await Promise.all([
         dailySeries(ctx, [a.id], period),
         entityTable(ctx, [a.id], 'campaign', period),
+        entityTable(ctx, [a.id], 'campaign', compare),
         listFindings(ctx, a.id, { limit: REPORT_FINDINGS_LIMIT }),
       ]);
       accounts.push({
@@ -187,6 +191,7 @@ export async function buildReport(
             cpa: c.kpis.cpa,
             roas: c.kpis.roas,
           })),
+        cpaChange: explainCpaChange(kc.get(a.id)!, kp.get(a.id)!, { current: camps, previous: prevCamps }),
       });
       for (const x of f.items) {
         findingsOut.push({

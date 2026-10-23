@@ -136,6 +136,16 @@ export function ReportView({
             </div>
           ) : null}
 
+          {!hidden.has('kpis') && a.cpaChange ? (
+            <CpaChangeBlock
+              x={a.cpaChange}
+              currency={a.currency}
+              t={(k, v) => t(k as never, v as never)}
+              money={money}
+              nf={nf}
+            />
+          ) : null}
+
           {!hidden.has('trend') ? (
             <div className="mt-4 break-inside-avoid">
               <h3 className="text-h3 font-semibold">{t('sections.trend')}</h3>
@@ -350,6 +360,67 @@ function AgencyWorkList({
           ) : null}
         </>
       ) : null}
+    </div>
+  );
+}
+
+/** A1: "Vì sao CPA thay đổi?" — yếu tố (CPM / CTR / tỷ lệ chuyển đổi) và chiến dịch đóng góp nhiều nhất. */
+export function CpaChangeBlock({
+  x,
+  currency,
+  t,
+  money,
+  nf,
+}: {
+  x: NonNullable<ReportContent['accounts'][number]['cpaChange']>;
+  currency: string;
+  t: (key: string, values?: Record<string, string | number>) => string;
+  money: (v: string | null, cur: string) => string;
+  nf: (v: number, o?: Intl.NumberFormatOptions) => string;
+}) {
+  const p = (v: number) => `${v > 0 ? '+' : ''}${nf(v, { maximumFractionDigits: 1 })}%`;
+  return (
+    <div className="mt-4 break-inside-avoid rounded-md border border-line p-3" data-testid="cpa-change">
+      <h3 className="text-h3 font-semibold">{t(x.changePct > 0 ? 'cpa.titleUp' : 'cpa.titleDown')}</h3>
+      <p className="mt-1 text-body">
+        {t('cpa.headline', {
+          previous: money(x.previous, currency),
+          current: money(x.current, currency),
+          change: p(x.changePct),
+        })}
+      </p>
+      <ul className="mt-2 space-y-1 text-body">
+        {x.factors
+          .filter((f) => Math.abs(f.sharePct) >= 5)
+          .map((f) => (
+            <li key={f.key}>
+              {t(`cpa.factors.${f.key}`)} <span className="num">{p(f.changePct)}</span> ·{' '}
+              <span className="text-fg-secondary">
+                {t('cpa.share', { share: nf(f.sharePct, { maximumFractionDigits: 0 }) })}
+              </span>
+            </li>
+          ))}
+      </ul>
+      {x.drivers.length ? (
+        <>
+          <p className="mt-2 text-small font-medium text-fg-secondary">{t('cpa.drivers')}</p>
+          <ul className="mt-1 space-y-1 text-body">
+            {x.drivers.map((d) => (
+              <li key={d.metaId}>
+                {d.name ?? '—'} · CPA{' '}
+                <span className="num">
+                  {money(d.previousCpa, currency)} → {money(d.cpa, currency)}
+                </span>{' '}
+                ·{' '}
+                <span className="text-fg-secondary">
+                  {t('cpa.share', { share: nf(d.sharePct, { maximumFractionDigits: 0 }) })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+      <p className="mt-2 text-small text-fg-tertiary">{t('cpa.method')}</p>
     </div>
   );
 }
