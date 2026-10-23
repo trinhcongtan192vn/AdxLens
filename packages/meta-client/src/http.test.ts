@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { http as mswHttp, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -189,5 +190,41 @@ describe('MetaLimiter', () => {
       });
     await Promise.all(['a', 'b', 'c', 'd', 'e', 'f'].map(task));
     expect(max).toBe(2);
+  });
+});
+
+describe('paginate: Meta mã 1 ("giảm lượng dữ liệu") → tự thu nhỏ trang', () => {
+  const tooMuch = () =>
+    HttpResponse.json(
+      { error: { message: 'Please reduce the amount of data you are asking for, then retry your request', code: 1 } },
+      { status: 500 },
+    );
+
+  it('giảm limit ÷4 cho trang nặng rồi đọc tiếp, không thử lại y nguyên', async () => {
+    const limits: number[] = [];
+    server.use(
+      mswHttp.get(`${base}/act_1/adcreatives`, ({ request }) => {
+        const limit = Number(new URL(request.url).searchParams.get('limit'));
+        limits.push(limit);
+        if (limit > 100) return tooMuch();
+        return HttpResponse.json({ data: [{ id: 'c1', name: 'Creative 1' }] });
+      }),
+    );
+    const { read, sleeps } = client();
+    const out = await read.listCreatives(TOKEN, 'act_1');
+    expect(out.map((c) => c.id)).toEqual(['c1']);
+    expect(limits[0]).toBeGreaterThan(100);
+    expect(limits.at(-1)).toBeLessThanOrEqual(100);
+    expect(limits.every((l, i) => i === 0 || l === Math.max(25, Math.floor(limits[i - 1]! / 4)))).toBe(true);
+    expect(sleeps).toEqual([]);
+  });
+
+  it('đã ở trang nhỏ nhất vẫn lỗi → thử lại như lỗi tạm thời rồi báo lỗi', async () => {
+    server.use(mswHttp.get(`${base}/act_1/adcreatives`, () => tooMuch()));
+    const { http, sleeps } = client({ maxAttempts: 2 });
+    await expect(
+      http.paginate('act_1/adcreatives', TOKEN, { fields: 'id', limit: 25 }, z.object({ id: z.string() })),
+    ).rejects.toMatchObject({ code: 1 });
+    expect(sleeps).toHaveLength(1);
   });
 });

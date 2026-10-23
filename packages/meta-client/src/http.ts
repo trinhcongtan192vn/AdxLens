@@ -76,7 +76,7 @@ export class MetaHttp {
     token: string,
     params: Record<string, string | number | undefined>,
     schema: S,
-    meta: { account?: string | null; endpoint?: string } = {},
+    meta: { account?: string | null; endpoint?: string; noRetryTooMuchData?: boolean } = {},
   ): Promise<z.infer<S>> {
     const url = typeof path === 'string' ? this.url(path) : new URL(path);
     const body = new URLSearchParams();
@@ -154,7 +154,9 @@ export class MetaHttp {
           errorCode: e.code,
           attempt,
         });
-        const retryable = e.isTransient || e.type === 'NetworkError';
+        // Mã 1 trên danh sách thường là "giảm lượng dữ liệu yêu cầu": paginate tự thu nhỏ trang thay vì thử lại y nguyên.
+        const retryable =
+          (e.isTransient || e.type === 'NetworkError') && !(meta.noRetryTooMuchData && e.code === TOO_MUCH_DATA_CODE);
         if (!retryable || attempt >= this.maxAttempts) throw e;
         // Backoff mũ có jitter; rate limit chờ lâu hơn.
         const base = this.baseDelayMs * 2 ** (attempt - 1) * (e.isRateLimit ? 4 : 1);
@@ -174,6 +176,10 @@ export class MetaHttp {
   }
 
   /** Duyệt hết các trang (`paging.next`), validate từng phần tử. */
+  /**
+   * Duyệt mọi trang. Meta trả mã 1 khi một trang quá nặng (vd. `adcreatives` 500 dòng có `thumbnail_url`): tự giảm
+   * `limit` (÷4, tối thiểu 25) cho trang đó và các trang sau, rồi mới để lỗi đi tiếp.
+   */
   async paginate<S extends z.ZodTypeAny>(
     path: string,
     token: string,
@@ -186,10 +192,25 @@ export class MetaHttp {
     let next: string | URL = path;
     let nextParams: Record<string, string | number | undefined> = params;
     for (let page = 0; page < (meta.maxPages ?? 500); page++) {
-      const res = (await this.request('GET', next, token, nextParams, pageSchema, {
-        account: meta.account,
-        endpoint: typeof path === 'string' ? path : undefined,
-      })) as { data: z.infer<S>[]; paging?: { next?: string } };
+      let res: { data: z.infer<S>[]; paging?: { next?: string } };
+      for (;;) {
+        const limit = pageLimit(next, nextParams);
+        const canShrink = limit !== null && limit > MIN_PAGE_LIMIT;
+        try {
+          res = (await this.request('GET', next, token, nextParams, pageSchema, {
+            account: meta.account,
+            endpoint: typeof path === 'string' ? path : undefined,
+            noRetryTooMuchData: canShrink,
+          })) as typeof res;
+          break;
+        } catch (e) {
+          // Meta mã 1 ("Please reduce the amount of data…") với trang lớn: thử lại cùng trang, `limit` nhỏ hơn.
+          if (!(e instanceof MetaApiError) || e.code !== TOO_MUCH_DATA_CODE || !canShrink) throw e;
+          const smaller = Math.max(MIN_PAGE_LIMIT, Math.floor(limit / 4));
+          if (typeof next === 'string') nextParams = { ...nextParams, limit: smaller };
+          else next.searchParams.set('limit', String(smaller));
+        }
+      }
       out.push(...res.data);
       if (!res.paging?.next) break;
       // Dùng URL "next" của Meta nhưng bỏ access_token trong đó; request() tự gắn lại.
@@ -201,4 +222,14 @@ export class MetaHttp {
     }
     return out;
   }
+}
+
+/** Mã lỗi chung của Meta, với danh sách thường nghĩa là yêu cầu quá nhiều dữ liệu trong một trang. */
+const TOO_MUCH_DATA_CODE = 1;
+export const MIN_PAGE_LIMIT = 25;
+
+function pageLimit(next: string | URL, params: Record<string, string | number | undefined>): number | null {
+  const raw = typeof next === 'string' ? params.limit : next.searchParams.get('limit');
+  const n = raw === undefined || raw === null ? NaN : Number(raw);
+  return Number.isFinite(n) ? n : null;
 }
