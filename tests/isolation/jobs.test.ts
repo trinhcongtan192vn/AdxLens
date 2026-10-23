@@ -36,5 +36,6 @@ describe('cách ly workspace: job', () => {
       const after = await workspaceFingerprint(db, world.b.workspace.id);
       expect(after, `${name} làm thay đổi dữ liệu workspace B`).toBe(before);
     }
-  });
+    // Duyệt MỌI job theo workspace — thời gian tăng theo số job (CI chậm hơn máy dev).
+  }, 300_000);
 });

@@ -46,6 +46,9 @@ function assertNoLeak(body: unknown, world: World, key: string) {
   }
 }
 
+/** Thời gian cho test duyệt toàn bộ route / job (CI chậm hơn máy dev); không đổi assertion nào. */
+const ISOLATION_SUITE_TIMEOUT_MS = 300_000;
+
 const db = testDb();
 let routes: Discovered[] = [];
 
@@ -70,87 +73,93 @@ describe('cách ly workspace: route API', () => {
     expect(stale, 'Probe trỏ tới route không còn tồn tại').toEqual([]);
   });
 
-  it('gọi bằng ngữ cảnh A không trả về hay ghi đè dữ liệu B', async () => {
-    for (const r of routes) {
-      const probe = ROUTE_PROBES[r.key];
-      if (!probe || probe.kind === 'exempt') continue;
-      await truncateAll(db);
-      const world = await seedWorld(db);
-      const method = r.key.split(' ')[0]!;
-      const bBefore = await workspaceFingerprint(db, world.b.workspace.id);
-      const assertBUnchanged = async () =>
-        expect(await workspaceFingerprint(db, world.b.workspace.id), `${r.key} làm thay đổi dữ liệu workspace B`).toBe(
-          bBefore,
-        );
+  it(
+    'gọi bằng ngữ cảnh A không trả về hay ghi đè dữ liệu B',
+    async () => {
+      for (const r of routes) {
+        const probe = ROUTE_PROBES[r.key];
+        if (!probe || probe.kind === 'exempt') continue;
+        await truncateAll(db);
+        const world = await seedWorld(db);
+        const method = r.key.split(' ')[0]!;
+        const bBefore = await workspaceFingerprint(db, world.b.workspace.id);
+        const assertBUnchanged = async () =>
+          expect(
+            await workspaceFingerprint(db, world.b.workspace.id),
+            `${r.key} làm thay đổi dữ liệu workspace B`,
+          ).toBe(bBefore);
 
-      if (probe.kind === 'user') {
+        if (probe.kind === 'user') {
+          const res = await call(r.handler, {
+            method,
+            path: r.urlPath,
+            user: asUser(world.a.owner),
+            body: probe.body?.(world),
+          });
+          expect(res.status, r.key).toBeLessThan(500);
+          assertNoLeak(res.body, world, r.key);
+          await assertBUnchanged();
+          continue;
+        }
+
+        const actor = probe.as === 'manager' ? world.a.manager : world.a.owner;
+        const params = probe.params?.(world) ?? {};
+        const query = probe.query?.(world);
+        const qs = query ? `?${new URLSearchParams(query)}` : '';
         const res = await call(r.handler, {
-          method,
-          path: r.urlPath,
-          user: asUser(world.a.owner),
-          body: probe.body?.(world),
-        });
-        expect(res.status, r.key).toBeLessThan(500);
-        assertNoLeak(res.body, world, r.key);
-        await assertBUnchanged();
-        continue;
-      }
-
-      const actor = probe.as === 'manager' ? world.a.manager : world.a.owner;
-      const params = probe.params?.(world) ?? {};
-      const query = probe.query?.(world);
-      const qs = query ? `?${new URLSearchParams(query)}` : '';
-      const res = await call(r.handler, {
-        method,
-        path: fill(r.urlPath, params) + qs,
-        user: asUser(actor),
-        workspaceId: world.a.workspace.id,
-        params,
-        body: probe.body?.(world),
-      });
-      expect(res.status, `${r.key}: ${JSON.stringify(res.body)}`).toBeLessThan(500);
-      assertNoLeak(res.body, world, r.key);
-
-      if (probe.crossParams) {
-        const cross = probe.crossParams(world);
-        const resB = await call(r.handler, {
-          method,
-          path: fill(r.urlPath, cross) + qs,
-          user: asUser(actor),
-          workspaceId: world.a.workspace.id,
-          params: cross,
-          body: probe.body?.(world),
-        });
-        expect([403, 404], `${r.key} với tài nguyên của B phải bị từ chối`).toContain(resB.status);
-        assertNoLeak(resB.body, world, r.key);
-      }
-
-      if (probe.crossBody) {
-        const resB = await call(r.handler, {
           method,
           path: fill(r.urlPath, params) + qs,
           user: asUser(actor),
           workspaceId: world.a.workspace.id,
           params,
-          body: probe.crossBody(world),
+          body: probe.body?.(world),
         });
-        expect([403, 404, 422], `${r.key} với body tham chiếu tài nguyên B phải bị từ chối`).toContain(resB.status);
-        assertNoLeak(resB.body, world, r.key);
-      }
+        expect(res.status, `${r.key}: ${JSON.stringify(res.body)}`).toBeLessThan(500);
+        assertNoLeak(res.body, world, r.key);
 
-      // Thành viên A không được dùng header để chuyển sang workspace B.
-      const forged = await call(r.handler, {
-        method,
-        path: fill(r.urlPath, params) + qs,
-        user: asUser(actor),
-        workspaceId: world.b.workspace.id,
-        params,
-        body: probe.body?.(world),
-      });
-      expect([401, 403, 404], `${r.key} với X-Workspace-Id của B`).toContain(forged.status);
-      await assertBUnchanged();
-    }
-  });
+        if (probe.crossParams) {
+          const cross = probe.crossParams(world);
+          const resB = await call(r.handler, {
+            method,
+            path: fill(r.urlPath, cross) + qs,
+            user: asUser(actor),
+            workspaceId: world.a.workspace.id,
+            params: cross,
+            body: probe.body?.(world),
+          });
+          expect([403, 404], `${r.key} với tài nguyên của B phải bị từ chối`).toContain(resB.status);
+          assertNoLeak(resB.body, world, r.key);
+        }
+
+        if (probe.crossBody) {
+          const resB = await call(r.handler, {
+            method,
+            path: fill(r.urlPath, params) + qs,
+            user: asUser(actor),
+            workspaceId: world.a.workspace.id,
+            params,
+            body: probe.crossBody(world),
+          });
+          expect([403, 404, 422], `${r.key} với body tham chiếu tài nguyên B phải bị từ chối`).toContain(resB.status);
+          assertNoLeak(resB.body, world, r.key);
+        }
+
+        // Thành viên A không được dùng header để chuyển sang workspace B.
+        const forged = await call(r.handler, {
+          method,
+          path: fill(r.urlPath, params) + qs,
+          user: asUser(actor),
+          workspaceId: world.b.workspace.id,
+          params,
+          body: probe.body?.(world),
+        });
+        expect([401, 403, 404], `${r.key} với X-Workspace-Id của B`).toContain(forged.status);
+        await assertBUnchanged();
+      }
+      // Một test duyệt MỌI route (mỗi route: dựng lại 2 workspace + băm dữ liệu B) — thời gian tăng theo số route.
+    },
+    ISOLATION_SUITE_TIMEOUT_MS,
+  );
 
   it('chọn workspace của người khác bị từ chối', async () => {
     const world = await seedWorld(db);
