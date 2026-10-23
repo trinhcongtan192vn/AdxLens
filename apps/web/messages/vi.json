@@ -2169,7 +2169,8 @@
     "templates": {
       "pause_fatigued_ad": "Tạm dừng quảng cáo mệt",
       "pause_adset_no_results": "Tạm dừng nhóm chi tiêu không ra kết quả",
-      "reduce_budget_high_cpa": "Giảm ngân sách nhóm có CPA tăng mạnh"
+      "reduce_budget_high_cpa": "Giảm ngân sách nhóm có CPA tăng mạnh",
+      "increase_budget_winner": "Tăng ngân sách nhóm thắng (CPA giảm mạnh)"
     },
     "template": "Mẫu",
     "doneCount": "{count} lần đã làm",
@@ -2183,7 +2184,8 @@
       "then": "thì",
       "changePct": "Thay đổi ngân sách (%)",
       "maxDailyBudget": "Trần ngân sách ngày (đơn vị nhỏ nhất của tiền tệ)",
-      "maxPerDay": "Tối đa hành động mỗi ngày (không bắt buộc)"
+      "maxPerDay": "Tối đa hành động mỗi ngày (không bắt buộc)",
+      "match": "Kiểu khớp điều kiện"
     },
     "levels": {
       "ad": "quảng cáo",
@@ -2252,6 +2254,28 @@
         "undoRate": "Tỷ lệ hoàn tác",
         "pausedSpend": "Chi tiêu 7 ngày trước khi tạm dừng"
       }
-    }
+    },
+    "match": {
+      "all": "Khi TẤT CẢ điều kiện đúng (VÀ)",
+      "any": "Khi BẤT KỲ điều kiện nào đúng (HOẶC)"
+    },
+    "maxRequired": "Bắt buộc với rule tăng ngân sách: ngân sách mới không bao giờ vượt mức này.",
+    "copy": {
+      "button": "Sao chép sang tài khoản khác",
+      "title": "Sao chép rule \"{name}\"",
+      "note": "Mỗi bản sao là rule riêng của từng tài khoản, bắt đầu chạy thử 14 ngày. Danh sách loại trừ không được sao chép.",
+      "accounts": "Tài khoản QC",
+      "confirm": "Sao chép",
+      "done": "Đã tạo {created} rule (bỏ qua {skipped})"
+    },
+    "log": {
+      "title": "Nhật ký kích hoạt",
+      "matched": "Đối tượng khớp",
+      "none": "Không có đối tượng khớp.",
+      "blockedBy": "bị chặn: {reason}",
+      "newBudget": "ngân sách mới {budget}"
+    },
+    "and": "VÀ",
+    "or": "HOẶC"
   }
 }

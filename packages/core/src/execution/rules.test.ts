@@ -23,6 +23,7 @@ import {
   getRule,
   listRules,
   listRuleTemplates,
+  copyRule,
   matchConditions,
   RULE_TEMPLATES,
   ruleBudget,
@@ -273,5 +274,69 @@ describe('giả lập thời gian (chỉ local)', () => {
     expect((await ruleEvaluationsFor(s.ctx, r.id)).length).toBe(14);
     const [row] = await db.select().from(schema.automationRules).where(eq(schema.automationRules.id, r.id));
     expect(row!.shadowStartedAt?.toISOString()).toBe(new Date(NOW.getTime() - 14 * 86_400_000).toISOString());
+  });
+});
+
+describe('mở rộng rule (ADR-0014)', () => {
+  it('"HOẶC": khớp khi ít nhất một điều kiện đúng; chỉ số thiếu dữ liệu không làm điều kiện đúng', () => {
+    const conds = [
+      { metric: 'ctr_change_pct', op: 'lte', value: '-25' },
+      { metric: 'frequency', op: 'gte', value: '2.5' },
+    ];
+    const e = (metrics: Record<string, string | null>) => ({ status: 'ACTIVE', metrics: metrics as never });
+    const onlyFreq = e({ ctr_change_pct: '-5.00', frequency: '3.0000' });
+    expect(matchConditions(conds, onlyFreq)).toBe(false);
+    expect(matchConditions(conds, onlyFreq, 'any')).toBe(true);
+    expect(matchConditions(conds, e({ ctr_change_pct: null, frequency: null }), 'any')).toBe(false);
+    expect(matchConditions(conds, { ...onlyFreq, status: 'PAUSED' }, 'any')).toBe(false);
+  });
+
+  it('rule "HOẶC" lưu và đánh giá theo kiểu khớp; mẫu tăng ngân sách ad set thắng cần trần ngân sách', async () => {
+    const s = await setup();
+    const r = await createRule(s.ctx, { ...fatigueInput(s.acc.id), match: 'any' });
+    expect(r.match).toBe('any');
+    expect((await createRule(s.ctx, fatigueInput(s.acc.id))).match).toBe('all');
+
+    const win = RULE_TEMPLATES.find((t) => t.key === 'increase_budget_winner')!;
+    expect(win).toMatchObject({ requiresMaxDailyBudget: true, action: { type: 'set_adset_budget', changePct: '15' } });
+    const input = {
+      adAccountId: s.acc.id,
+      name: 'Tăng ad set thắng',
+      templateKey: win.key,
+      level: win.level,
+      condition: win.condition,
+    };
+    await expect(createRule(s.ctx, { ...input, action: win.action })).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+    });
+    const ok = await createRule(s.ctx, { ...input, action: { ...win.action, maxDailyBudget: '2000000' } });
+    expect(ok).toMatchObject({ mode: 'shadow', action: { changePct: '15', maxDailyBudget: '2000000' } });
+    expect(ruleBudget('1000000', '15', '1100000')).toBe('1100000');
+  });
+
+  it('sao chép rule sang tài khoản khác: bản sao chạy thử, không chép loại trừ, bỏ tài khoản nguồn / đã có; tài khoản lạ → 404', async () => {
+    const s = await setup();
+    const conn = await seedConnection(db, s.workspaceId, s.ctx.actor.userId, 'meta-2');
+    const acc2 = await seedAdAccount(db, s.workspaceId, conn.id, { clientId: s.client.id, confirmed: true });
+    const src = await createRule(s.ctx, {
+      ...fatigueInput(s.acc.id),
+      match: 'any',
+      guardrails: { maxActionsPerDay: 2, excludeMetaIds: ['123'] },
+    });
+    const out = await copyRule(s.ctx, src.id, [acc2.id, s.acc.id], clock);
+    expect(out.skipped).toEqual([s.acc.id]);
+    expect(out.created).toHaveLength(1);
+    expect(out.created[0]).toMatchObject({
+      adAccountId: acc2.id,
+      mode: 'shadow',
+      match: 'any',
+      guardrails: { maxActionsPerDay: 2 },
+    });
+    expect(out.created[0]!.guardrails).not.toHaveProperty('excludeMetaIds');
+    expect((await copyRule(s.ctx, src.id, [acc2.id], clock)).skipped).toEqual([acc2.id]);
+
+    const other = await setup();
+    await expect(copyRule(s.ctx, src.id, [other.acc.id], clock)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(copyRule(other.ctx, src.id, [other.acc.id], clock)).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 });

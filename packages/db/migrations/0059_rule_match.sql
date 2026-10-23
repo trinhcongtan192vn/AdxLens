@@ -1,0 +1,1 @@
+ALTER TABLE "app"."automation_rules" ADD COLUMN "match" text DEFAULT 'all' NOT NULL;

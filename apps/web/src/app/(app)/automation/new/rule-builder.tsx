@@ -9,7 +9,14 @@ import { api, ApiError } from '@/lib/api-client';
 
 type Cond = { metric: string; op: 'gte' | 'lte'; value: string };
 type Action = { type: 'pause_ad' | 'pause_adset' | 'set_adset_budget'; changePct?: string; maxDailyBudget?: string };
-type Template = { key: string; level: 'ad' | 'adset'; condition: Cond[]; action: Action; doneCount: number };
+type Template = {
+  key: string;
+  level: 'ad' | 'adset';
+  condition: Cond[];
+  action: Action;
+  doneCount: number;
+  requiresMaxDailyBudget?: boolean;
+};
 
 const METRICS = ['spend', 'results', 'cpa', 'ctr', 'frequency', 'ctr_change_pct', 'cpa_change_pct'] as const;
 
@@ -31,6 +38,8 @@ export function RuleBuilder({
   const [name, setName] = useState(t(`templates.${first.key}` as never));
   const [level, setLevel] = useState<'ad' | 'adset'>(first.level);
   const [conds, setConds] = useState<Cond[]>(first.condition);
+  // ADR-0014: VÀ (mọi điều kiện) / HOẶC (ít nhất một).
+  const [match, setMatch] = useState<'all' | 'any'>('all');
   const [action, setAction] = useState<Action>(first.action);
   const [maxPerDay, setMaxPerDay] = useState('');
   const [backtest, setBacktest] = useState<
@@ -45,6 +54,7 @@ export function RuleBuilder({
     setName(t(`templates.${key}` as never));
     setLevel(tpl.level);
     setConds(tpl.condition);
+    setMatch('all');
     setAction(tpl.action);
     setBacktest(null);
   };
@@ -53,6 +63,7 @@ export function RuleBuilder({
     name,
     templateKey,
     level,
+    match,
     condition: conds,
     action,
     guardrails: maxPerDay ? { maxActionsPerDay: Number(maxPerDay) } : {},
@@ -122,7 +133,19 @@ export function RuleBuilder({
             </Select>
           </Field>
           <div>
-            <p className="mb-1 text-body font-medium text-fg">{t('fields.when', { level: t(`levels.${level}`) })}</p>
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <p className="text-body font-medium text-fg">{t('fields.when', { level: t(`levels.${level}`) })}</p>
+              <Select
+                aria-label={t('fields.match')}
+                className="w-56"
+                value={match}
+                onChange={(e) => setMatch(e.target.value as 'all' | 'any')}
+                data-testid="rule-match"
+              >
+                <option value="all">{t('match.all')}</option>
+                <option value="any">{t('match.any')}</option>
+              </Select>
+            </div>
             <div className="flex flex-col gap-2">
               {conds.map((c, i) => (
                 <div key={i} className="flex flex-wrap items-center gap-2" data-testid="rule-condition">
@@ -186,7 +209,13 @@ export function RuleBuilder({
                   onChange={(e) => setAction({ ...action, changePct: e.target.value.trim() })}
                 />
               </Field>
-              <Field label={t('fields.maxDailyBudget')} htmlFor="rule-max" hint={t('maxHint')}>
+              <Field
+                label={t('fields.maxDailyBudget')}
+                htmlFor="rule-max"
+                hint={
+                  templates.find((x) => x.key === templateKey)?.requiresMaxDailyBudget ? t('maxRequired') : t('maxHint')
+                }
+              >
                 <Input
                   id="rule-max"
                   inputMode="numeric"

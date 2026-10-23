@@ -11,6 +11,7 @@ import {
   truncateAll,
 } from '@adxlens/db/testing';
 import { asUser, call, installTestServer, uninstallTestServer } from '../../../../test-utils';
+import * as copyRoute from './[id]/copy/route';
 import * as modeRoute from './[id]/mode/route';
 import * as itemRoute from './[id]/route';
 import * as backtestRoute from './backtest/route';
@@ -62,11 +63,40 @@ describe('API rule tự động (P211–P214)', () => {
     expect((await call(effRoute.GET, { user, workspaceId: ws })).status).toBe(404);
   });
 
+  it('sao chép rule (ADR-0014): cờ tắt → 404; cờ bật → bản sao chạy thử ở tài khoản khác, kiểu khớp HOẶC giữ nguyên', async () => {
+    const off = await setup(false);
+    const copyOff = await call(copyRoute.POST, {
+      user: off.user,
+      workspaceId: off.ws,
+      params: { id: '00000000-0000-4000-8000-000000000000' },
+      body: { ad_account_ids: [off.body.adAccountId] },
+    });
+    expect(copyOff.status).toBe(404);
+
+    const { ws, user, body } = await setup(true);
+    const created = await call(listRoute.POST, { user, workspaceId: ws, body: { ...body, match: 'any' } });
+    const ruleId = (created.body as { id: string }).id;
+    const conn2 = await seedConnection(db, ws, user.id, 'meta-copy');
+    const acc2 = await seedAdAccount(db, ws, conn2.id);
+    const r = await call(copyRoute.POST, {
+      user,
+      workspaceId: ws,
+      params: { id: ruleId },
+      body: { ad_account_ids: [acc2.id] },
+    });
+    expect(r.body).toMatchObject({ created: [{ ad_account_id: acc2.id }], skipped: [] });
+    const copied = (r.body as { created: { id: string }[] }).created[0]!.id;
+    const got = await call(itemRoute.GET, { user, workspaceId: ws, params: { id: copied } });
+    expect(got.body).toMatchObject({ mode: 'shadow', match: 'any' });
+  });
+
   it('cờ bật: mẫu, backtest, tạo (shadow), bật live bị chặn khi chưa đủ 14 ngày, tạm dừng; buyer 403', async () => {
     const { ws, user, body } = await setup(true);
-    expect(
-      ((await call(templatesRoute.GET, { user, workspaceId: ws })).body as { items: unknown[] }).items,
-    ).toHaveLength(3);
+    // ADR-0014 thêm mẫu "tăng ngân sách ad set thắng" (trước: 3 mẫu).
+    const tpl = ((await call(templatesRoute.GET, { user, workspaceId: ws })).body as { items: { key: string }[] })
+      .items;
+    expect(tpl).toHaveLength(4);
+    expect(tpl.map((x) => x.key)).toContain('increase_budget_winner');
     expect((await call(backtestRoute.POST, { user, workspaceId: ws, body })).body).toMatchObject({
       days: 30,
       items: [],

@@ -15,6 +15,7 @@ export const GET = route({
       name: r.name,
       mode: r.mode,
       level: r.level,
+      match: r.match,
       condition: r.condition,
       action: r.action,
       shadow_started_at: r.shadowStartedAt,

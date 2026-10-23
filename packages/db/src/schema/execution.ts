@@ -124,6 +124,7 @@ export const circuitBreakers = app.table('circuit_breakers', {
 });
 
 export const RULE_MODES = ['shadow', 'live', 'paused'] as const;
+export const RULE_MATCHES = ['all', 'any'] as const;
 
 /** Rule tự động (P2b, ADR-0012, L3 18). Tạo mới luôn ở `shadow`. */
 export const automationRules = app.table(
@@ -138,6 +139,8 @@ export const automationRules = app.table(
     templateKey: text('template_key'),
     level: text('level', { enum: ['ad', 'adset'] }).notNull(),
     condition: jsonb('condition').$type<{ metric: string; op: string; value: string }[]>().notNull(),
+    /** ADR-0014: 'all' = mọi điều kiện (VÀ), 'any' = ít nhất một (HOẶC). */
+    match: text('match', { enum: RULE_MATCHES }).notNull().default('all'),
     action: jsonb('action').$type<{ type: string; changePct?: string; maxDailyBudget?: string }>().notNull(),
     guardrails: jsonb('guardrails').$type<{ maxActionsPerDay?: number; excludeMetaIds?: string[] }>().notNull(),
     mode: text('mode', { enum: RULE_MODES }).notNull().default('shadow'),
