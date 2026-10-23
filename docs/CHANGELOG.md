@@ -2,6 +2,21 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [054] Báo cáo: "Agency đã làm gì trong kỳ" tự động (A2) — 2026-10-23
+
+**Thay đổi**
+- Mục **Việc đã làm** của báo cáo (R03 / trang công khai / PDF) nay tự tổng hợp trong kỳ, theo ngày giờ của từng tài khoản:
+  - **Thay đổi trên Meta** đã thực hiện qua Execution Gateway (thành công / đã hoàn tác; bỏ thất bại, đang chờ, bản ghi hoàn tác): ngày, loại, đối tượng, trước → sau (ngân sách theo tiền tệ tài khoản), "tự động (rule)" khi do rule live.
+  - **Việc đã hoàn thành** (Việc tuần này đánh dấu xong).
+  - Số **vấn đề đã xử lý** (phát hiện done / resolved).
+  - Tối đa 15 dòng mỗi nhóm, "… và N mục khác". Ghi chú tay của agency vẫn hiện bên dưới; ẩn mục được như cũ.
+- Tóm tắt thêm câu "Trong kỳ, đội đã thực hiện N thay đổi trên Meta và hoàn thành M việc." — các số này nằm trong danh sách số được kiểm (`summaryFacts`), LLM không tạo số mới.
+- `ReportContent.agencyWork` (tùy chọn): báo cáo cũ không có vẫn hiện bình thường. `core/reporting/agency-work.ts`.
+
+**Test tự động:** `agency-work.test.ts` (đúng kỳ theo múi giờ tài khoản, bỏ ngoài kỳ / thất bại / đang chờ / việc chưa xong, ngữ cảnh workspace A không đọc được tài khoản B, không có gì → null); `summary.test.ts` (câu mới + kiểm số đạt).
+
+**PM kiểm tra:** duyệt 1 hành động ở Việc tuần này (Meta giả) hoặc đánh dấu xong 1 việc → tạo báo cáo kỳ chứa ngày đó → mục "Việc đã làm" liệt kê.
+
 ## [050–053] Admin: thanh toán, xóa dữ liệu, thực thi, hệ thống, thông báo bảo trì, mẫu email — 2026-10-23
 
 **Thay đổi** (ADR-0013 mục 6–7)

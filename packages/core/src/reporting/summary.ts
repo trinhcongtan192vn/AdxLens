@@ -52,6 +52,11 @@ export function summaryFacts(c: ReportContent): Fact[] {
     if (a.kpis.cpa && a.prevKpis.cpa) push(`${p}.cpa_change %`, pctChange(Number(a.kpis.cpa), Number(a.prevKpis.cpa)));
     push(`${p}.health`, a.health);
   }
+  if (c.agencyWork) {
+    push('agency_work.meta_changes', c.agencyWork.totals.actions);
+    push('agency_work.tasks_done', c.agencyWork.totals.tasks);
+    push('agency_work.findings_handled', c.agencyWork.findingsHandled);
+  }
   const high = c.findings.filter((f) => f.severity === 'high').length;
   push('findings', c.findings.length);
   push('findings_high', high);
@@ -87,6 +92,14 @@ export function templateSummary(c: ReportContent): string {
         : sentence(
             `chi tiêu ${spend} ${a.currency}${sc === null ? '' : ` (${change(sc)} so với kỳ trước)`}, ${nf(a.kpis.results)} kết quả${rc === null ? '' : ` (${change(rc)})`}${a.kpis.cpa ? `, chi phí mỗi kết quả ${nf(Number(a.kpis.cpa), { maximumFractionDigits: a.currency === 'VND' ? 0 : 2 })} ${a.currency}` : ''}.`,
           ),
+    );
+  }
+  const w = c.agencyWork;
+  if (w && (w.totals.actions || w.totals.tasks)) {
+    lines.push(
+      en
+        ? `During the period the team made ${nf(w.totals.actions)} changes on Meta and completed ${nf(w.totals.tasks)} tasks.`
+        : `Trong kỳ, đội đã thực hiện ${nf(w.totals.actions)} thay đổi trên Meta và hoàn thành ${nf(w.totals.tasks)} việc.`,
     );
   }
   const high = c.findings.filter((f) => f.severity === 'high').length;

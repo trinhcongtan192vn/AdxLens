@@ -946,7 +946,15 @@
     "sourcePending": "Chưa đối chiếu với Meta · attribution 7 ngày click / 1 ngày xem · {currencies} · {timezones}",
     "poweredBy": "Powered by AdxLens",
     "account": "Tài khoản {name}",
-    "demo": "Báo cáo mẫu — số liệu minh họa, không phải dữ liệu thật."
+    "demo": "Báo cáo mẫu — số liệu minh họa, không phải dữ liệu thật.",
+    "work": {
+      "summary": "Trong kỳ: {actions} thay đổi trên Meta (đã xác minh), {tasks} việc đã hoàn thành, {findings} vấn đề đã xử lý.",
+      "actions": "Thay đổi trên Meta",
+      "tasks": "Việc đã hoàn thành",
+      "auto": "tự động (rule)",
+      "undone": "đã hoàn tác",
+      "more": "… và {count} mục khác"
+    }
   },
   "reports": {
     "title": "Báo cáo",

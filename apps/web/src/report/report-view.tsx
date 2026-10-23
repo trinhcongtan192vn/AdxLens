@@ -3,6 +3,7 @@ import type { ReportEdits } from '@adxlens/db/schema';
 import type { ReportContent } from '@adxlens/core/reporting';
 import en from '../../messages/en.json';
 import vi from '../../messages/vi.json';
+import { describeChange } from '@/lib/actions';
 import { kpiDelta } from '@/lib/kpi';
 
 /**
@@ -26,6 +27,8 @@ export function ReportView({
   const messages = locale === 'en' ? en : vi;
   const t = createTranslator({ locale, messages, namespace: 'report' });
   const tr = createTranslator({ locale, messages, namespace: 'rules' });
+  const ta = createTranslator({ locale, messages, namespace: 'actionLog' });
+  const tAll = createTranslator({ locale, messages, onError: () => {}, getMessageFallback: ({ key }) => key });
   const nf = (v: number, o: Intl.NumberFormatOptions = {}) =>
     new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'vi-VN', o).format(v);
   const money = (v: string | null, cur: string) =>
@@ -211,10 +214,21 @@ export function ReportView({
         </section>
       ) : null}
 
-      {!hidden.has('workDone') && edits.workDone ? (
-        <section className="mt-6 break-inside-avoid">
+      {!hidden.has('workDone') && (edits.workDone || content.agencyWork) ? (
+        <section className="mt-6 break-inside-avoid" data-testid="report-work-done">
           <h2 className="text-h3 font-semibold">{t('sections.workDone')}</h2>
-          <p className="mt-1 whitespace-pre-line text-body">{edits.workDone}</p>
+          {content.agencyWork ? (
+            <AgencyWorkList
+              work={content.agencyWork}
+              accounts={content.accounts}
+              t={(k, v) => t(k as never, v as never)}
+              actionLabel={(type) => (ta.has(`types.${type}` as never) ? ta(`types.${type}` as never) : type)}
+              change={(a) => describeChange(a, { number: nf }, { t: (k) => ta(k as never) })}
+              text={(x) => tAll(x.key as never, x.params as never)}
+              date={date}
+            />
+          ) : null}
+          {edits.workDone ? <p className="mt-2 whitespace-pre-line text-body">{edits.workDone}</p> : null}
         </section>
       ) : null}
       {!hidden.has('nextSteps') && edits.nextSteps ? (
@@ -264,5 +278,78 @@ function SpendBars({ daily, color }: { daily: { date: string; spend: string }[];
         return <rect key={d.date} x={i * w + w * 0.15} y={30 - h} width={w * 0.7} height={h} fill={color} rx={0.4} />;
       })}
     </svg>
+  );
+}
+
+/** A2: danh sách việc agency đã làm trong kỳ (thay đổi trên Meta đã xác minh, việc đã xong, phát hiện đã xử lý). */
+function AgencyWorkList({
+  work,
+  accounts,
+  t,
+  actionLabel,
+  change,
+  text,
+  date,
+}: {
+  work: NonNullable<ReportContent['agencyWork']>;
+  accounts: ReportContent['accounts'];
+  t: (key: string, values?: Record<string, string | number>) => string;
+  actionLabel: (type: string) => string;
+  change: (a: NonNullable<ReportContent['agencyWork']>['actions'][number]) => string;
+  text: (x: { key: string; params?: Record<string, string | number> }) => string;
+  date: (iso: string) => string;
+}) {
+  const multi = accounts.length > 1;
+  const accountName = (id: string) => (multi ? `${accounts.find((a) => a.id === id)?.name ?? ''} · ` : '');
+  return (
+    <div className="mt-1 text-body">
+      <p className="text-fg-secondary">
+        {t('work.summary', {
+          actions: work.totals.actions,
+          tasks: work.totals.tasks,
+          findings: work.findingsHandled,
+        })}
+      </p>
+      {work.actions.length ? (
+        <>
+          <h3 className="mt-3 font-semibold">{t('work.actions')}</h3>
+          <ul className="mt-1 space-y-1">
+            {work.actions.map((a, i) => (
+              <li key={i}>
+                <span className="text-fg-tertiary">{date(a.date)}</span> · {accountName(a.accountId)}
+                {actionLabel(a.actionType)}
+                {a.targetName ? ` "${a.targetName}"` : ''} · <span className="num">{change(a)}</span>
+                {a.tier === 'auto' ? ` · ${t('work.auto')}` : ''}
+                {a.undone ? ` · ${t('work.undone')}` : ''}
+              </li>
+            ))}
+          </ul>
+          {work.totals.actions > work.actions.length ? (
+            <p className="text-small text-fg-tertiary">
+              {t('work.more', { count: work.totals.actions - work.actions.length })}
+            </p>
+          ) : null}
+        </>
+      ) : null}
+      {work.tasks.length ? (
+        <>
+          <h3 className="mt-3 font-semibold">{t('work.tasks')}</h3>
+          <ul className="mt-1 space-y-1">
+            {work.tasks.map((x, i) => (
+              <li key={i}>
+                <span className="text-fg-tertiary">{date(x.date)}</span> · {accountName(x.accountId)}
+                {text(x.action)}
+                {x.entityName ? ` — ${x.entityName}` : ''}
+              </li>
+            ))}
+          </ul>
+          {work.totals.tasks > work.tasks.length ? (
+            <p className="text-small text-fg-tertiary">
+              {t('work.more', { count: work.totals.tasks - work.tasks.length })}
+            </p>
+          ) : null}
+        </>
+      ) : null}
+    </div>
   );
 }
