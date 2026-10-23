@@ -1537,5 +1537,80 @@
     "fixed": "Cố định: {value}",
     "looser": "Chỉ được đặt chặt hơn giá trị cố định.",
     "looserField": "Lỏng hơn giá trị cố định"
+  },
+  "actionLog": {
+    "title": "Nhật ký hành động",
+    "detailTitle": "Chi tiết hành động",
+    "all": "Tất cả",
+    "status": {
+      "pending": "Đang chờ",
+      "executing": "Đang thực hiện",
+      "success": "Thành công",
+      "failed": "Thất bại",
+      "undone": "Đã hoàn tác",
+      "canceled": "Đã hủy"
+    },
+    "cols": {
+      "when": "Thời điểm",
+      "action": "Hành động",
+      "change": "Thay đổi",
+      "by": "Người duyệt",
+      "status": "Trạng thái",
+      "target": "Đối tượng",
+      "account": "Tài khoản",
+      "executed": "Thực hiện lúc",
+      "verified": "Xác minh lúc"
+    },
+    "types": {
+      "pause_ad": "Tạm dừng quảng cáo",
+      "resume_ad": "Bật lại quảng cáo",
+      "pause_adset": "Tạm dừng nhóm quảng cáo",
+      "resume_adset": "Bật lại nhóm quảng cáo",
+      "set_adset_budget": "Đổi ngân sách ngày nhóm quảng cáo",
+      "duplicate_adset": "Nhân bản nhóm quảng cáo"
+    },
+    "state": {
+      "ACTIVE": "Đang chạy",
+      "PAUSED": "Tạm dừng",
+      "ARCHIVED": "Lưu trữ",
+      "DELETED": "Đã xóa"
+    },
+    "copyPaused": "Bản sao ở trạng thái tạm dừng",
+    "system": "Hệ thống",
+    "isUndo": "· hoàn tác",
+    "emptyTitle": "Chưa có hành động nào",
+    "emptyBody": "Thay đổi được duyệt từ \"Việc tuần này\" sẽ hiện ở đây.",
+    "failedBody": "Hành động thất bại: {reason}. Không có thay đổi nào được giữ lại trên Meta.",
+    "checkManually": "Không xác định được bản sao có được tạo hay không. Hãy kiểm tra trên Ads Manager.",
+    "summary": "Tóm tắt",
+    "timeline": "Dòng thời gian",
+    "undoOf": "Hoàn tác của",
+    "viewOriginal": "Xem hành động gốc",
+    "undoneBy": "Hoàn tác",
+    "noUndoDuplicate": "Nhân bản không hoàn tác tự động được; tạm dừng hoặc xóa bản sao trên Ads Manager nếu cần.",
+    "undo": "Hoàn tác",
+    "undoTitle": "Hoàn tác hành động này?",
+    "undoBody": "AdxLens sẽ đưa đối tượng về trạng thái trước đó, qua cùng các bước kiểm tra an toàn.",
+    "undoConfirm": "Hoàn tác",
+    "undoQueued": "Đã gửi yêu cầu hoàn tác",
+    "events": {
+      "approved": "Được duyệt",
+      "before_live": "Đọc trạng thái hiện tại trên Meta",
+      "meta_call": "Gửi thay đổi tới Meta",
+      "verify": "Đọc lại để xác minh",
+      "success": "Thành công",
+      "failed": "Thất bại",
+      "canceled": "Đã hủy",
+      "undone": "Đã hoàn tác",
+      "circuit_breaker_opened": "Tạm khóa tài khoản do lỗi liên tiếp"
+    },
+    "errors": {
+      "GUARDRAIL_VIOLATION": "Vượt giới hạn an toàn (guardrails).",
+      "KILL_SWITCH_ACTIVE": "Đang tạm dừng mọi thay đổi (kill switch hoặc tài khoản bị khóa do lỗi liên tiếp).",
+      "PLAN_REQUIRED": "Cần gói Growth trở lên.",
+      "FORBIDDEN": "Bạn không có quyền duyệt hành động này, hoặc kết nối chưa có quyền ghi.",
+      "CONFLICT": "Hành động đang được thực hiện hoặc không còn áp dụng được.",
+      "NOT_FOUND": "Không tìm thấy đối tượng."
+    }
   }
 }

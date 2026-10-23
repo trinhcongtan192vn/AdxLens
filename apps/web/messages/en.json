@@ -1537,5 +1537,80 @@
     "fixed": "Fixed: {value}",
     "looser": "Values can only be stricter than the fixed ones.",
     "looserField": "Looser than the fixed value"
+  },
+  "actionLog": {
+    "title": "Action log",
+    "detailTitle": "Action details",
+    "all": "All",
+    "status": {
+      "pending": "Pending",
+      "executing": "Running",
+      "success": "Succeeded",
+      "failed": "Failed",
+      "undone": "Undone",
+      "canceled": "Canceled"
+    },
+    "cols": {
+      "when": "When",
+      "action": "Action",
+      "change": "Change",
+      "by": "Approved by",
+      "status": "Status",
+      "target": "Item",
+      "account": "Account",
+      "executed": "Executed at",
+      "verified": "Verified at"
+    },
+    "types": {
+      "pause_ad": "Pause ad",
+      "resume_ad": "Resume ad",
+      "pause_adset": "Pause ad set",
+      "resume_adset": "Resume ad set",
+      "set_adset_budget": "Change ad set daily budget",
+      "duplicate_adset": "Duplicate ad set"
+    },
+    "state": {
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "ARCHIVED": "Archived",
+      "DELETED": "Deleted"
+    },
+    "copyPaused": "Copy created paused",
+    "system": "System",
+    "isUndo": "· undo",
+    "emptyTitle": "No actions yet",
+    "emptyBody": "Changes approved from \"This week's actions\" appear here.",
+    "failedBody": "The action failed: {reason}. No change was kept on Meta.",
+    "checkManually": "Could not confirm whether the copy was created. Please check in Ads Manager.",
+    "summary": "Summary",
+    "timeline": "Timeline",
+    "undoOf": "Undo of",
+    "viewOriginal": "View original action",
+    "undoneBy": "Undo",
+    "noUndoDuplicate": "Duplicates cannot be undone automatically; pause or delete the copy in Ads Manager if needed.",
+    "undo": "Undo",
+    "undoTitle": "Undo this action?",
+    "undoBody": "AdxLens will return the item to its previous state, through the same safety checks.",
+    "undoConfirm": "Undo",
+    "undoQueued": "Undo requested",
+    "events": {
+      "approved": "Approved",
+      "before_live": "Read current state on Meta",
+      "meta_call": "Sent change to Meta",
+      "verify": "Read back to verify",
+      "success": "Succeeded",
+      "failed": "Failed",
+      "canceled": "Canceled",
+      "undone": "Undone",
+      "circuit_breaker_opened": "Account locked after repeated failures"
+    },
+    "errors": {
+      "GUARDRAIL_VIOLATION": "Outside the safety limits (guardrails).",
+      "KILL_SWITCH_ACTIVE": "All changes are paused (kill switch, or the account is locked after repeated failures).",
+      "PLAN_REQUIRED": "Requires the Growth plan or higher.",
+      "FORBIDDEN": "You cannot approve this action, or the connection has no write access.",
+      "CONFLICT": "The action is already running or no longer applies.",
+      "NOT_FOUND": "Item not found."
+    }
   }
 }

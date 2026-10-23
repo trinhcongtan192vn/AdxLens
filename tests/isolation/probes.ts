@@ -333,6 +333,17 @@ export const ROUTE_PROBES: Record<string, Probe> = {
       excludeMetaIds: [],
     }),
   },
+  'GET /api/v1/actions': { kind: 'workspace' },
+  'GET /api/v1/actions/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.action.id }),
+  },
+  'POST /api/v1/actions/[id]/undo': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.action.id }),
+  },
   'POST /api/v1/demo': { kind: 'workspace' },
   'DELETE /api/v1/demo': { kind: 'workspace' },
   'GET /api/v1/clients': { kind: 'workspace' },

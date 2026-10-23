@@ -129,6 +129,25 @@ export async function seedWorld(db: Db) {
     })
     .returning();
 
+  const [bAction] = await db
+    .insert(schema.actions)
+    .values({
+      workspaceId: b.workspace.id,
+      adAccountId: bAdAccount.id,
+      actionType: 'pause_ad',
+      targetType: 'ad',
+      targetMetaId: '999000111222',
+      targetName: 'Beta Action Secret',
+      tier: 'approve',
+      params: {},
+      beforeState: { status: 'ACTIVE' },
+      afterExpected: { status: 'PAUSED' },
+      afterState: { status: 'PAUSED' },
+      status: 'success',
+      idempotencyKey: 'beta-action-secret',
+    })
+    .returning();
+
   // Cờ P0/P1/P2a bật cho A (qua core/flags, như PM bật) để probe chạy hết logic route sau cờ.
   const pm = await seedStaff(db, true);
   for (const key of ['p0_reports', 'p1_recommendations', 'p2a_approve'] as const) {
@@ -242,6 +261,7 @@ export async function seedWorld(db: Db) {
       syncRun: bRun!,
       finding: bFinding!,
       recommendation: bRecommendation!,
+      action: bAction!,
       report: bReport!,
       shareLink: bShare!,
       notification: bNote!,
@@ -279,6 +299,8 @@ export async function seedWorld(db: Db) {
       'Beta Billing Secret',
       'Beta Creative Secret',
       'Beta Recommendation Secret',
+      'Beta Action Secret',
+      bAction!.id,
       bRecommendation!.id,
       'beta-creative-secret',
       'beta-order-secret',

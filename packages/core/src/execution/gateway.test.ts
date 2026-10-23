@@ -17,7 +17,7 @@ import { disableFlag, enableFlag } from '@adxlens/core/flags';
 import { startBackfill, syncRange } from '@adxlens/core/ingestion';
 import { listNotifications } from '@adxlens/core/notification';
 import { resolveActor } from '@adxlens/core/tenancy';
-import { executeAction, minorUnits, previewAction, requestAction } from './index';
+import { executeAction, getAction, listActions, minorUnits, previewAction, requestAction, undoAction } from './index';
 
 const db = testDb();
 afterAll(() => closeTestDb());
@@ -428,5 +428,85 @@ describe('Execution Gateway — cổng an toàn và quyền', () => {
     await expect(
       db.update(schema.actionLogs).set({ event: 'hacked' }).where(eq(schema.actionLogs.actionId, a.id)),
     ).rejects.toThrow();
+  });
+});
+
+describe('nhật ký và hoàn tác (P203, P204, P2-06)', () => {
+  it('tạm dừng → hoàn tác bật lại qua đúng gateway; gốc chuyển "đã hoàn tác"; bản chụp cấu trúc cập nhật', async () => {
+    const s = await setup();
+    const { metaId } = await s.ad();
+    const a = await requestAction(
+      s.ctx,
+      { adAccountId: s.adAccountId, actionType: 'pause_ad', targetMetaId: metaId },
+      s,
+    );
+    await s.run(a.id);
+    const [e] = await db
+      .select({ status: schema.entities.status })
+      .from(schema.entities)
+      .where(and(eq(schema.entities.adAccountId, s.adAccountId), eq(schema.entities.metaId, metaId)));
+    expect(e!.status).toBe('PAUSED');
+    const detail = await getAction(s.ctx, a.id);
+    expect(detail.undoable).toBe(true);
+    expect(detail.logs.map((l) => l.event)).toContain('verify');
+    const u = await undoAction(s.ctx, a.id, s);
+    expect(u).toMatchObject({ actionType: 'resume_ad', undoOf: a.id, beforeState: { status: 'PAUSED' } });
+    expect(await s.run(u.id)).toEqual({ status: 'success', resultCode: 'ok' });
+    expect((await writer.getObject('', metaId, 'ad')).status).toBe('ACTIVE');
+    const after = await getAction(s.ctx, a.id);
+    expect(after.status).toBe('undone');
+    expect(after.undoable).toBe(false);
+    await expect(undoAction(s.ctx, a.id, s)).rejects.toMatchObject({ code: 'CONFLICT' });
+  });
+
+  it('hoàn tác ngân sách về đúng giá trị cũ; nhân bản và hành động thất bại không hoàn tác được', async () => {
+    const s = await setup();
+    const { metaId, budget } = await s.adset();
+    const cur = minorUnits(budget)!;
+    const a = await requestAction(
+      s.ctx,
+      {
+        adAccountId: s.adAccountId,
+        actionType: 'set_adset_budget',
+        targetMetaId: metaId,
+        newDailyBudget: String((BigInt(cur) * 110n) / 100n),
+      },
+      s,
+    );
+    await s.run(a.id);
+    const u = await undoAction(s.ctx, a.id, s);
+    await s.run(u.id);
+    expect((await writer.getObject('', metaId, 'adset')).daily_budget).toBe(cur);
+
+    const d = await requestAction(
+      s.ctx,
+      { adAccountId: s.adAccountId, actionType: 'duplicate_adset', targetMetaId: metaId },
+      s,
+    );
+    await s.run(d.id);
+    await expect(undoAction(s.ctx, d.id, s)).rejects.toMatchObject({ code: 'CONFLICT' });
+    const { metaId: adId } = await s.ad();
+    const f = await requestAction(s.ctx, { adAccountId: s.adAccountId, actionType: 'pause_ad', targetMetaId: adId }, s);
+    writer.failNext('error_before');
+    await s.run(f.id);
+    await expect(undoAction(s.ctx, f.id, s)).rejects.toMatchObject({ code: 'CONFLICT' });
+  });
+
+  it('danh sách theo phạm vi Client; buyer không thấy tài khoản ngoài phạm vi; workspace khác 404', async () => {
+    const s = await setup();
+    const { metaId } = await s.ad();
+    const a = await requestAction(
+      s.ctx,
+      { adAccountId: s.adAccountId, actionType: 'pause_ad', targetMetaId: metaId },
+      s,
+    );
+    expect((await listActions(s.ctx)).map((x) => x.id)).toEqual([a.id]);
+    expect(await listActions(s.ctx, { status: 'success' })).toEqual([]);
+    const buyer = await seedMember(db, s.workspaceId, 'buyer', []);
+    const bctx = { db, workspaceId: s.workspaceId, actor: (await resolveActor(db, s.workspaceId, buyer.id))! };
+    expect(await listActions(bctx)).toEqual([]);
+    await expect(getAction(bctx, a.id)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    const other = await setup();
+    await expect(getAction(other.ctx, a.id)).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 });
