@@ -2,6 +2,32 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [045] E2E luồng implementation-guide Phần 4, diễn tập 3 sự cố — 2026-10-23
+
+**Thay đổi**
+- `apps/worker/src/drill.ts` + `pnpm drill [-- --cleanup]` (chỉ local, Meta giả): tạo workspace diễn tập rồi giả lập:
+  1. **Meta rate limit** → health check mở sự cố, playbook `meta_rate_limited` hoãn queue `sync`;
+  2. **đối chiếu lệch** (ngày lệch 1,4% của mock) → `reconciliation_warning` + `reconcile_retry`;
+  3. **thực thi lỗi** → hành động thất bại, `execution_failed` P1, breaker mở.
+
+  In ĐẠT / LỖI từng bước; `--cleanup` xóa workspace diễn tập, đóng sự cố, xóa người dùng diễn tập. `core/execution` thêm `newMockMetaWriter` (bản ghi giả có cài lỗi, chỉ local / test) để worker không import lớp ghi trực tiếp.
+- E2E mới `safety.spec.ts` (implementation-guide 4.4):
+  - Client của workspace khác → 404, không lộ tên;
+  - người thường vào `/admin` → 404;
+  - API sau cờ (Gợi ý, Creative, Nhật ký hành động, Rule tự động) khi cờ tắt → 404;
+  - trang mở thẳng → "chưa bật".
+- Phần 4 được phủ bởi 12 spec E2E (danh sách ở `docs/onboarding.md` mục 11). Ngoài E2E:
+  - mua gói bằng thẻ test Stripe / PayOS cần khóa sandbox (PM kiểm tay theo onboarding mục 6–7);
+  - "token không có trong log" được kiểm bằng test đơn vị (`meta-client` che token, route OAuth).
+
+**Test tự động**
+- `apps/worker/src/drill.test.ts`: cả 3 sự cố ĐẠT, dọn sạch (không còn workspace, không còn sự cố mở).
+- E2E `safety.spec.ts`. Đã chạy thật `pnpm drill -- --cleanup` trên DB local: 3/3 ĐẠT.
+
+**Vùng bảo vệ:** `packages/core/execution/**` (chỉ thêm hàm tạo bản ghi giả cho local / test).
+
+**PM kiểm tra:** `pnpm drill` → `/admin/incidents` thấy 3 sự cố (cảnh báo đội nếu đặt `OPS_ALERT_EMAILS`) → `pnpm drill -- --cleanup`. `pnpm test:e2e` xanh.
+
 ## [044] Quy trình agent-diagnose, runbook đầy đủ, onboarding hoàn chỉnh, xoay khóa token — 2026-10-23
 
 **Thay đổi**

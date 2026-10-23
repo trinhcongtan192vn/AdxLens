@@ -22,3 +22,8 @@ export function createMetaWriter(cfg: {
   }
   return new HttpMetaWrite({ apiVersion: cfg.apiVersion, appSecret: cfg.appSecret ?? undefined, onAudit: cfg.onAudit });
 }
+
+/** Bản ghi giả mới (có cài lỗi theo kịch bản) — cho diễn tập sự cố / test ở local; không dùng ở staging. */
+export function newMockMetaWriter(): MockMetaWrite {
+  return new MockMetaWrite();
+}
