@@ -12,6 +12,12 @@ describe('findViolations', () => {
     expect(check('apps/worker/src/x.ts', `import { w } from '@adxlens/meta-client/write';`)).toHaveLength(1);
   });
 
+  it('apps/web không được giải mã token Meta; worker được', () => {
+    const src = `import { withConnectionToken } from '@adxlens/core/connections';`;
+    expect(check('apps/web/src/app/api/x/route.ts', src)).toHaveLength(1);
+    expect(check('apps/worker/src/handlers/sync.ts', src)).toEqual([]);
+  });
+
   it('cho phép execution import phần ghi Meta', () => {
     expect(check('packages/core/src/execution/executor.ts', `import { w } from '@adxlens/meta-client/write';`)).toEqual(
       [],

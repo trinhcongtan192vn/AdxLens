@@ -17,7 +17,14 @@ const securityHeaders = [
 ];
 
 const config: NextConfig = {
-  transpilePackages: ['@adxlens/ui', '@adxlens/core', '@adxlens/db', '@adxlens/jobs', '@adxlens/config'],
+  transpilePackages: [
+    '@adxlens/ui',
+    '@adxlens/core',
+    '@adxlens/db',
+    '@adxlens/jobs',
+    '@adxlens/config',
+    '@adxlens/meta-client',
+  ],
   serverExternalPackages: ['pino', 'postgres', 'bullmq', 'ioredis'],
   poweredByHeader: false,
   async headers() {

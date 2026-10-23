@@ -64,6 +64,27 @@
       "when": 1792713307453,
       "tag": "0008_workspace_currency_sender",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792714713668,
+      "tag": "0009_connections",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792714714420,
+      "tag": "0010_rls_connections",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792715032234,
+      "tag": "0011_available_spend",
+      "breakpoints": true
     }
   ]
 }

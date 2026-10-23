@@ -1,20 +1,47 @@
 import { Worker } from 'bullmq';
 import { getEnv } from '@adxlens/config/env';
 import { getDb } from '@adxlens/db';
+import { keysFromEnv, metaReadApi, recordMetaCall } from '@adxlens/core/connections';
+import { smtpEmailSender } from '@adxlens/core/notification';
 import { registerHealthCheck } from '@adxlens/core/ops';
 import { rootLogger } from '@adxlens/core/shared';
 import { QUEUES, type QueueName } from '@adxlens/jobs';
 import { dispatch } from './dispatch';
+import type { WorkerServices } from './handler';
 import { handlers } from './handlers';
 import { bullEnqueue, createQueues, redisConnection } from './queues';
 import { registerSchedules } from './schedules';
 
 const env = getEnv();
+if (env.META_MOCK && (env.APP_ENV === 'staging' || env.APP_ENV === 'production')) {
+  throw new Error('META_MOCK chỉ dùng ở local/test');
+}
 const log = rootLogger();
 const connection = redisConnection(env.REDIS_URL);
 const queues = createQueues(connection);
 const enqueue = bullEnqueue(queues);
 const db = getDb(env.DATABASE_URL);
+
+const services: WorkerServices = {
+  db,
+  enqueue,
+  // Mọi lời gọi Meta ghi job_audit (L3 6.2), không ghi token.
+  meta: metaReadApi({
+    mock: env.META_MOCK,
+    apiVersion: env.META_API_VERSION,
+    appId: env.META_APP_ID,
+    appSecret: env.META_APP_SECRET,
+    onAudit: (a) => recordMetaCall(db, null, a).catch(() => undefined),
+  }),
+  tokenKeys: keysFromEnv(env).keys,
+  email: smtpEmailSender({
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    user: env.SMTP_USER,
+    pass: env.SMTP_PASS,
+    from: env.EMAIL_FROM,
+  }),
+};
 
 // Tín hiệu sức khỏe: backlog queue sync (L3 mục 12: > 100 → cảnh báo).
 registerHealthCheck({
@@ -28,7 +55,7 @@ registerHealthCheck({
 
 const workers = (Object.keys(QUEUES) as QueueName[]).map(
   (q) =>
-    new Worker(q, (job) => dispatch(handlers, { db, enqueue }, { name: job.name, id: job.id ?? '', data: job.data }), {
+    new Worker(q, (job) => dispatch(handlers, services, { name: job.name, id: job.id ?? '', data: job.data }), {
       connection,
       concurrency: QUEUES[q].concurrency,
     }),
@@ -41,7 +68,7 @@ for (const w of workers) {
 }
 
 await registerSchedules(queues);
-log.info({ queues: Object.keys(QUEUES) }, 'worker đã chạy');
+log.info({ queues: Object.keys(QUEUES), meta_mock: env.META_MOCK }, 'worker đã chạy');
 
 async function shutdown() {
   await Promise.all(workers.map((w) => w.close()));

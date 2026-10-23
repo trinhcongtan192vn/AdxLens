@@ -1,12 +1,21 @@
-import type { Db } from '@adxlens/db';
+import type { TokenKeys } from '@adxlens/core/connections';
+import type { EmailSender } from '@adxlens/core/notification';
 import type { Logger } from '@adxlens/core/shared';
+import type { Db } from '@adxlens/db';
 import type { Enqueue, JobName, JobPayload } from '@adxlens/jobs';
+import type { MetaReadApi } from '@adxlens/meta-client';
 
-/** Phụ thuộc chung truyền cho mọi handler. */
-export type JobDeps = {
+/** Phụ thuộc chung truyền cho mọi handler. Chỉ worker có khóa giải mã token (CLAUDE.md quy tắc 2). */
+export type WorkerServices = {
   db: Db;
-  log: Logger;
   enqueue: Enqueue;
+  meta: MetaReadApi;
+  tokenKeys: TokenKeys;
+  email: EmailSender;
+};
+
+export type JobDeps = WorkerServices & {
+  log: Logger;
   jobId: string;
 };
 

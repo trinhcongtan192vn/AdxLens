@@ -99,6 +99,51 @@ export async function seedStaff(db: Db, canEnableFlags: boolean) {
   return u;
 }
 
+/** Kết nối Meta giả (ciphertext rác — đủ để test quan hệ dữ liệu, không giải mã được). */
+export async function seedConnection(db: Db, workspaceId: string, createdBy: string, metaUserId = 'meta-u') {
+  const [c] = await db
+    .insert(s.metaConnections)
+    .values({
+      workspaceId,
+      createdBy,
+      metaUserId,
+      metaUserName: `Meta ${metaUserId}`,
+      tokenCiphertext: Buffer.from('not-a-real-token-ciphertext-000000000000'),
+      tokenKeyVersion: 1,
+      scopes: ['ads_read'],
+    })
+    .returning();
+  return c!;
+}
+
+export async function seedAdAccount(
+  db: Db,
+  workspaceId: string,
+  connectionId: string,
+  opts: {
+    metaAccountId?: string;
+    name?: string;
+    clientId?: string | null;
+    confirmed?: boolean;
+    currency?: string;
+  } = {},
+) {
+  const [a] = await db
+    .insert(s.adAccounts)
+    .values({
+      workspaceId,
+      connectionId,
+      metaAccountId: opts.metaAccountId ?? `act_${Math.floor(Math.random() * 1e9)}`,
+      name: opts.name ?? 'Tài khoản QC',
+      currency: opts.currency ?? 'VND',
+      timezone: 'Asia/Ho_Chi_Minh',
+      clientId: opts.clientId ?? null,
+      assignmentStatus: opts.confirmed ? 'confirmed' : 'suggested',
+    })
+    .returning();
+  return a!;
+}
+
 export async function seedClient(db: Db, workspaceId: string, name = 'Client A') {
   const [c] = await db.insert(s.clients).values({ workspaceId, name }).returning();
   return c!;

@@ -1,5 +1,5 @@
 import type { Db } from '@adxlens/db';
-import { seedClient, seedMember, seedWorkspace } from '@adxlens/db/testing';
+import { seedAdAccount, seedClient, seedConnection, seedMember, seedWorkspace } from '@adxlens/db/testing';
 
 /**
  * Hai workspace A và B với dữ liệu nghiệp vụ. Feature mới thêm bảng thì thêm dữ liệu của B vào đây
@@ -12,10 +12,38 @@ export async function seedWorld(db: Db) {
   const bClient = await seedClient(db, b.workspace.id, 'Beta Client Secret');
   const aManager = await seedMember(db, a.workspace.id, 'manager');
   const bManager = await seedMember(db, b.workspace.id, 'manager');
+  const aConnection = await seedConnection(db, a.workspace.id, a.owner.id, 'meta-alpha');
+  const bConnection = await seedConnection(db, b.workspace.id, b.owner.id, 'meta-beta-secret');
+  const aAdAccount = await seedAdAccount(db, a.workspace.id, aConnection.id, {
+    metaAccountId: 'act_111111',
+    name: 'Alpha Ads',
+    clientId: aClient.id,
+    confirmed: true,
+  });
+  const bAdAccount = await seedAdAccount(db, b.workspace.id, bConnection.id, {
+    metaAccountId: 'act_999999',
+    name: 'Beta Ads Secret',
+    clientId: bClient.id,
+    confirmed: true,
+  });
 
   const world = {
-    a: { workspace: a.workspace, owner: a.owner, manager: aManager, client: aClient },
-    b: { workspace: b.workspace, owner: b.owner, manager: bManager, client: bClient },
+    a: {
+      workspace: a.workspace,
+      owner: a.owner,
+      manager: aManager,
+      client: aClient,
+      connection: aConnection,
+      adAccount: aAdAccount,
+    },
+    b: {
+      workspace: b.workspace,
+      owner: b.owner,
+      manager: bManager,
+      client: bClient,
+      connection: bConnection,
+      adAccount: bAdAccount,
+    },
     /** Chuỗi của B tuyệt đối không được xuất hiện trong phản hồi cho ngữ cảnh A. */
     bFingerprints: [
       b.workspace.id,
@@ -26,6 +54,11 @@ export async function seedWorld(db: Db) {
       bManager.email,
       bClient.id,
       bClient.name,
+      bConnection.id,
+      'meta-beta-secret',
+      bAdAccount.id,
+      bAdAccount.name,
+      'act_999999',
     ],
   };
   return world;

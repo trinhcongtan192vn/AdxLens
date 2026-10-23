@@ -1,11 +1,11 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { closeTestDb, testDb, truncateAll } from '@adxlens/db/testing';
-import { recordingEnqueue } from '@adxlens/jobs';
 import { dispatch, UnknownJobError } from './dispatch';
 import { handlers } from './handlers';
+import { testWorkerServices } from './testing';
 
 const db = testDb();
-const deps = { db, enqueue: recordingEnqueue() };
+const deps = testWorkerServices(db).services;
 beforeEach(() => truncateAll(db));
 afterAll(() => closeTestDb());
 

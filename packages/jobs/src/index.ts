@@ -36,6 +36,12 @@ const def = <S extends z.ZodTypeAny>(d: JobDef<S>) => d;
  * phải lọc theo nó; bộ test cách ly workspace duyệt danh sách này.
  */
 export const JOBS = {
+  'sync:refresh_accounts': def({
+    queue: 'sync',
+    workspaceScoped: true,
+    schema: z.object({ ...ws, connectionId: uuid }),
+    jobId: (p) => `sync:refresh:${p.connectionId}:${Math.floor(Date.now() / 60_000)}`,
+  }),
   'sync:backfill_account': def({
     queue: 'sync',
     workspaceScoped: true,

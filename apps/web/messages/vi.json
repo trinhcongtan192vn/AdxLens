@@ -429,6 +429,79 @@
     "passwordChanged": "Đã đổi mật khẩu. Các phiên đăng nhập khác đã bị đăng xuất.",
     "wrongCurrent": "Mật khẩu hiện tại không đúng."
   },
+  "banners": {
+    "tokenExpired": "Token Meta của {count} kết nối đã hết hạn. Số liệu của các tài khoản liên quan đã dừng cập nhật.",
+    "reconnect": "Kết nối lại"
+  },
+  "connect": {
+    "step": "Thiết lập · bước {n}/{total}",
+    "yes": "Có",
+    "no": "Không",
+    "s02Title": "Kết nối Meta",
+    "connectAccount": "+ Kết nối tài khoản",
+    "s02EmptyTitle": "Chưa có kết nối Meta",
+    "s02EmptyBody": "Kết nối Meta (chỉ đọc) để đồng bộ số liệu.",
+    "tokenSummary": "{expired} token hết hạn, {expiring} sắp hết hạn trong 7 ngày.",
+    "reconnect": "Kết nối lại",
+    "todayAt": "{time} hôm nay",
+    "suggested": "Gợi ý: {name}",
+    "footnote": "Số liệu theo cửa sổ attribution 7d click / 1d view, tiền tệ và múi giờ của từng tài khoản.",
+    "token": {
+      "valid": "Hợp lệ",
+      "expired": "Hết hạn",
+      "expiring": "Còn {days} ngày"
+    },
+    "cols": {
+      "adAccount": "Tài khoản QC",
+      "account": "Tài khoản",
+      "id": "ID",
+      "client": "Client",
+      "token": "Token",
+      "lastSync": "Đồng bộ cuối",
+      "timezone": "Múi giờ",
+      "currency": "Tiền tệ",
+      "active30d": "Có chi tiêu 30N",
+      "spend30d": "Chi tiêu 30 ngày"
+    },
+    "errors": {
+      "denied": "Bạn đã hủy cấp quyền trên Meta. Thử lại khi sẵn sàng.",
+      "missing_scope": "Cần cấp quyền đọc quảng cáo (ads_read) để AdxLens đồng bộ số liệu.",
+      "failed": "Không kết nối được với Meta. Vui lòng thử lại."
+    },
+    "s03Title": "AdxLens chỉ đọc dữ liệu quảng cáo của bạn",
+    "s03Intro": "Ở bước tiếp theo, Meta sẽ hỏi bạn cấp quyền đọc. Đây là những gì chúng tôi làm và không làm.",
+    "s03": {
+      "read": {
+        "title": "Đọc số liệu",
+        "body": "Chiến dịch, nhóm quảng cáo, quảng cáo, chi tiêu, kết quả, ngân sách."
+      },
+      "write": {
+        "title": "Chỉnh sửa gì trên Meta",
+        "body": "Không tạm dừng, không đổi ngân sách, không tạo hay xóa quảng cáo."
+      },
+      "control": {
+        "title": "Bạn kiểm soát",
+        "body": "Ngắt kết nối bất cứ lúc nào và yêu cầu xóa dữ liệu (Kết nối)."
+      }
+    },
+    "continueWithMeta": "Tiếp tục với Meta",
+    "viewDemo": "Xem tài khoản mẫu trước",
+    "scopes": "Quyền xin: {scopes} (chỉ đọc).",
+    "s04Title": "Chọn tài khoản quảng cáo để theo dõi",
+    "s04Limit": "Gói {plan} theo dõi tối đa {limit} tài khoản. Bạn có thể đổi sau.",
+    "s04Loading": "Đang lấy chi tiêu 30 ngày từ Meta…",
+    "s04Selected": "Đã chọn {count}/{limit} tài khoản",
+    "s04Over": "Bạn chọn nhiều hơn {limit} tài khoản của gói {plan}. Tài khoản vượt hạn mức vẫn đồng bộ trong thời gian ân hạn; nâng gói để dùng lâu dài.",
+    "s04EmptyTitle": "Không tìm thấy tài khoản quảng cáo",
+    "s04EmptyBody": "Tài khoản Meta này chưa có tài khoản quảng cáo nào bạn được phép xem. Kiểm tra quyền trong Business Manager rồi kết nối lại.",
+    "reconnectMeta": "Kết nối lại với Meta",
+    "plans": {
+      "free": "Free",
+      "starter": "Starter",
+      "growth": "Growth",
+      "scale": "Scale"
+    }
+  },
   "placeholder": {
     "comingSoon": "Màn hình này sẽ có ở bản tiếp theo."
   }

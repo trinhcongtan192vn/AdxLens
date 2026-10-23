@@ -2,6 +2,30 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [010] Kết nối Meta: OAuth chỉ đọc, token mã hóa, S02–S04 — 2026-10-23
+
+**Thay đổi**
+- Bảng `meta_connections` (token AES-256-GCM, `token_key_version` để xoay khóa; RLS bật, **không** policy cho người dùng — chỉ service role đọc), `meta_available_accounts` (danh sách tài khoản truy cập được + chi tiêu 30 ngày), `ad_accounts` (L3 5.2: Client, trạng thái gán suggested/confirmed, đồng bộ, `active_30d`), `job_audit` (mỗi lời gọi Meta: endpoint, tài khoản, thời lượng, mã lỗi — không token).
+- `packages/core/connections`: lưu kết nối (cùng tài khoản Meta trong workspace → cập nhật kết nối cũ khi kết nối lại), danh sách kết nối không bao giờ có token, S04 danh sách tài khoản + đã nhập, nhập tài khoản với gợi ý Client theo tên (bỏ hậu tố "- Main", "| VN"…), buyer chỉ thấy tài khoản của Client được gán, sức khỏe token (hết hạn / còn ≤ 7 ngày), `withConnectionToken` (chỉ worker), ghi `job_audit`.
+- Job `sync:refresh_accounts` (worker): giải mã token, làm mới danh sách tài khoản và chi tiêu 30 ngày theo múi giờ từng tài khoản (tổng bằng số nguyên, lưu numeric); token bị Meta thu hồi (190) → kết nối "hết hạn".
+- OAuth (L3 10.2): `GET /api/v1/connections/meta/authorize` (state ngẫu nhiên, cookie ký HMAC 10 phút gắn workspace + user), `GET …/callback` (kiểm state so sánh hằng thời gian, đổi code → token dài hạn, kiểm quyền `ads_read`, mã hóa + lưu, enqueue làm mới, chuyển tới S04; lỗi Meta → về S02 với thông báo, không lộ token). `META_MOCK=1`: OAuth giả quay về callback, dùng dữ liệu mock — bị chặn ở staging/production.
+- API: `GET /api/v1/connections`, `GET /api/v1/connections/{id}/ad-accounts`, `POST /api/v1/ad-accounts/import`.
+- Giao diện theo Penpot: S02 Kết nối Meta (bảng theo tài khoản QC: ID rút gọn, Client/gợi ý, token Hợp lệ/Hết hạn/Còn N ngày, đồng bộ cuối, múi giờ, tiền tệ, có chi tiêu 30N, Kết nối lại; banner tổng hợp; trạng thái trống; lỗi OAuth), S03 Giải thích quyền chỉ đọc, S04 Chọn tài khoản (chi tiêu 30 ngày, tự làm mới khi worker đang tính, đếm theo gói, vượt hạn mức chỉ cảnh báo vì có ân hạn — PRD 13.3; trạng thái trống). Bố cục "Thiết lập · bước N/4". Banner hệ thống X04 khi token hết hạn.
+- Worker: dịch vụ chung (Meta theo môi trường, khóa token, email), ghi `job_audit` cho mọi lời gọi Meta.
+- `scripts/check-boundaries.mjs`: chặn `apps/web` dùng `withConnectionToken`/`decryptToken` (giải mã token chỉ trong worker, quy tắc 2).
+- `docs/tech-debt.md`: `currentPlanKey()` trả Free tới feature 026.
+
+**Test tự động**
+- `packages/core/src/connections/connections.test.ts` (11): AES-GCM (giải mã đúng, sửa byte/sai khóa thất bại, IV ngẫu nhiên), DB chỉ có ciphertext + danh sách không có token, kết nối lại, `withConnectionToken` + kết nối hết hạn, không dùng token workspace khác, buyer không quản lý kết nối, nhập + gợi ý Client, tài khoản không thuộc kết nối, buyer chỉ thấy tài khoản được gán, sức khỏe token, gợi ý tên.
+- `packages/core/src/connections/refresh.test.ts` (3): chi tiêu 30 ngày đúng tổng, token thu hồi → hết hạn, cột numeric.
+- `apps/web/src/app/api/v1/connections/connections.test.ts` (6): authorize → callback lưu kết nối mã hóa + S04 không lộ token, state sai → 403, state của workspace khác → 403, người dùng từ chối, buyer không kết nối được, nhập tài khoản.
+- Bộ cách ly: dữ liệu B có kết nối + tài khoản QC; probe 5 route mới (có `crossBody`); probe job `sync:refresh_accounts` (chạy thật với token mã hóa bằng khóa test) và biến thể dùng kết nối của B.
+- `apps/web/src/lib/format.test.ts` (2), `scripts/lib/boundaries.test.ts` (+1).
+
+**Vùng bảo vệ:** `packages/core/connections/**` (token), `packages/db/**` (4 bảng, RLS).
+
+**PM kiểm tra:** `pnpm dev` (worker cùng chạy), đăng nhập → Kết nối → "+ Kết nối tài khoản" → "Tiếp tục với Meta" (mock) → S04 thấy 4 tài khoản, chi tiêu 30 ngày hiện sau vài giây. Supabase Studio: bảng `app.meta_connections` chỉ có `token_ciphertext` dạng bytea.
+
 ## [009] Meta client, rate limit API — 2026-10-23
 
 **Thay đổi**

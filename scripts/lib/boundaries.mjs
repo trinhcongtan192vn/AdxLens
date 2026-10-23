@@ -25,6 +25,11 @@ export function findViolations(files) {
   for (const { file, source } of files) {
     const posixFile = toPosix(file);
     const fromModule = coreModuleOf(posixFile);
+
+    // 0. Token Meta chỉ được giải mã trong worker (quy tắc tuyệt đối 2): web không dùng hàm giải mã.
+    if (posixFile.startsWith('apps/web/') && /\b(withConnectionToken|decryptToken)\b/.test(source)) {
+      violations.push(`${posixFile}: apps/web không được giải mã token Meta (chỉ worker)`);
+    }
     for (const m of source.matchAll(IMPORT_RE)) {
       const spec = m[1] ?? m[2];
       if (!spec) continue;
