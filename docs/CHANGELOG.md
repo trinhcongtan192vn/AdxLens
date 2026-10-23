@@ -7,8 +7,10 @@ Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự �
 **Thay đổi**
 - `Mo-AdxLens.cmd` (gốc repo) và `pnpm start:local` (`scripts/start-local.mjs`): bật Docker Desktop nếu cần → `pnpm install` khi lockfile đổi → Redis + Supabase → `.env.local` (chỉ điền key Supabase còn trống; không tạo lại khóa mã hóa token) → migration → tài khoản staff `pm@adxlens.local` / `AdxLens@local1` → web + worker → mở trình duyệt. App đang chạy sẵn thì chỉ mở trình duyệt.
 - `.gitattributes`: file `.cmd` giữ CRLF.
+- Mặc định chạy **bản build** (build lại chỉ khi commit hoặc code chưa commit trong `apps/web`, `packages` đổi; dấu build ở `apps/web/.next/adxlens-build-stamp`). Lý do: PM thấy chuyển tab chậm — `next dev` biên dịch từng trang lần đầu mở (đo: /reports 19 giây, /automation 8,7 giây); bản build: mọi trang 0,06–0,17 giây. `--dev` để chạy `pnpm dev` như cũ.
+- Sửa `pnpm seed:staff`: đổi `scripts/seed-staff.ts` → `.mts` (top-level await lỗi khi tsx chạy ở gốc CommonJS).
 
-**Test tự động:** `scripts/lib/start-local.test.ts` (đọc `supabase status`, điền key còn trống, không ghi đè key đã có, không đổi khóa token).
+**Test tự động:** `scripts/lib/start-local.test.ts` (đọc `supabase status`, điền key còn trống, không ghi đè key đã có, không đổi khóa token, dấu build đổi khi code đổi).
 
 **PM kiểm tra:** double-click `Mo-AdxLens.cmd` → trình duyệt mở trang đăng nhập → đăng nhập bằng tài khoản PM ở trên.
 

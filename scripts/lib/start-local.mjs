@@ -23,6 +23,15 @@ export function envValue(text, key) {
   return m ? m[1].trim() : '';
 }
 
+/**
+ * Dấu phiên bản của bản build web: commit hiện tại + thay đổi chưa commit trong code web/packages. Dấu khác bản
+ * build trước → build lại. Không có commit (không đọc được git) → null = luôn build lại.
+ */
+export function buildStamp(head, statusPorcelain) {
+  if (!head) return null;
+  return `${head}\n${statusPorcelain.trim()}`;
+}
+
 /** Danh sách key Supabase còn trống trong .env.local. */
 export function missingSupabaseKeys(text) {
   return Object.keys(SUPABASE_KEYS).filter((k) => !envValue(text, k));

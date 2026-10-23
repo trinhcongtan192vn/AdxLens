@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error -- module .mjs không có khai báo kiểu
-import { envValue, fillSupabaseKeys, missingSupabaseKeys, parseStatusEnv } from './start-local.mjs';
+import { buildStamp, envValue, fillSupabaseKeys, missingSupabaseKeys, parseStatusEnv } from './start-local.mjs';
 
 const ENV = [
   'SUPABASE_URL=http://127.0.0.1:54321',
@@ -36,6 +36,14 @@ describe('start-local', () => {
     expect(envValue(out, 'SUPABASE_ANON_KEY')).toBe('cu');
     expect(envValue(out, 'NEXT_PUBLIC_SUPABASE_ANON_KEY')).toBe('moi');
     expect(envValue(out, 'SUPABASE_SERVICE_ROLE_KEY')).toBe('s1');
+  });
+
+  it('dấu build đổi khi commit hoặc code chưa commit đổi; không đọc được git thì luôn build lại', () => {
+    const clean = buildStamp('abc123', '');
+    expect(buildStamp('abc123', '\n')).toBe(clean);
+    expect(buildStamp('def456', '')).not.toBe(clean);
+    expect(buildStamp('abc123', ' M apps/web/src/x.tsx')).not.toBe(clean);
+    expect(buildStamp('', '')).toBeNull();
   });
 
   it('không có key từ Supabase thì giữ nguyên nội dung', () => {

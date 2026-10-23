@@ -1,14 +1,17 @@
 // `pnpm start:local` (hoặc double-click Mo-AdxLens.cmd): mở app ở local để PM test thủ công, không cần gõ lệnh.
 // Bật Docker Desktop nếu chưa chạy → cài phụ thuộc → Redis + Supabase → .env.local → migration → tài khoản PM
-// (staff, bật cờ được) → web + worker (Meta, Stripe, PayOS giả) → mở trình duyệt. Chỉ dùng ở local.
+// (staff, bật cờ được) → build web nếu code đổi → web + worker bản build (Meta, Stripe, PayOS giả) → mở trình duyệt.
+// Chỉ dùng ở local.
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { fillSupabaseKeys, missingSupabaseKeys, parseStatusEnv } from './lib/start-local.mjs';
+import { buildStamp, fillSupabaseKeys, missingSupabaseKeys, parseStatusEnv } from './lib/start-local.mjs';
 
 const isWin = process.platform === 'win32';
 const APP_URL = 'http://localhost:3000';
 const PM_EMAIL = 'pm@adxlens.local';
 const PM_PASSWORD = 'AdxLens@local1';
+// `--dev`: chạy `pnpm dev` (hot reload cho dev sửa code). Mặc định chạy bản build để PM test nhanh.
+const DEV_MODE = process.argv.includes('--dev');
 
 const step = (msg) => console.log(`\n» ${msg}`);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -80,6 +83,7 @@ run('docker', ['compose', '-f', 'infra/docker/compose.yml', 'up', '-d', '--wait'
 if (!ok('pnpm', ['exec', 'supabase', 'status', '--workdir', 'infra'])) {
   run('pnpm', ['exec', 'supabase', 'start', '--workdir', 'infra']);
 }
+run('pnpm', ['exec', 'supabase', 'seed', 'buckets', '--workdir', 'infra']);
 
 step('Cấu hình .env.local…');
 if (!existsSync('.env.local')) run('pnpm', ['env:init']);
@@ -105,9 +109,45 @@ if (!ok('pnpm', ['--filter', '@adxlens/worker', 'exec', 'playwright', 'install',
   console.log('Không cài được Chromium — xuất PDF có thể lỗi, phần còn lại vẫn chạy.');
 }
 
-step('Bật web + worker (lần đầu mở trang có thể chậm vài giây do biên dịch)…');
-const dev = spawn('pnpm', ['dev'], { stdio: 'inherit', shell: isWin });
-dev.on('exit', (code) => process.exit(code ?? 0));
+const children = [];
+function startChild(args) {
+  const child = spawn('pnpm', args, { stdio: 'inherit', shell: isWin });
+  children.push(child);
+  child.on('exit', (code) => {
+    // Một tiến trình dừng → dừng cả app (web không có worker thì đồng bộ, báo cáo không chạy).
+    for (const c of children) {
+      if (c !== child && c.exitCode === null) {
+        if (isWin) spawnSync('taskkill', ['/pid', String(c.pid), '/T', '/F'], { stdio: 'ignore' });
+        else c.kill();
+      }
+    }
+    process.exit(code ?? 0);
+  });
+}
+
+if (DEV_MODE) {
+  step('Bật web + worker ở chế độ dev (lần đầu mở mỗi trang chậm do biên dịch)…');
+  startChild(['dev']);
+} else {
+  // Chế độ test (mặc định): bản build như production — chuyển tab nhanh, không biên dịch từng trang lần đầu mở.
+  const git = (args) => spawnSync('git', args, { encoding: 'utf8' }).stdout ?? '';
+  const stamp = buildStamp(
+    git(['rev-parse', 'HEAD']).trim(),
+    git(['status', '--porcelain', '--', 'apps/web', 'packages']),
+  );
+  const stampFile = 'apps/web/.next/adxlens-build-stamp';
+  const built = existsSync('apps/web/.next/BUILD_ID') && existsSync(stampFile);
+  if (!stamp || !built || readFileSync(stampFile, 'utf8') !== stamp) {
+    step('Build web (chỉ khi code đổi, khoảng 2–4 phút)…');
+    run('pnpm', ['--filter', '@adxlens/web', 'build']);
+    if (stamp) writeFileSync(stampFile, stamp);
+  } else {
+    console.log('\nBản build web còn mới — bỏ qua build.');
+  }
+  step('Bật web + worker…');
+  startChild(['--filter', '@adxlens/web', 'start']);
+  startChild(['--filter', '@adxlens/worker', 'exec', 'tsx', '--env-file-if-exists=../../.env.local', 'src/main.ts']);
+}
 
 const until = Date.now() + 300_000;
 while (!(await healthy())) {
