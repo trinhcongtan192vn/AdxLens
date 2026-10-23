@@ -88,4 +88,35 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     body: (w) => ({ connection_id: w.a.connection.id, meta_account_ids: ['act_111111'] }),
     crossBody: (w) => ({ connection_id: w.b.connection.id, meta_account_ids: ['act_999999'] }),
   },
+  'GET /api/v1/ad-accounts': { kind: 'workspace' },
+  'POST /api/v1/ad-accounts/[id]/assign': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.adAccount.id }),
+    crossParams: (w) => ({ id: w.b.adAccount.id }),
+    body: (w) => ({ client_id: w.a.client.id }),
+    crossBody: (w) => ({ client_id: w.b.client.id }),
+  },
+  'DELETE /api/v1/ad-accounts/[id]/assign': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.adAccount.id }),
+    crossParams: (w) => ({ id: w.b.adAccount.id }),
+  },
+  'GET /api/v1/clients': { kind: 'workspace' },
+  'POST /api/v1/clients': { kind: 'workspace', body: () => ({ name: 'Client mới' }) },
+  'GET /api/v1/clients/[id]': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.client.id }),
+    crossParams: (w) => ({ id: w.b.client.id }),
+  },
+  'PATCH /api/v1/clients/[id]': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.client.id }),
+    crossParams: (w) => ({ id: w.b.client.id }),
+    body: () => ({ name: 'Alpha Client 2' }),
+  },
+  'DELETE /api/v1/clients/[id]': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.client.id }),
+    crossParams: (w) => ({ id: w.b.client.id }),
+  },
 };

@@ -1,0 +1,84 @@
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
+import { z } from 'zod';
+import { listAdAccounts } from '@adxlens/core/connections';
+import { can, getClient } from '@adxlens/core/tenancy';
+import { Card, EmptyState, PageHeader, TabBar, tabItemClass } from '@adxlens/ui';
+import { getPageContext } from '@/server/page-context';
+import { ClientAccounts, ClientActions } from './client-detail';
+
+const TABS = ['campaigns', 'adsets', 'ads', 'reports', 'settings'] as const;
+type Tab = (typeof TABS)[number];
+
+async function load(id: string) {
+  const pc = await getPageContext();
+  if (!z.string().uuid().safeParse(id).success) notFound();
+  const client = await getClient(pc.ctx, id).catch(() => null);
+  if (!client || client.archivedAt) notFound();
+  return { pc, client };
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { client } = await load((await params).id);
+  return { title: client.name };
+}
+
+/** C02 Client: khung tab (Penpot). Bảng chiến dịch/nhóm/quảng cáo điền từ 012–013. */
+export default async function ClientPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const { pc, client } = await load((await params).id);
+  const requested = (await searchParams).tab;
+  const tab: Tab = TABS.includes(requested as Tab) ? (requested as Tab) : 'campaigns';
+  const t = await getTranslations('clients');
+  const canManage = can(pc.ctx.actor.role, 'clients.manage');
+  const accounts = await listAdAccounts(pc.ctx, { clientId: client.id });
+
+  return (
+    <>
+      <PageHeader
+        breadcrumb={[
+          <Link key="c" href="/clients" className="hover:text-fg">
+            {t('backToClients')}
+          </Link>,
+          client.name,
+        ]}
+        title={client.name}
+        actions={canManage ? <ClientActions id={client.id} name={client.name} /> : null}
+      />
+      <TabBar className="mb-4">
+        {TABS.map((k) => (
+          <Link
+            key={k}
+            href={`/clients/${client.id}?tab=${k}`}
+            role="tab"
+            aria-selected={tab === k}
+            className={tabItemClass(tab === k)}
+          >
+            {t(`tabs.${k}`)}
+          </Link>
+        ))}
+      </TabBar>
+      {tab === 'settings' ? (
+        <ClientAccounts
+          canManage={canManage}
+          accounts={accounts.map((a) => ({
+            id: a.id,
+            name: a.name,
+            metaAccountId: a.metaAccountId,
+            confirmed: a.assignmentStatus === 'confirmed',
+          }))}
+        />
+      ) : (
+        <Card>
+          <EmptyState title={t(`tabs.${tab}`)} description={t('c02NoData')} />
+        </Card>
+      )}
+    </>
+  );
+}
