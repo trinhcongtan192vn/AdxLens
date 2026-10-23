@@ -1,0 +1,2 @@
+ALTER TABLE "app"."meta_connections" ADD COLUMN "write_enabled" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "app"."meta_connections" ADD COLUMN "write_changed_at" timestamp with time zone;

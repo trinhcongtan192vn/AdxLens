@@ -522,7 +522,8 @@
       "starter": "Starter",
       "growth": "Growth",
       "scale": "Scale"
-    }
+    },
+    "writeAccess": "Quyền ghi"
   },
   "placeholder": {
     "comingSoon": "Màn hình này sẽ có ở bản tiếp theo."
@@ -1482,5 +1483,39 @@
     "step3": "Xem \"Creative\" để biết creative nào thắng, thua hay sắp mệt.",
     "start": "Bắt đầu với việc tuần này",
     "creatives": "Xem creative"
+  },
+  "writeAccess": {
+    "title": "Quyền ghi trên Meta",
+    "done": "Đã cấp quyền ghi. Mọi thay đổi vẫn cần bạn hoặc người được giao duyệt từng lần.",
+    "missingScope": "Meta chưa cấp quyền \"quản lý quảng cáo\". Thử lại và chọn cho phép quyền này.",
+    "planRequired": "Duyệt hành động trên Meta có ở gói Growth trở lên.",
+    "upgrade": "Xem gói",
+    "whatTitle": "Khi có quyền ghi, AdxLens sẽ:",
+    "what": {
+      "approve": "Chỉ thực hiện thay đổi sau khi người có quyền bấm duyệt, và cho xem trước chính xác trước / sau.",
+      "actions": "Chỉ các thao tác: tạm dừng / bật lại ad hoặc ad set, chỉnh ngân sách ngày ad set (tối đa ±15% mỗi lần), nhân bản ad set (bản sao ở trạng thái tạm dừng).",
+      "guardrails": "Luôn kiểm tra giới hạn an toàn, đọc lại trạng thái trên Meta sau mỗi thay đổi và ghi nhật ký đầy đủ.",
+      "revoke": "Bạn thu hồi được quyền ghi bất cứ lúc nào; có hiệu lực ngay."
+    },
+    "connections": "Kết nối Meta",
+    "noConnections": "Chưa có kết nối Meta",
+    "noConnectionsBody": "Kết nối Meta trước khi cấp quyền ghi.",
+    "cols": {
+      "connection": "Kết nối",
+      "status": "Quyền",
+      "actions": "Thao tác"
+    },
+    "state": {
+      "enabled": "Được ghi",
+      "revoked": "Đã thu hồi",
+      "readOnly": "Chỉ đọc",
+      "demo": "Dữ liệu mẫu"
+    },
+    "grant": "Cấp quyền ghi",
+    "revoke": "Thu hồi quyền ghi",
+    "reenable": "Bật lại quyền ghi",
+    "revokeConfirm": "Thu hồi quyền ghi của kết nối này? Các hành động đang chờ sẽ không được thực hiện.",
+    "enabledToast": "Đã bật quyền ghi",
+    "revokedToast": "Đã thu hồi quyền ghi"
   }
 }

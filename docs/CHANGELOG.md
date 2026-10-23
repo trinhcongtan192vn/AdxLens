@@ -2,6 +2,25 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [033] ADR hành động ghi, lớp ghi Meta, nâng quyền ghi (P201) — 2026-10-23
+
+**Thay đổi**
+- ADR mới (trạng thái **Đề xuất — PM duyệt bắt buộc**): `0008-execution-gateway` (một cổng ghi duy nhất, thứ tự kiểm tra, không tự retry ghi, verifier, idempotency, nhật ký append-only, circuit breaker, kill switch, hoàn tác, chỉ local/staging); `0009` tạm dừng / bật lại ad, ad set (không tự bật lại thứ người dùng tắt); `0010` ngân sách ngày ad set (±15% khóa test, không float, không CBO/trọn đời); `0011` nhân bản ad set (bản sao luôn PAUSED, không hoàn tác tự động, không retry).
+- `packages/meta-client/write` (chỉ `core/execution` được import — đã có kiểm tra ranh giới): `HttpMetaWrite` (`maxAttempts = 1`, ngân sách phải là số nguyên đơn vị nhỏ nhất), `getObject` để đọc lại. `write-mock`: `MockMetaWrite` ghi vào trạng thái dùng chung để `MockMetaRead` đọc lại được; cài lỗi theo kịch bản (lỗi trước khi áp, lỗi sau khi đã áp, áp sai giá trị).
+- DB: `meta_connections.write_enabled`, `write_changed_at` (migration 0042). `core/connections/write-access.ts`: `listWriteAccess`, `setWriteEnabled` (chỉ khi có scope `ads_management`, không cho kết nối mẫu; Owner), `connectionCanWrite` (cho gateway).
+- OAuth `authorize?scope=write` chỉ khi cờ duyệt hành động bật và là Owner (`auth_type=rerequest`); callback bật quyền ghi khi Meta cấp `ads_management`. API `POST /connections/{id}/write-access` (thu hồi / bật lại, có hiệu lực ngay).
+- Trang P201 `/connections/write-access`: AdxLens sẽ làm gì khi có quyền ghi, trạng thái theo kết nối, cấp / thu hồi / bật lại; gói chưa đủ (dưới Growth) → khóa nút + link gói. Nút "Quyền ghi" ở S02 chỉ hiện cho Owner khi cờ bật.
+
+**Test tự động**
+- `meta-client/write.test.ts` (7): POST đúng tham số + appsecret_proof; **không retry ghi khi Meta lỗi tạm thời**; ngân sách không nhận số lẻ; lỗi không chứa token; mock ghi → đọc lại; 3 kịch bản lỗi; đối tượng không tồn tại.
+- `connections/write-access.test.ts` (3): bật/thu hồi; không scope / kết nối mẫu / đã thu hồi / kết nối lại chỉ đọc → không ghi được; chỉ Owner; cách ly.
+- `api/v1/connections/write-access.test.ts` (2): **cờ tắt → 404**; Owner nâng quyền (mock) → bật, thu hồi 204, manager 403.
+- Bộ cách ly: probe route mới (kết nối của B → 404, B không đổi); A bật thêm cờ duyệt hành động để probe chạy hết logic.
+
+**Vùng bảo vệ:** `packages/db/**` (2 cột, migration 0042), `packages/core/connections/**` (quyền ghi theo kết nối; không đổi mã hóa token). Lớp ghi Meta là tiền đề cho `packages/core/execution` (035).
+
+**PM kiểm tra:** duyệt ADR-0008..0011. Bật cờ duyệt hành động cho workspace (AD02) → Kết nối → "Quyền ghi" → "Cấp quyền ghi" (Meta mock) → trạng thái "Được ghi" → "Thu hồi quyền ghi".
+
 ## [032] Kết quả trước / sau (P105), onboarding media buyer (A08) — 2026-10-23
 
 **Thay đổi**

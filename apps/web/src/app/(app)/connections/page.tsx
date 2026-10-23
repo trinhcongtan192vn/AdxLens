@@ -78,6 +78,11 @@ export default async function ConnectionsPage({ searchParams }: { searchParams: 
             <a href="/connections/new" className={buttonVariants({ kind: 'primary', size: 'm' })}>
               {t('connectAccount')}
             </a>
+            {pc.flags.p2a_approve && pc.actor.role === 'owner' ? (
+              <a href="/connections/write-access" className={buttonVariants({ kind: 'secondary', size: 'm' })}>
+                {t('writeAccess')}
+              </a>
+            ) : null}
           </span>
         }
       />

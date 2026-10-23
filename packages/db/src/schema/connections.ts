@@ -28,6 +28,12 @@ export const metaConnections = app.table(
     lastRefreshedAt: tsz('last_refreshed_at'),
     /** Tài khoản mẫu (PRD P0-02, S01): dữ liệu giả từ mock, ghi rõ là mẫu, không tính phí, không chia sẻ được. */
     isDemo: boolean('is_demo').notNull().default(false),
+    /**
+     * P2-01: Owner bật quyền ghi cho kết nối (sau OAuth có `ads_management`) và thu hồi được bất cứ lúc nào.
+     * Ghi chỉ được khi cả scope có `ads_management` và cờ này bật (ADR-0008).
+     */
+    writeEnabled: boolean('write_enabled').notNull().default(false),
+    writeChangedAt: tsz('write_changed_at'),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
