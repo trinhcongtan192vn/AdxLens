@@ -2,7 +2,7 @@ import type { MetaHttp } from './http';
 import { tokenSchema, type MetaToken } from './types';
 
 /** Quyền theo giai đoạn (L3 6.1): P0–P1 chỉ đọc; P2 thêm ads_management qua luồng nâng quyền riêng. */
-export const READ_SCOPES = ['ads_read', 'business_management', 'email'] as const;
+export const READ_SCOPES = ['ads_read', 'business_management'] as const;
 export const WRITE_SCOPES = [...READ_SCOPES, 'ads_management'] as const;
 
 export function authorizeUrl(input: {
