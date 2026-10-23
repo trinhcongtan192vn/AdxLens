@@ -3,10 +3,11 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { closeTestDb, seedMember, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
 import { recordingEnqueue } from '@adxlens/jobs';
 import { MOCK_ACCOUNTS, MockMetaRead } from '@adxlens/meta-client/mock';
-import { importAccounts, keysFromEnv, saveConnection } from '@adxlens/core/connections';
+import { assignAdAccount, importAccounts, keysFromEnv, saveConnection } from '@adxlens/core/connections';
+import { runAudit } from '@adxlens/core/insight';
 import { startBackfill, syncRange } from '@adxlens/core/ingestion';
 import { resolveActor } from '@adxlens/core/tenancy';
-import { accountKpis, dailySeries, entityTable, toKpis } from './index';
+import { accountKpis, agencyOverview, dailySeries, entityTable, toKpis } from './index';
 
 const db = testDb();
 beforeEach(() => truncateAll(db));
@@ -91,5 +92,28 @@ describe('chỉ số báo cáo', () => {
 
   it('không có dữ liệu → KPI 0, chỉ số chia = null', () => {
     expect(toKpis(undefined)).toMatchObject({ spend: '0', ctr: null, cpa: null, roas: null, cpm: null });
+  });
+});
+
+describe('tổng quan agency (O01, C01)', () => {
+  it('theo Client: chi tiêu 7/30 ngày theo tiền tệ, health thấp nhất, số vấn đề cao; tài khoản chưa gán tách riêng', async () => {
+    const { ctx, id } = await synced();
+    await runAudit(ctx, id, { clock: { now } });
+    const before = await agencyOverview(ctx, { now });
+    expect(before.clients).toEqual([]);
+    expect(before.unassigned.map((a) => a.id)).toEqual([id]);
+
+    await assignAdAccount(ctx, id, { createClientName: 'Cà phê' });
+    const { clients, unassigned } = await agencyOverview(ctx, { now });
+    expect(unassigned).toEqual([]);
+    const c = clients[0]!;
+    expect(c.name).toBe('Cà phê');
+    const k7 = (await accountKpis(ctx, [id], { from: '2026-10-16', to: '2026-10-22' })).get(id)!;
+    expect(c.spend7).toEqual({ VND: k7.spend });
+    // Mới đồng bộ 1 lô (7 ngày) → 30 ngày = 7 ngày, 7 ngày trước = 0.
+    expect(c.spend30.VND).toBe(k7.spend);
+    expect(Number(c.spendPrev7.VND)).toBe(0);
+    expect(c.health).toBeLessThan(100);
+    expect(c.highIssues).toBe(c.accounts[0]!.highIssues);
   });
 });

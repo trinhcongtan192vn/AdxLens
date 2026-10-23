@@ -2,6 +2,22 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [018b] O01 Tổng quan agency, cột số liệu C01, bảng chiến dịch C02 — 2026-10-23
+
+**Thay đổi**
+- `packages/core/reporting/overview.ts` (PRD P0-11): theo Client và tài khoản — chi tiêu 7 ngày (so 7 ngày trước) và 30 ngày, ngày theo múi giờ từng tài khoản tới hôm qua, cộng theo tiền tệ (không quy đổi); health của Client = tài khoản thấp nhất; số vấn đề mức cao đang mở; đối chiếu. Tài khoản chưa gán tách riêng; kết nối đã ngắt bị loại. Không thống kê theo media buyer.
+- O01 `/overview` thay trang giữ chỗ: KPI (chi tiêu 7/30 ngày — "Nhiều tiền tệ" khi không cộng được, vấn đề cao, tài khoản lệch), banner tài khoản chưa gán, bảng Client | Tài khoản QC | Chi tiêu 7 ngày + delta | 30 ngày | Health | Vấn đề cao | Đối chiếu; trạng thái trống (CTA kết nối) và đang tải (skeleton).
+- C01: cột Chi tiêu 30 ngày, Health, Vấn đề cao có số liệu thật (cột Báo cáo cuối ở 019+).
+- C02 tab Chiến dịch / Nhóm QC / Quảng cáo: bảng trạng thái, chi tiêu, hiển thị, click, CTR, kết quả, CPA, ROAS theo kỳ đang chọn; dòng nguồn.
+
+**Test tự động**
+- `metrics.test.ts` (+1): tổng quan theo Client (chi tiêu theo tiền tệ, 30 ngày/7 ngày trước, health, vấn đề cao, tài khoản chưa gán).
+- E2E: O01 có Client vừa gán; C02 có bảng chiến dịch (cột Chiến dịch, ROAS).
+
+**Vùng bảo vệ:** không.
+
+**PM kiểm tra:** Tổng quan sau khi đồng bộ; Clients thấy chi tiêu 30 ngày/health; Client → tab Chiến dịch/Nhóm QC/Quảng cáo.
+
 ## [018a] Giao diện phát hiện: D01 tổng quan tài khoản, D02 danh sách, D03 chi tiết — 2026-10-23
 
 **Thay đổi**

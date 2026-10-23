@@ -815,5 +815,65 @@
       "spend_drop": "Chi tiêu giảm (%)",
       "click_drop": "Click giảm (%)"
     }
+  },
+  "overview": {
+    "title": "Tổng quan",
+    "spend7": "Chi tiêu 7 ngày",
+    "spend30": "Chi tiêu 30 ngày",
+    "highIssues": "Vấn đề mức cao",
+    "mismatch": "Tài khoản lệch số liệu",
+    "clients": "Clients",
+    "multiCurrency": "Nhiều tiền tệ, không cộng gộp",
+    "cols": {
+      "client": "Client",
+      "accounts": "Tài khoản QC",
+      "spend7": "Chi tiêu 7 ngày",
+      "spend30": "Chi tiêu 30 ngày",
+      "health": "Health",
+      "highIssues": "Vấn đề cao",
+      "reconciliation": "Đối chiếu"
+    },
+    "unassignedTitle": "Tài khoản chưa gán Client",
+    "unassignedBody": "{count, plural, other {# tài khoản}} có số liệu nhưng chưa thuộc Client nào.",
+    "assign": "Gán Client",
+    "emptyTitle": "Chưa có dữ liệu quảng cáo",
+    "emptyBody": "Kết nối Meta (chỉ đọc) và chọn tài khoản để xem tổng quan agency.",
+    "connect": "Kết nối Meta",
+    "footnote": "Ngày theo múi giờ từng tài khoản · tới hết hôm qua · tiền theo tiền tệ tài khoản, không quy đổi.",
+    "healthHint": "Health của Client = tài khoản thấp nhất."
+  },
+  "entities": {
+    "level": {
+      "campaign": "Chiến dịch",
+      "adset": "Nhóm QC",
+      "ad": "Quảng cáo"
+    },
+    "cols": {
+      "status": "Trạng thái",
+      "spend": "Chi tiêu",
+      "impressions": "Hiển thị",
+      "clicks": "Click",
+      "ctr": "CTR",
+      "results": "Kết quả",
+      "cpa": "CPA",
+      "roas": "ROAS"
+    },
+    "status": {
+      "ACTIVE": "Đang chạy",
+      "PAUSED": "Tạm dừng",
+      "CAMPAIGN_PAUSED": "Chiến dịch tạm dừng",
+      "ADSET_PAUSED": "Nhóm tạm dừng",
+      "ARCHIVED": "Lưu trữ",
+      "DELETED": "Đã xóa",
+      "WITH_ISSUES": "Có lỗi",
+      "DISAPPROVED": "Bị từ chối",
+      "PENDING_REVIEW": "Chờ duyệt"
+    },
+    "empty": {
+      "campaign": "Chưa có chiến dịch trong kỳ này.",
+      "adset": "Chưa có nhóm quảng cáo trong kỳ này.",
+      "ad": "Chưa có quảng cáo trong kỳ này."
+    },
+    "footnote": "{from} → {to} · attribution 7d click / 1d view · theo múi giờ tài khoản"
   }
 }
