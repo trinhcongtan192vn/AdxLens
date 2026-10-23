@@ -429,6 +429,79 @@
     "passwordChanged": "Password changed. Other sessions were signed out.",
     "wrongCurrent": "Current password is incorrect."
   },
+  "banners": {
+    "tokenExpired": "The Meta token of {count, plural, one {# connection} other {# connections}} has expired. Data for the related accounts has stopped updating.",
+    "reconnect": "Reconnect"
+  },
+  "connect": {
+    "step": "Setup · step {n}/{total}",
+    "yes": "Yes",
+    "no": "No",
+    "s02Title": "Meta connections",
+    "connectAccount": "+ Connect account",
+    "s02EmptyTitle": "No Meta connection yet",
+    "s02EmptyBody": "Connect Meta (read-only) to sync your numbers.",
+    "tokenSummary": "{expired} expired token(s), {expiring} expiring within 7 days.",
+    "reconnect": "Reconnect",
+    "todayAt": "{time} today",
+    "suggested": "Suggested: {name}",
+    "footnote": "Numbers use the 7d click / 1d view attribution window, each account's currency and time zone.",
+    "token": {
+      "valid": "Valid",
+      "expired": "Expired",
+      "expiring": "{days, plural, one {# day left} other {# days left}}"
+    },
+    "cols": {
+      "adAccount": "Ad account",
+      "account": "Account",
+      "id": "ID",
+      "client": "Client",
+      "token": "Token",
+      "lastSync": "Last sync",
+      "timezone": "Time zone",
+      "currency": "Currency",
+      "active30d": "Spend in 30d",
+      "spend30d": "30-day spend"
+    },
+    "errors": {
+      "denied": "You cancelled the permission request on Meta. Try again when you're ready.",
+      "missing_scope": "AdxLens needs the ads_read permission to sync your numbers.",
+      "failed": "Could not connect to Meta. Please try again."
+    },
+    "s03Title": "AdxLens only reads your ad data",
+    "s03Intro": "Next, Meta will ask you to grant read access. Here's what we do and don't do.",
+    "s03": {
+      "read": {
+        "title": "Read metrics",
+        "body": "Campaigns, ad sets, ads, spend, results, budgets."
+      },
+      "write": {
+        "title": "Change anything on Meta",
+        "body": "We never pause ads, change budgets, or create or delete ads."
+      },
+      "control": {
+        "title": "You stay in control",
+        "body": "Disconnect at any time and ask us to delete your data (Connections)."
+      }
+    },
+    "continueWithMeta": "Continue with Meta",
+    "viewDemo": "See the sample account first",
+    "scopes": "Permissions requested: {scopes} (read-only).",
+    "s04Title": "Choose ad accounts to track",
+    "s04Limit": "The {plan} plan tracks up to {limit} accounts. You can change this later.",
+    "s04Loading": "Fetching 30-day spend from Meta…",
+    "s04Selected": "{count}/{limit} accounts selected",
+    "s04Over": "You selected more than the {limit} accounts in the {plan} plan. Accounts over the limit keep syncing during the grace period; upgrade to keep them.",
+    "s04EmptyTitle": "No ad accounts found",
+    "s04EmptyBody": "This Meta account has no ad accounts you can view. Check your permissions in Business Manager and reconnect.",
+    "reconnectMeta": "Reconnect with Meta",
+    "plans": {
+      "free": "Free",
+      "starter": "Starter",
+      "growth": "Growth",
+      "scale": "Scale"
+    }
+  },
   "placeholder": {
     "comingSoon": "This screen is coming in the next release."
   }

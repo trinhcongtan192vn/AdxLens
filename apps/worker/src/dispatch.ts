@@ -1,7 +1,6 @@
 import { scopedLogger } from '@adxlens/core/shared';
-import { JOBS, parsePayload, type Enqueue, type JobName } from '@adxlens/jobs';
-import type { Db } from '@adxlens/db';
-import type { HandlerMap, JobHandler } from './handler';
+import { JOBS, parsePayload, type JobName } from '@adxlens/jobs';
+import type { HandlerMap, JobHandler, WorkerServices } from './handler';
 
 export class UnknownJobError extends Error {
   constructor(name: string) {
@@ -16,7 +15,7 @@ export class UnknownJobError extends Error {
  */
 export async function dispatch(
   handlers: HandlerMap,
-  deps: { db: Db; enqueue: Enqueue },
+  deps: WorkerServices,
   job: { name: string; id: string; data: unknown },
 ): Promise<unknown> {
   if (!(job.name in JOBS)) throw new UnknownJobError(job.name);

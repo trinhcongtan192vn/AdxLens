@@ -64,6 +64,14 @@ export const GRACE_PERIOD_DAYS = 7;
 /** ADR-0001 A5: workspace mới ở gói Free. */
 export const DEFAULT_PLAN: PlanKey = 'free';
 
+/**
+ * Gói hiện tại của workspace. Bảng subscription có ở feature 026; trước đó mọi workspace ở gói
+ * mặc định (ADR-0001 A5). Ghi ở docs/tech-debt.md.
+ */
+export async function currentPlanKey(_workspaceId: string): Promise<PlanKey> {
+  return DEFAULT_PLAN;
+}
+
 export function hasEntitlement(plan: PlanKey, e: Entitlement): boolean {
   return PLANS[plan].entitlements.includes(e);
 }

@@ -125,6 +125,19 @@ describe('cách ly workspace: route API', () => {
         assertNoLeak(resB.body, world, r.key);
       }
 
+      if (probe.crossBody) {
+        const resB = await call(r.handler, {
+          method,
+          path: fill(r.urlPath, params) + qs,
+          user: asUser(actor),
+          workspaceId: world.a.workspace.id,
+          params,
+          body: probe.crossBody(world),
+        });
+        expect([403, 404, 422], `${r.key} với body tham chiếu tài nguyên B phải bị từ chối`).toContain(resB.status);
+        assertNoLeak(resB.body, world, r.key);
+      }
+
       // Thành viên A không được dùng header để chuyển sang workspace B.
       const forged = await call(r.handler, {
         method,

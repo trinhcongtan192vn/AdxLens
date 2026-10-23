@@ -13,6 +13,7 @@
     "@adxlens/core": "workspace:*",
     "@adxlens/db": "workspace:*",
     "@adxlens/jobs": "workspace:*",
+    "@adxlens/meta-client": "workspace:*",
     "bullmq": "^5.81.5",
     "ioredis": "^5.11.1"
   }

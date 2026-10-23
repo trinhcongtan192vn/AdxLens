@@ -17,6 +17,9 @@ importers:
       '@adxlens/jobs':
         specifier: workspace:*
         version: link:packages/jobs
+      '@adxlens/meta-client':
+        specifier: workspace:*
+        version: link:packages/meta-client
       '@eslint/js':
         specifier: ^9.39.5
         version: 9.39.5
@@ -77,6 +80,9 @@ importers:
       '@adxlens/jobs':
         specifier: workspace:*
         version: link:../../packages/jobs
+      '@adxlens/meta-client':
+        specifier: workspace:*
+        version: link:../../packages/meta-client
       '@adxlens/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -147,6 +153,9 @@ importers:
       '@adxlens/jobs':
         specifier: workspace:*
         version: link:../../packages/jobs
+      '@adxlens/meta-client':
+        specifier: workspace:*
+        version: link:../../packages/meta-client
       bullmq:
         specifier: ^5.81.5
         version: 5.81.5
@@ -168,6 +177,9 @@ importers:
       '@adxlens/db':
         specifier: workspace:*
         version: link:../db
+      '@adxlens/meta-client':
+        specifier: workspace:*
+        version: link:../meta-client
       drizzle-orm:
         specifier: ^0.45.4
         version: 0.45.4(postgres@3.4.9)

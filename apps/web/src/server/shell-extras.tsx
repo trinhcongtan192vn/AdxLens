@@ -1,31 +1,45 @@
 import 'server-only';
+import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
+import { connectionHealth } from '@adxlens/core/connections';
+import { can } from '@adxlens/core/tenancy';
+import { Banner } from '@adxlens/ui';
 import type { PageContext } from './page-context';
 
 /**
- * Phần phụ của khung app: số thông báo chưa đọc (X05) và banner hệ thống (X04: token hết hạn,
- * past_due, vượt hạn mức, kill switch, dữ liệu mẫu). Các feature sau đăng ký nguồn banner tại đây.
+ * Banner hệ thống X04 (mỗi lần một cái, design-system Banner): token hết hạn → past_due → vượt hạn
+ * mức → kill switch → dữ liệu mẫu. Feature sau thêm nguồn của mình theo đúng thứ tự ưu tiên.
  */
-export type BannerSource = (pc: PageContext) => Promise<ReactNode | null>;
-
-const bannerSources: BannerSource[] = [];
-let unreadSource: ((pc: PageContext) => Promise<number>) | null = null;
-
-export function registerBannerSource(s: BannerSource): void {
-  bannerSources.push(s);
+async function systemBanner(pc: PageContext): Promise<ReactNode> {
+  const t = await getTranslations('banners');
+  const health = await connectionHealth(pc.ctx);
+  if (health.expired.length) {
+    return (
+      <Banner
+        tone="danger"
+        action={
+          can(pc.actor.role, 'connections.manage') ? (
+            <Link href="/connections" className="text-body font-medium underline">
+              {t('reconnect')}
+            </Link>
+          ) : null
+        }
+      >
+        {t('tokenExpired', { count: health.expired.length })}
+      </Banner>
+    );
+  }
+  return null;
 }
 
+let unreadSource: ((pc: PageContext) => Promise<number>) | null = null;
 export function registerUnreadSource(s: (pc: PageContext) => Promise<number>): void {
   unreadSource = s;
 }
 
 export async function getShellExtras(pc: PageContext): Promise<{ unread: number; banner: ReactNode }> {
-  // Mỗi lần chỉ một banner (design-system: Banner), ưu tiên theo thứ tự đăng ký.
-  let banner: ReactNode = null;
-  for (const s of bannerSources) {
-    banner = await s(pc);
-    if (banner) break;
-  }
+  const banner = await systemBanner(pc);
   const unread = unreadSource ? await unreadSource(pc) : 0;
-  return { unread, banner: banner ? <div className="px-6 pt-4">{banner}</div> : null };
+  return { unread, banner: banner ? <div className="px-4 pt-4">{banner}</div> : null };
 }
