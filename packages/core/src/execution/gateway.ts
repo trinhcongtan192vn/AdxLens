@@ -578,6 +578,21 @@ export async function executeAction(
     adAccountId: account.id,
     detail: { action_id: a.id, action_type: a.actionType, result: outcome.code },
   });
+  // L2 11.2: hành động tự động thất bại → tạm dừng rule tạo ra nó (người dùng xem lại rồi bật lại).
+  if (a.ruleId) {
+    const paused = await ctx.db
+      .update(schema.automationRules)
+      .set({ mode: 'paused', updatedAt: ts })
+      .where(
+        and(
+          eq(schema.automationRules.workspaceId, ctx.workspaceId),
+          eq(schema.automationRules.id, a.ruleId),
+          eq(schema.automationRules.mode, 'live'),
+        ),
+      )
+      .returning({ id: schema.automationRules.id });
+    if (paused.length) await log(ctx, a.id, 'rule_paused', { rule_id: a.ruleId });
+  }
   if (opened) {
     await log(ctx, a.id, 'circuit_breaker_opened', { ad_account_id: account.id });
     await cancelPending(ctx, 'circuit_breaker_open', { adAccountId: account.id });

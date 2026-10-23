@@ -6,3 +6,4 @@ export * from './service';
 export * from './deletion';
 export * from './demo';
 export * from './write-access';
+export * from './rotate';
