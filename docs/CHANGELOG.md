@@ -2,6 +2,22 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [057] Cảnh báo bất thường hằng ngày (A5) — 2026-10-23
+
+**Thay đổi**
+- Sau đồng bộ + đối chiếu + audit mỗi ngày (`audit:run`), kiểm **hôm qua** của từng tài khoản so với **7 ngày trước** (dữ liệu đã đối chiếu):
+  - **Chi tiêu tăng vọt**: ≥ ×2 trung bình và chênh ≥ 500.000đ (tiền khác: 20);
+  - **Chi tiêu về 0** khi trung bình ≥ mức trên (quảng cáo có thể đã dừng: thẻ lỗi, bị từ chối…);
+  - **CPA tăng** ≥ 50% (hôm qua ≥ 3 kết quả, nền ≥ 10 kết quả);
+  - **Không có kết quả dù vẫn chi** (nền ≥ 3 kết quả/ngày, hôm qua chi ≥ 50% mức thường).
+  - Cần ≥ 5/7 ngày nền có chi tiêu; thiếu dữ liệu → không báo.
+- Thông báo mới `anomaly` (trong app + email, tắt được ở ST05) cho Owner, Manager và Buyer được xem Client; chống trùng theo (tài khoản, ngày, loại). Nội dung theo ngôn ngữ người nhận, số % do engine tính.
+- `core/insight/anomaly.ts` (`detectAnomalies` hàm thuần, `runAnomalyCheck`, ngưỡng ở `ANOMALY_CONFIG`).
+
+**Test tự động:** `anomaly.test.ts` (4 loại bất thường; bình thường / nền thiếu / chênh tuyệt đối nhỏ / hôm qua ít kết quả → không báo; gửi thông báo đúng tham số, không lặp cùng ngày).
+
+**PM kiểm tra:** sau lần đồng bộ hằng ngày (3h sáng) hoặc "Chạy lại đồng bộ", nếu hôm qua có biến động → chuông thông báo + email (Mailpit ở local).
+
 ## [056] Ngân sách tháng theo Client + cảnh báo tốc độ chi (A3) — 2026-10-23
 
 **Thay đổi**

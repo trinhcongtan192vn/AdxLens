@@ -1654,8 +1654,8 @@
       },
       "anomaly": {
         "label": "Biến động bất thường hằng ngày",
-        "title": "{account}: {summary}",
-        "body": "Ngày {date}. Kiểm tra trước khi khách hỏi."
+        "title": "{account}: {anomaly, select, spend_spike {chi tiêu tăng {pct}%} spend_stop {chi tiêu về 0} cpa_spike {CPA tăng {pct}%} other {không có kết quả dù vẫn chi tiêu}}",
+        "body": "Ngày {date}, so với 7 ngày trước. Kiểm tra trước khi khách hỏi."
       }
     },
     "settings": {

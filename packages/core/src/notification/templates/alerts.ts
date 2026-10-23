@@ -24,6 +24,21 @@ const REASON: Record<Locale, Record<string, string>> = {
     demo: 'the Client uses sample data',
   },
 };
+/** A5: mô tả bất thường theo mã (số đã tính sẵn ở core/insight). */
+const ANOMALY_TEXT: Record<Locale, Record<string, (p: P) => string>> = {
+  vi: {
+    spend_spike: (p) => `chi tiêu tăng ${p.pct}%`,
+    spend_stop: () => 'chi tiêu về 0 (quảng cáo có thể đã dừng)',
+    cpa_spike: (p) => `CPA tăng ${p.pct}%`,
+    results_drop: () => 'không có kết quả dù vẫn chi tiêu',
+  },
+  en: {
+    spend_spike: (p) => `spend up ${p.pct}%`,
+    spend_stop: () => 'spend dropped to zero (ads may have stopped)',
+    cpa_spike: (p) => `CPA up ${p.pct}%`,
+    results_drop: () => 'no results despite spending',
+  },
+};
 const reason = (l: Locale, code: string | number | undefined) => REASON[l][String(code)] ?? String(code ?? '');
 
 const TEXT: Record<string, Record<Locale, (p: P) => { subject: string; body: string; cta: string }>> = {
@@ -164,16 +179,22 @@ const TEXT: Record<string, Record<Locale, (p: P) => { subject: string; body: str
     }),
   },
   anomaly: {
-    vi: (p) => ({
-      subject: `${p.account}: ${p.summary}`,
-      body: `Ngày ${p.date}, tài khoản ${p.account} có biến động bất thường: ${p.summary}. Kiểm tra trước khi khách hỏi.`,
-      cta: 'Xem tài khoản',
-    }),
-    en: (p) => ({
-      subject: `${p.account}: ${p.summary}`,
-      body: `On ${p.date}, account ${p.account} had an unusual change: ${p.summary}. Check it before the client asks.`,
-      cta: 'View account',
-    }),
+    vi: (p) => {
+      const what = ANOMALY_TEXT.vi[String(p.anomaly)]?.(p) ?? 'biến động bất thường';
+      return {
+        subject: `${p.account}: ${what} (${p.date})`,
+        body: `Ngày ${p.date}, tài khoản ${p.account}: ${what} so với 7 ngày trước. Kiểm tra trước khi khách hỏi.`,
+        cta: 'Xem tài khoản',
+      };
+    },
+    en: (p) => {
+      const what = ANOMALY_TEXT.en[String(p.anomaly)]?.(p) ?? 'unusual change';
+      return {
+        subject: `${p.account}: ${what} (${p.date})`,
+        body: `On ${p.date}, account ${p.account}: ${what} vs the previous 7 days. Check it before the client asks.`,
+        cta: 'View account',
+      };
+    },
   },
   weekly_actions: {
     vi: (p) => ({

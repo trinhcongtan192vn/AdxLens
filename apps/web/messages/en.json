@@ -1654,8 +1654,8 @@
       },
       "anomaly": {
         "label": "Daily unusual changes",
-        "title": "{account}: {summary}",
-        "body": "On {date}. Check it before the client asks."
+        "title": "{account}: {anomaly, select, spend_spike {spend up {pct}%} spend_stop {spend dropped to zero} cpa_spike {CPA up {pct}%} other {no results despite spending}}",
+        "body": "On {date}, vs the previous 7 days. Check it before the client asks."
       }
     },
     "settings": {
