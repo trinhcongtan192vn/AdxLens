@@ -76,6 +76,13 @@ export const JOB_PROBES: Record<string, JobProbe> = {
   'maintenance:purge_connection_data#cross': {
     payload: (w) => ({ workspaceId: w.a.workspace.id, connectionId: w.b.connection.id }),
   },
+  'audit:run': {
+    prepare: backfillForA,
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, snapshotVersion: 'probe' }),
+  },
+  'audit:run#cross': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, adAccountId: w.b.adAccount.id, snapshotVersion: 'probe' }),
+  },
   'reconcile:account': {
     prepare: backfillForA,
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, from: p!.from, to: p!.to }),

@@ -654,5 +654,6 @@
     "done": "Đã ngắt kết nối. Mã xác nhận {code}.",
     "pendingBanner": "Đang chờ xóa dữ liệu (mã {code}): xóa vào {date}. Kết nối lại trước ngày đó để hủy.",
     "doneBanner": "Đã xóa dữ liệu của kết nối cũ (mã {code}) ngày {date}."
-  }
+  },
+  "rules": {}
 }

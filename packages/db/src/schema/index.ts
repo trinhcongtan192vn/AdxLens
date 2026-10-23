@@ -6,3 +6,4 @@ export * from './connections';
 export * from './ingestion';
 export * from './reconciliation';
 export * from './deletion';
+export * from './insight';

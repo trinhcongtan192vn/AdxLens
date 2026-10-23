@@ -127,6 +127,20 @@
       "when": 1792719824121,
       "tag": "0017_rls_deletion",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792720234034,
+      "tag": "0018_insight",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792720235108,
+      "tag": "0019_rls_insight",
+      "breakpoints": true
     }
   ]
 }

@@ -29,6 +29,8 @@ const { adAccounts, insightsDaily, reconciliationResults } = schema;
 export const RECONCILIATION_THRESHOLD_PCT = '1.000000';
 /** `reconcile_retry` (L2 11.2): đồng bộ và đối chiếu lại sau 24 giờ. */
 export const RECONCILE_RETRY_DELAY_MS = 24 * 3_600_000;
+/** Ngày lệch trong 14 ngày gần nhất (2 cửa sổ so sánh của insight engine) thì không chạy audit. */
+export const AUDIT_GUARD_DAYS = 14;
 /** Cửa sổ mặc định cho badge "Khớp/Lệch" (C01, C02, S06): 7 ngày tới hôm qua. */
 export const BADGE_WINDOW_DAYS = 7;
 
@@ -256,6 +258,15 @@ export async function reconcileAccount(
     }
   } else if (rows.length) {
     await resolveIncidentsByFingerprint(ctx.db, fingerprint, clock);
+  }
+  // L3 7.3: đối chiếu ổn → audit. Lệch chỉ chặn khi rơi vào 14 ngày mà engine dùng để so sánh.
+  const auditFloor = addDays(input.to, -(AUDIT_GUARD_DAYS - 1));
+  if (rows.length && deps.enqueue && !warningDates.some((d) => d >= auditFloor)) {
+    await deps.enqueue('audit:run', {
+      workspaceId: ctx.workspaceId,
+      adAccountId: account.id,
+      snapshotVersion: clock.now().toISOString(),
+    });
   }
   return {
     status: warningDates.length ? 'warning' : 'ok',

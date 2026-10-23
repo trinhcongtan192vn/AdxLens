@@ -2,6 +2,30 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [015] Insight engine: hợp đồng quy tắc, phát hiện, phản hồi, health score — 2026-10-23
+
+**Thay đổi**
+- ADR-0006: vòng đời phát hiện — một dòng mỗi (tài khoản, quy tắc, đối tượng); tự `resolved` khi hết; `done`/`resolved` mở lại khi quay lại; `dismissed` giữ nguyên; giải thích lưu khóa i18n + tham số.
+- DB: `app.findings`, `app.finding_feedback`, `app.rule_configs` (mặc định toàn hệ thống / ghi đè theo workspace, `NULLS NOT DISTINCT`). RLS.
+- `packages/core/insight`:
+  - Hợp đồng `Rule` (L2 5.1): `defaults`, `minData`, `detect(snapshot, config)`.
+  - Ảnh chụp bằng truy vấn tổng hợp SQL: 7 ngày gần vs 7 ngày trước theo múi giờ tài khoản, cấp ad / ad set / campaign (chi tiêu, hiển thị, reach, click, kết quả, doanh thu, tần suất có trọng số, số ngày hoạt động), cấu trúc + ngân sách + learning stage, chuỗi 28 ngày cấp tài khoản.
+  - Engine `runAudit`: cấu hình hiệu lực (code ← toàn hệ thống ← workspace), upsert theo ADR-0006, quy tắc lỗi không chặn quy tắc khác và không xóa phát hiện cũ của nó.
+  - Health score: high −15, medium −7, low −3, trần nhóm −30, sàn 0, có thành phần theo nhóm (có test khóa).
+  - Phản hồi seen/done/dismissed (cần lý do)/wrong; tỷ lệ "sai" theo quy tắc (L2 5.4). Buyer chỉ thấy tài khoản của Client được gán.
+  - Deep link Ads Manager theo cấp đối tượng.
+- Chuỗi job: đối chiếu ổn (không có ngày lệch trong 14 ngày gần nhất) → `audit:run` (L3 7.3). Worker handler `audit:run`.
+- API: `GET /api/v1/ad-accounts/{id}/findings` (lọc mức độ/nhóm/trạng thái, phân trang), `GET /api/v1/findings/{id}`, `POST /api/v1/findings/{id}/feedback`. Giải thích dịch theo locale phía server.
+- `docs/rules/README.md`: hợp đồng và quy trình duyệt ngưỡng. Bộ quy tắc thật ở 016–017.
+
+**Test tự động**
+- `packages/core/src/insight/insight.test.ts` (10): ảnh chụp đúng cửa sổ + tổng khớp giữa các cấp, không dữ liệu → no_data, vòng đời ADR-0006, cấu hình tắt/ghi đè ngưỡng, quy tắc lỗi được cô lập, phản hồi + tỷ lệ sai, quyền buyer/workspace khác, health score khóa + chỉ tính đang mở, deep link.
+- API `findings.test.ts` (2). Bộ cách ly: dữ liệu B có phát hiện; probe 3 route + job `audit:run` (+ tài khoản B).
+
+**Vùng bảo vệ:** `packages/db/**` (3 bảng + RLS, migration 0018–0019).
+
+**PM kiểm tra:** chưa có giao diện (D01–D03 ở 018); quy tắc thật ở 016–017.
+
 ## [014] Ngắt kết nối và xóa dữ liệu (S07), data deletion callback — 2026-10-23
 
 **Thay đổi**
