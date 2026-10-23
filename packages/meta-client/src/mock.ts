@@ -251,6 +251,70 @@ function sumActions(rows: MetaInsight[], key: 'actions' | 'action_values', curre
   }));
 }
 
+/** Nhóm giả cho breakdowns (A4): khóa trường Meta + trọng số cố định (tổng 1). */
+const MOCK_BREAKDOWNS: Record<
+  NonNullable<InsightQuery['breakdown']>,
+  { fields: Partial<MetaInsight>; weight: number }[]
+> = {
+  age_gender: [
+    { fields: { age: '18-24', gender: 'female' }, weight: 0.12 },
+    { fields: { age: '18-24', gender: 'male' }, weight: 0.08 },
+    { fields: { age: '25-34', gender: 'female' }, weight: 0.27 },
+    { fields: { age: '25-34', gender: 'male' }, weight: 0.18 },
+    { fields: { age: '35-44', gender: 'female' }, weight: 0.17 },
+    { fields: { age: '35-44', gender: 'male' }, weight: 0.1 },
+    { fields: { age: '45-54', gender: 'female' }, weight: 0.05 },
+    { fields: { age: '45-54', gender: 'male' }, weight: 0.03 },
+  ],
+  placement: [
+    { fields: { publisher_platform: 'facebook', platform_position: 'feed' }, weight: 0.42 },
+    { fields: { publisher_platform: 'instagram', platform_position: 'feed' }, weight: 0.26 },
+    { fields: { publisher_platform: 'instagram', platform_position: 'story' }, weight: 0.2 },
+    { fields: { publisher_platform: 'facebook', platform_position: 'marketplace' }, weight: 0.12 },
+  ],
+  region: [
+    { fields: { region: 'Ho Chi Minh City' }, weight: 0.46 },
+    { fields: { region: 'Hanoi' }, weight: 0.31 },
+    { fields: { region: 'Da Nang' }, weight: 0.11 },
+    { fields: { region: 'Can Tho' }, weight: 0.07 },
+    { fields: { region: 'Hai Phong' }, weight: 0.05 },
+  ],
+};
+
+/** Tách một dòng thành các nhóm theo trọng số; nhóm cuối nhận phần dư để tổng khớp đúng dòng gốc. */
+function splitRow(row: MetaInsight, groups: { fields: Partial<MetaInsight>; weight: number }[], currency: string) {
+  const ints = ['impressions', 'reach', 'clicks', 'inline_link_clicks'] as const;
+  const left: Record<string, number> = Object.fromEntries(ints.map((k) => [k, Number(row[k] ?? 0)]));
+  let spendLeft = Number(row.spend);
+  const actLeft = new Map((row.actions ?? []).map((a) => [a.action_type, Number(a.value)]));
+  const valLeft = new Map((row.action_values ?? []).map((a) => [a.action_type, Number(a.value)]));
+  return groups.map((g, i) => {
+    const last = i === groups.length - 1;
+    const take = (total: number, remaining: number, roundFn: (v: number) => number) =>
+      last ? remaining : roundFn(total * g.weight);
+    const out: MetaInsight = { ...row, ...g.fields };
+    for (const k of ints) {
+      const v = take(Number(row[k] ?? 0), left[k]!, Math.floor);
+      left[k]! -= v;
+      out[k] = String(v);
+    }
+    const sp = take(Number(row.spend), spendLeft, (v) => Number(round(v, currency)));
+    spendLeft -= sp;
+    out.spend = round(sp, currency);
+    out.actions = (row.actions ?? []).map((a) => {
+      const v = take(Number(a.value), actLeft.get(a.action_type)!, Math.floor);
+      actLeft.set(a.action_type, actLeft.get(a.action_type)! - v);
+      return { action_type: a.action_type, value: String(v) };
+    });
+    out.action_values = (row.action_values ?? []).map((a) => {
+      const v = take(Number(a.value), valLeft.get(a.action_type)!, (x) => Number(round(x, currency)));
+      valLeft.set(a.action_type, valLeft.get(a.action_type)! - v);
+      return { action_type: a.action_type, value: round(v, currency) };
+    });
+    return out;
+  });
+}
+
 export class MockMetaRead implements MetaReadApi {
   constructor(private readonly now: () => Date = () => new Date()) {}
 
@@ -296,6 +360,30 @@ export class MockMetaRead implements MetaReadApi {
       });
       if (q.level === 'ad') {
         out.push(...rows);
+        continue;
+      }
+      if (q.level === 'adset') {
+        for (const adset of s.adsets) {
+          const mine = rows.filter((x) => x.adset_id === adset.id);
+          if (!mine.length) continue;
+          const sumK = (k: 'spend' | 'impressions' | 'reach' | 'clicks' | 'inline_link_clicks') =>
+            mine.reduce((t, x) => t + Number(x[k] ?? 0), 0);
+          const agg: MetaInsight = {
+            date_start: d,
+            date_stop: d,
+            account_id: act.replace('act_', ''),
+            campaign_id: adset.campaign_id,
+            adset_id: adset.id,
+            spend: round(sumK('spend'), acc.currency),
+            impressions: String(sumK('impressions')),
+            reach: String(sumK('reach')),
+            clicks: String(sumK('clicks')),
+            inline_link_clicks: String(sumK('inline_link_clicks')),
+            actions: sumActions(mine, 'actions', acc.currency),
+            action_values: sumActions(mine, 'action_values', acc.currency),
+          };
+          out.push(...(q.breakdown ? splitRow(agg, MOCK_BREAKDOWNS[q.breakdown], acc.currency) : [agg]));
+        }
         continue;
       }
       const sum = (k: 'spend' | 'impressions' | 'reach' | 'clicks' | 'inline_link_clicks') =>

@@ -935,7 +935,10 @@
       "campaigns": "Chiến dịch nổi bật",
       "findings": "Vấn đề cần xử lý",
       "workDone": "Việc đã làm",
-      "nextSteps": "Kế hoạch tiếp theo"
+      "nextSteps": "Kế hoạch tiếp theo",
+      "intro": "Nhận xét của agency",
+      "audience": "Đối tượng, vị trí và khu vực",
+      "creatives": "Quảng cáo chi nhiều nhất"
     },
     "kpi": {
       "spend": "Chi tiêu",
@@ -985,6 +988,17 @@
       "share": "giải thích {share}% thay đổi CPA",
       "drivers": "Chiến dịch đóng góp nhiều nhất",
       "method": "CPA = CPM ÷ CTR ÷ tỷ lệ chuyển đổi. Phần giải thích tính từ số liệu đã đối chiếu của hai kỳ."
+    },
+    "audience": {
+      "age_gender": "Độ tuổi · giới tính",
+      "placement": "Vị trí hiển thị",
+      "region": "Khu vực",
+      "group": "Nhóm",
+      "share": "Tỷ trọng chi",
+      "female": "Nữ",
+      "male": "Nam",
+      "unknown": "Không rõ",
+      "note": "Số theo nhóm từ Meta có thể lệch nhẹ tổng tài khoản (Meta ẩn hoặc làm tròn nhóm nhỏ)."
     }
   },
   "reports": {
@@ -1060,10 +1074,13 @@
         "campaigns": "Chiến dịch nổi bật",
         "findings": "Vấn đề cần xử lý",
         "workDone": "Việc đã làm",
-        "nextSteps": "Kế hoạch tiếp theo"
+        "nextSteps": "Kế hoạch tiếp theo",
+        "audience": "Đối tượng, vị trí và khu vực",
+        "creatives": "Quảng cáo chi nhiều nhất"
       },
       "summaryLlm": "Tóm tắt do AI viết từ số liệu đã tính; mọi con số đã được kiểm tra khớp dữ liệu.",
-      "summaryTemplate": "Tóm tắt tự động từ số liệu (không dùng AI)."
+      "summaryTemplate": "Tóm tắt tự động từ số liệu (không dùng AI).",
+      "intro": "Nhận xét của agency (hiện sau tóm tắt)"
     }
   },
   "share": {

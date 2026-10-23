@@ -17,11 +17,21 @@ import {
   type MetaInsight,
 } from './types';
 
+/** Nhóm phân tích theo đối tượng / vị trí / khu vực (roadmap A4). */
+export const BREAKDOWNS = {
+  age_gender: ['age', 'gender'],
+  placement: ['publisher_platform', 'platform_position'],
+  region: ['region'],
+} as const;
+export type BreakdownKey = keyof typeof BREAKDOWNS;
+
 export type InsightQuery = {
-  level: 'ad' | 'account';
+  level: 'ad' | 'adset' | 'account';
   since: string;
   until: string;
   attributionWindows?: readonly string[];
+  /** Chỉ với level 'adset': tách theo nhóm (Meta `breakdowns`). */
+  breakdown?: BreakdownKey;
 };
 
 /** API đọc (P0–P1). Phần ghi nằm riêng ở `@adxlens/meta-client/write`, chỉ Execution Gateway dùng. */
@@ -98,6 +108,7 @@ export class HttpMetaRead implements MetaReadApi {
         time_range: JSON.stringify({ since: q.since, until: q.until }),
         fields: INSIGHT_FIELDS,
         action_attribution_windows: JSON.stringify(q.attributionWindows ?? DEFAULT_ATTRIBUTION),
+        ...(q.breakdown ? { breakdowns: BREAKDOWNS[q.breakdown].join(',') } : {}),
         limit: 500,
       },
       insightSchema,

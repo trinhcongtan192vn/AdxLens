@@ -93,3 +93,34 @@ export const syncRuns = app.table(
   },
   (t) => [index().on(t.workspaceId), index().on(t.adAccountId, t.createdAt)],
 );
+
+export const BREAKDOWN_KEYS = ['age_gender', 'placement', 'region'] as const;
+
+/**
+ * Insight theo nhóm (roadmap A4): theo ngày, cấp ad set, tách theo độ tuổi-giới tính / vị trí hiển thị / khu vực.
+ * `key` = giá trị nhóm ("25-34|female", "instagram|story", "Hanoi"). Kết quả tính theo mục tiêu của ad set như
+ * `insights_daily`. Tổng theo nhóm có thể lệch nhẹ tổng tài khoản (Meta ẩn / làm tròn nhóm nhỏ).
+ */
+export const insightsBreakdowns = analytics.table(
+  'insights_breakdowns',
+  {
+    workspaceId: uuid('workspace_id').notNull(),
+    adAccountId: uuid('ad_account_id')
+      .notNull()
+      .references(() => adAccounts.id, { onDelete: 'cascade' }),
+    adsetId: text('adset_id').notNull(),
+    date: date('date', { mode: 'string' }).notNull(),
+    breakdown: text('breakdown', { enum: BREAKDOWN_KEYS }).notNull(),
+    key: text('key').notNull(),
+    spend: money('spend').notNull().default('0'),
+    impressions: bigint('impressions', { mode: 'number' }).notNull().default(0),
+    linkClicks: bigint('link_clicks', { mode: 'number' }).notNull().default(0),
+    results: bigint('results', { mode: 'number' }).notNull().default(0),
+    fetchedAt: tsz('fetched_at').notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.adAccountId, t.adsetId, t.date, t.breakdown, t.key] }),
+    index().on(t.adAccountId, t.breakdown, t.date),
+    index().on(t.workspaceId),
+  ],
+);

@@ -56,6 +56,7 @@ describe('ngắt kết nối và xóa dữ liệu (S07, P0-22)', () => {
   it('xóa token ngay, hẹn purge 7 ngày, email xác nhận; purge xóa mọi dữ liệu quảng cáo', async () => {
     const { ctx, connectionId, owner } = await connectedWithData();
     expect(await count('analytics.insights_daily')).toBeGreaterThan(0);
+    expect(await count('analytics.insights_breakdowns')).toBeGreaterThan(0);
     const enqueue = recordingEnqueue();
     const email = memoryEmailSender();
     const r = await disconnectConnection(ctx, connectionId, { enqueue, email, appUrl: 'http://app', clock: later(0) });
@@ -86,6 +87,7 @@ describe('ngắt kết nối và xóa dữ liệu (S07, P0-22)', () => {
       'app.meta_available_accounts',
       'app.sync_runs',
       'analytics.insights_daily',
+      'analytics.insights_breakdowns',
       'analytics.entities',
     ]) {
       expect(await count(t), t).toBe(0);

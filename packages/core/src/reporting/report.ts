@@ -9,6 +9,7 @@ import { addDays, AppError, daysBetween, notFound, systemClock, type ActorCtx, t
 import { assertCan, getClient } from '@adxlens/core/tenancy';
 import { agencyWork, type AgencyWork } from './agency-work';
 import { explainCpaChange, type CpaChange } from './cpa-change';
+import { breakdownTable, topAds, type BreakdownRow, type TopAd } from './report-extras';
 import { accountKpis, dailySeries, entityTable, type DateRange, type Kpis } from './metrics';
 import { generateSummary, type LlmClient } from './summary';
 
@@ -46,6 +47,9 @@ export type ReportContent = {
     topCampaigns: { name: string | null; spend: string; results: number; cpa: string | null; roas: string | null }[];
     /** A1: vì sao CPA thay đổi so với kỳ trước (null = không đủ dữ liệu / gần như không đổi). */
     cpaChange?: CpaChange | null;
+    /** A4: theo nhóm (tuổi-giới tính, vị trí, khu vực) và top quảng cáo kèm thumbnail. */
+    breakdowns?: { age_gender: BreakdownRow[]; placement: BreakdownRow[]; region: BreakdownRow[] };
+    topAds?: TopAd[];
   }[];
   findings: {
     accountId: string;
@@ -164,11 +168,15 @@ export async function buildReport(
     const accounts: ReportContent['accounts'] = [];
     const findingsOut: ReportContent['findings'] = [];
     for (const a of accs) {
-      const [daily, camps, prevCamps, f] = await Promise.all([
+      const [daily, camps, prevCamps, f, ageGender, placement, region, ads] = await Promise.all([
         dailySeries(ctx, [a.id], period),
         entityTable(ctx, [a.id], 'campaign', period),
         entityTable(ctx, [a.id], 'campaign', compare),
         listFindings(ctx, a.id, { limit: REPORT_FINDINGS_LIMIT }),
+        breakdownTable(ctx, [a.id], period, 'age_gender'),
+        breakdownTable(ctx, [a.id], period, 'placement'),
+        breakdownTable(ctx, [a.id], period, 'region'),
+        topAds(ctx, [a.id], period),
       ]);
       accounts.push({
         id: a.id,
@@ -192,6 +200,8 @@ export async function buildReport(
             roas: c.kpis.roas,
           })),
         cpaChange: explainCpaChange(kc.get(a.id)!, kp.get(a.id)!, { current: camps, previous: prevCamps }),
+        breakdowns: { age_gender: ageGender, placement, region },
+        topAds: ads,
       });
       for (const x of f.items) {
         findingsOut.push({
@@ -321,6 +331,7 @@ export async function updateReportEdits(ctx: ActorCtx, reportId: string, edits: 
   const next: ReportEdits = {
     ...r.edits,
     ...(edits.title !== undefined ? { title: clean(edits.title, 160) } : {}),
+    ...(edits.intro !== undefined ? { intro: clean(edits.intro, 2000) } : {}),
     ...(edits.workDone !== undefined ? { workDone: clean(edits.workDone, 4000) } : {}),
     ...(edits.nextSteps !== undefined ? { nextSteps: clean(edits.nextSteps, 4000) } : {}),
     ...(edits.hiddenSections !== undefined ? { hiddenSections: edits.hiddenSections.slice(0, 20) } : {}),

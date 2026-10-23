@@ -23,7 +23,8 @@ import {
 } from '@adxlens/core/shared';
 import { extractResult, resultActionTypes, toDecimal } from './results';
 
-const { adAccounts, entities, insightsDaily, syncRuns } = schema;
+const { adAccounts, entities, insightsBreakdowns, insightsDaily, syncRuns } = schema;
+const { BREAKDOWN_KEYS } = schema;
 
 /** Backfill 90 ngày, lô 7 ngày, lô gần nhất chạy trước (L3 6.3, roadmap 012). */
 export const BACKFILL_DAYS = 90;
@@ -302,7 +303,38 @@ export function toInsightRow(
   };
 }
 
-export type SyncOutcome = { status: 'ok'; rows: number; runDone: boolean } | { status: 'failed'; error: string };
+/** Khóa nhóm của một dòng breakdown: "25-34|female", "instagram|story", "Hanoi". */
+export function breakdownKeyOf(r: MetaInsight, breakdown: (typeof BREAKDOWN_KEYS)[number]): string {
+  const v = (x: string | undefined) => x?.trim() || 'unknown';
+  if (breakdown === 'age_gender') return `${v(r.age)}|${v(r.gender)}`;
+  if (breakdown === 'placement') return `${v(r.publisher_platform)}|${v(r.platform_position)}`;
+  return v(r.region);
+}
+
+export function toBreakdownRow(
+  ctx: { workspaceId: string },
+  adAccountId: string,
+  r: MetaInsight,
+  breakdown: (typeof BREAKDOWN_KEYS)[number],
+  resultTypes: readonly string[],
+): typeof insightsBreakdowns.$inferInsert {
+  const res = extractResult(resultTypes, r.actions, r.action_values);
+  return {
+    workspaceId: ctx.workspaceId,
+    adAccountId,
+    adsetId: r.adset_id!,
+    date: r.date_start,
+    breakdown,
+    key: breakdownKeyOf(r, breakdown),
+    spend: toDecimal(r.spend),
+    impressions: Number(r.impressions),
+    linkClicks: Number(r.inline_link_clicks ?? 0),
+    results: res.results,
+  };
+}
+
+export type SyncOutcome =
+  { status: 'ok'; rows: number; runDone: boolean; breakdownSkipped?: number } | { status: 'failed'; error: string };
 
 /**
  * Đồng bộ một khoảng ngày cho một lần chạy (worker). Lô đầu tiên (hoặc khi chưa có cấu trúc) đồng bộ
@@ -335,6 +367,8 @@ export async function syncRange(
   // Kết nối mẫu (S01) luôn đọc dữ liệu giả.
   const meta = metaFor({ isDemo: await connectionIsDemo(ctx, account.connectionId) }, deps.meta);
   let rows: (typeof insightsDaily.$inferInsert)[];
+  const breakdownRows: (typeof insightsBreakdowns.$inferInsert)[] = [];
+  let breakdownSkipped = 0;
   try {
     rows = await withConnectionToken(ctx, account.connectionId, deps.keys, async (token) => {
       let goals = await adsetGoals(ctx, account.id);
@@ -348,6 +382,30 @@ export async function syncRange(
         until: input.to,
         attributionWindows: DEFAULT_ATTRIBUTION,
       });
+      // A4: insight theo nhóm (đối tượng / vị trí / khu vực) cấp ad set. Dữ liệu phụ cho báo cáo: Meta từ chối một
+      // nhóm (vd. không hỗ trợ breakdown) → bỏ nhóm đó cho lô này, không làm hỏng đồng bộ; token hỏng vẫn ném lên.
+      for (const breakdown of BREAKDOWN_KEYS) {
+        try {
+          const parts = await meta.getInsights(token, account.metaAccountId, {
+            level: 'adset',
+            since: input.from,
+            until: input.to,
+            attributionWindows: DEFAULT_ATTRIBUTION,
+            breakdown,
+          });
+          breakdownRows.push(
+            ...parts
+              .filter((r) => r.adset_id)
+              .map((r) => toBreakdownRow(ctx, account.id, r, breakdown, goals.get(r.adset_id ?? '') ?? [])),
+          );
+        } catch (e) {
+          if (e instanceof MetaApiError && !e.isTokenInvalid && !e.isPermission && !e.isRateLimit) {
+            breakdownSkipped++;
+            continue;
+          }
+          throw e;
+        }
+      }
       return insights
         .filter((r) => r.ad_id)
         .map((r) => toInsightRow(ctx, account.id, r, goals.get(r.adset_id ?? '') ?? []));
@@ -392,6 +450,28 @@ export async function syncRange(
       });
   }
 
+  for (let i = 0; i < breakdownRows.length; i += 500) {
+    await ctx.db
+      .insert(insightsBreakdowns)
+      .values(breakdownRows.slice(i, i + 500))
+      .onConflictDoUpdate({
+        target: [
+          insightsBreakdowns.adAccountId,
+          insightsBreakdowns.adsetId,
+          insightsBreakdowns.date,
+          insightsBreakdowns.breakdown,
+          insightsBreakdowns.key,
+        ],
+        set: {
+          spend: sql`excluded.spend`,
+          impressions: sql`excluded.impressions`,
+          linkClicks: sql`excluded.link_clicks`,
+          results: sql`excluded.results`,
+          fetchedAt: sql`now()`,
+        },
+      });
+  }
+
   // Cộng tiến độ nguyên tử: các lô chạy song song.
   const [updated] = await ctx.db
     .update(syncRuns)
@@ -426,7 +506,7 @@ export async function syncRange(
       to: run.dateTo,
     });
   }
-  return { status: 'ok', rows: rows.length, runDone };
+  return { status: 'ok', rows: rows.length, runDone, ...(breakdownSkipped ? { breakdownSkipped } : {}) };
 }
 
 async function finishRun(ctx: WorkspaceCtx, runId: string, adAccountId: string, tz: string, clock: Clock) {

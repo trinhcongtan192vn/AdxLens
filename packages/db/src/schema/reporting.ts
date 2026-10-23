@@ -12,7 +12,14 @@ export type ReportIntegrity = {
 };
 
 /** Phần agency tự viết trên báo cáo (R03). */
-export type ReportEdits = { title?: string; workDone?: string; nextSteps?: string; hiddenSections?: string[] };
+export type ReportEdits = {
+  title?: string;
+  /** A4: lời mở đầu / nhận xét của agency, hiện ngay sau tóm tắt. */
+  intro?: string;
+  workDone?: string;
+  nextSteps?: string;
+  hiddenSections?: string[];
+};
 
 /** Báo cáo (L3 5.2): nội dung có cấu trúc, mỗi số kèm nguồn; một mẫu cho web công khai và PDF. */
 export const reports = app.table(

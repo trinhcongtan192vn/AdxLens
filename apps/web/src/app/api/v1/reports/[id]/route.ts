@@ -33,9 +33,12 @@ export const PATCH = route({
   flag: 'p0_reports',
   body: z.object({
     title: z.string().max(160).optional(),
+    intro: z.string().max(2000).optional(),
     workDone: z.string().max(4000).optional(),
     nextSteps: z.string().max(4000).optional(),
-    hiddenSections: z.array(z.enum(['kpis', 'trend', 'campaigns', 'findings', 'workDone', 'nextSteps'])).optional(),
+    hiddenSections: z
+      .array(z.enum(['kpis', 'trend', 'campaigns', 'audience', 'creatives', 'findings', 'workDone', 'nextSteps']))
+      .optional(),
   }),
   handler: async (ctx, { body }) => ({ edits: await updateReportEdits(ctx, uuidParam(ctx, 'id'), body) }),
 });
