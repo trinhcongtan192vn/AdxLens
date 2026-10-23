@@ -2,6 +2,25 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [030] Creative library (P103), so sánh creative (P104), phân loại + dự báo mệt — 2026-10-23
+
+**Thay đổi**
+- Module mới `packages/core/recommendation` (P1). `creativeLibrary`: gom ad theo creative gốc trong một tài khoản (thumbnail, định dạng, số ad, thời gian chạy, chi tiêu, kết quả, CPA, CTR, ROAS, tần suất); phân loại **Winner / Cần theo dõi / Đang mệt / Thua / Chưa đủ dữ liệu** kèm lý do; "Đang mệt" dùng **đúng ngưỡng của rule `creative_fatigue`** (một nguồn, có test khóa); dự báo mệt (hồi quy CTR 14 ngày, ghi rõ là dự báo). `compareCreatives`: 2–4 creative, chỉ số + chuỗi theo ngày. Quy tắc công khai ở `docs/rules/creatives.md`.
+- Buyer chỉ xem tài khoản của Client được gán; tài khoản workspace khác → 404.
+- API `GET /creatives`, `GET /creatives/compare` — kiểm cờ `p1_recommendations` ở server.
+- Trang P103 `/creatives` (chọn tài khoản, lọc theo nhãn, bảng / lưới, chọn creative để so sánh) và P104 `/creatives/compare` (bảng chỉ số cạnh nhau, biểu đồ CTR và chi tiêu). Mục "Creative" ở sidebar chỉ hiện khi cờ bật; mở thẳng URL khi cờ tắt → trang "tính năng chưa bật".
+- Không cần migration (dùng `analytics.entities` + `insights_daily` sẵn có).
+
+**Test tự động**
+- `recommendation/creatives.test.ts` (10): ngưỡng mệt trùng rule; gom 2 ad cùng creative; Winner/Theo dõi/Thua theo trung vị; **không đủ dữ liệu thì không xếp** (ít hiển thị, ít creative cùng loại); Đang mệt; buyer không được Client → 404; cách ly workspace; dự báo (giảm đều, đã chạm ngưỡng, ổn định, tăng, thiếu ngày); so sánh 2–4.
+- `api/v1/creatives/creatives.test.ts` (2): **cờ tắt thì không chạy** (404); cờ bật trả dữ liệu, so sánh 1 creative → 422. `lib/creatives.test.ts`: đọc `ids` an toàn.
+- Bộ cách ly: probe 2 route; world B có creative + ad (tên/ảnh bí mật không lộ); A bật thêm `p1_recommendations` để probe chạy hết logic.
+- E2E mới `creatives.spec.ts`: dữ liệu mẫu → cờ tắt không có mục Creative, URL → "chưa bật" → PM bật Báo cáo + Gợi ý (vượt checklist có log) → P103 → chọn 2 → P104.
+
+**Vùng bảo vệ:** không.
+
+**PM kiểm tra:** bật cờ "Gợi ý" cho workspace (AD02) → sidebar "Creative" → lọc theo nhãn, đổi Bảng/Lưới, rê chuột vào nhãn xem lý do → chọn 2 creative → "So sánh".
+
 ## [029] Trang hoà vốn công khai M06 — 2026-10-23
 
 **Thay đổi**

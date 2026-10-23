@@ -292,6 +292,14 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     kind: 'exempt',
     reason: 'Webhook Stripe: xác minh chữ ký, tìm workspace theo mã Stripe trong core/ops (có test cách ly riêng)',
   },
+  'GET /api/v1/creatives': {
+    kind: 'workspace',
+    query: (w) => ({ account_id: w.a.adAccount.id, from: '2026-10-09', to: '2026-10-22' }),
+  },
+  'GET /api/v1/creatives/compare': {
+    kind: 'workspace',
+    query: (w) => ({ account_id: w.a.adAccount.id, from: '2026-10-09', to: '2026-10-22', ids: '999000333,1' }),
+  },
   'POST /api/v1/demo': { kind: 'workspace' },
   'DELETE /api/v1/demo': { kind: 'workspace' },
   'GET /api/v1/clients': { kind: 'workspace' },

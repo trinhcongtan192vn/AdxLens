@@ -1329,5 +1329,59 @@
     "renew": "Renew",
     "payosPaid": "Payment received. The workspace is on the {plan} plan until {date}.",
     "payosPending": "Payment not received yet. If you have transferred, your plan will update in a few minutes."
+  },
+  "creatives": {
+    "title": "Creatives",
+    "account": "Ad account",
+    "apply": "View",
+    "all": "All",
+    "viewTable": "Table",
+    "viewGrid": "Grid",
+    "classes": {
+      "winner": "Winner",
+      "watch": "Watch",
+      "fatigued": "Fatigued",
+      "loser": "Loser",
+      "insufficient": "Not enough data"
+    },
+    "reasons": {
+      "insufficient": "Needs ≥ {impressions} impressions and ≥ {days} days with spend in the period.",
+      "fatigued": "CTR down {ctrDrop}% vs last week, frequency {freq}.",
+      "noPeers": "Needs ≥ {peers} creatives with the same result type to compare.",
+      "winner": "CPA {pct}% below the median of creatives with the same result type.",
+      "loser": "CPA is {ratio}× the median of creatives with the same result type.",
+      "loserNoResult": "No results despite spend ≥ {ratio}× the median CPA.",
+      "watch": "CPA near the median of creatives with the same result type."
+    },
+    "forecast": "Forecast: may fatigue within about {days} days",
+    "formats": {
+      "VIDEO": "Video",
+      "PHOTO": "Image",
+      "SHARE": "Link",
+      "STATUS": "Post"
+    },
+    "ads": "{count} ads",
+    "select": "Select",
+    "selectOne": "Select {name} to compare",
+    "creative": "Creative",
+    "class": "Class",
+    "spend": "Spend",
+    "results": "Results",
+    "cpa": "Cost / result",
+    "ctr": "CTR",
+    "roas": "ROAS",
+    "frequency": "Frequency",
+    "impressions": "Impressions",
+    "runTime": "Run time",
+    "compare": "Compare",
+    "compareHint": "Select 2–4 creatives from the same account to compare.",
+    "compareTitle": "Compare creatives",
+    "compareNeedTwo": "Select at least 2 creatives",
+    "metric": "Metric",
+    "empty": "No creatives in this period",
+    "emptyBody": "Creatives appear when the account has spend in the selected period.",
+    "noAccounts": "No ad accounts yet",
+    "noAccountsBody": "Connect Meta and import accounts to see creatives.",
+    "footnote": "Source: Meta Marketing API, {from} → {to}, in the account time zone. Classes follow public rules; a \"forecast\" is an estimate from the CTR trend, not a conclusion."
   }
 }

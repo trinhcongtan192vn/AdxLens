@@ -1329,5 +1329,59 @@
     "renew": "Gia hạn",
     "payosPaid": "Đã nhận thanh toán. Workspace đang dùng gói {plan} tới ngày {date}.",
     "payosPending": "Chưa nhận được thanh toán. Nếu bạn đã chuyển khoản, gói sẽ cập nhật trong ít phút."
+  },
+  "creatives": {
+    "title": "Creative",
+    "account": "Tài khoản quảng cáo",
+    "apply": "Xem",
+    "all": "Tất cả",
+    "viewTable": "Bảng",
+    "viewGrid": "Lưới",
+    "classes": {
+      "winner": "Winner",
+      "watch": "Cần theo dõi",
+      "fatigued": "Đang mệt",
+      "loser": "Thua",
+      "insufficient": "Chưa đủ dữ liệu"
+    },
+    "reasons": {
+      "insufficient": "Cần ≥ {impressions} hiển thị và ≥ {days} ngày có chi tiêu trong kỳ để xếp loại.",
+      "fatigued": "Tuần này CTR giảm {ctrDrop}% so với tuần trước, tần suất {freq}.",
+      "noPeers": "Cần ≥ {peers} creative cùng loại kết quả để so sánh.",
+      "winner": "CPA thấp hơn {pct}% so với trung vị các creative cùng loại kết quả.",
+      "loser": "CPA bằng {ratio}× trung vị các creative cùng loại kết quả.",
+      "loserNoResult": "Chưa có kết quả dù chi tiêu ≥ {ratio}× CPA trung vị.",
+      "watch": "CPA quanh trung vị các creative cùng loại kết quả."
+    },
+    "forecast": "Dự báo: có thể mệt trong khoảng {days} ngày tới",
+    "formats": {
+      "VIDEO": "Video",
+      "PHOTO": "Ảnh",
+      "SHARE": "Liên kết",
+      "STATUS": "Bài viết"
+    },
+    "ads": "{count} quảng cáo",
+    "select": "Chọn",
+    "selectOne": "Chọn {name} để so sánh",
+    "creative": "Creative",
+    "class": "Phân loại",
+    "spend": "Chi tiêu",
+    "results": "Kết quả",
+    "cpa": "Chi phí / kết quả",
+    "ctr": "CTR",
+    "roas": "ROAS",
+    "frequency": "Tần suất",
+    "impressions": "Hiển thị",
+    "runTime": "Thời gian chạy",
+    "compare": "So sánh",
+    "compareHint": "Chọn 2–4 creative trong cùng tài khoản để so sánh.",
+    "compareTitle": "So sánh creative",
+    "compareNeedTwo": "Chưa chọn đủ 2 creative",
+    "metric": "Chỉ số",
+    "empty": "Chưa có creative nào trong kỳ này",
+    "emptyBody": "Creative xuất hiện khi tài khoản có chi tiêu trong kỳ đã chọn.",
+    "noAccounts": "Chưa có tài khoản quảng cáo",
+    "noAccountsBody": "Kết nối Meta và nhập tài khoản để xem creative.",
+    "footnote": "Nguồn: Meta Marketing API, {from} → {to}, theo múi giờ tài khoản. Phân loại theo quy tắc công khai; \"dự báo\" là ước tính từ xu hướng CTR, không phải kết luận."
   }
 }
