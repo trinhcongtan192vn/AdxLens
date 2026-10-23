@@ -1108,7 +1108,8 @@
       "incidents": "Sự cố",
       "killSwitch": "Kill switch",
       "staff": "Đội ngũ",
-      "audit": "Nhật ký admin"
+      "audit": "Nhật ký admin",
+      "workspaces": "Workspace"
     },
     "flags": {
       "title": "Ma trận cờ tính năng",
@@ -1239,6 +1240,63 @@
         "flag_proposal_cancel": "Hủy đề xuất bật cờ",
         "kill_switch_on": "Bật kill switch toàn cục",
         "kill_switch_off": "Tắt kill switch toàn cục"
+      }
+    },
+    "workspaces": {
+      "title": "Tra cứu workspace",
+      "detailTitle": "Chi tiết workspace",
+      "search": "Tên workspace hoặc email thành viên…",
+      "empty": "Không tìm thấy workspace.",
+      "back": "← Tra cứu",
+      "createdAt": "tạo {at}",
+      "openFlags": "Mở ma trận cờ của workspace này",
+      "demo": "Mẫu",
+      "yes": "Có",
+      "no": "Không",
+      "none": "Không có.",
+      "pendingDeletion": "Kết nối đã ngắt · chờ xóa",
+      "reconSummary": "{warnings}/{days} ngày lệch (30 ngày)",
+      "purgeAfter": "xóa lúc {at}",
+      "sections": {
+        "billing": "Gói & thanh toán",
+        "flags": "Cờ tính năng",
+        "members": "Thành viên ({count})",
+        "connections": "Kết nối Meta ({count})",
+        "accounts": "Tài khoản QC ({count})",
+        "syncRuns": "Đồng bộ gần đây",
+        "incidents": "Sự cố đang mở ({count})",
+        "deletions": "Yêu cầu xóa dữ liệu ({count})"
+      },
+      "billing": {
+        "plan": "Gói đang hưởng",
+        "subscribed": "đã đăng ký {plan}",
+        "status": "Trạng thái",
+        "accounts": "Tài khoản active / hạn mức",
+        "overLimit": "Vượt hạn mức",
+        "periodEnd": "Hết kỳ",
+        "grace": "Ân hạn đến"
+      },
+      "cols": {
+        "name": "Workspace",
+        "owner": "Owner",
+        "members": "Thành viên",
+        "accounts": "Tài khoản QC",
+        "created": "Tạo lúc",
+        "email": "Email",
+        "role": "Vai trò",
+        "metaUser": "Người kết nối Meta",
+        "status": "Trạng thái",
+        "expires": "Token hết hạn",
+        "write": "Quyền ghi",
+        "account": "Tài khoản",
+        "client": "Client · gán",
+        "sync": "Đồng bộ",
+        "lastSync": "Đồng bộ gần nhất",
+        "recon": "Đối chiếu",
+        "kind": "Loại",
+        "range": "Khoảng ngày",
+        "started": "Bắt đầu",
+        "error": "Lỗi"
       }
     }
   },
