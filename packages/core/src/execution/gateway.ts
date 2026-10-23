@@ -247,6 +247,8 @@ export async function requestAction(
       requestedBy: ctx.actor.userId,
       approvedBy: ctx.actor.userId,
       undoOf: input.undoOf ?? null,
+      // Cùng đồng hồ với guardrail "số hành động hôm nay" (không để DB tự đặt giờ khác ngày với lúc kiểm).
+      createdAt: clock.now(),
     })
     .returning();
   await log(ctx, row!.id, 'approved', { by: ctx.actor.userId, before: p.before, after: p.after });
@@ -335,6 +337,8 @@ export async function requestAutoAction(
       beforeState: before,
       afterExpected: after,
       idempotencyKey: `${ctx.workspaceId}:rule:${input.ruleId}:${input.targetMetaId}:${now.toISOString()}`,
+      // Cùng đồng hồ với guardrail "số hành động hôm nay" và cooldown 24 giờ.
+      createdAt: now,
     })
     .returning();
   await log(ctx, row!.id, 'auto_requested', { rule_id: input.ruleId, before, after });

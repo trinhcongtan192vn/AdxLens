@@ -2,6 +2,16 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [fix] Execution Gateway: giờ tạo hành động theo cùng đồng hồ với guardrail — 2026-10-24
+
+**Nguyên nhân:** `actions.created_at` do DB tự đặt (giờ thật), còn guardrail "số hành động hôm nay / rule tối đa mỗi ngày" và cooldown 24 giờ đếm theo đồng hồ của gateway. Hai mốc lệch ngày thì đếm ra 0 → giới hạn ngày không chặn. Phát hiện khi ngày đổi sang 24/10: test gateway (đồng hồ cố định 23/10) tạo 24 hành động thay vì 2. Ở production hai đồng hồ trùng nhau nên hiếm, nhưng có thể lệch đúng thời điểm qua nửa đêm giờ tài khoản.
+
+**Sửa:** `requestAction` và `requestAutoAction` ghi `created_at` bằng đúng `clock.now()` dùng để kiểm guardrail. Không đổi giá trị guardrail nào; giới hạn nay chặt và xác định hơn.
+
+**Test:** không đổi test; `gateway.test.ts` "rule live … tối đa theo giới hạn/ngày" và "hiệu quả tự động hóa" (đỏ từ 24/10) xanh lại; toàn bộ 61 test execution xanh.
+
+**Vùng bảo vệ:** `packages/core/execution/**` — **cần PM chạy `pnpm execution:check` trên staging** trước khi merge vào main.
+
 ## [057] Cảnh báo bất thường hằng ngày (A5) — 2026-10-23
 
 **Thay đổi**
