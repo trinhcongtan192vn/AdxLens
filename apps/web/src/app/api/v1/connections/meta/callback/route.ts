@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { exchangeOAuthCode, saveConnection } from '@adxlens/core/connections';
+import { exchangeOAuthCode, saveConnection, setWriteEnabled, WRITE_SCOPE } from '@adxlens/core/connections';
+import { isEnabled } from '@adxlens/core/flags';
 import { AppError, safeEqual } from '@adxlens/core/shared';
 import { metaConfig, metaRead, oauthRedirectUri, tokenKeys } from '@/server/meta';
 import { route } from '@/server/route';
@@ -33,7 +34,7 @@ export const GET = route({
   }),
   handler: async (ctx, { query }) => {
     if (query.error) return redirect(ctx.req, '/connections?error=denied');
-    const saved = verify<{ state: string; workspaceId: string; userId: string; scope: 'read' }>(
+    const saved = verify<{ state: string; workspaceId: string; userId: string; scope: 'read' | 'write' }>(
       readCookie(ctx.req, COOKIE),
     );
     if (
@@ -65,6 +66,13 @@ export const GET = route({
         { token: exchanged.token, expiresAt: exchanged.expiresAt, scopes, metaUser: me, accounts },
         tokenKeys(),
       );
+      // P201: nâng quyền ghi — chỉ bật khi Meta thực sự cấp `ads_management` và cờ P2a vẫn bật.
+      if (saved.scope === 'write') {
+        if (!scopes.includes(WRITE_SCOPE)) return redirect(ctx.req, '/connections/write-access?error=missing_scope');
+        if (!(await isEnabled(ctx, 'p2a_approve'))) return redirect(ctx.req, '/connections?error=failed');
+        await setWriteEnabled(ctx, connectionId, true);
+        return redirect(ctx.req, '/connections/write-access?done=1');
+      }
       // Worker tính chi tiêu 30 ngày cho S04 (giải mã token chỉ trong worker).
       await ctx.enqueue('sync:refresh_accounts', { workspaceId: ctx.workspaceId, connectionId });
       return redirect(ctx.req, `/connections/select?connection=${connectionId}`);

@@ -295,6 +295,13 @@
       "when": 1792731998696,
       "tag": "0041_membership_onboarded",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1792732740916,
+      "tag": "0042_connection_write_access",
+      "breakpoints": true
     }
   ]
 }

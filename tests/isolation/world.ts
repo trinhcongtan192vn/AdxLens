@@ -129,9 +129,9 @@ export async function seedWorld(db: Db) {
     })
     .returning();
 
-  // Cờ P0/P1 bật cho A (qua core/flags, như PM bật) để probe chạy hết logic route sau cờ.
+  // Cờ P0/P1/P2a bật cho A (qua core/flags, như PM bật) để probe chạy hết logic route sau cờ.
   const pm = await seedStaff(db, true);
-  for (const key of ['p0_reports', 'p1_recommendations'] as const) {
+  for (const key of ['p0_reports', 'p1_recommendations', 'p2a_approve'] as const) {
     await enableFlag(db, {
       workspaceId: a.workspace.id,
       key,

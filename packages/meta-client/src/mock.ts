@@ -64,6 +64,36 @@ function accountNum(act: string): string {
   return act.replace('act_', '').slice(-2);
 }
 
+/**
+ * Trạng thái ghi của Meta giả (chỉ trong tiến trình): `MockMetaWrite` ghi vào đây, `MockMetaRead` áp lên
+ * cấu trúc xác định khi đọc — để luồng ghi → đọc lại (verifier) chạy được ở local/test.
+ */
+export const mockWriteState = {
+  overrides: new Map<string, { status?: string; daily_budget?: string }>(),
+  copies: new Map<string, MetaAdSet>(),
+  reset(): void {
+    this.overrides.clear();
+    this.copies.clear();
+  },
+};
+
+function applyOverride<T extends { id: string; status?: string | null; effective_status?: string | null }>(o: T): T {
+  const w = mockWriteState.overrides.get(o.id);
+  if (!w) return o;
+  return {
+    ...o,
+    ...(w.status ? { status: w.status, effective_status: w.status } : {}),
+    ...(w.daily_budget !== undefined ? { daily_budget: w.daily_budget } : {}),
+  };
+}
+
+/** Cấu trúc tài khoản giả sau khi áp các thay đổi đã ghi (dùng chung cho đọc và ghi giả). */
+export function mockStructure(act: string): Structure {
+  const s = structure(act);
+  const copies = [...mockWriteState.copies.values()].filter((c) => s.campaigns.some((x) => x.id === c.campaign_id));
+  return { ...s, adsets: [...s.adsets, ...copies].map(applyOverride), ads: s.ads.map(applyOverride) };
+}
+
 function structure(act: string): Structure {
   const n = accountNum(act);
   const campaigns: MetaCampaign[] = [];
@@ -242,10 +272,10 @@ export class MockMetaRead implements MetaReadApi {
     return structure(act).campaigns;
   }
   async listAdSets(_t: string, act: string) {
-    return structure(act).adsets;
+    return mockStructure(act).adsets;
   }
   async listAds(_t: string, act: string) {
-    return structure(act).ads;
+    return mockStructure(act).ads;
   }
   async listCreatives(_t: string, act: string) {
     return structure(act).creatives;

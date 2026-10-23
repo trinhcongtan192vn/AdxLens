@@ -314,6 +314,12 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     kind: 'workspace',
     query: (w) => ({ account_id: w.a.adAccount.id, from: '2026-10-09', to: '2026-10-22', ids: '999000333,1' }),
   },
+  'POST /api/v1/connections/[id]/write-access': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.connection.id }),
+    crossParams: (w) => ({ id: w.b.connection.id }),
+    body: () => ({ enabled: false }),
+  },
   'POST /api/v1/demo': { kind: 'workspace' },
   'DELETE /api/v1/demo': { kind: 'workspace' },
   'GET /api/v1/clients': { kind: 'workspace' },

@@ -522,7 +522,8 @@
       "starter": "Starter",
       "growth": "Growth",
       "scale": "Scale"
-    }
+    },
+    "writeAccess": "Write access"
   },
   "placeholder": {
     "comingSoon": "This screen is coming in the next release."
@@ -1482,5 +1483,39 @@
     "step3": "Check \"Creatives\" for winners, losers and creatives about to fatigue.",
     "start": "Start with this week",
     "creatives": "View creatives"
+  },
+  "writeAccess": {
+    "title": "Write access on Meta",
+    "done": "Write access granted. Every change still needs approval each time.",
+    "missingScope": "Meta did not grant \"manage ads\". Try again and allow this permission.",
+    "planRequired": "Approving actions on Meta is available on Growth and above.",
+    "upgrade": "See plans",
+    "whatTitle": "With write access, AdxLens will:",
+    "what": {
+      "approve": "Only make a change after an authorised person approves it, with an exact before / after preview.",
+      "actions": "Only: pause / resume ads or ad sets, adjust ad set daily budget (max ±15% each time), duplicate an ad set (copy stays paused).",
+      "guardrails": "Always check safety limits, read the state back from Meta after each change and keep a full log.",
+      "revoke": "You can revoke write access at any time; it takes effect immediately."
+    },
+    "connections": "Meta connections",
+    "noConnections": "No Meta connection yet",
+    "noConnectionsBody": "Connect Meta before granting write access.",
+    "cols": {
+      "connection": "Connection",
+      "status": "Access",
+      "actions": "Actions"
+    },
+    "state": {
+      "enabled": "Can write",
+      "revoked": "Revoked",
+      "readOnly": "Read only",
+      "demo": "Sample data"
+    },
+    "grant": "Grant write access",
+    "revoke": "Revoke write access",
+    "reenable": "Re-enable write access",
+    "revokeConfirm": "Revoke write access for this connection? Pending actions will not run.",
+    "enabledToast": "Write access enabled",
+    "revokedToast": "Write access revoked"
   }
 }
