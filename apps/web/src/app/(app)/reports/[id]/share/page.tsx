@@ -7,6 +7,7 @@ import { getReport, listShareLinks, shareBlockReasons, type ReportContent } from
 import { Banner, buttonVariants, PageHeader } from '@adxlens/ui';
 import { requirePermission } from '@/server/guards';
 import { getPageContext, requireFlag } from '@/server/page-context';
+import { PdfCard } from './pdf-card';
 import { ShareManager } from './share-manager';
 
 export async function generateMetadata() {
@@ -88,6 +89,9 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
           viewCount: l.viewCount,
         }))}
       />
+      <div className="mt-4 max-w-md">
+        <PdfCard reportId={id} enabled={report.status === 'ready' && !block?.blocked} />
+      </div>
     </>
   );
 }

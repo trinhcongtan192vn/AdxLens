@@ -57,3 +57,4 @@ Xem `docs/architecture/L3-technical.md` mục 3. Tóm tắt:
 - Lịch định kỳ (worker): `ops:health_check` mỗi 5 phút (kèm playbook `meta_rate_limited`), daily sync mỗi giờ cho tài khoản đang 03:00 giờ địa phương, `maintenance:daily_tick` 09:00 giờ Việt Nam (playbook `token_expiring`).
 - Báo cáo E4 (độ lệch + mức phủ dữ liệu theo tài khoản, Markdown): `pnpm e4:report -- --workspace <uuid> [--days 30]`. Chỉ chạy ở local/staging.
 - `pnpm test:e2e` tự bật web và một worker riêng.
+- PDF báo cáo (R07): worker dùng Playwright Chromium. Lần đầu chạy `pnpm --filter @adxlens/worker exec playwright install chromium`. Môi trường triển khai worker-render cần Chromium (image Playwright).

@@ -17,6 +17,12 @@ export type WorkerServices = {
   appUrl: string;
   /** LLM cho tóm tắt báo cáo; null khi không cấu hình ANTHROPIC_API_KEY (dùng tóm tắt mẫu). */
   llm: LlmClient | null;
+  /** In trang nội bộ thành PDF A4 (Playwright). */
+  renderPdf: (url: string) => Promise<Uint8Array>;
+  /** Lưu tệp báo cáo (bucket `reports`). */
+  uploadReport: (path: string, bytes: Uint8Array) => Promise<void>;
+  /** Ký payload cho URL nội bộ (cùng secret với web). */
+  sign: (payload: Record<string, unknown>, ttlSeconds: number) => string;
   /** Hoãn xử lý một queue trong `ms` (playbook `meta_rate_limited`). */
   throttleQueue: (queue: 'sync', ms: number) => Promise<void>;
 };

@@ -90,6 +90,10 @@ export const JOB_PROBES: Record<string, JobProbe> = {
   'report:build#cross': {
     payload: (w) => ({ workspaceId: w.a.workspace.id, reportId: w.b.report.id }),
   },
+  // Workspace A nhưng báo cáo của B: không render/ghi PDF của B.
+  'pdf:render': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, reportId: w.b.report.id, version: '1' }),
+  },
   'reconcile:account': {
     prepare: backfillForA,
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, from: p!.from, to: p!.to }),
