@@ -3,6 +3,7 @@ import { schema } from '@adxlens/db';
 import { MetaApiError, type MetaReadApi } from '@adxlens/meta-client';
 import { addDays, localDate, systemClock, type Clock, type WorkspaceCtx } from '@adxlens/core/shared';
 import type { TokenKeys } from './crypto';
+import { connectionIsDemo, metaFor } from './demo';
 import { markConnectionExpired, withConnectionToken } from './service';
 
 const { metaAvailableAccounts, adAccounts } = schema;
@@ -25,12 +26,13 @@ export async function refreshAvailableAccounts(
   deps: { meta: MetaReadApi; keys: TokenKeys; clock?: Clock },
 ): Promise<{ accounts: number; status: 'ok' | 'expired' }> {
   const clock = deps.clock ?? systemClock;
+  const meta = metaFor({ isDemo: await connectionIsDemo(ctx, connectionId) }, deps.meta);
   try {
     return await withConnectionToken(ctx, connectionId, deps.keys, async (token) => {
-      const accounts = await deps.meta.listAdAccounts(token);
+      const accounts = await meta.listAdAccounts(token);
       for (const a of accounts) {
         const today = localDate(clock.now(), a.timezone_name);
-        const rows = await deps.meta.getInsights(token, a.id, {
+        const rows = await meta.getInsights(token, a.id, {
           level: 'account',
           since: addDays(today, -30),
           until: addDays(today, -1),

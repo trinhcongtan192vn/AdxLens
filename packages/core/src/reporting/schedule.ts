@@ -363,11 +363,13 @@ export async function runSchedule(
     const reason =
       !report || report.status !== 'ready'
         ? 'build_failed'
-        : block!.connectionRevoked
-          ? 'connection_revoked'
-          : block!.integrity.unconfirmedAccounts.length
-            ? 'unconfirmed'
-            : 'reconciliation';
+        : block!.demo
+          ? 'demo'
+          : block!.connectionRevoked
+            ? 'connection_revoked'
+            : block!.integrity.unconfirmedAccounts.length
+              ? 'unconfirmed'
+              : 'reconciliation';
     await upsertDelivery(ctx, { scheduleId: sched.id, period: input.period, reportId, status: 'postponed', reason });
     await notify(
       ctx,

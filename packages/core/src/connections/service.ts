@@ -240,6 +240,7 @@ export async function listAdAccounts(ctx: ActorCtx, opts: { clientId?: string } 
       active30d: adAccounts.active30d,
       connectionId: adAccounts.connectionId,
       connectionStatus: metaConnections.status,
+      isDemo: metaConnections.isDemo,
     })
     .from(adAccounts)
     .innerJoin(metaConnections, eq(metaConnections.id, adAccounts.connectionId))

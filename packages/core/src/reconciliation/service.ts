@@ -2,7 +2,13 @@ import { and, desc, eq, gte, inArray, lte, sql } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import type { Enqueue } from '@adxlens/jobs';
 import { DEFAULT_ATTRIBUTION, MetaApiError, type MetaInsight, type MetaReadApi } from '@adxlens/meta-client';
-import { markConnectionExpired, withConnectionToken, type TokenKeys } from '@adxlens/core/connections';
+import {
+  connectionIsDemo,
+  markConnectionExpired,
+  metaFor,
+  withConnectionToken,
+  type TokenKeys,
+} from '@adxlens/core/connections';
 import { startManualSync } from '@adxlens/core/ingestion';
 import { notify } from '@adxlens/core/notification';
 import { openIncident, resolveIncidentsByFingerprint, runPlaybook } from '@adxlens/core/ops';
@@ -128,10 +134,11 @@ export async function reconcileAccount(
     .where(and(eq(adAccounts.workspaceId, ctx.workspaceId), eq(adAccounts.id, input.adAccountId)));
   if (!account) throw notFound('Tài khoản QC');
 
+  const meta = metaFor({ isDemo: await connectionIsDemo(ctx, account.connectionId) }, deps.meta);
   let metaRows: MetaInsight[];
   try {
     metaRows = await withConnectionToken(ctx, account.connectionId, deps.keys, (token) =>
-      deps.meta.getInsights(token, account.metaAccountId, {
+      meta.getInsights(token, account.metaAccountId, {
         level: 'account',
         since: input.from,
         until: input.to,

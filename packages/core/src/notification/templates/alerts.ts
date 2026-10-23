@@ -14,12 +14,14 @@ const REASON: Record<Locale, Record<string, string>> = {
     reconciliation: 'số liệu lệch hơn 1% so với Ads Manager',
     connection_revoked: 'kết nối Meta đã bị ngắt',
     build_failed: 'không dựng được báo cáo',
+    demo: 'Client dùng dữ liệu mẫu',
   },
   en: {
     unconfirmed: 'an account has no confirmed Client',
     reconciliation: 'figures differ from Ads Manager by more than 1%',
     connection_revoked: 'the Meta connection was disconnected',
     build_failed: 'the report could not be built',
+    demo: 'the Client uses sample data',
   },
 };
 const reason = (l: Locale, code: string | number | undefined) => REASON[l][String(code)] ?? String(code ?? '');

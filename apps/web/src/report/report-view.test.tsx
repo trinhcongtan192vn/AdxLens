@@ -101,4 +101,9 @@ describe('mẫu báo cáo', () => {
   it('chưa đối chiếu → ghi rõ', () => {
     expect(html({ ...content, source: { ...content.source, matchedAt: null } })).toContain('Chưa đối chiếu với Meta');
   });
+
+  it('dữ liệu mẫu → ghi rõ "Báo cáo mẫu"', () => {
+    expect(html({ ...content, demo: true })).toContain('Báo cáo mẫu — số liệu minh họa');
+    expect(html(content)).not.toContain('Báo cáo mẫu');
+  });
 });
