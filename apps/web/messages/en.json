@@ -1080,11 +1080,35 @@
     "brand": "AdxLens Admin",
     "internal": "Internal",
     "pm": "PM",
-    "staff": "Staff",
+    "staff": {
+      "title": "AdxLens team",
+      "body": "Superadmins manage staff, enable flags, turn off the kill switch and edit plans. Operators run operations: view, re-sync, retry jobs, turn on the kill switch, propose flags.",
+      "cols": {
+        "email": "Email",
+        "name": "Name",
+        "role": "Role",
+        "since": "Since",
+        "actions": "Actions"
+      },
+      "reason": "Reason (required, ≥ 5 characters)",
+      "add": "Add staff",
+      "addHint": "The person must already have an AdxLens account with this email.",
+      "added": "Staff added",
+      "updated": "Role changed",
+      "removed": "Staff access removed",
+      "makeRole": "Make {role}",
+      "remove": "Remove access",
+      "confirm": "Confirm",
+      "you": "You",
+      "roleTitle": "Make {email} {role}",
+      "removeTitle": "Remove staff access of {email}"
+    },
     "nav": {
       "flags": "Flag matrix",
       "incidents": "Incidents",
-      "killSwitch": "Kill switch"
+      "killSwitch": "Kill switch",
+      "staff": "Team",
+      "audit": "Admin log"
     },
     "flags": {
       "title": "Feature flag matrix",
@@ -1120,7 +1144,28 @@
         "done": "Flag updated",
         "history": "History",
         "noHistory": "No changes yet.",
-        "overrideTag": "override"
+        "overrideTag": "override",
+        "propose": "Send proposal",
+        "proposeHint": "You are an operator: the proposal goes to a superadmin for approval. The checklist still runs on approval.",
+        "proposed": "Proposal sent"
+      },
+      "proposals": {
+        "title": "Pending flag proposals ({count})",
+        "by": "{email} · {at}",
+        "approve": "Approve",
+        "reject": "Reject",
+        "cancel": "Cancel proposal",
+        "noteOptional": "Note (optional)",
+        "dialog": {
+          "approve": "Approve {flag} for {workspace}",
+          "reject": "Reject {flag} for {workspace}",
+          "cancel": "Cancel proposal of {flag} for {workspace}"
+        },
+        "done": {
+          "approve": "Approved, flag is on",
+          "reject": "Proposal rejected",
+          "cancel": "Proposal canceled"
+        }
       }
     },
     "killSwitch": {
@@ -1133,7 +1178,7 @@
       "reason": "Reason (required)",
       "turnOn": "Turn on globally",
       "turnOff": "Turn off globally",
-      "pmOnly": "Only the PM can change this.",
+      "pmOnly": "Operators can only turn the kill switch on; turning it off needs a superadmin.",
       "done": "Updated, {count} pending actions canceled"
     },
     "incidents": {
@@ -1166,6 +1211,34 @@
         "skipped": "Skipped",
         "failed": "Failed",
         "escalated": "Escalated (PM notified)"
+      }
+    },
+    "roles": {
+      "superadmin": "Superadmin",
+      "operator": "Operator"
+    },
+    "audit": {
+      "title": "Admin action log",
+      "bodyAll": "Every write action from the admin pages. Append-only: cannot be edited or deleted.",
+      "bodyMine": "Your actions on the admin pages. Superadmins see everything.",
+      "empty": "No actions yet.",
+      "cols": {
+        "at": "At",
+        "actor": "By",
+        "action": "Action",
+        "target": "Target",
+        "reason": "Reason"
+      },
+      "actions": {
+        "staff_add": "Add staff",
+        "staff_role": "Change staff role",
+        "staff_remove": "Remove staff",
+        "flag_propose": "Propose flag",
+        "flag_proposal_approve": "Approve flag proposal",
+        "flag_proposal_reject": "Reject flag proposal",
+        "flag_proposal_cancel": "Cancel flag proposal",
+        "kill_switch_on": "Global kill switch on",
+        "kill_switch_off": "Global kill switch off"
       }
     }
   },

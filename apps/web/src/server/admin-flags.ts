@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getEnv } from '@adxlens/config/env';
 import { registerExecutionHooks } from '@adxlens/core/execution';
 import { FLAG_KEYS } from '@adxlens/core/flags';
+import type { StaffActor } from '@adxlens/core/ops';
 import { registerRecommendationFlagChecks } from '@adxlens/core/recommendation';
 import { registerReportingFlagChecks } from '@adxlens/core/reporting';
 import { AppError } from '@adxlens/core/shared';
@@ -11,6 +12,11 @@ import { AppError } from '@adxlens/core/shared';
 registerReportingFlagChecks();
 registerRecommendationFlagChecks();
 registerExecutionHooks({ appVersion: getEnv().APP_VERSION });
+
+/** Staff đang gọi route admin, dạng core/ops cần (ADR-0013). */
+export function staffActor(ctx: { user: { id: string }; staff: { role: StaffActor['role'] } }): StaffActor {
+  return { userId: ctx.user.id, role: ctx.staff.role };
+}
 
 export function flagKeyParam(params: Record<string, string>) {
   const k = z.enum(FLAG_KEYS).safeParse(params.key);

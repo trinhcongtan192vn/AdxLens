@@ -1,8 +1,9 @@
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import type { DbOrTx } from '@adxlens/db';
 import { schema } from '@adxlens/db';
-import { systemClock, type Clock } from '@adxlens/core/shared';
+import { forbidden, systemClock, type Clock } from '@adxlens/core/shared';
 import { openIncident } from './incidents';
+import { recordAdminAction, type StaffActor } from './staff';
 
 const { killSwitches, actions, actionLogs, opsExecutionChecks, auditEvents } = schema;
 
@@ -17,6 +18,28 @@ export async function getGlobalKillSwitch(db: DbOrTx) {
  * Kill switch TOÀN CỤC (AD04, ADR-0008 mục 7) — truy vấn XUYÊN WORKSPACE có chủ đích: bật thì hủy mọi hành
  * động đang chờ của mọi workspace (ghi nhật ký từng hành động). Chỉ staff (route kiểm) hoặc CLI dự phòng.
  */
+/**
+ * AD04 từ trang admin (ADR-0013): operator chỉ được BẬT (dừng khẩn cấp), tắt cần superadmin. Ghi nhật ký admin.
+ */
+export async function setGlobalKillSwitchByStaff(
+  db: DbOrTx,
+  actor: StaffActor,
+  input: { active: boolean; reason: string },
+  clock: Clock = systemClock,
+): Promise<{ canceled: number }> {
+  if (!input.active && actor.role !== 'superadmin') throw forbidden('Chỉ superadmin được tắt kill switch toàn cục');
+  const r = await setGlobalKillSwitch(db, { ...input, changedBy: actor.userId }, clock);
+  await recordAdminAction(db, {
+    actorUserId: actor.userId,
+    action: input.active ? 'kill_switch.on' : 'kill_switch.off',
+    targetType: 'kill_switch',
+    targetId: GLOBAL_KILL_SWITCH,
+    reason: input.reason,
+    detail: { canceled: r.canceled },
+  });
+  return r;
+}
+
 export async function setGlobalKillSwitch(
   db: DbOrTx,
   input: { active: boolean; reason: string; changedBy: string | null },

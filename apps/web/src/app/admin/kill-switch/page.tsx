@@ -10,7 +10,7 @@ export async function generateMetadata() {
   return { title: t('title') };
 }
 
-/** AD04 Kill switch toàn cục (staff xem, PM bật/tắt; CLI dự phòng `pnpm killswitch`). */
+/** AD04 Kill switch toàn cục (ADR-0013: mọi staff bật, superadmin tắt; CLI dự phòng `pnpm killswitch`). */
 export default async function AdminKillSwitchPage() {
   const { staff } = await requireStaff();
   const t = await getTranslations('admin.killSwitch');
@@ -36,7 +36,8 @@ export default async function AdminKillSwitchPage() {
               {k.changedAt ? ` · ${format.dateTime(k.changedAt, { dateStyle: 'medium', timeStyle: 'short' })}` : ''}
             </p>
           ) : null}
-          {staff.canEnableFlags ? (
+          {/* ADR-0013: mọi staff bật được (dừng khẩn cấp); tắt chỉ superadmin. */}
+          {staff.role === 'superadmin' || !k.active ? (
             <GlobalKillSwitchForm active={k.active} />
           ) : (
             <p className="text-fg-secondary">{t('pmOnly')}</p>

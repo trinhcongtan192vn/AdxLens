@@ -44,7 +44,7 @@ export async function runIncidentDrill(
     .values({ name: `Diễn tập sự cố ${now().toISOString().slice(0, 16)}` })
     .returning();
   await db.insert(schema.memberships).values({ workspaceId: ws!.id, userId, role: 'owner' });
-  await db.insert(schema.staff).values({ userId, canEnableFlags: true }).onConflictDoNothing();
+  await db.insert(schema.staff).values({ userId, role: 'superadmin', canEnableFlags: true }).onConflictDoNothing();
   const ctx = { db, workspaceId: ws!.id, actor: (await resolveActor(db, ws!.id, userId))! };
   const meta = new MockMetaRead(now);
   const { connectionId } = await saveConnection(

@@ -81,20 +81,31 @@ describe('API admin cờ (AD01, AD02)', () => {
 });
 
 describe('API kill switch toàn cục (AD04)', () => {
-  it('không phải staff → 404; staff xem được nhưng không đổi; PM bật/tắt (cần lý do)', async () => {
+  // ADR-0013: operator được BẬT (dừng khẩn cấp), chỉ superadmin TẮT. Trước ADR-0013 staff thường không bật được.
+  it('không phải staff → 404; operator bật được nhưng không tắt được; superadmin tắt (cần lý do)', async () => {
     const { owner } = await seedWorkspace(db);
     expect((await call(killSwitch.GET, { user: asUser(owner) })).status).toBe(404);
+    expect(
+      (await call(killSwitch.POST, { user: asUser(owner), body: { active: true, reason: 'owner bật' } })).status,
+    ).toBe(404);
     const staff = asUser(await seedStaff(db, false));
     const pm = asUser(await seedStaff(db, true));
     expect((await call(killSwitch.GET, { user: staff })).body).toMatchObject({ active: false });
-    expect((await call(killSwitch.POST, { user: staff, body: { active: true, reason: 'thử bật' } })).status).toBe(403);
-    expect((await call(killSwitch.POST, { user: pm, body: { active: true, reason: 'x' } })).status).toBe(422);
-    const on = await call(killSwitch.POST, { user: pm, body: { active: true, reason: 'Sự cố thực thi' } });
+    expect((await call(killSwitch.POST, { user: staff, body: { active: true, reason: 'x' } })).status).toBe(422);
+    const on = await call(killSwitch.POST, { user: staff, body: { active: true, reason: 'Sự cố thực thi' } });
     expect(on.status).toBe(200);
     expect((await call(killSwitch.GET, { user: staff })).body).toMatchObject({
       active: true,
       reason: 'Sự cố thực thi',
     });
+    expect((await call(killSwitch.POST, { user: staff, body: { active: false, reason: 'đã ổn rồi' } })).status).toBe(
+      403,
+    );
+    expect((await call(killSwitch.GET, { user: pm })).body).toMatchObject({ active: true });
+    expect((await call(killSwitch.POST, { user: pm, body: { active: false, reason: 'Đã xử lý xong' } })).status).toBe(
+      200,
+    );
+    expect((await call(killSwitch.GET, { user: staff })).body).toMatchObject({ active: false });
   });
 });
 

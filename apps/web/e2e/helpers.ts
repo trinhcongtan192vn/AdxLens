@@ -56,7 +56,7 @@ export async function signUpAndCreateWorkspace(page: Page, opts: { workspace?: s
 }
 
 /**
- * Cấp quyền staff (PM nếu `canEnableFlags`) cho tài khoản E2E — chỉ ở DB local của E2E, giống
+ * Cấp quyền staff (superadmin nếu `canEnableFlags`, không thì operator) cho tài khoản E2E — chỉ ở DB local của E2E, giống
  * `pnpm seed:staff`. Bật cờ vẫn đi qua giao diện AD01/AD02 (core/flags).
  */
 export async function makeStaff(email: string, canEnableFlags = true): Promise<void> {
@@ -64,9 +64,11 @@ export async function makeStaff(email: string, canEnableFlags = true): Promise<v
   const { sql } = await import('drizzle-orm');
   const { db, close } = createDb(process.env.DATABASE_URL!);
   try {
-    await db.execute(sql`insert into app.staff (user_id, can_enable_flags)
-      select id, ${canEnableFlags} from app.users where email = ${email}
-      on conflict (user_id) do update set can_enable_flags = excluded.can_enable_flags`);
+    // ADR-0013: canEnableFlags = superadmin, không = operator.
+    const role = canEnableFlags ? 'superadmin' : 'operator';
+    await db.execute(sql`insert into app.staff (user_id, role, can_enable_flags)
+      select id, ${role}, ${canEnableFlags} from app.users where email = ${email}
+      on conflict (user_id) do update set role = excluded.role, can_enable_flags = excluded.can_enable_flags`);
   } finally {
     await close();
   }
@@ -119,6 +121,27 @@ export async function simulateShadowNow(workspaceName: string, days = 14): Promi
   } finally {
     await close();
   }
+}
+
+/**
+ * Guardrail chặn hành động tự động 22:00–06:00 giờ tài khoản (giữ nguyên, không nới). E2E chạy lúc nào cũng được:
+ * đặt múi giờ các tài khoản QC của workspace (chỉ DB local của E2E) sang một múi giờ đang là ban ngày (9–17h).
+ */
+export async function useDaytimeTimezone(workspaceName: string): Promise<string> {
+  const { createDb, schema } = await import('@adxlens/db');
+  const { eq } = await import('drizzle-orm');
+  const zones = ['Asia/Ho_Chi_Minh', 'Europe/London', 'America/New_York', 'America/Los_Angeles', 'Pacific/Auckland'];
+  const hour = (tz: string) =>
+    Number(new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hourCycle: 'h23', timeZone: tz }).format(new Date()));
+  const tz = zones.find((z) => hour(z) >= 9 && hour(z) < 17) ?? 'Asia/Ho_Chi_Minh';
+  const { db, close } = createDb(process.env.DATABASE_URL!);
+  try {
+    const [ws] = await db.select().from(schema.workspaces).where(eq(schema.workspaces.name, workspaceName));
+    await db.update(schema.adAccounts).set({ timezone: tz }).where(eq(schema.adAccounts.workspaceId, ws!.id));
+  } finally {
+    await close();
+  }
+  return tz;
 }
 
 /** Đánh giá ngay các rule live (thay cho tick 30 phút); hành động enqueue cho worker E2E thực hiện. */

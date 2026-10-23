@@ -21,6 +21,7 @@ import {
   Textarea,
   TR,
 } from '@adxlens/ui';
+import { FLAG_LABEL } from '@/lib/admin';
 import { api, ApiError } from '@/lib/api-client';
 
 type Row = {
@@ -75,14 +76,26 @@ export function FlagMatrix({
 
   const allPassed = checks?.every((c) => c.passed) ?? false;
   const parentFailed = checks?.some((c) => c.id === 'parent_enabled' && !c.passed) ?? false;
+  // Operator không bật trực tiếp: gửi đề xuất cho superadmin duyệt (ADR-0013).
+  const proposing = Boolean(target?.enable && !canEnable);
   const canSubmit =
     reason.trim().length >= 5 &&
-    (!target?.enable || (canEnable && checks !== null && !parentFailed && (allPassed || override)));
+    (!target?.enable || (checks !== null && !parentFailed && (proposing || allPassed || override)));
 
   const submit = () =>
     start(async () => {
       if (!target) return;
       try {
+        if (proposing) {
+          await api('admin/flag-proposals', {
+            method: 'POST',
+            body: { workspace_id: target.row.id, flag: target.key, reason },
+          });
+          toast.success(t('dialog.proposed'));
+          setTarget(null);
+          router.refresh();
+          return;
+        }
         await api(`admin/workspaces/${target.row.id}/flags/${target.key}`, {
           method: 'POST',
           body: { enabled: target.enable, reason, override: target.enable && !allPassed ? true : undefined },
@@ -95,14 +108,7 @@ export function FlagMatrix({
       }
     });
 
-  // Khóa i18n trung tính (chuỗi giao diện không chứa tên cờ — CLAUDE.md quy tắc 7).
-  const LABEL: Record<string, string> = {
-    p0_reports: 'reports',
-    p1_recommendations: 'recommendations',
-    p2a_approve: 'approve',
-    p2b_auto: 'auto',
-  };
-  const flagName = (k: string) => (LABEL[k] ? t(`names.${LABEL[k]}`) : k);
+  const flagName = (k: string) => (FLAG_LABEL[k] ? t(`names.${FLAG_LABEL[k]}`) : k);
 
   return (
     <>
@@ -189,14 +195,14 @@ export function FlagMatrix({
               disabled={!canSubmit || pending}
               onClick={submit}
             >
-              {target?.enable ? t('dialog.enable') : t('dialog.disable')}
+              {target?.enable ? (proposing ? t('dialog.propose') : t('dialog.enable')) : t('dialog.disable')}
             </Button>
           </>
         }
       >
         {target?.enable ? (
           <>
-            {!canEnable ? <p className="mb-2 text-body text-danger">{t('dialog.onlyPm')}</p> : null}
+            {proposing ? <p className="mb-2 text-body text-fg-secondary">{t('dialog.proposeHint')}</p> : null}
             <h3 className="text-small font-semibold uppercase text-fg-tertiary">{t('dialog.checklist')}</h3>
             {checks === null ? (
               <p className="mt-1 text-body text-fg-secondary">{t('dialog.checking')}</p>

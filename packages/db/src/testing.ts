@@ -93,9 +93,10 @@ export async function seedMember(db: Db, workspaceId: string, role: s.Role, clie
   return u;
 }
 
+/** `true` = superadmin (bật cờ được), `false` = operator (ADR-0013). */
 export async function seedStaff(db: Db, canEnableFlags: boolean) {
   const u = await seedUser(db);
-  await db.insert(s.staff).values({ userId: u.id, canEnableFlags });
+  await db.insert(s.staff).values({ userId: u.id, canEnableFlags, role: canEnableFlags ? 'superadmin' : 'operator' });
   return u;
 }
 
