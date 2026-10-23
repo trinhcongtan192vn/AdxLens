@@ -67,7 +67,8 @@ export default async function ClientPage({
         title={
           <span className="flex items-center gap-3">
             {client.name}
-            {recon.status !== 'pending' ? (
+            {/* Luôn có lối vào D04 khi Client có tài khoản: chưa đối chiếu vẫn cần nút "Chạy lại đồng bộ". */}
+            {accounts.length > 0 ? (
               <Link href={`/clients/${client.id}/reconciliation`} className="text-body font-normal">
                 <ReconBadge status={recon.status} pct={recon.maxSpendDeltaPct} />
               </Link>
