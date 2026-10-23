@@ -1517,5 +1517,20 @@
     "revokeConfirm": "Revoke write access for this connection? Pending actions will not run.",
     "enabledToast": "Write access enabled",
     "revokedToast": "Write access revoked"
+  },
+  "guardrails": {
+    "title": "Guardrails",
+    "intro": "Safety limits for every change AdxLens makes on Meta. Fixed values are the maximum; you can only make them stricter.",
+    "maxBudgetChangePct": "Max budget change per action (%)",
+    "maxActionsPerDay": "Max actions per day per account",
+    "minDataDays": "Minimum days of data before a change",
+    "quietStartHour": "No automatic runs from (hour)",
+    "quietEndHour": "Until (hour)",
+    "breakerFailures": "Lock the account after consecutive failures",
+    "excludeMetaIds": "Never change (campaign / ad set / ad IDs)",
+    "excludeHint": "One Meta ID per line.",
+    "fixed": "Fixed: {value}",
+    "looser": "Values can only be stricter than the fixed ones.",
+    "looserField": "Looser than the fixed value"
   }
 }
