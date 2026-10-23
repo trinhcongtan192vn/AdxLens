@@ -1,5 +1,6 @@
 import { isEnabled } from '@adxlens/core/flags';
-import { buildReport, renderReportPdf } from '@adxlens/core/reporting';
+import { enabledReportSchedules } from '@adxlens/core/ops';
+import { buildReport, isDue, renderReportPdf, runSchedule, schedulePeriod } from '@adxlens/core/reporting';
 import { SYSTEM_ACTOR } from '@adxlens/core/shared';
 import type { HandlerMap } from '../handler';
 
@@ -28,5 +29,41 @@ export const reportHandlers: HandlerMap = {
       upload: uploadReport,
     });
     return { status };
+  },
+
+  // R05: chạy lịch gửi cho một kỳ (PRD P0-17, P0-24). Kiểm cờ ở đầu job.
+  'notify:scheduled_report': async (p, deps) => {
+    const ctx = { db: deps.db, workspaceId: p.workspaceId };
+    if (!(await isEnabled(ctx, 'p0_reports'))) return { status: 'flag_off' };
+    const status = await runSchedule(
+      ctx,
+      { scheduleId: p.scheduleId, period: p.period },
+      {
+        email: deps.email,
+        publicReportUrl: deps.publicReportUrl,
+        enqueue: deps.enqueue,
+        llm: deps.llm,
+        renderPdf: (id) =>
+          deps.renderPdf(
+            `${deps.appUrl}/print/report/${id}?key=${encodeURIComponent(deps.sign({ r: id, w: p.workspaceId }, 600))}`,
+          ),
+      },
+    );
+    deps.log.info({ schedule_id: p.scheduleId, period: p.period, status }, 'lịch gửi báo cáo');
+    return { status };
+  },
+
+  // Mỗi giờ: lịch đến giờ theo múi giờ của lịch → enqueue kỳ vừa kết thúc.
+  'maintenance:report_tick': async (_p, { db, enqueue }) => {
+    const now = new Date();
+    const due = (await enabledReportSchedules(db)).filter((s) => isDue(s, now));
+    for (const s of due) {
+      await enqueue('notify:scheduled_report', {
+        workspaceId: s.workspaceId,
+        scheduleId: s.id,
+        period: schedulePeriod(s, now).key,
+      });
+    }
+    return { enqueued: due.length };
   },
 };

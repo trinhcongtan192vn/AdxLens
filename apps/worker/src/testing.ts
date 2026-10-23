@@ -17,6 +17,7 @@ export function testWorkerServices(db: Db, now?: () => Date) {
   const uploads = new Map<string, Uint8Array>();
   const services: WorkerServices = {
     appUrl: 'http://localhost:3000',
+    publicReportUrl: 'http://localhost:3000/r',
     llm: null,
     renderPdf: async (url) => {
       rendered.push(url);

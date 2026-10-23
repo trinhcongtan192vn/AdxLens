@@ -8,6 +8,22 @@ type P = Record<string, string | number>;
  * Nội dung email theo loại thông báo (cùng nội dung với trung tâm thông báo — P0-25). Tham số là số/chuỗi
  * đã tính; không có nội dung do LLM sinh.
  */
+const REASON: Record<Locale, Record<string, string>> = {
+  vi: {
+    unconfirmed: 'có tài khoản chưa xác nhận gán Client',
+    reconciliation: 'số liệu lệch hơn 1% so với Ads Manager',
+    connection_revoked: 'kết nối Meta đã bị ngắt',
+    build_failed: 'không dựng được báo cáo',
+  },
+  en: {
+    unconfirmed: 'an account has no confirmed Client',
+    reconciliation: 'figures differ from Ads Manager by more than 1%',
+    connection_revoked: 'the Meta connection was disconnected',
+    build_failed: 'the report could not be built',
+  },
+};
+const reason = (l: Locale, code: string | number | undefined) => REASON[l][String(code)] ?? String(code ?? '');
+
 const TEXT: Record<string, Record<Locale, (p: P) => { subject: string; body: string; cta: string }>> = {
   sync_done: {
     vi: (p) => ({
@@ -84,14 +100,30 @@ const TEXT: Record<string, Record<Locale, (p: P) => { subject: string; body: str
   report_postponed: {
     vi: (p) => ({
       subject: `Hoãn gửi báo cáo cho ${p.client}`,
-      body: `Lý do: ${p.reason}. Xử lý xong, báo cáo sẽ gửi ở lần chạy tiếp theo.`,
+      body: `Lý do: ${reason('vi', p.reason)}. Xử lý xong, báo cáo sẽ gửi ở lần chạy tiếp theo.`,
       cta: 'Xem lịch gửi',
     }),
     en: (p) => ({
       subject: `Report to ${p.client} postponed`,
-      body: `Reason: ${p.reason}. Once fixed, it goes out on the next run.`,
+      body: `Reason: ${reason('en', p.reason)}. Once fixed, it goes out on the next run.`,
       cta: 'View schedules',
     }),
+  },
+  report_needs_approval: {
+    vi: (p) => ({
+      subject: `Báo cáo cho ${p.client} chờ duyệt`,
+      body: `Báo cáo "${p.report}" đã dựng xong theo lịch và chờ bạn duyệt trước khi gửi khách.`,
+      cta: 'Duyệt báo cáo',
+    }),
+    en: (p) => ({
+      subject: `Report for ${p.client} awaiting approval`,
+      body: `"${p.report}" was built on schedule and needs your approval before it goes to the client.`,
+      cta: 'Review report',
+    }),
+  },
+  weekly_digest: {
+    vi: (p) => ({ subject: `Tổng kết tuần ${p.week}`, body: `${p.summary}`, cta: 'Mở tổng quan' }),
+    en: (p) => ({ subject: `Weekly summary ${p.week}`, body: `${p.summary}`, cta: 'Open overview' }),
   },
   billing_failed: {
     vi: () => ({

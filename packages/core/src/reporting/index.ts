@@ -5,3 +5,4 @@ export * from './summary';
 export * from './share';
 export * from './pdf';
 export * from './flag-checks';
+export * from './schedule';

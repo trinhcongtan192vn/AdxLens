@@ -19,6 +19,8 @@ export const NOTIFICATION_KINDS = {
   report_viewed: { mandatory: false, inApp: true, email: false },
   report_sent: { mandatory: false, inApp: true, email: false },
   report_postponed: { mandatory: true, inApp: true, email: true },
+  report_needs_approval: { mandatory: false, inApp: true, email: true },
+  weekly_digest: { mandatory: false, inApp: false, email: true },
   billing_failed: { mandatory: true, inApp: true, email: true },
   action_failed: { mandatory: true, inApp: true, email: true },
 } as const;

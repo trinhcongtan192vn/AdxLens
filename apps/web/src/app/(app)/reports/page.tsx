@@ -17,6 +17,7 @@ export default async function ReportsPage() {
   await requireFlag(pc, 'p0_reports');
   requirePermission(pc, 'reports.manage');
   const t = await getTranslations('reports');
+  const ts = await getTranslations('schedules');
   const format = await getFormatter();
   const items = await listReports(pc.ctx);
   const create = (
@@ -27,7 +28,17 @@ export default async function ReportsPage() {
   const day = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
   return (
     <>
-      <PageHeader title={t('title')} actions={items.length ? create : null} />
+      <PageHeader
+        title={t('title')}
+        actions={
+          <>
+            <Link href="/reports/schedules" className={buttonVariants({ kind: 'secondary', size: 'm' })}>
+              {ts('link')}
+            </Link>
+            {items.length ? create : null}
+          </>
+        }
+      />
       <Card>
         {items.length === 0 ? (
           <EmptyState icon={<FileText />} title={t('emptyTitle')} description={t('emptyBody')} action={create} />

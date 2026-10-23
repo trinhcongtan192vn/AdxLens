@@ -1,4 +1,4 @@
-import { boolean, date, index, integer, jsonb, text, uuid } from 'drizzle-orm/pg-core';
+import { boolean, date, index, integer, jsonb, smallint, text, unique, uuid } from 'drizzle-orm/pg-core';
 import { app, createdAt, tsz, updatedAt } from './_common';
 import { clients } from './tenancy';
 
@@ -69,4 +69,60 @@ export const shareLinks = app.table(
     createdAt: createdAt(),
   },
   (t) => [index().on(t.workspaceId), index().on(t.reportId)],
+);
+
+export const SCHEDULE_CADENCES = ['weekly', 'monthly'] as const;
+export const SCHEDULE_MODES = ['auto', 'approval'] as const;
+export const SCHEDULE_DELIVERIES = ['link', 'pdf'] as const;
+export const DELIVERY_STATUSES = ['pending_approval', 'approved', 'sent', 'postponed', 'failed'] as const;
+
+/**
+ * Lịch gửi báo cáo (PRD P0-17, R05): tuần (thứ) hoặc tháng (ngày), giờ theo múi giờ của lịch; tự động
+ * hoặc cần duyệt; gửi link hoặc PDF qua email tới người nhận của khách.
+ */
+export const reportSchedules = app.table(
+  'report_schedules',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id').notNull(),
+    clientId: uuid('client_id')
+      .notNull()
+      .references(() => clients.id, { onDelete: 'cascade' }),
+    cadence: text('cadence', { enum: SCHEDULE_CADENCES }).notNull(),
+    /** 1 = thứ Hai … 7 = Chủ nhật (khi weekly). */
+    weekday: smallint('weekday'),
+    /** 1–28 (khi monthly). */
+    monthDay: smallint('month_day'),
+    sendHour: smallint('send_hour').notNull(),
+    timezone: text('timezone').notNull(),
+    mode: text('mode', { enum: SCHEDULE_MODES }).notNull(),
+    delivery: text('delivery', { enum: SCHEDULE_DELIVERIES }).notNull(),
+    locale: text('locale'),
+    recipients: text('recipients').array().notNull(),
+    enabled: boolean('enabled').notNull().default(true),
+    createdBy: uuid('created_by').notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index().on(t.workspaceId), index().on(t.clientId)],
+);
+
+/** Mỗi lần chạy lịch cho một kỳ (`period`: 2026-W43 / 2026-10). Duy nhất theo (lịch, kỳ) — idempotent. */
+export const reportDeliveries = app.table(
+  'report_deliveries',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id').notNull(),
+    scheduleId: uuid('schedule_id')
+      .notNull()
+      .references(() => reportSchedules.id, { onDelete: 'cascade' }),
+    period: text('period').notNull(),
+    reportId: uuid('report_id').references(() => reports.id, { onDelete: 'set null' }),
+    status: text('status', { enum: DELIVERY_STATUSES }).notNull(),
+    /** Mã lý do hoãn/lỗi (unconfirmed, reconciliation, connection_revoked, no_data…). */
+    reason: text('reason'),
+    sentAt: tsz('sent_at'),
+    createdAt: createdAt(),
+  },
+  (t) => [unique().on(t.scheduleId, t.period), index().on(t.workspaceId)],
 );

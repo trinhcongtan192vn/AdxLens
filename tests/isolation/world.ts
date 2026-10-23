@@ -131,6 +131,32 @@ export async function seedWorld(db: Db) {
     })
     .returning();
 
+  const [bSchedule] = await db
+    .insert(schema.reportSchedules)
+    .values({
+      workspaceId: b.workspace.id,
+      clientId: bClient.id,
+      cadence: 'weekly',
+      weekday: 1,
+      sendHour: 9,
+      timezone: 'Asia/Ho_Chi_Minh',
+      mode: 'approval',
+      delivery: 'link',
+      recipients: ['beta-secret@client.vn'],
+      createdBy: b.owner.id,
+    })
+    .returning();
+  const [bDelivery] = await db
+    .insert(schema.reportDeliveries)
+    .values({
+      workspaceId: b.workspace.id,
+      scheduleId: bSchedule!.id,
+      period: '2026-W43',
+      reportId: bReport!.id,
+      status: 'pending_approval',
+    })
+    .returning();
+
   const world = {
     a: {
       workspace: a.workspace,
@@ -152,6 +178,8 @@ export async function seedWorld(db: Db) {
       report: bReport!,
       shareLink: bShare!,
       notification: bNote!,
+      schedule: bSchedule!,
+      delivery: bDelivery!,
     },
     /** Chuỗi của B tuyệt đối không được xuất hiện trong phản hồi cho ngữ cảnh A. */
     bFingerprints: [
@@ -175,6 +203,9 @@ export async function seedWorld(db: Db) {
       bReport!.id,
       bShare!.id,
       bNote!.id,
+      bSchedule!.id,
+      bDelivery!.id,
+      'beta-secret@client.vn',
       'B'.repeat(43),
     ],
   };
