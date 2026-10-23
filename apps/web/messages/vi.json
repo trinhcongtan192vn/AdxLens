@@ -686,6 +686,32 @@
       "name": "Phân mảnh ad set",
       "why": "{weak}/{total} ad set đang chạy có ngân sách nhỏ hoặc học hạn chế; mỗi ad set không đủ sự kiện để tối ưu.",
       "what": "Gộp các ad set nhỏ cùng đối tượng, hoặc dùng ngân sách campaign (CBO) để Meta phân bổ."
+    },
+    "learning_limited": {
+      "name": "Học hạn chế",
+      "why": "Meta báo ad set đang \"học hạn chế\": {results, number} kết quả trong 7 ngày, cần khoảng {needed, number}/tuần để thoát học.",
+      "whyInferred": "Ad set chỉ có {results, number} kết quả trong 7 ngày, dưới mức khoảng {needed, number}/tuần mà Meta cần để thoát học.",
+      "what": "Gộp với ad set cùng đối tượng, tăng ngân sách, hoặc tối ưu cho sự kiện xảy ra nhiều hơn."
+    },
+    "spend_no_conversion": {
+      "name": "Chi tiêu không chuyển đổi",
+      "why": "Ad set chi tiêu {days, number} ngày trong tuần qua mà không có kết quả nào, trong khi các ad set khác cùng mục tiêu vẫn có.",
+      "what": "Tạm dừng hoặc giảm ngân sách ad set này; kiểm tra đối tượng, trang đích và sự kiện tối ưu.",
+      "impact": "Toàn bộ chi tiêu 7 ngày của ad set"
+    },
+    "account_hygiene": {
+      "name": "Vệ sinh tài khoản",
+      "why": "Đối tượng cần dọn dẹp.",
+      "whyName": "Đối tượng đang chạy có tên mặc định hoặc bản sao: \"{name}\".",
+      "whyIdle": "Đang bật nhưng không chi tiêu trong 7 ngày qua.",
+      "what": "Đặt tên rõ ràng và tắt đối tượng không dùng.",
+      "whatName": "Đặt tên theo quy ước (sản phẩm · đối tượng · creative) để báo cáo và đọc số dễ hơn.",
+      "whatIdle": "Kiểm tra lịch, ngân sách, trạng thái duyệt; tắt nếu không còn dùng."
+    },
+    "conversion_tracking": {
+      "name": "Theo dõi chuyển đổi",
+      "why": "Kết quả {days, number} ngày gần nhất giảm {drop, number}% so với 14 ngày trước, trong khi chi tiêu và click liên kết không giảm tương ứng.",
+      "what": "Kiểm tra pixel/Conversions API và sự kiện trong Events Manager; xem trang đích có thay đổi gần đây không."
     }
   }
 }

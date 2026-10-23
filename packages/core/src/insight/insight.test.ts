@@ -266,5 +266,9 @@ describe('bộ quy tắc thật trên dữ liệu mock (có mẫu cài sẵn)', 
     expect(found).toContain('creative_fatigue:23010000000');
     expect(found).toContain('starved_winner:23010000102');
     expect(found).toContain('fragmentation:23012000');
+    // Ad set "Sở thích" của chiến dịch thu lead: chi tiêu không ra lead.
+    expect(found).toContain('spend_no_conversion:2301100020');
+    // Ad set traffic ngân sách nhỏ: học hạn chế (trạng thái từ API mock).
+    expect(found).toContain('learning_limited:2301200000');
   });
 });

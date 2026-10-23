@@ -686,6 +686,32 @@
       "name": "Fragmented ad sets",
       "why": "{weak}/{total} active ad sets have small budgets or limited learning; none gets enough events to optimise.",
       "what": "Merge small ad sets with similar audiences, or use campaign budget (CBO) so Meta can allocate."
+    },
+    "learning_limited": {
+      "name": "Learning limited",
+      "why": "Meta reports this ad set as \"learning limited\": {results, number} results in 7 days; about {needed, number}/week are needed to exit learning.",
+      "whyInferred": "This ad set had only {results, number} results in 7 days, below the ~{needed, number}/week Meta needs to exit learning.",
+      "what": "Merge with ad sets targeting the same audience, raise the budget, or optimise for a more frequent event."
+    },
+    "spend_no_conversion": {
+      "name": "Spend without conversions",
+      "why": "This ad set spent on {days, number} days last week with no results, while other ad sets with the same goal still convert.",
+      "what": "Pause or cut this ad set's budget; review audience, landing page and optimisation event.",
+      "impact": "The ad set's full 7-day spend"
+    },
+    "account_hygiene": {
+      "name": "Account hygiene",
+      "why": "Item needs cleanup.",
+      "whyName": "An active item has a default or copy name: \"{name}\".",
+      "whyIdle": "Active but spent nothing in the last 7 days.",
+      "what": "Use clear names and turn off unused items.",
+      "whatName": "Follow a naming convention (product · audience · creative) so reports are easier to read.",
+      "whatIdle": "Check schedule, budget and review status; turn it off if no longer used."
+    },
+    "conversion_tracking": {
+      "name": "Conversion tracking",
+      "why": "Results over the last {days, number} days fell {drop, number}% versus the previous 14 days while spend and link clicks did not fall accordingly.",
+      "what": "Check the pixel/Conversions API and events in Events Manager; look for recent landing page changes."
     }
   }
 }
