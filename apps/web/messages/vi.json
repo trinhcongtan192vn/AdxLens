@@ -1000,5 +1000,48 @@
       "summaryLlm": "Tóm tắt do AI viết từ số liệu đã tính; mọi con số đã được kiểm tra khớp dữ liệu.",
       "summaryTemplate": "Tóm tắt tự động từ số liệu (không dùng AI)."
     }
+  },
+  "share": {
+    "title": "Chia sẻ báo cáo",
+    "create": "Tạo link chia sẻ",
+    "expiry": "Hạn dùng",
+    "expiries": {
+      "none": "Không hết hạn",
+      "7": "7 ngày",
+      "30": "30 ngày",
+      "90": "90 ngày"
+    },
+    "password": "Mật khẩu (không bắt buộc, ≥ 6 ký tự)",
+    "created": "Đã tạo link. Gửi link này cho khách.",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép",
+    "revoke": "Thu hồi",
+    "revoked": "Đã thu hồi",
+    "links": "Link đã tạo",
+    "noLinks": "Chưa có link nào.",
+    "cols": {
+      "link": "Link",
+      "expires": "Hết hạn",
+      "views": "Lượt xem",
+      "status": "Trạng thái"
+    },
+    "active": "Đang dùng",
+    "expired": "Hết hạn",
+    "withPassword": "Có mật khẩu",
+    "blockedTitle": "Chưa chia sẻ được báo cáo này",
+    "blockedBody": "Khách chỉ xem được báo cáo khi mọi tài khoản đã xác nhận gán Client, số liệu khớp Ads Manager (lệch ≤ 1%) và kết nối Meta còn hoạt động.",
+    "connectionRevoked": "Kết nối Meta của Client này đã bị ngắt.",
+    "pdfLater": "Xuất PDF ở mục bên dưới."
+  },
+  "publicReport": {
+    "expiredTitle": "Liên kết đã hết hạn hoặc bị thu hồi",
+    "expiredBody": "Liên hệ agency gửi báo cáo để nhận liên kết mới.",
+    "lockedTitle": "Báo cáo đang tạm khóa",
+    "lockedBody": "Agency đang kiểm tra lại số liệu. Báo cáo sẽ mở lại khi số liệu khớp Ads Manager.",
+    "passwordTitle": "Báo cáo có mật khẩu",
+    "passwordLabel": "Mật khẩu",
+    "open": "Mở báo cáo",
+    "wrongPassword": "Mật khẩu không đúng.",
+    "notFoundTitle": "Không tìm thấy báo cáo"
   }
 }

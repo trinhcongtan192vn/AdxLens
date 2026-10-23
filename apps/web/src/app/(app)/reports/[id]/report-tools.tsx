@@ -1,10 +1,11 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import { Button, Checkbox, Dialog, Drawer, Field, Input, Textarea } from '@adxlens/ui';
+import { Button, buttonVariants, Checkbox, Dialog, Drawer, Field, Input, Textarea } from '@adxlens/ui';
 import { api } from '@/lib/api-client';
 
 type Edits = { title?: string; workDone?: string; nextSteps?: string; hiddenSections?: string[] };
@@ -20,7 +21,7 @@ export function ReportPoller() {
   return null;
 }
 
-/** R03: chỉnh nội dung agency, dựng lại, xóa. Chia sẻ (R04) ở feature 021. */
+/** R03: chia sẻ (R04), chỉnh nội dung agency, dựng lại, xóa. */
 export function ReportToolbar({ id, edits, ready }: { id: string; edits: Edits; ready: boolean; blocked: boolean }) {
   const t = useTranslations('reports.view');
   const tc = useTranslations('common');
@@ -48,6 +49,11 @@ export function ReportToolbar({ id, edits, ready }: { id: string; edits: Edits; 
         <Button kind="secondary" size="m" onClick={() => setEditing(true)}>
           {t('edit')}
         </Button>
+      ) : null}
+      {ready ? (
+        <Link href={`/reports/${id}/share`} className={buttonVariants({ kind: 'primary', size: 'm' })}>
+          {t('share')}
+        </Link>
       ) : null}
       <Button
         kind="secondary"

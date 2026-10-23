@@ -116,6 +116,11 @@ export async function seedWorld(db: Db) {
     })
     .returning();
 
+  const [bShare] = await db
+    .insert(schema.shareLinks)
+    .values({ workspaceId: b.workspace.id, reportId: bReport!.id, token: 'B'.repeat(43), createdBy: b.owner.id })
+    .returning();
+
   const world = {
     a: {
       workspace: a.workspace,
@@ -135,6 +140,7 @@ export async function seedWorld(db: Db) {
       syncRun: bRun!,
       finding: bFinding!,
       report: bReport!,
+      shareLink: bShare!,
     },
     /** Chuỗi của B tuyệt đối không được xuất hiện trong phản hồi cho ngữ cảnh A. */
     bFingerprints: [
@@ -156,6 +162,8 @@ export async function seedWorld(db: Db) {
       bFinding!.id,
       'Beta Ad Secret',
       bReport!.id,
+      bShare!.id,
+      'B'.repeat(43),
     ],
   };
   return world;
