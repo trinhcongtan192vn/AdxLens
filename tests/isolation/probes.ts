@@ -375,6 +375,18 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     kind: 'exempt',
     reason: 'Trang nội bộ PM: công tắc toàn hệ thống; có test riêng ở admin.test.ts',
   },
+  // ADR-0013: route staff, xuyên workspace có chủ đích; người không phải staff → 404 (admin-roles.test.ts).
+  'GET /api/v1/admin/staff': { kind: 'exempt', reason: 'Staff: danh sách đội AdxLens, không theo workspace' },
+  'POST /api/v1/admin/staff': { kind: 'exempt', reason: 'Superadmin thêm staff (admin-roles.test.ts)' },
+  'PATCH /api/v1/admin/staff/[userId]': { kind: 'exempt', reason: 'Superadmin đổi vai trò staff' },
+  'DELETE /api/v1/admin/staff/[userId]': { kind: 'exempt', reason: 'Superadmin gỡ staff' },
+  'GET /api/v1/admin/audit': { kind: 'exempt', reason: 'Staff: nhật ký thao tác admin (operator chỉ thấy của mình)' },
+  'GET /api/v1/admin/flag-proposals': { kind: 'exempt', reason: 'Staff: đề xuất bật cờ mọi workspace (AD01)' },
+  'POST /api/v1/admin/flag-proposals': { kind: 'exempt', reason: 'Operator đề xuất bật cờ (admin-roles.test.ts)' },
+  'POST /api/v1/admin/flag-proposals/[id]': {
+    kind: 'exempt',
+    reason: 'Superadmin duyệt / từ chối, bật cờ qua core/flags (admin-roles.test.ts)',
+  },
   'GET /api/v1/automation-rules': { kind: 'workspace' },
   'POST /api/v1/automation-rules': {
     kind: 'workspace',

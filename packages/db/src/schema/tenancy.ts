@@ -107,11 +107,18 @@ export const invitations = app.table(
   (t) => [uniqueIndex().on(t.tokenHash), index().on(t.workspaceId)],
 );
 
-/** Đội AdxLens (L3 18.2). Không có workspace_id; chỉ service role đọc. */
+export const STAFF_ROLES = ['superadmin', 'operator'] as const;
+export type StaffRole = (typeof STAFF_ROLES)[number];
+
+/**
+ * Đội AdxLens (L3 18.2, ADR-0013). Không có workspace_id; chỉ service role đọc. `can_enable_flags` là cột dẫn xuất
+ * (= role 'superadmin'), luôn ghi cùng `role`.
+ */
 export const staff = app.table('staff', {
   userId: uuid('user_id')
     .primaryKey()
     .references(() => users.id, { onDelete: 'cascade' }),
+  role: text('role', { enum: STAFF_ROLES }).notNull().default('operator'),
   canEnableFlags: boolean('can_enable_flags').notNull().default(false),
   createdAt: createdAt(),
 });

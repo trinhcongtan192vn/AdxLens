@@ -27,10 +27,16 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Link href="/admin/kill-switch" className="text-fg-secondary hover:text-fg">
             {t('nav.killSwitch')}
           </Link>
+          <Link href="/admin/staff" className="text-fg-secondary hover:text-fg">
+            {t('nav.staff')}
+          </Link>
+          <Link href="/admin/audit" className="text-fg-secondary hover:text-fg">
+            {t('nav.audit')}
+          </Link>
         </nav>
         <div className="flex-1" />
         <span className="text-small text-fg-secondary">
-          {user.email} · {staff.canEnableFlags ? t('pm') : t('staff')}
+          {user.email} · {t(`roles.${staff.role}`)}
         </span>
       </header>
       <main className="px-6 py-4">{children}</main>

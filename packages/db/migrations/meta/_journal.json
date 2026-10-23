@@ -358,6 +358,20 @@
       "when": 1792756852806,
       "tag": "0050_rls_automation_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1792767626621,
+      "tag": "0051_admin_roles_audit",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1792767627556,
+      "tag": "0052_admin_roles_audit_rls",
+      "breakpoints": true
     }
   ]
 }

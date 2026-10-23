@@ -64,3 +64,23 @@ export const opsExecutionChecks = app.table(
   },
   (t) => [index().on(t.appVersion, t.ranAt)],
 );
+
+/**
+ * Nhật ký thao tác trang admin (ADR-0013): ai, khi nào, làm gì, với đối tượng nào, lý do. Chỉ thêm (trigger chặn
+ * UPDATE / DELETE). Không ghi token, body request hay số liệu quảng cáo.
+ */
+export const adminAuditLog = app.table(
+  'admin_audit_log',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    actorUserId: uuid('actor_user_id').notNull(),
+    action: text('action').notNull(),
+    targetType: text('target_type').notNull(),
+    targetId: text('target_id'),
+    workspaceId: uuid('workspace_id'),
+    reason: text('reason'),
+    detail: jsonb('detail').$type<Record<string, unknown>>().notNull().default({}),
+    at: tsz('at').notNull().defaultNow(),
+  },
+  (t) => [index().on(t.at), index().on(t.actorUserId, t.at), index().on(t.workspaceId)],
+);

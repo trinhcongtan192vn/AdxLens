@@ -1,4 +1,4 @@
-// `pnpm seed:staff -- --email pm@adxlens.local --password "..." [--can-enable-flags]`
+// `pnpm seed:staff -- --email pm@adxlens.local --password "..." [--can-enable-flags]` (có cờ = superadmin)
 // Tạo (hoặc cập nhật) tài khoản staff ở môi trường local/staging. Không chạy ở production.
 import { existsSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
@@ -44,9 +44,11 @@ if (!userId) {
 
 const { db, close } = createDb(process.env.DATABASE_URL!);
 await db.insert(schema.users).values({ id: userId, email }).onConflictDoNothing();
+// ADR-0013: --can-enable-flags = superadmin, không có = operator.
+const role = canEnableFlags ? 'superadmin' : 'operator';
 await db
   .insert(schema.staff)
-  .values({ userId, canEnableFlags })
-  .onConflictDoUpdate({ target: schema.staff.userId, set: { canEnableFlags } });
+  .values({ userId, role, canEnableFlags })
+  .onConflictDoUpdate({ target: schema.staff.userId, set: { role, canEnableFlags } });
 await close();
-console.log(`Staff ${email} (can_enable_flags=${canEnableFlags}) đã sẵn sàng.`);
+console.log(`Staff ${email} (${role}) đã sẵn sàng.`);

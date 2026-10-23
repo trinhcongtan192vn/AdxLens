@@ -10,6 +10,7 @@ import {
   listWorkspacesForUser,
   resolveActor,
   upsertUser,
+  type StaffInfo,
   type WorkspaceSummary,
 } from '@adxlens/core/tenancy';
 import { getAuthUser, type AuthUser } from './auth';
@@ -22,7 +23,7 @@ export type PageContext = {
   workspace: WorkspaceSummary;
   actor: Actor;
   flags: Record<FlagKey, boolean>;
-  staff: { canEnableFlags: boolean } | null;
+  staff: StaffInfo | null;
   /** Ngữ cảnh gọi core (đã kiểm thành viên). */
   ctx: ActorCtx;
 };

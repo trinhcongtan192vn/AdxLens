@@ -2,6 +2,27 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [046] Admin: vai trò superadmin / operator, đề xuất bật cờ, nhật ký admin — 2026-10-23
+
+**Thay đổi** (ADR-0013)
+- `app.staff.role` (`superadmin` / `operator`); staff PM cũ → superadmin, staff thường → operator (không ai mất quyền đang có). `pnpm seed:staff -- --can-enable-flags` tạo superadmin.
+- **Đội ngũ** `/admin/staff`: superadmin thêm staff theo email người đã có tài khoản, đổi vai trò, gỡ quyền (bắt buộc lý do; không tự đổi / gỡ mình; luôn còn ≥ 1 superadmin). Operator chỉ xem.
+- **Đề xuất bật cờ** (`app.flag_proposals`, `core/flags/proposals.ts`): operator bấm ô cờ → "Gửi đề xuất"; superadmin duyệt (bật qua `enableFlag`, checklist chạy lại, vượt checklist cần chọn và ghi log) hoặc từ chối (lý do); người đề xuất tự hủy được. Mỗi workspace × cờ chỉ một đề xuất chờ.
+- **Kill switch toàn cục:** mọi staff **bật** được (dừng khẩn cấp), chỉ superadmin **tắt**.
+- **Nhật ký admin** `/admin/audit` (`app.admin_audit_log`, trigger chặn sửa / xóa): staff, đề xuất, kill switch. Superadmin xem tất cả, operator chỉ dòng của mình.
+- Header admin hiện vai trò (Superadmin / Operator).
+
+**Test tự động**
+- `apps/web/src/app/api/v1/admin/admin-roles.test.ts`: quyền từng vai trò, không tự hạ / gỡ mình, nhật ký chỉ thêm (UPDATE / DELETE bị chặn), operator chỉ thấy nhật ký của mình, đề xuất → duyệt (checklist chưa đạt không vượt → 409) → cờ bật + `flag_change_log`, từ chối / hủy.
+- E2E `admin-roles.spec.ts`: operator đề xuất → superadmin duyệt (vượt checklist) → cờ bật → nhật ký → đổi vai trò.
+- Bộ cách ly: 8 route mới khai báo `exempt` có lý do (route staff, người không phải staff → 404).
+- **Test đổi (lý do):** `admin.test.ts` "kill switch toàn cục" — trước khẳng định staff thường bật → 403; ADR-0013 (PM chốt 23/10) cho operator bật khẩn cấp. Test nay khẳng định operator bật được, **không tắt được (403)**, superadmin tắt được, người ngoài 404 cả GET và POST (thêm assertion, không bớt).
+- **Test đổi (lý do):** E2E `p2b.spec.ts` — guardrail chặn hành động tự động 22:00–06:00 giờ tài khoản, nên chạy lúc 22:14 (giờ VN) thì không có hành động tự động và test đỏ (CI chạy buổi tối cũng đỏ). Thêm bước `useDaytimeTimezone` (chỉ DB local E2E) đặt múi giờ tài khoản QC sang múi đang ban ngày trước khi đánh giá rule live. Guardrail và assertion giữ nguyên.
+
+**Vùng bảo vệ:** `packages/db/**` (migration 0051–0052: cột `role`, 2 bảng, RLS, trigger append-only), `packages/core/flags/**` (đề xuất; điều kiện bật cờ đọc `role = superadmin` thay vì `can_enable_flags`, cùng giá trị sau migration).
+
+**PM kiểm tra:** `/admin/staff` thêm một email đã đăng ký làm operator → đăng nhập bằng email đó → `/admin/flags` bấm ô cờ tắt → "Gửi đề xuất" → đăng nhập superadmin → đề xuất ở đầu trang → Duyệt → `/admin/audit` thấy cả hai dòng.
+
 ## [fix] Tài khoản của kết nối đã ngắt không còn hiện để gán / đồng bộ — 2026-10-23
 
 **Thay đổi**

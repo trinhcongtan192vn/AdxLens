@@ -1,5 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
-import { evaluateLiveRulesNow, makeStaff, setPlanNow, signUpAndCreateWorkspace, simulateShadowNow } from './helpers';
+import {
+  evaluateLiveRulesNow,
+  makeStaff,
+  setPlanNow,
+  signUpAndCreateWorkspace,
+  simulateShadowNow,
+  useDaytimeTimezone,
+} from './helpers';
 
 async function enableFlag(page: Page, ws: string, name: string) {
   await page.goto(`/admin/flags?q=${encodeURIComponent(ws)}`);
@@ -69,7 +76,9 @@ test('P2b: mẫu → backtest → shadow → giả lập 14 ngày → live → h
   await page.getByRole('button', { name: 'Bật chạy thật' }).click();
   await expect(page.getByTestId('rule-mode')).toHaveText('Đang chạy');
 
-  // Rule live tạo hành động tự động; worker thực hiện qua gateway.
+  // Rule live tạo hành động tự động; worker thực hiện qua gateway. Guardrail chặn 22:00–06:00 giờ tài khoản nên
+  // chuyển tài khoản QC sang múi giờ đang ban ngày (test chạy được mọi giờ, guardrail giữ nguyên).
+  await useDaytimeTimezone(ws);
   await evaluateLiveRulesNow(ws);
   await page.goto('/action-log');
   await expect(async () => {

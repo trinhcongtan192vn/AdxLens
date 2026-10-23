@@ -1080,11 +1080,35 @@
     "brand": "AdxLens Admin",
     "internal": "Nội bộ",
     "pm": "PM",
-    "staff": "Staff",
+    "staff": {
+      "title": "Đội ngũ AdxLens",
+      "body": "Superadmin quản lý staff, bật cờ, tắt kill switch, sửa gói. Operator vận hành: xem, chạy lại đồng bộ, retry job, bật kill switch, đề xuất bật cờ.",
+      "cols": {
+        "email": "Email",
+        "name": "Tên",
+        "role": "Vai trò",
+        "since": "Từ ngày",
+        "actions": "Thao tác"
+      },
+      "reason": "Lý do (bắt buộc, ≥ 5 ký tự)",
+      "add": "Thêm staff",
+      "addHint": "Người được thêm phải đã đăng ký tài khoản AdxLens bằng email này.",
+      "added": "Đã thêm staff",
+      "updated": "Đã đổi vai trò",
+      "removed": "Đã gỡ quyền staff",
+      "makeRole": "Chuyển thành {role}",
+      "remove": "Gỡ quyền",
+      "confirm": "Xác nhận",
+      "you": "Bạn",
+      "roleTitle": "Chuyển {email} thành {role}",
+      "removeTitle": "Gỡ quyền staff của {email}"
+    },
     "nav": {
       "flags": "Ma trận cờ",
       "incidents": "Sự cố",
-      "killSwitch": "Kill switch"
+      "killSwitch": "Kill switch",
+      "staff": "Đội ngũ",
+      "audit": "Nhật ký admin"
     },
     "flags": {
       "title": "Ma trận cờ tính năng",
@@ -1120,7 +1144,28 @@
         "done": "Đã cập nhật cờ",
         "history": "Lịch sử",
         "noHistory": "Chưa có thay đổi.",
-        "overrideTag": "vượt checklist"
+        "overrideTag": "vượt checklist",
+        "propose": "Gửi đề xuất",
+        "proposeHint": "Bạn là operator: đề xuất sẽ được gửi cho superadmin duyệt. Checklist vẫn chạy khi duyệt.",
+        "proposed": "Đã gửi đề xuất bật cờ"
+      },
+      "proposals": {
+        "title": "Đề xuất bật cờ đang chờ ({count})",
+        "by": "{email} · {at}",
+        "approve": "Duyệt",
+        "reject": "Từ chối",
+        "cancel": "Hủy đề xuất",
+        "noteOptional": "Ghi chú (không bắt buộc)",
+        "dialog": {
+          "approve": "Duyệt bật {flag} cho {workspace}",
+          "reject": "Từ chối bật {flag} cho {workspace}",
+          "cancel": "Hủy đề xuất bật {flag} cho {workspace}"
+        },
+        "done": {
+          "approve": "Đã duyệt, cờ đã bật",
+          "reject": "Đã từ chối đề xuất",
+          "cancel": "Đã hủy đề xuất"
+        }
       }
     },
     "killSwitch": {
@@ -1133,7 +1178,7 @@
       "reason": "Lý do (bắt buộc)",
       "turnOn": "Bật toàn cục",
       "turnOff": "Tắt toàn cục",
-      "pmOnly": "Chỉ PM được bật/tắt.",
+      "pmOnly": "Operator chỉ bật được kill switch; tắt cần superadmin.",
       "done": "Đã cập nhật, hủy {count} hành động đang chờ"
     },
     "incidents": {
@@ -1166,6 +1211,34 @@
         "skipped": "Bỏ qua",
         "failed": "Lỗi",
         "escalated": "Leo thang (báo PM)"
+      }
+    },
+    "roles": {
+      "superadmin": "Superadmin",
+      "operator": "Operator"
+    },
+    "audit": {
+      "title": "Nhật ký thao tác admin",
+      "bodyAll": "Mọi thao tác ghi từ trang admin. Chỉ thêm, không sửa hay xóa được.",
+      "bodyMine": "Thao tác của bạn trên trang admin. Superadmin xem được toàn bộ.",
+      "empty": "Chưa có thao tác nào.",
+      "cols": {
+        "at": "Lúc",
+        "actor": "Người làm",
+        "action": "Hành động",
+        "target": "Đối tượng",
+        "reason": "Lý do"
+      },
+      "actions": {
+        "staff_add": "Thêm staff",
+        "staff_role": "Đổi vai trò staff",
+        "staff_remove": "Gỡ staff",
+        "flag_propose": "Đề xuất bật cờ",
+        "flag_proposal_approve": "Duyệt đề xuất bật cờ",
+        "flag_proposal_reject": "Từ chối đề xuất bật cờ",
+        "flag_proposal_cancel": "Hủy đề xuất bật cờ",
+        "kill_switch_on": "Bật kill switch toàn cục",
+        "kill_switch_off": "Tắt kill switch toàn cục"
       }
     }
   },

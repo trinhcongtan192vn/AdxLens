@@ -53,9 +53,12 @@ export async function getUser(db: DbOrTx, userId: string) {
   return u ?? null;
 }
 
-export async function isStaff(db: DbOrTx, userId: string): Promise<{ canEnableFlags: boolean } | null> {
+export type StaffInfo = { role: (typeof schema.STAFF_ROLES)[number]; canEnableFlags: boolean };
+
+/** Staff AdxLens (ADR-0013): `canEnableFlags` = superadmin. */
+export async function isStaff(db: DbOrTx, userId: string): Promise<StaffInfo | null> {
   const [s] = await db.select().from(staff).where(eq(staff.userId, userId));
-  return s ? { canEnableFlags: s.canEnableFlags } : null;
+  return s ? { role: s.role, canEnableFlags: s.role === 'superadmin' } : null;
 }
 
 // ---------- Workspace ----------

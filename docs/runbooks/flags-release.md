@@ -9,7 +9,8 @@ Cờ theo workspace: Báo cáo (`p0_reports`), Gợi ý (`p1_recommendations`), 
    - **Duyệt 1 click:** có kết nối được cấp quyền ghi; `pnpm execution:check` của **bản deploy hiện tại** đạt trên staging; kill switch toàn cục tắt; Owner đã lưu guardrails. Gói Growth trở lên (kiểm ở gateway).
    - **Tự động hóa:** Duyệt 1 click ≥ 8 tuần, hoàn tác ≤ 5%, 0 sự cố P1 thực thi; rule phải chạy thử ≥ 14 ngày (kiểm ở rule).
 2. Checklist chưa đạt → chỉ bật được bằng "Vượt checklist" + lý do (ghi log, hiện ở lịch sử cờ).
-3. Cờ phụ thuộc: P1 cần P0; P2a cần P1; P2b cần P2a.
+3. **Vai trò (ADR-0013):** chỉ **superadmin** bật cờ. **Operator** bấm ô cờ → "Gửi đề xuất" (lý do bắt buộc); đề xuất hiện ở đầu `/admin/flags` để superadmin **Duyệt** (checklist chạy lại lúc duyệt, vượt checklist vẫn cần chọn và được ghi log) hoặc **Từ chối** (cần lý do). Mọi thao tác ghi vào `/admin/audit`.
+4. Cờ phụ thuộc: P1 cần P0; P2a cần P1; P2b cần P2a.
 
 ## Tắt
 - Tắt một cờ tắt luôn cờ phụ thuộc; dữ liệu giữ nguyên. Tắt Duyệt 1 click / Tự động hóa **hủy mọi hành động đang chờ** (`auto` khi tắt Tự động hóa).

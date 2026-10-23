@@ -130,7 +130,7 @@ export async function enableFlag(db: Db, input: EnableFlagInput, clock: Clock = 
   const reason = input.reason.trim();
   if (reason.length < 5) throw new AppError('VALIDATION_FAILED', 'Cần nhập lý do (≥ 5 ký tự)');
   const s = await staffOf(db, input.staffUserId);
-  if (!s?.canEnableFlags) throw forbidden('Chỉ PM được bật cờ');
+  if (s?.role !== 'superadmin') throw forbidden('Chỉ superadmin được bật cờ');
 
   return db.transaction(async (tx) => {
     const [ws] = await tx.select({ id: workspaces.id }).from(workspaces).where(eq(workspaces.id, input.workspaceId));

@@ -4,7 +4,7 @@ import { z, ZodError } from 'zod';
 import type { Db } from '@adxlens/db';
 import { assertEnabled, type FlagKey } from '@adxlens/core/flags';
 import { AppError, isAppError, scopedLogger, type Actor, type Logger } from '@adxlens/core/shared';
-import { assertCan, isStaff, resolveActor, type Permission } from '@adxlens/core/tenancy';
+import { assertCan, isStaff, resolveActor, type Permission, type StaffInfo } from '@adxlens/core/tenancy';
 import type { EmailSender } from '@adxlens/core/notification';
 import type { Enqueue } from '@adxlens/jobs';
 import { getAuthUser, type AuthUser } from './auth';
@@ -32,7 +32,7 @@ type BaseCtx = {
 export type PublicCtx = BaseCtx;
 export type UserCtx = BaseCtx & { user: AuthUser };
 export type WorkspaceRouteCtx = UserCtx & { workspaceId: string; actor: Actor };
-export type StaffCtx = UserCtx & { staff: { canEnableFlags: boolean } };
+export type StaffCtx = UserCtx & { staff: StaffInfo };
 
 type CtxFor<A extends Auth> = A extends 'workspace'
   ? WorkspaceRouteCtx

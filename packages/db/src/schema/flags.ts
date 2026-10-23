@@ -21,6 +21,28 @@ export const featureFlags = app.table(
   (t) => [primaryKey({ columns: [t.workspaceId, t.flagKey] })],
 );
 
+export const FLAG_PROPOSAL_STATUSES = ['pending', 'approved', 'rejected', 'canceled'] as const;
+
+/** Đề xuất bật cờ của operator, superadmin duyệt (ADR-0013). Duyệt vẫn bật qua core/flags. */
+export const flagProposals = app.table(
+  'flag_proposals',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    flagKey: text('flag_key', { enum: FLAG_KEYS }).notNull(),
+    proposedBy: uuid('proposed_by').notNull(),
+    reason: text('reason').notNull(),
+    status: text('status', { enum: FLAG_PROPOSAL_STATUSES }).notNull().default('pending'),
+    decidedBy: uuid('decided_by'),
+    decidedAt: tsz('decided_at'),
+    decisionNote: text('decision_note'),
+    createdAt: tsz('created_at').notNull().defaultNow(),
+  },
+  (t) => [index().on(t.status, t.createdAt), index().on(t.workspaceId)],
+);
+
 export type ChecklistItemResult = { id: string; label: string; passed: boolean; detail?: string };
 
 /** Chỉ thêm (append-only). */
