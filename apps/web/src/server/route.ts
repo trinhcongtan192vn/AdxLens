@@ -9,6 +9,7 @@ import type { EmailSender } from '@adxlens/core/notification';
 import type { Enqueue } from '@adxlens/jobs';
 import { getAuthUser, type AuthUser } from './auth';
 import { deps } from './deps';
+import { API_LIMIT_PER_MINUTE } from './rate-limit';
 import type { ObjectStorage } from './storage';
 
 export const WORKSPACE_HEADER = 'x-workspace-id';
@@ -125,7 +126,8 @@ export function route<
     });
     try {
       assertSameOrigin(req);
-      const { db, enqueue, email, storage } = deps();
+      const { db, enqueue, email, storage, rateLimiter } = deps();
+      let remaining: number | null = null;
       const params = (await routeCtx?.params) ?? {};
       const base: BaseCtx = { req, params, db, enqueue, email, storage, log };
       let ctx: PublicCtx | UserCtx | WorkspaceRouteCtx | StaffCtx = base;
@@ -151,6 +153,11 @@ export function route<
           if (spec.permission) assertCan(actor, spec.permission);
           if (spec.flag) await assertEnabled({ db, workspaceId: wsId }, spec.flag);
         }
+        // L3 10.1: 600 request/phút/workspace (chưa có workspace thì theo user).
+        const key = 'workspaceId' in ctx ? `ws:${ctx.workspaceId}` : `u:${user.id}`;
+        const rl = await rateLimiter.hit(key, API_LIMIT_PER_MINUTE, 60);
+        remaining = rl.remaining;
+        if (!rl.allowed) throw new AppError('RATE_LIMITED', 'Quá nhiều request, thử lại sau ít phút');
       }
 
       const query = spec.query ? spec.query.parse(Object.fromEntries(new URL(req.url).searchParams)) : undefined;
@@ -158,9 +165,14 @@ export function route<
       const body = spec.body ? spec.body.parse(await readBody(req)) : undefined;
 
       const result = await spec.handler(ctx as CtxFor<A>, { body, query } as never);
-      if (result instanceof Response) return result;
-      if (result === null || result === undefined) return new Response(null, { status: 204 });
-      return json(result);
+      const res =
+        result instanceof Response
+          ? result
+          : result === null || result === undefined
+            ? new Response(null, { status: 204 })
+            : json(result);
+      if (remaining !== null) res.headers.set('X-RateLimit-Remaining', String(remaining));
+      return res;
     } catch (e) {
       if (isAppError(e)) {
         if (e.status >= 500) log.error({ err: e }, 'lỗi nghiệp vụ');

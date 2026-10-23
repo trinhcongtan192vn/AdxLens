@@ -5,6 +5,7 @@ import { recordingEnqueue } from '@adxlens/jobs';
 import { setAuthResolverForTest, setPasswordVerifierForTest, type AuthUser } from './server/auth';
 import { setAccountOpsForTest } from './server/account';
 import { setDepsForTest } from './server/deps';
+import { memoryRateLimiter } from './server/rate-limit';
 import { memoryStorage } from './server/storage';
 import type { RouteHandler } from './server/route';
 
@@ -15,7 +16,8 @@ export function installTestServer(db: Db) {
   const enqueue = recordingEnqueue();
   const email = memoryEmailSender();
   const storage = memoryStorage();
-  setDepsForTest({ db, enqueue, email, storage });
+  const rateLimiter = memoryRateLimiter();
+  setDepsForTest({ db, enqueue, email, storage, rateLimiter });
   setAuthResolverForTest(async (req) => {
     const id = req?.headers.get('x-test-user');
     return id ? (users.get(id) ?? null) : null;
@@ -23,7 +25,7 @@ export function installTestServer(db: Db) {
   // Mật khẩu đúng trong test là "correct-password".
   setPasswordVerifierForTest(async (_email, password) => password === 'correct-password');
   setAccountOpsForTest({ changePassword: async () => ({ ok: true }), signOutOthers: async () => {} });
-  return { enqueue, email, storage };
+  return { enqueue, email, storage, rateLimiter };
 }
 
 export function uninstallTestServer() {

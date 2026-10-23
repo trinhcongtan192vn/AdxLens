@@ -143,6 +143,20 @@ describe('route()', () => {
     expect(ok.status).toBe(200);
   });
 
+  it('rate limit 600 request/phút/workspace: header còn lại, vượt thì 429 (L3 10.1)', async () => {
+    const a = await seedWorkspace(db);
+    const u = asUser(a.owner);
+    const ping = route({ auth: 'workspace', handler: async () => ({ ok: true }) });
+    const first = await call(ping, { user: u, workspaceId: a.workspace.id });
+    expect(first.headers.get('x-ratelimit-remaining')).toBe('599');
+    for (let i = 0; i < 599; i++) await call(ping, { user: u, workspaceId: a.workspace.id });
+    const over = await call(ping, { user: u, workspaceId: a.workspace.id });
+    expect(over.status).toBe(429);
+    // Workspace khác không bị ảnh hưởng.
+    const b = await seedWorkspace(db);
+    expect((await call(ping, { user: asUser(b.owner), workspaceId: b.workspace.id })).status).toBe(200);
+  });
+
   it('route staff trả 404 cho người không phải staff', async () => {
     const a = await seedWorkspace(db);
     const admin = route({
