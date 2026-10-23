@@ -58,6 +58,19 @@ export async function seedWorld(db: Db) {
     attributionWindow: '7d_click_1d_view',
   });
 
+  await db.insert(schema.reconciliationResults).values({
+    workspaceId: b.workspace.id,
+    adAccountId: bAdAccount.id,
+    date: '2026-10-20',
+    spendInternal: '123456.0000',
+    spendMeta: '123456.0000',
+    resultsInternal: 3,
+    resultsMeta: 3,
+    spendDeltaPct: '0',
+    resultsDeltaPct: '0',
+    status: 'ok',
+  });
+
   const world = {
     a: {
       workspace: a.workspace,

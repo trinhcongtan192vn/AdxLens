@@ -181,3 +181,17 @@ export async function runPlaybook(
     return 'failed';
   }
 }
+
+/** Đóng mọi sự cố đang mở cùng fingerprint (ví dụ đối chiếu đã khớp lại). */
+export async function resolveIncidentsByFingerprint(
+  db: DbOrTx,
+  fingerprint: string,
+  clock: Clock = systemClock,
+): Promise<number> {
+  const rows = await db
+    .update(opsIncidents)
+    .set({ status: 'resolved', resolvedAt: clock.now() })
+    .where(and(eq(opsIncidents.fingerprint, fingerprint), inArray(opsIncidents.status, ['open', 'mitigated'])))
+    .returning({ id: opsIncidents.id });
+  return rows.length;
+}

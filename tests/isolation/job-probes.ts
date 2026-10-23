@@ -68,6 +68,18 @@ export const JOB_PROBES: Record<string, JobProbe> = {
     prepare: backfillForA,
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, date: p!.to }),
   },
+  'reconcile:account': {
+    prepare: backfillForA,
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, from: p!.from, to: p!.to }),
+  },
+  'reconcile:account#cross': {
+    payload: (w) => ({
+      workspaceId: w.a.workspace.id,
+      adAccountId: w.b.adAccount.id,
+      from: '2026-10-20',
+      to: '2026-10-22',
+    }),
+  },
   'sync:daily_account#cross': {
     payload: (w) => ({ workspaceId: w.a.workspace.id, adAccountId: w.b.adAccount.id, date: '2026-10-22' }),
   },

@@ -2,6 +2,7 @@ export type ClientRow = {
   id: string;
   name: string;
   accounts: { id: string; name: string; metaAccountId: string; confirmed: boolean; expired: boolean }[];
+  recon?: { status: 'ok' | 'warning' | 'pending'; maxSpendDeltaPct: string | null };
 };
 
 const norm = (s: string) =>

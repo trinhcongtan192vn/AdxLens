@@ -43,6 +43,8 @@ test('S04 → S05 gán Client → S06 đồng bộ → C01 → C02', async ({ pa
   await expect(page.getByRole('progressbar')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Đồng bộ xong dữ liệu 90 ngày' })).toBeVisible({ timeout: 60_000 });
   await expect(page.getByText('100% · 2 / 2 tài khoản')).toBeVisible();
+  // Đối chiếu chạy sau đồng bộ: mỗi tài khoản có badge Khớp/Lệch (mock lệch 1,4% ở act_100000002).
+  await expect(page.getByText(/^(Khớp|Lệch) [\d,]+%$/)).toHaveCount(2, { timeout: 30_000 });
   await page.getByRole('link', { name: 'Tiếp tục' }).click();
   await expect(page).toHaveURL(/\/clients$/);
   await expect(page.getByText(/2 Client · 2 tài khoản/)).toBeVisible();
@@ -54,6 +56,11 @@ test('S04 → S05 gán Client → S06 đồng bộ → C01 → C02', async ({ pa
 
   await expect(page.getByRole('heading', { name: 'Khách E2E' })).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Chiến dịch' })).toHaveAttribute('aria-selected', 'true');
+  // C02 → D04 qua badge đối chiếu.
+  await page.getByRole('link', { name: /^(Khớp|Lệch) / }).click();
+  await expect(page.getByRole('heading', { name: 'Đối chiếu số liệu' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: /^Chi tiêu \(/ })).toBeVisible();
+  await page.goBack();
   await page.getByRole('tab', { name: 'Cài đặt' }).click();
   await expect(page.getByText('Tài khoản QC của Client')).toBeVisible();
   await page.getByRole('button', { name: 'Bỏ gán' }).click();

@@ -14,6 +14,7 @@ import {
   resultActionTypes,
   runDailySync,
   startBackfill,
+  startManualSync,
   syncRange,
   syncStatuses,
   toDecimal,
@@ -239,6 +240,23 @@ describe('backfill 90 ngày', () => {
     const octx = { db, workspaceId: other.workspace.id };
     await expect(startBackfill(octx, adAccountId, { enqueue: recordingEnqueue(), clock })).rejects.toMatchObject({
       code: 'NOT_FOUND',
+    });
+  });
+});
+
+describe('trạng thái đồng bộ', () => {
+  it('lần đồng bộ lại đã lên lịch (chưa chạy) không che backfill đã xong', async () => {
+    const { ctx, adAccountId } = await setup();
+    const enqueue = recordingEnqueue();
+    await startBackfill(ctx, adAccountId, { enqueue, clock });
+    await runAll(
+      ctx,
+      enqueue.calls.map((c) => c.payload as BackfillJob),
+    );
+    await startManualSync(ctx, adAccountId, { from: '2026-10-20', to: '2026-10-20' }, { enqueue, clock, delayMs: 1 });
+    expect((await syncStatuses(ctx, [adAccountId])).get(adAccountId)).toMatchObject({
+      status: 'succeeded',
+      kind: 'backfill',
     });
   });
 });

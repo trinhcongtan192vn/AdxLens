@@ -33,9 +33,14 @@ describe('worker: đồng bộ', () => {
     const { ctx, adAccountId } = await importOne('act_100000003');
     const { services, enqueue } = testWorkerServices(db);
     await startBackfill(ctx, adAccountId, { enqueue: services.enqueue });
-    for (const [i, c] of enqueue.calls.entries()) {
-      await dispatch(handlers, services, { name: c.name, id: `b${i}`, data: c.payload });
+    // Chạy hàng đợi tới khi rỗng: backfill xong → reconcile:account được enqueue và chạy.
+    for (let i = 0; i < enqueue.calls.length; i++) {
+      const c = enqueue.calls[i]!;
+      await dispatch(handlers, services, { name: c.name, id: `j${i}`, data: c.payload });
     }
+    expect(enqueue.calls.filter((c) => c.name === 'reconcile:account')).toHaveLength(1);
+    const [r] = await db.select({ n: sql<number>`count(*)::int` }).from(schema.reconciliationResults);
+    expect(r!.n).toBe(90);
     const [acc] = await db.select().from(schema.adAccounts).where(eq(schema.adAccounts.id, adAccountId));
     expect(acc!.syncStatus).toBe('ok');
     const [n] = await db.select({ n: sql<number>`count(*)::int` }).from(schema.insightsDaily);

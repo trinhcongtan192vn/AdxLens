@@ -586,5 +586,52 @@
       "META_NO_ACCESS": "Đồng bộ dừng ở {percent}%: mất quyền truy cập tài khoản quảng cáo. Kiểm tra quyền trong Business Manager rồi thử lại.",
       "META_TOKEN_INVALID": "Đồng bộ dừng ở {percent}%: kết nối Meta đã hết hạn. Kết nối lại để tiếp tục."
     }
+  },
+  "recon": {
+    "ok": "Khớp {pct}",
+    "warning": "Lệch {pct}",
+    "pending": "Chưa đối chiếu",
+    "title": "Đối chiếu số liệu",
+    "resync": "Chạy lại đồng bộ",
+    "resyncQueued": "Đã lên lịch đồng bộ lại. Kết quả đối chiếu cập nhật khi đồng bộ xong.",
+    "warningBanner": "Số liệu lệch hơn 1% so với Ads Manager ở {count, plural, other {# ngày}}: {dates}. Báo cáo của Client này chưa chia sẻ được. Hệ thống tự đồng bộ và đối chiếu lại sau 24 giờ.",
+    "pendingBody": "Chưa có dữ liệu đối chiếu cho khoảng này. Đối chiếu chạy sau khi đồng bộ xong.",
+    "noAccounts": "Client này chưa có tài khoản QC để đối chiếu.",
+    "account": "Tài khoản",
+    "range": "Khoảng ngày",
+    "ranges": {
+      "7": "7 ngày qua",
+      "14": "14 ngày qua",
+      "30": "30 ngày qua"
+    },
+    "cols": {
+      "metric": "Chỉ số",
+      "adxlens": "AdxLens",
+      "adsManager": "Ads Manager",
+      "diff": "Chênh lệch",
+      "pct": "%",
+      "status": "Trạng thái"
+    },
+    "metrics": {
+      "spend": "Chi tiêu ({currency})",
+      "impressions": "Hiển thị",
+      "linkClicks": "Click liên kết",
+      "conversionValue": "Doanh thu chuyển đổi ({currency})",
+      "roas": "ROAS",
+      "purchase": "Đơn hàng (7d click / 1d view)",
+      "lead": "Lead (7d click / 1d view)",
+      "landing_page_view": "Lượt xem trang đích",
+      "messaging": "Cuộc trò chuyện",
+      "other": "Kết quả: {type}"
+    },
+    "match": "Khớp",
+    "mismatch": "Lệch",
+    "causesTitle": "Nguyên nhân có thể (chỉ để tham khảo)",
+    "causes": {
+      "recent": "Dữ liệu {dates} chưa ổn định: Meta còn điều chỉnh số liệu chuyển đổi trong vài ngày.",
+      "timezone": "Múi giờ tài khoản ({timezone}) cần khớp với cài đặt trong Ads Manager khi so sánh.",
+      "attribution": "Ads Manager có thể đang hiển thị cửa sổ attribution khác 7d click / 1d view."
+    },
+    "footnote": "Khớp Meta · cập nhật {time} · attribution 7d click / 1d view · {currency} · {timezone}"
   }
 }

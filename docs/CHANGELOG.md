@@ -2,6 +2,34 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [013a] Đối chiếu số liệu với Meta (ngưỡng 1%), D04 — 2026-10-23
+
+**Thay đổi**
+- DB: `app.reconciliation_results` theo (tài khoản, ngày): chi tiêu, kết quả, hiển thị, click liên kết, doanh thu chuyển đổi — AdxLens và Meta; `results_by_type` (từng action_type), độ lệch % numeric(10,6), `ok`/`warning`. RLS.
+- `packages/core/shared/decimal.ts`: số thập phân cố định trên BigInt (cộng tiền, độ lệch %, so sánh) — không float.
+- `packages/core/reconciliation`:
+  - `RECONCILIATION_THRESHOLD_PCT = 1` (có test khóa). Ngày `ok` khi chi tiêu **và** kết quả lệch ≤ 1% (L3 6.4).
+  - Kết quả so theo từng loại action (mua hàng, lead, click…) trên mọi ad với insight cấp tài khoản của Meta, lấy loại lệch nhiều nhất (không để loại này bù loại kia). Ngày Meta có số mà AdxLens thiếu dữ liệu → lệch.
+  - Lệch → sự cố P2 `reconciliation_warning` + playbook `reconcile_retry`: đồng bộ lại các ngày lệch sau 24 giờ (1 lần/ngày/tài khoản, vượt thì leo thang). Hết lệch → đóng sự cố. Token thu hồi → kết nối hết hạn.
+  - Badge 7 ngày tới hôm qua theo múi giờ tài khoản; chi tiết D04 (tổng từng chỉ số, ROAS tính trên số nguyên).
+- Ingestion: lần chạy đồng bộ xong tự enqueue `reconcile:account` cho khoảng ngày của nó; `startManualSync` (đồng bộ lại khoảng ≤ 90 ngày, có thể hoãn); jobId backfill gắn với lần chạy (để đồng bộ lại không bị trùng job cũ). Trạng thái đồng bộ không bị lần đồng bộ lại đã lên lịch (chưa chạy) che mất.
+- Worker: handler `reconcile:account`.
+- API: `GET /api/v1/ad-accounts/{id}/reconciliation?from&to` (D04), `POST /api/v1/ad-accounts/{id}/resync`, `sync-status` có `reconciliation` (trước đây `null`).
+- Giao diện: D04 Đối chiếu số liệu (Penpot: chọn tài khoản, 7/14/30 ngày, "Chạy lại đồng bộ", banner ngày lệch, bảng Chỉ số | AdxLens | Ads Manager | Chênh lệch | % | Trạng thái, nguyên nhân có thể, dòng nguồn); badge "Khớp x% / Lệch x%" ở S06, cột Đối chiếu C01, tiêu đề C02 (bấm mở D04).
+
+**Test tự động**
+- `packages/core/src/shared/decimal.test.ts` (3); `packages/core/src/reconciliation/reconciliation.test.ts` (9): ngưỡng khóa 1%, biên ≤ 1%, ROAS, tài khoản khớp mọi ngày, mock lệch 1,4% đúng một ngày → warning + sự cố + playbook hoãn 24 giờ + lần 2 leo thang, hết lệch đóng sự cố, thiếu dữ liệu nội bộ → lệch, pending, không đối chiếu tài khoản workspace khác.
+- `ingestion.test.ts` (+1): lần đồng bộ lại đã lên lịch không che backfill đã xong.
+- Worker: chạy hết hàng đợi → backfill xong tự đối chiếu 90 ngày.
+- API `ad-accounts/reconciliation.test.ts` (5); `lib/recon.test.ts` (3).
+- Bộ cách ly: dữ liệu B có kết quả đối chiếu; probe job `reconcile:account` (+ biến thể tài khoản B), 2 route mới.
+- E2E: S06 hiện badge đối chiếu cho 2 tài khoản; C02 → D04.
+- **Test đổi:** `connections.test.ts` trước khẳng định `reconciliation: null` (giữ chỗ của 012); nay là `{ status: 'pending' }` vì 013 điền đối chiếu thật.
+
+**Vùng bảo vệ:** `packages/db/**` (1 bảng + RLS, migration 0014–0015).
+
+**PM kiểm tra:** sau S06, mở Clients → cột Đối chiếu; Client có tài khoản "Thời trang Linh" (mock lệch 1,4% ngày 3 hôm trước) → "Lệch 1,4%" → D04 thấy banner ngày lệch, bảng chỉ số, "Chạy lại đồng bộ".
+
 ## [012] Đồng bộ số liệu: backfill 90 ngày, daily sync, S06 — 2026-10-23
 
 **Thay đổi**

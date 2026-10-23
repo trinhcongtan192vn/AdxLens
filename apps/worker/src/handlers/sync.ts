@@ -9,19 +9,19 @@ export const syncHandlers: HandlerMap = {
     refreshAvailableAccounts({ db, workspaceId }, connectionId, { meta, keys: tokenKeys }),
 
   // Một lô 7 ngày của backfill 90 ngày (L3 6.3).
-  'sync:backfill_account': async (p, { db, meta, tokenKeys, finalAttempt }) =>
+  'sync:backfill_account': async (p, { db, meta, tokenKeys, finalAttempt, enqueue }) =>
     syncRange(
       { db, workspaceId: p.workspaceId },
       { syncRunId: p.syncRunId, adAccountId: p.adAccountId, from: p.from, to: p.to, finalAttempt },
-      { meta, keys: tokenKeys },
+      { meta, keys: tokenKeys, enqueue },
     ),
 
   // Daily sync: 3 ngày gần nhất tới `date`.
-  'sync:daily_account': async (p, { db, meta, tokenKeys, finalAttempt }) =>
+  'sync:daily_account': async (p, { db, meta, tokenKeys, finalAttempt, enqueue }) =>
     runDailySync(
       { db, workspaceId: p.workspaceId },
       { adAccountId: p.adAccountId, date: p.date, finalAttempt },
-      { meta, keys: tokenKeys },
+      { meta, keys: tokenKeys, enqueue },
     ),
 
   // Scheduler mỗi giờ: enqueue daily sync cho tài khoản đang 03:00 giờ địa phương.

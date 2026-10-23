@@ -3,8 +3,11 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { z } from 'zod';
 import { listAdAccounts } from '@adxlens/core/connections';
+import { accountReconciliation } from '@adxlens/core/reconciliation';
 import { can, getClient } from '@adxlens/core/tenancy';
 import { Card, EmptyState, PageHeader, TabBar, tabItemClass } from '@adxlens/ui';
+import { ReconBadge } from '@/components/recon-badge';
+import { worstRecon } from '@/lib/recon';
 import { getPageContext } from '@/server/page-context';
 import { ClientAccounts, ClientActions } from './client-detail';
 
@@ -38,6 +41,11 @@ export default async function ClientPage({
   const t = await getTranslations('clients');
   const canManage = can(pc.ctx.actor.role, 'clients.manage');
   const accounts = await listAdAccounts(pc.ctx, { clientId: client.id });
+  const reconMap = await accountReconciliation(
+    pc.ctx,
+    accounts.map((a) => a.id),
+  );
+  const recon = worstRecon([...reconMap.values()]);
 
   return (
     <>
@@ -48,7 +56,16 @@ export default async function ClientPage({
           </Link>,
           client.name,
         ]}
-        title={client.name}
+        title={
+          <span className="flex items-center gap-3">
+            {client.name}
+            {recon.status !== 'pending' ? (
+              <Link href={`/clients/${client.id}/reconciliation`} className="text-body font-normal">
+                <ReconBadge status={recon.status} pct={recon.maxSpendDeltaPct} />
+              </Link>
+            ) : null}
+          </span>
+        }
         actions={canManage ? <ClientActions id={client.id} name={client.name} /> : null}
       />
       <TabBar className="mb-4">

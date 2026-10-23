@@ -4,6 +4,7 @@ import type { Enqueue } from '@adxlens/jobs';
 import { DEFAULT_ATTRIBUTION, MetaApiError, type MetaInsight, type MetaReadApi } from '@adxlens/meta-client';
 import { markConnectionExpired, withConnectionToken, type TokenKeys } from '@adxlens/core/connections';
 import {
+  AppError,
   addDays,
   daysBetween,
   localDate,
@@ -25,7 +26,13 @@ export const DAILY_LOOKBACK_DAYS = 3;
 export const DAILY_SYNC_HOUR = 3;
 export const ATTRIBUTION_WINDOW = DEFAULT_ATTRIBUTION.join('_');
 
-export type SyncDeps = { meta: MetaReadApi; keys: TokenKeys; clock?: Clock };
+export type SyncDeps = {
+  meta: MetaReadApi;
+  keys: TokenKeys;
+  clock?: Clock;
+  /** Có thì lần chạy xong sẽ enqueue đối chiếu cho khoảng ngày của nó (L3 7.3). */
+  enqueue?: Enqueue;
+};
 
 /** Chia [from, to] thành lô `size` ngày, lô mới nhất trước. */
 export function planBatches(from: string, to: string, size = BATCH_DAYS): { from: string; to: string }[] {
@@ -100,6 +107,49 @@ export async function startBackfill(
     });
   }
   return { syncRunId: run!.id, created: true };
+}
+
+/** Khoảng tối đa của một lần đồng bộ lại thủ công / playbook. */
+export const MAX_RESYNC_DAYS = BACKFILL_DAYS;
+
+/**
+ * Đồng bộ lại một khoảng ngày (D04 "Chạy lại đồng bộ", playbook `reconcile_retry`): lần chạy "manual",
+ * lô 7 ngày, có thể hoãn (`delayMs`). Xong thì tự đối chiếu lại.
+ */
+export async function startManualSync(
+  ctx: WorkspaceCtx,
+  adAccountId: string,
+  range: { from: string; to: string },
+  deps: { enqueue: Enqueue; clock?: Clock; delayMs?: number },
+): Promise<{ syncRunId: string }> {
+  const account = await getAccount(ctx, adAccountId);
+  const yesterday = addDays(localDate((deps.clock ?? systemClock).now(), account.timezone), -1);
+  const to = range.to > yesterday ? yesterday : range.to;
+  const days = daysBetween(range.from, to) + 1;
+  if (days < 1 || days > MAX_RESYNC_DAYS) {
+    throw new AppError('VALIDATION_FAILED', 'Khoảng ngày không hợp lệ', { max_days: MAX_RESYNC_DAYS });
+  }
+  const batches = planBatches(range.from, to);
+  const [run] = await ctx.db
+    .insert(syncRuns)
+    .values({
+      workspaceId: ctx.workspaceId,
+      adAccountId,
+      kind: 'manual',
+      dateFrom: range.from,
+      dateTo: to,
+      batchesTotal: batches.length,
+      daysTotal: days,
+    })
+    .returning({ id: syncRuns.id });
+  for (const b of batches) {
+    await deps.enqueue(
+      'sync:backfill_account',
+      { workspaceId: ctx.workspaceId, adAccountId, from: b.from, to: b.to, syncRunId: run!.id },
+      deps.delayMs ? { delayMs: deps.delayMs } : undefined,
+    );
+  }
+  return { syncRunId: run!.id };
 }
 
 /** Đồng bộ cấu trúc campaign/ad set/ad/creative (upsert). */
@@ -343,7 +393,15 @@ export async function syncRange(
     .where(and(eq(syncRuns.workspaceId, ctx.workspaceId), eq(syncRuns.id, run.id)))
     .returning({ done: syncRuns.batchesDone, total: syncRuns.batchesTotal });
   const runDone = updated!.done >= updated!.total;
-  if (runDone) await finishRun(ctx, run.id, account.id, account.timezone, deps.clock ?? systemClock);
+  if (runDone) {
+    await finishRun(ctx, run.id, account.id, account.timezone, deps.clock ?? systemClock);
+    await deps.enqueue?.('reconcile:account', {
+      workspaceId: ctx.workspaceId,
+      adAccountId: account.id,
+      from: run.dateFrom,
+      to: run.dateTo,
+    });
+  }
   return { status: 'ok', rows: rows.length, runDone };
 }
 
@@ -459,7 +517,12 @@ export async function syncStatuses(ctx: WorkspaceCtx, adAccountIds: string[]): P
       .selectDistinctOn([syncRuns.adAccountId])
       .from(syncRuns)
       .where(and(eq(syncRuns.workspaceId, ctx.workspaceId), inArray(syncRuns.adAccountId, adAccountIds)))
-      .orderBy(syncRuns.adAccountId, desc(syncRuns.createdAt)),
+      // Lần đồng bộ lại đã lên lịch nhưng chưa chạy (playbook hoãn 24 giờ) không che lần đã xong.
+      .orderBy(
+        syncRuns.adAccountId,
+        sql`(${syncRuns.status} = 'queued' and ${syncRuns.kind} <> 'backfill')`,
+        desc(syncRuns.createdAt),
+      ),
   ]);
   const byAccount = new Map(runs.map((r) => [r.adAccountId, r]));
   for (const a of accounts) {
