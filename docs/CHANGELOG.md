@@ -2,6 +2,27 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [031] Weekly Action List (P101–P102), trạng thái + gán việc, thông báo cho media buyer, checklist cờ P1 — 2026-10-23
+
+**Thay đổi**
+- DB: `app.recommendations` (tuần, nguồn, hành động, lý do, bằng chứng, tác động `numeric`, độ tin cậy, công sức, điểm, trạng thái Đề xuất / Đang làm / Đã làm / Bỏ qua + lý do, người được gán). RLS (migration 0039–0040).
+- `packages/core/recommendation/weekly.ts`: `generateWeeklyActions` (từ phát hiện đang mở + creative Thua/Winner; idempotent, giữ trạng thái), `priorityScore` (PRD 10.3: tác động tương đối × độ tin cậy ÷ công sức × hệ số "sai"), `wrongRates` / `reviewQueue` (loại gợi ý hay bị bỏ qua vì "sai" xếp thấp hơn và vào rà soát), `listWeeklyActions` (buyer chỉ thấy Client được gán), `updateWeeklyAction` (bỏ qua bắt buộc lý do; chỉ gán cho người xem được Client), `assignableMembers`. Bảng giá trị ở `docs/rules/weekly-actions.md`.
+- Job `recommend:build` (kiểm cờ ở đầu job); `maintenance:report_tick` enqueue vào thứ Hai 07:00 theo múi giờ workspace.
+- Thông báo mới: `weekly_actions` (P1-09: mỗi thành viên nhận số việc theo phạm vi Client của mình, trong app + email) và `action_assigned` (trong app).
+- Checklist kỹ thuật cờ `p1_recommendations` (L3 18.3): P0 bật ≥ 14 ngày; tỷ lệ phát hiện "sai" ≤ 20% — hiện trong hộp thoại bật cờ AD02.
+- API: `GET /recommendations` (`week`, `status`, `assignee=me`), `PATCH /recommendations/{id}`, `GET /recommendations/{id}/assignees` — đều kiểm cờ ở server.
+- Trang P101 `/weekly-actions`: danh sách xếp hạng, lọc trạng thái / "Việc của tôi" / tuần, đổi trạng thái tại chỗ (bỏ qua mở hộp thoại lý do); P102 drawer: vì sao, tác động, độ tin cậy, công sức, cách xếp hạng, gán người, mở Ads Manager.
+
+**Test tự động**
+- `recommendation/weekly.test.ts` (10): công thức điểm; tạo + xếp hạng + idempotent giữ trạng thái; bỏ phát hiện đã xong; tuần phải là thứ Hai; **bỏ qua vì "sai" giảm điểm tuần sau (× 0,3) và vào rà soát**; thông báo theo phạm vi Client; bỏ qua cần lý do, đã làm ghi thời điểm, buyer chỉ thấy/sửa việc của mình; gán sai phạm vi bị chặn + thông báo người được gán; cách ly workspace; lịch thứ Hai 07:00; checklist cờ P1.
+- `api/v1/recommendations/recommendations.test.ts` (2): **cờ tắt thì không chạy**; cờ bật: danh sách, bỏ qua cần lý do, người nhận việc, lọc "của tôi". Worker: `recommend:build` cờ tắt → không chạy.
+- Bộ cách ly: probe 3 route + job `recommend:build`; world B có một gợi ý (tên bí mật không lộ).
+- E2E `creatives.spec.ts` (+ P101/P102): tạo danh sách → đổi trạng thái → mở chi tiết.
+
+**Vùng bảo vệ:** `packages/db/**` (1 bảng + RLS, migration 0039–0040).
+
+**PM kiểm tra:** bật cờ "Gợi ý" → `pnpm job:trigger -- recommend:build '{"workspaceId":"<id>","week":"<thứ Hai tuần này>"}'` → sidebar "Việc tuần này": đổi trạng thái, bỏ qua (chọn lý do), mở chi tiết, gán người. Email "Việc tuần này" ở Mailpit.
+
 ## [030] Creative library (P103), so sánh creative (P104), phân loại + dự báo mệt — 2026-10-23
 
 **Thay đổi**

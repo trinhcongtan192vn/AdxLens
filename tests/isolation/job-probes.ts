@@ -106,6 +106,10 @@ export const JOB_PROBES: Record<string, JobProbe> = {
   'notify:digest': {
     payload: (w) => ({ workspaceId: w.a.workspace.id, week: '2026-10-26' }),
   },
+  'recommend:build': {
+    prepare: backfillForA,
+    payload: (w) => ({ workspaceId: w.a.workspace.id, week: '2026-10-19' }),
+  },
   'reconcile:account': {
     prepare: backfillForA,
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, from: p!.from, to: p!.to }),

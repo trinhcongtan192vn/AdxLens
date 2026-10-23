@@ -24,6 +24,8 @@ export const NOTIFICATION_KINDS = {
   billing_failed: { mandatory: true, inApp: true, email: true },
   billing_renewal: { mandatory: true, inApp: true, email: true },
   action_failed: { mandatory: true, inApp: true, email: true },
+  weekly_actions: { mandatory: false, inApp: true, email: true },
+  action_assigned: { mandatory: false, inApp: true, email: false },
 } as const;
 
 export type NotificationKind = keyof typeof NOTIFICATION_KINDS;

@@ -71,3 +71,20 @@ export async function makeStaff(email: string, canEnableFlags = true): Promise<v
     await close();
   }
 }
+
+/**
+ * Tạo Weekly Action List ngay cho workspace (thay cho job thứ Hai 07:00) — gọi đúng hàm core mà job
+ * `recommend:build` dùng, chỉ ở DB local của E2E.
+ */
+export async function generateWeeklyNow(workspaceName: string): Promise<void> {
+  const { createDb, schema } = await import('@adxlens/db');
+  const { eq } = await import('drizzle-orm');
+  const { generateWeeklyActions, weeklyActionsWeek } = await import('@adxlens/core/recommendation');
+  const { db, close } = createDb(process.env.DATABASE_URL!);
+  try {
+    const [ws] = await db.select().from(schema.workspaces).where(eq(schema.workspaces.name, workspaceName));
+    await generateWeeklyActions({ db, workspaceId: ws!.id }, weeklyActionsWeek(ws!.defaultTimezone, new Date()));
+  } finally {
+    await close();
+  }
+}

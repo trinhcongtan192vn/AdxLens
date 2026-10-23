@@ -10,6 +10,7 @@ import {
   schedulePeriod,
   sendWeeklyDigest,
 } from '@adxlens/core/reporting';
+import { isWeeklyActionsDue, weeklyActionsWeek } from '@adxlens/core/recommendation';
 import { SYSTEM_ACTOR } from '@adxlens/core/shared';
 import type { HandlerMap } from '../handler';
 
@@ -76,7 +77,12 @@ export const reportHandlers: HandlerMap = {
     // Digest tuần: thứ Hai 08:00 theo múi giờ workspace (P0-19).
     const digests = (await workspaceTimezones(db)).filter((w) => isDigestDue(w.timezone, now));
     for (const w of digests) await enqueue('notify:digest', { workspaceId: w.id, week: digestWeek(w.timezone, now) });
-    return { enqueued: due.length, digests: digests.length };
+    // Weekly Action List: thứ Hai 07:00 theo múi giờ workspace (P1, PRD 10.4); job tự kiểm cờ.
+    const weekly = (await workspaceTimezones(db)).filter((w) => isWeeklyActionsDue(w.timezone, now));
+    for (const w of weekly) {
+      await enqueue('recommend:build', { workspaceId: w.id, week: weeklyActionsWeek(w.timezone, now) });
+    }
+    return { enqueued: due.length, digests: digests.length, weekly: weekly.length };
   },
 
   // E03 digest tuần (P0-19). Kiểm cờ ở đầu job.
