@@ -15,7 +15,7 @@ Supabase CLI cài qua `pnpm install` (gói `supabase`), không cần cài riêng
 
 ## 2. Chạy lần đầu
 
-**Cách nhanh (PM test thủ công):** double-click `Mo-AdxLens.cmd` ở gốc repo (hoặc `pnpm start:local`). Script tự mở Docker Desktop nếu chưa chạy, `pnpm install` khi lockfile đổi, bật Redis + Supabase, tạo `.env.local` (chỉ điền key Supabase còn trống, không tạo lại khóa mã hóa token), chạy migration, tạo tài khoản staff `pm@adxlens.local` / `AdxLens@local1` (bật cờ được), bật web + worker rồi mở trình duyệt. Đóng cửa sổ để tắt app. Chỉ dùng ở local.
+**Cách nhanh (PM test thủ công):** double-click `Mo-AdxLens.cmd` ở gốc repo (hoặc `pnpm start:local`). Script tự mở Docker Desktop nếu chưa chạy, `pnpm install` khi lockfile đổi, bật Redis + Supabase, tạo `.env.local` (chỉ điền key Supabase còn trống, không tạo lại khóa mã hóa token), chạy migration, tạo tài khoản staff `pm@adxlens.local` / `AdxLens@local1` (bật cờ được), build web (chỉ khi code đổi) rồi chạy web + worker bản build và mở trình duyệt. Bản build chuyển trang nhanh (~0,1 giây); `next dev` biên dịch từng trang lần đầu mở (tới ~20 giây). Dev sửa code dùng `pnpm start:local -- --dev` hoặc `pnpm dev`. Đóng cửa sổ để tắt app. Chỉ dùng ở local.
 
 Cách từng bước:
 
