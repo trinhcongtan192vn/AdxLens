@@ -143,3 +143,16 @@ export async function evaluateLiveRulesNow(workspaceName: string): Promise<void>
     await close();
   }
 }
+
+/** Tạo workspace khác (B) có một Client — để thử truy cập chéo workspace (implementation-guide 4.4). */
+export async function seedForeignClient(): Promise<string> {
+  const { createDb } = await import('@adxlens/db');
+  const { seedClient, seedWorkspace } = await import('@adxlens/db/testing');
+  const { db, close } = createDb(process.env.DATABASE_URL!);
+  try {
+    const { workspace } = await seedWorkspace(db, `Workspace B ${Date.now()}`);
+    return (await seedClient(db, workspace.id, 'Client B bí mật')).id;
+  } finally {
+    await close();
+  }
+}
