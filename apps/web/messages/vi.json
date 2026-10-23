@@ -1109,7 +1109,8 @@
       "killSwitch": "Kill switch",
       "staff": "Đội ngũ",
       "audit": "Nhật ký admin",
-      "workspaces": "Workspace"
+      "workspaces": "Workspace",
+      "operations": "Vận hành"
     },
     "flags": {
       "title": "Ma trận cờ tính năng",
@@ -1239,7 +1240,10 @@
         "flag_proposal_reject": "Từ chối đề xuất bật cờ",
         "flag_proposal_cancel": "Hủy đề xuất bật cờ",
         "kill_switch_on": "Bật kill switch toàn cục",
-        "kill_switch_off": "Tắt kill switch toàn cục"
+        "kill_switch_off": "Tắt kill switch toàn cục",
+        "sync_resync": "Chạy lại đồng bộ",
+        "queue_retry": "Chạy lại job lỗi",
+        "queue_discard": "Bỏ job lỗi"
       }
     },
     "workspaces": {
@@ -1297,6 +1301,53 @@
         "range": "Khoảng ngày",
         "started": "Bắt đầu",
         "error": "Lỗi"
+      }
+    },
+    "operations": {
+      "title": "Vận hành",
+      "syncTitle": "Đồng bộ lỗi (7 ngày) hoặc kẹt > 3 giờ ({count})",
+      "syncEmpty": "Không có đồng bộ lỗi hay kẹt.",
+      "failed": "Lỗi",
+      "stuck": "Kẹt",
+      "resync": "Chạy lại đồng bộ",
+      "resyncTitle": "Chạy lại đồng bộ {account}",
+      "resyncQueued": "Đã lên lịch đồng bộ lại",
+      "days": "Khoảng ngày (đến hôm qua theo giờ tài khoản)",
+      "daysOption": "{days} ngày gần nhất",
+      "reason": "Lý do (bắt buộc, ≥ 5 ký tự)",
+      "queuesTitle": "Hàng đợi job",
+      "redisDown": "Không đọc được Redis.",
+      "failedTitle": "Job lỗi · {queue}",
+      "noRetry": "Queue này ghi lên Meta: không chạy lại (ADR-0008). Kiểm tra trên Ads Manager rồi bỏ job.",
+      "loading": "Đang tải…",
+      "noFailed": "Không còn job lỗi.",
+      "attempts": "{n} lần thử",
+      "retry": "Chạy lại",
+      "discard": "Bỏ",
+      "retried": "Đã chạy lại job",
+      "discarded": "Đã bỏ job",
+      "metaTitle": "Meta API · 60 phút gần nhất",
+      "noWorkspace": "(không theo workspace)",
+      "meta": {
+        "calls": "Lời gọi",
+        "errors": "Lỗi",
+        "rateLimited": "Bị giới hạn (rate limit)",
+        "avgMs": "Thời gian trung bình"
+      },
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Tài khoản QC",
+        "status": "Trạng thái",
+        "range": "Khoảng ngày",
+        "error": "Lỗi",
+        "at": "Lúc",
+        "actions": "Thao tác",
+        "queue": "Queue",
+        "waiting": "Chờ",
+        "active": "Đang chạy",
+        "delayed": "Hẹn giờ",
+        "failed": "Lỗi",
+        "job": "Job"
       }
     }
   },

@@ -6,6 +6,7 @@ import { adminWorkspaceDetail } from '@adxlens/core/ops';
 import { isAppError } from '@adxlens/core/shared';
 import { Badge, Card, CardHeader, PageHeader, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
 import { FLAG_LABEL } from '@/lib/admin';
+import { ResyncButton } from '../../operations/ops-actions';
 import { requireStaff } from '@/server/admin-context';
 import { deps } from '@/server/deps';
 
@@ -153,6 +154,7 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
               <TH>{t('cols.sync')}</TH>
               <TH>{t('cols.lastSync')}</TH>
               <TH>{t('cols.recon')}</TH>
+              <TH />
             </tr>
           </THead>
           <TBody>
@@ -187,6 +189,7 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
                     ? '—'
                     : t('reconSummary', { warnings: a.reconciliation30d.warnings, days: a.reconciliation30d.days })}
                 </TD>
+                <TD>{a.connectionStatus === 'revoked' ? null : <ResyncButton adAccountId={a.id} label={a.name} />}</TD>
               </TR>
             ))}
           </TBody>

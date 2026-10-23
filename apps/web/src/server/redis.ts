@@ -5,7 +5,7 @@ import type { FlagCache } from '@adxlens/core/flags';
 import { DEFAULT_JOB_OPTIONS, JOBS, jobIdFor, type Enqueue, type QueueName } from '@adxlens/jobs';
 
 let conn: IORedis | undefined;
-function redis(): IORedis {
+export function redis(): IORedis {
   conn ??= new IORedis(process.env.REDIS_URL ?? 'redis://127.0.0.1:6379', {
     maxRetriesPerRequest: null,
     lazyConnect: true,

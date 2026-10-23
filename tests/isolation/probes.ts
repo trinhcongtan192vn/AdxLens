@@ -380,6 +380,22 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     kind: 'exempt',
     reason: 'Staff tra cứu workspace (hỗ trợ khách): xuyên workspace có chủ đích, không token / số liệu QC',
   },
+  'GET /api/v1/admin/operations': {
+    kind: 'exempt',
+    reason: 'Staff vận hành: đồng bộ lỗi, hàng đợi, Meta API mọi workspace (có chủ đích, không số liệu QC)',
+  },
+  'POST /api/v1/admin/ad-accounts/[id]/resync': {
+    kind: 'exempt',
+    reason: 'Staff chạy lại đồng bộ tài khoản bất kỳ, có nhật ký admin (admin-ops.test.ts)',
+  },
+  'GET /api/v1/admin/queues/[queue]/failed': {
+    kind: 'exempt',
+    reason: 'Staff xem job lỗi (không payload, lỗi đã che)',
+  },
+  'POST /api/v1/admin/queues/[queue]/jobs/[jobId]': {
+    kind: 'exempt',
+    reason: 'Staff chạy lại / bỏ job lỗi; queue ghi Meta không chạy lại (admin-ops.test.ts)',
+  },
   'GET /api/v1/admin/staff': { kind: 'exempt', reason: 'Staff: danh sách đội AdxLens, không theo workspace' },
   'POST /api/v1/admin/staff': { kind: 'exempt', reason: 'Superadmin thêm staff (admin-roles.test.ts)' },
   'PATCH /api/v1/admin/staff/[userId]': { kind: 'exempt', reason: 'Superadmin đổi vai trò staff' },

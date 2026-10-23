@@ -2,6 +2,8 @@
 import type { Db } from '@adxlens/db';
 import type { PayosApi, StripeApi } from '@adxlens/core/billing';
 import { setPayosForTests } from '@/server/payos';
+import { setQueueAdminForTests } from '@/server/queue-admin';
+import type { FailedJob, QueueAdmin } from '@adxlens/core/ops';
 import { setStripeForTests } from '@/server/stripe';
 import { memoryEmailSender } from '@adxlens/core/notification';
 import { recordingEnqueue } from '@adxlens/jobs';
@@ -36,6 +38,32 @@ export function fakeStripe() {
 }
 
 /** PayOS giả: đơn nào cũng PAID với số tiền đã tạo (hoặc trạng thái đặt sẵn). */
+/** Hàng đợi giả cho trang vận hành: job lỗi đặt sẵn theo queue; ghi lại thao tác. */
+export function fakeQueues(failed: Record<string, FailedJob[]> = {}): QueueAdmin & { calls: string[] } {
+  const calls: string[] = [];
+  const take = (q: string, id: string) => {
+    const list = failed[q] ?? [];
+    const i = list.findIndex((j) => j.id === id);
+    if (i < 0) return false;
+    list.splice(i, 1);
+    return true;
+  };
+  return {
+    calls,
+    counts: async () =>
+      Object.entries(failed).map(([queue, jobs]) => ({
+        queue,
+        waiting: 0,
+        active: 0,
+        delayed: 0,
+        failed: jobs.length,
+      })),
+    failed: async (q, limit) => (failed[q] ?? []).slice(0, limit),
+    retry: async (q, id) => (calls.push(`retry ${q}:${id}`), take(q, id)),
+    remove: async (q, id) => (calls.push(`remove ${q}:${id}`), take(q, id)),
+  };
+}
+
 export function fakePayos() {
   const links = new Map<number, bigint>();
   const status = new Map<number, string>();
@@ -70,7 +98,9 @@ export function installTestServer(db: Db) {
   setStripeForTests(stripe);
   const payos = fakePayos();
   setPayosForTests(payos);
-  return { enqueue, email, storage, rateLimiter, stripe, payos };
+  const queues = fakeQueues();
+  setQueueAdminForTests(queues);
+  return { enqueue, email, storage, rateLimiter, stripe, payos, queues };
 }
 
 export function uninstallTestServer() {
@@ -80,6 +110,7 @@ export function uninstallTestServer() {
   setAccountOpsForTest(null);
   setStripeForTests(null);
   setPayosForTests(null);
+  setQueueAdminForTests(null);
   users.clear();
 }
 
