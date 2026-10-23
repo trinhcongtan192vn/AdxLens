@@ -713,5 +713,107 @@
       "why": "Kết quả {days, number} ngày gần nhất giảm {drop, number}% so với 14 ngày trước, trong khi chi tiêu và click liên kết không giảm tương ứng.",
       "what": "Kiểm tra pixel/Conversions API và sự kiện trong Events Manager; xem trang đích có thay đổi gần đây không."
     }
+  },
+  "account": {
+    "title": "Tổng quan tài khoản",
+    "kpi": {
+      "spend": "Chi tiêu",
+      "results": "Kết quả",
+      "cpa": "CPA",
+      "roas": "ROAS",
+      "ctr": "CTR",
+      "impressions": "Hiển thị"
+    },
+    "vsPrev": "so với kỳ trước",
+    "trend": "Xu hướng theo ngày",
+    "spendSeries": "Chi tiêu",
+    "resultsSeries": "Kết quả",
+    "health": "Health score",
+    "healthNone": "Không có vấn đề đang mở.",
+    "healthPenalty": "−{points, number} điểm · {count, plural, other {# phát hiện}}",
+    "topFindings": "Phát hiện nổi bật",
+    "allFindings": "Xem tất cả phát hiện",
+    "noFindings": "Chưa có phát hiện nào. Audit chạy sau khi đồng bộ và đối chiếu khớp.",
+    "noData": "Chưa có dữ liệu cho kỳ này. Đồng bộ đang chạy hoặc tài khoản không có chi tiêu.",
+    "footnote": "Nguồn: Meta Ads · {from} → {to} · attribution 7d click / 1d view · {currency} · {timezone}",
+    "openAdsManager": "Mở trong Ads Manager"
+  },
+  "findings": {
+    "title": "Phát hiện",
+    "count": "{count, plural, other {# phát hiện}}",
+    "severity": {
+      "high": "Cao",
+      "medium": "Trung bình",
+      "low": "Thấp"
+    },
+    "status": {
+      "new": "Mới",
+      "seen": "Đã xem",
+      "done": "Đã làm",
+      "dismissed": "Bỏ qua",
+      "resolved": "Đã hết"
+    },
+    "filters": {
+      "all": "Tất cả",
+      "severity": "Mức độ",
+      "group": "Nhóm",
+      "status": "Trạng thái",
+      "open": "Đang mở"
+    },
+    "cols": {
+      "severity": "Mức độ",
+      "finding": "Phát hiện",
+      "group": "Nhóm",
+      "impact": "Tác động ước tính",
+      "lastSeen": "Cập nhật",
+      "status": "Trạng thái"
+    },
+    "emptyTitle": "Không có phát hiện",
+    "emptyBody": "Không có phát hiện nào khớp bộ lọc. Tài khoản ổn ở các quy tắc đang bật.",
+    "loading": "Đang tải phát hiện…",
+    "entity": {
+      "account": "Tài khoản",
+      "campaign": "Chiến dịch",
+      "adset": "Nhóm QC",
+      "ad": "Quảng cáo"
+    },
+    "drawer": {
+      "why": "Vì sao",
+      "whatToDo": "Nên làm gì",
+      "evidence": "Bằng chứng",
+      "impact": "Tác động ước tính",
+      "method": "Cách tính: {method}",
+      "noImpact": "Không ước tính bằng tiền cho loại phát hiện này.",
+      "window": "Tuần này {cur} · tuần trước {prev}",
+      "notLlm": "Số liệu do hệ thống tính từ dữ liệu Meta, không do mô hình ngôn ngữ tạo.",
+      "seen": "Đã xem",
+      "done": "Đã làm",
+      "dismiss": "Bỏ qua",
+      "wrong": "Báo sai",
+      "reason": "Lý do bỏ qua",
+      "reasonPlaceholder": "Ví dụ: đang thử creative mới",
+      "wrongNote": "Điều gì chưa đúng? (không bắt buộc)",
+      "saved": "Đã cập nhật phát hiện"
+    },
+    "metric": {
+      "frequency": "Tần suất",
+      "ctr": "CTR",
+      "spend": "Chi tiêu",
+      "cpa": "CPA",
+      "median_cpa": "CPA trung vị",
+      "adset_cpa": "CPA ad set",
+      "spend_share": "Tỷ trọng chi tiêu",
+      "results": "Kết quả",
+      "results_7d": "Kết quả 7 ngày",
+      "weekly_events_needed": "Sự kiện cần/tuần",
+      "adsets": "Ad set đang chạy",
+      "weak_adsets": "Ad set yếu",
+      "small_budget_threshold": "Ngưỡng ngân sách nhỏ",
+      "link_clicks": "Click liên kết",
+      "threshold": "Ngưỡng chi tiêu",
+      "results_per_day": "Kết quả/ngày",
+      "spend_drop": "Chi tiêu giảm (%)",
+      "click_drop": "Click giảm (%)"
+    }
   }
 }

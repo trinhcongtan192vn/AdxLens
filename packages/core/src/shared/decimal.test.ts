@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compareDecimal, deltaPct, fromScaled, mulRatio, sumDecimal, toScaled } from './decimal';
+import { compareDecimal, deltaPct, divDecimal, fromScaled, mulRatio, sumDecimal, toScaled } from './decimal';
 
 describe('số thập phân cố định', () => {
   it('chuyển đổi không mất chính xác', () => {
@@ -29,5 +29,12 @@ describe('số thập phân cố định', () => {
     expect(mulRatio('100.0001', 0.333333)).toBe('33.3333'); // 33,33333…
     expect(mulRatio('1.0001', 0.5)).toBe('0.5001'); // 0,50005 làm tròn nửa lên
     expect(mulRatio('0', 0.9)).toBe('0.0000');
+  });
+
+  it('chia thập phân (CPA, ROAS)', () => {
+    expect(divDecimal('2318400000', '615900000')).toBe('3.7642');
+    expect(divDecimal('1000000', '3')).toBe('333333.3333');
+    expect(divDecimal('2', '3', 0)).toBe('1');
+    expect(divDecimal('1', '0')).toBeNull();
   });
 });

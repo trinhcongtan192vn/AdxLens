@@ -67,3 +67,14 @@ export function mulRatio(amount: string, ratio: number, scale = MONEY_SCALE): st
   const half = prod >= 0n ? 500_000n : -500_000n;
   return fromScaled((prod + half) / 1_000_000n, scale);
 }
+
+/** a / b cho số thập phân (vd. ROAS = doanh thu / chi tiêu), làm tròn nửa lên `scale` chữ số. b = 0 → null. */
+export function divDecimal(a: string, b: string, scale = 4): string | null {
+  const x = toScaled(a, MONEY_SCALE);
+  const y = toScaled(b, MONEY_SCALE);
+  if (y === 0n) return null;
+  const num = x * 10n ** BigInt(scale) * 2n;
+  const den = y * 2n;
+  const q = (num + (num >= 0n === den > 0n ? den / 2n : -den / 2n)) / den;
+  return fromScaled(q, scale);
+}

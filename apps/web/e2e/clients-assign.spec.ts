@@ -63,6 +63,23 @@ test('S04 → S05 gán Client → S06 đồng bộ → C01 → C02', async ({ pa
   await page.goBack();
   await page.getByRole('tab', { name: 'Cài đặt' }).click();
   await expect(page.getByText('Tài khoản QC của Client')).toBeVisible();
+
+  // D01 → D02 → D03 (audit chạy sau đối chiếu khớp; tài khoản lệch có thể chưa có phát hiện).
+  const clientSettings = page.url();
+  await page.locator('a[href^="/accounts/"]').first().click();
+  await expect(page.getByTestId('health-score')).toBeVisible();
+  await page.getByRole('link', { name: 'Xem tất cả phát hiện' }).click();
+  await expect(page.getByRole('heading', { name: /Phát hiện/ })).toBeVisible();
+  const findingLinks = page.locator('a[href*="finding="]');
+  if ((await findingLinks.count()) > 0) {
+    await findingLinks.first().click();
+    await expect(page.getByText('Vì sao')).toBeVisible();
+    await expect(page.getByText('không do mô hình ngôn ngữ tạo')).toBeVisible();
+    await page.getByRole('button', { name: 'Đã làm' }).click();
+    await expect(page.getByText('Đã cập nhật phát hiện')).toBeVisible();
+  }
+  await page.goto(clientSettings);
+  await expect(page.getByText('Tài khoản QC của Client')).toBeVisible();
   await page.getByRole('button', { name: 'Bỏ gán' }).click();
   await expect(page.getByText('Client này chưa có tài khoản QC.')).toBeVisible();
 
