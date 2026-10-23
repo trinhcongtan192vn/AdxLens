@@ -1,0 +1,293 @@
+/**
+ * Meta giả (META_MOCK=1, chỉ local/test): dữ liệu xác định theo id + ngày để chạy toàn luồng không
+ * cần app Meta. Cài sẵn mẫu cho rule audit (B2) và một ngày lệch 1,4% để thử đối chiếu (B1).
+ * KHÔNG dùng ở staging/production.
+ */
+import type { InsightQuery, MetaReadApi } from './read';
+import type { MetaAd, MetaAdAccount, MetaAdSet, MetaCampaign, MetaCreative, MetaInsight } from './types';
+
+function hash(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/** Số giả ngẫu nhiên [0,1) xác định theo khóa. */
+function rand(key: string): number {
+  let t = hash(key) + 0x6d2b79f5;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+export const MOCK_ACCOUNTS: MetaAdAccount[] = [
+  {
+    id: 'act_100000001',
+    name: 'Cà phê Nhà Rang',
+    currency: 'VND',
+    timezone_name: 'Asia/Ho_Chi_Minh',
+    account_status: 1,
+  },
+  {
+    id: 'act_100000002',
+    name: 'Thời trang Linh',
+    currency: 'VND',
+    timezone_name: 'Asia/Ho_Chi_Minh',
+    account_status: 1,
+  },
+  {
+    id: 'act_100000003',
+    name: 'Nội thất An Cư',
+    currency: 'VND',
+    timezone_name: 'Asia/Ho_Chi_Minh',
+    account_status: 1,
+  },
+  { id: 'act_100000004', name: 'Tour Đà Lạt Xanh', currency: 'USD', timezone_name: 'Asia/Bangkok', account_status: 1 },
+];
+
+/** Tài khoản/ngày bị cài lệch spend 1,4% ở mức account (số ngày trước "hôm nay" theo múi giờ tài khoản). */
+export const MOCK_DISCREPANCY = { account: 'act_100000002', daysAgo: 3, factor: 1.014 } as const;
+
+const OBJECTIVES = ['OUTCOME_SALES', 'OUTCOME_LEADS', 'OUTCOME_TRAFFIC'] as const;
+const GOAL: Record<(typeof OBJECTIVES)[number], { goal: string; action: string }> = {
+  OUTCOME_SALES: { goal: 'OFFSITE_CONVERSIONS', action: 'offsite_conversion.fb_pixel_purchase' },
+  OUTCOME_LEADS: { goal: 'LEAD_GENERATION', action: 'lead' },
+  OUTCOME_TRAFFIC: { goal: 'LINK_CLICKS', action: 'link_click' },
+};
+
+type Structure = { campaigns: MetaCampaign[]; adsets: MetaAdSet[]; ads: MetaAd[]; creatives: MetaCreative[] };
+
+function accountNum(act: string): string {
+  return act.replace('act_', '').slice(-2);
+}
+
+function structure(act: string): Structure {
+  const n = accountNum(act);
+  const campaigns: MetaCampaign[] = [];
+  const adsets: MetaAdSet[] = [];
+  const ads: MetaAd[] = [];
+  const creatives: MetaCreative[] = [];
+  OBJECTIVES.forEach((objective, ci) => {
+    const cid = `23${n}${ci}000`;
+    // Chiến dịch traffic phân mảnh: nhiều ad set ngân sách nhỏ.
+    const adsetCount = objective === 'OUTCOME_TRAFFIC' ? 6 : 3;
+    campaigns.push({
+      id: cid,
+      name: ['Bán hàng', 'Thu lead', 'Traffic'][ci] + ` · ${act.slice(-4)}`,
+      status: 'ACTIVE',
+      effective_status: 'ACTIVE',
+      objective,
+      daily_budget: null,
+      lifetime_budget: null,
+    });
+    for (let si = 0; si < adsetCount; si++) {
+      const sid = `${cid}${si}0`;
+      const small = objective === 'OUTCOME_TRAFFIC';
+      adsets.push({
+        id: sid,
+        name: `${['LAL 1%', 'Retarget 30d', 'Sở thích', 'Rộng', 'Nam 25-34', 'Nữ 25-34'][si]}`,
+        campaign_id: cid,
+        status: 'ACTIVE',
+        effective_status: 'ACTIVE',
+        optimization_goal: GOAL[objective].goal,
+        daily_budget: small ? '50000' : String(300000 + si * 150000),
+        lifetime_budget: null,
+        learning_stage_info: { status: small || (ci === 1 && si === 2) ? 'LEARNING_LIMITED' : 'SUCCESS' },
+        promoted_object: objective === 'OUTCOME_SALES' ? { custom_event_type: 'PURCHASE' } : null,
+      });
+      const adCount = small ? 1 : 3;
+      for (let ai = 0; ai < adCount; ai++) {
+        const aid = `${sid}${ai}`;
+        const crid = `9${aid}`;
+        creatives.push({
+          id: crid,
+          name: `Creative ${aid.slice(-4)}`,
+          thumbnail_url: `https://picsum.photos/seed/${crid}/128/128`,
+          image_url: null,
+          object_type: ai === 0 ? 'VIDEO' : 'PHOTO',
+          video_id: ai === 0 ? `7${aid}` : null,
+        });
+        ads.push({
+          id: aid,
+          name: `${['Video A', 'Ảnh B', 'Carousel C'][ai]} - ${['Tết', 'Sale 10.10', 'Thường'][si % 3]}`,
+          adset_id: sid,
+          campaign_id: cid,
+          status: 'ACTIVE',
+          effective_status: 'ACTIVE',
+          creative: { id: crid },
+        });
+      }
+    }
+  });
+  return { campaigns, adsets, ads, creatives };
+}
+
+function addDays(iso: string, d: number): string {
+  const x = new Date(`${iso}T00:00:00Z`);
+  x.setUTCDate(x.getUTCDate() + d);
+  return x.toISOString().slice(0, 10);
+}
+
+function todayIn(tz: string, now: Date): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(
+    now,
+  );
+}
+
+function round(n: number, currency: string): string {
+  return currency === 'USD' ? n.toFixed(2) : String(Math.round(n));
+}
+
+/** Insight của một ad trong một ngày, có các mẫu cài sẵn cho rule audit. */
+function adDay(
+  act: string,
+  ad: MetaAd,
+  adset: MetaAdSet,
+  campaign: MetaCampaign,
+  date: string,
+  today: string,
+): MetaInsight {
+  const acc = MOCK_ACCOUNTS.find((a) => a.id === act)!;
+  const usd = acc.currency === 'USD';
+  const scale = usd ? 1 / 25000 : 1;
+  const r = (k: string) => rand(`${ad.id}:${date}:${k}`);
+  const daysAgo = Math.round((Date.parse(today) - Date.parse(date)) / 86_400_000);
+  const objective = campaign.objective as (typeof OBJECTIVES)[number];
+  const idx = Number(ad.id.slice(-1));
+  const sIdx = Number(adset.id.slice(-2, -1));
+
+  let spend = (180000 + r('s') * 220000) * (adset.daily_budget === '50000' ? 0.22 : 1);
+  let freq = 1.2 + r('f') * 0.6;
+  let ctr = 0.012 + r('c') * 0.01;
+  let cvr = objective === 'OUTCOME_SALES' ? 0.025 : objective === 'OUTCOME_LEADS' ? 0.08 : 1;
+
+  // Mẫu 1 — creative fatigue: ad đầu của chiến dịch bán hàng, ad set đầu, 7 ngày gần: tần suất tăng, CTR giảm.
+  if (objective === 'OUTCOME_SALES' && sIdx === 0 && idx === 0 && daysAgo <= 7) {
+    freq = 2.9 + (7 - daysAgo) * 0.12;
+    ctr *= 0.45;
+  }
+  // Mẫu 2 — chi tiêu không chuyển đổi: ad set "Sở thích" của chiến dịch thu lead.
+  if (objective === 'OUTCOME_LEADS' && sIdx === 2) cvr = 0;
+  // Mẫu 3 — ad thắng bị bỏ đói: ad cuối ad set Retarget của chiến dịch bán hàng, chi tiêu thấp, chuyển đổi cao.
+  if (objective === 'OUTCOME_SALES' && sIdx === 1 && idx === 2) {
+    spend *= 0.18;
+    cvr = 0.09;
+  }
+
+  const impressions = Math.round((spend / (35000 + r('cpm') * 25000)) * 1000);
+  const reach = Math.max(1, Math.round(impressions / freq));
+  const clicks = Math.round(impressions * ctr * 1.3);
+  const linkClicks = Math.round(impressions * ctr);
+  const actions: MetaInsight['actions'] = [{ action_type: 'link_click', value: String(linkClicks) }];
+  const valueActions: MetaInsight['action_values'] = [];
+  if (objective !== 'OUTCOME_TRAFFIC') {
+    const conv = Math.round(linkClicks * cvr);
+    actions.push({ action_type: GOAL[objective].action, value: String(conv) });
+    if (objective === 'OUTCOME_SALES') {
+      valueActions.push({
+        action_type: GOAL[objective].action,
+        value: round(conv * (420000 + r('aov') * 200000) * scale, acc.currency),
+      });
+    }
+  }
+  return {
+    date_start: date,
+    date_stop: date,
+    account_id: act.replace('act_', ''),
+    campaign_id: campaign.id,
+    adset_id: adset.id,
+    ad_id: ad.id,
+    spend: round(spend * scale, acc.currency),
+    impressions: String(impressions),
+    reach: String(reach),
+    frequency: (impressions / reach).toFixed(6),
+    clicks: String(clicks),
+    inline_link_clicks: String(linkClicks),
+    actions,
+    action_values: valueActions,
+  };
+}
+
+function sumActions(rows: MetaInsight[], key: 'actions' | 'action_values', currency: string) {
+  const m = new Map<string, number>();
+  for (const r of rows)
+    for (const a of r[key] ?? []) m.set(a.action_type, (m.get(a.action_type) ?? 0) + Number(a.value));
+  return [...m].map(([action_type, v]) => ({
+    action_type,
+    value: key === 'action_values' ? round(v, currency) : String(v),
+  }));
+}
+
+export class MockMetaRead implements MetaReadApi {
+  constructor(private readonly now: () => Date = () => new Date()) {}
+
+  async me() {
+    return { id: 'mock-meta-user', name: 'Meta Mock User' };
+  }
+
+  async grantedScopes(token: string) {
+    return token.includes('write')
+      ? ['ads_read', 'business_management', 'email', 'ads_management']
+      : ['ads_read', 'business_management', 'email'];
+  }
+
+  async listAdAccounts() {
+    return MOCK_ACCOUNTS;
+  }
+
+  async listCampaigns(_t: string, act: string) {
+    return structure(act).campaigns;
+  }
+  async listAdSets(_t: string, act: string) {
+    return structure(act).adsets;
+  }
+  async listAds(_t: string, act: string) {
+    return structure(act).ads;
+  }
+  async listCreatives(_t: string, act: string) {
+    return structure(act).creatives;
+  }
+
+  async getInsights(_t: string, act: string, q: InsightQuery): Promise<MetaInsight[]> {
+    const acc = MOCK_ACCOUNTS.find((a) => a.id === act);
+    if (!acc) return [];
+    const today = todayIn(acc.timezone_name, this.now());
+    const s = structure(act);
+    const out: MetaInsight[] = [];
+    for (let d = q.since; d <= q.until; d = addDays(d, 1)) {
+      if (d >= today) break; // dữ liệu tới hôm qua
+      const rows = s.ads.map((ad) => {
+        const adset = s.adsets.find((x) => x.id === ad.adset_id)!;
+        const campaign = s.campaigns.find((x) => x.id === adset.campaign_id)!;
+        return adDay(act, ad, adset, campaign, d, today);
+      });
+      if (q.level === 'ad') {
+        out.push(...rows);
+        continue;
+      }
+      const sum = (k: 'spend' | 'impressions' | 'reach' | 'clicks' | 'inline_link_clicks') =>
+        rows.reduce((t, r) => t + Number(r[k] ?? 0), 0);
+      let spend = sum('spend');
+      if (act === MOCK_DISCREPANCY.account && d === addDays(today, -MOCK_DISCREPANCY.daysAgo)) {
+        spend *= MOCK_DISCREPANCY.factor;
+      }
+      out.push({
+        date_start: d,
+        date_stop: d,
+        account_id: act.replace('act_', ''),
+        spend: round(spend, acc.currency),
+        impressions: String(sum('impressions')),
+        reach: String(sum('reach')),
+        frequency: (sum('impressions') / Math.max(1, sum('reach'))).toFixed(6),
+        clicks: String(sum('clicks')),
+        inline_link_clicks: String(sum('inline_link_clicks')),
+        actions: sumActions(rows, 'actions', acc.currency),
+        action_values: sumActions(rows, 'action_values', acc.currency),
+      });
+    }
+    return out;
+  }
+}

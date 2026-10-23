@@ -2,6 +2,31 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [009] Meta client, rate limit API — 2026-10-23
+
+**Thay đổi**
+- `packages/meta-client` — lớp duy nhất gọi Meta (L3 6.2):
+  - Phân trang theo `paging.next` (bỏ token cũ trong URL next, gắn lại token hiện tại), `appsecret_proof` cho mọi lời gọi.
+  - Retry backoff mũ có jitter cho rate limit (4/17/32/613, 80000–80014, HTTP 429; chờ lâu gấp 4) và 5xx/lỗi mạng, tối đa 5 lần; lỗi token (190) và quyền (10, 200–299) không retry.
+  - Đọc header `x-business-use-case-usage`: ≥ 75% → giảm đồng thời của app 50%.
+  - Giới hạn đồng thời: 1 request/tài khoản QC, 5 request/app.
+  - Validate mọi phản hồi bằng zod; hook audit mỗi lời gọi (endpoint, tài khoản, thời lượng, mã lỗi) — không chứa token.
+  - Mọi thông điệp lỗi được che token, `client_secret`, `appsecret_proof`, `code`.
+  - API đọc: `me`, quyền đã cấp, tài khoản QC, campaign/ad set/ad/creative, insights theo ngày (cửa sổ 7d_click/1d_view); OAuth: URL xin quyền (chỉ đọc P0–P1; P2 thêm `ads_management` + `auth_type=rerequest`), đổi code, đổi token dài hạn.
+  - Phần ghi Meta không nằm trong package này lúc này (B7, chỉ `packages/core/execution` được import).
+- `@adxlens/meta-client/mock` (chỉ local/test, `META_MOCK=1`): 4 tài khoản (3 VND, 1 USD múi giờ Bangkok), dữ liệu xác định; mẫu cài sẵn cho rule audit (ad mệt, chi tiêu không chuyển đổi, ad thắng bị bỏ đói, learning limited, phân mảnh); "Thời trang Linh" lệch 1,4% ở một ngày để thử đối chiếu.
+- API web: giới hạn 600 request/phút/workspace (Redis, header `X-RateLimit-Remaining`, vượt → 429); gỡ khỏi `docs/tech-debt.md`.
+- Sửa lỗi Semaphore (phát hiện bằng test): slot được chuyển thẳng cho tác vụ đang chờ, không để tác vụ mới chen vào.
+
+**Test tự động**
+- `packages/meta-client/src/http.test.ts` (11, msw): phân trang + appsecret_proof, retry rate limit, retry 5xx tối đa 5 lần, 190 không retry + không lộ token, phản hồi sai định dạng, giảm tốc theo header, insights + attribution, đổi token không gửi access_token + không lộ client_secret, 1 request/tài khoản, giới hạn app khi giảm tốc.
+- `packages/meta-client/src/mock.test.ts` (4): xác định, dữ liệu tới hôm qua, account = tổng ad trừ ngày lệch 1,4%, cấu trúc.
+- `apps/web/src/server/route.test.ts`: rate limit 600/phút, workspace khác không ảnh hưởng.
+
+**Vùng bảo vệ:** không (meta-client ngoài danh sách CLAUDE.md; CODEOWNERS yêu cầu PM duyệt).
+
+**PM kiểm tra:** `pnpm test` xanh.
+
 ## [008] Workspace, thành viên, lời mời, Cài đặt; E2E — 2026-10-23
 
 **Thay đổi**
