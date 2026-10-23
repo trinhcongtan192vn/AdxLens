@@ -1,4 +1,4 @@
-import { shadowEvaluate } from '@adxlens/core/execution';
+import { liveEvaluate, shadowEvaluate } from '@adxlens/core/execution';
 import { isEnabled } from '@adxlens/core/flags';
 import { activeAutomationRules } from '@adxlens/core/ops';
 import type { HandlerMap } from '../handler';
@@ -20,5 +20,14 @@ export const rulesHandlers: HandlerMap = {
     const ctx = { db, workspaceId: p.workspaceId };
     if (!(await isEnabled(ctx, 'p2b_auto'))) return { status: 'flag_off' };
     return shadowEvaluate(ctx, p.ruleId);
+  },
+
+  // Rule live (P2b): tạo hành động tier auto qua Execution Gateway. Kiểm cờ ở đầu job; gateway kiểm lại đủ cổng.
+  'rules:evaluate': async (p, { db, enqueue, log }) => {
+    const ctx = { db, workspaceId: p.workspaceId };
+    if (!(await isEnabled(ctx, 'p2b_auto'))) return { status: 'flag_off' };
+    const r = await liveEvaluate(ctx, p.ruleId, { enqueue });
+    log.info({ rule_id: p.ruleId, ...r }, 'rules:evaluate');
+    return r;
   },
 };

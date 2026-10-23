@@ -52,6 +52,19 @@ describe('dispatch', () => {
     expect(r).toEqual({ status: 'flag_off' });
   });
 
+  it('rules:evaluate: cờ tự động hóa tắt → không tạo hành động', async () => {
+    const r = await dispatch(handlers, deps, {
+      name: 'rules:evaluate',
+      id: '1',
+      data: {
+        workspaceId: '00000000-0000-4000-8000-000000000001',
+        ruleId: '00000000-0000-4000-8000-000000000002',
+        tick: 't',
+      },
+    });
+    expect(r).toEqual({ status: 'flag_off' });
+  });
+
   it('rules:shadow_evaluate: cờ tự động hóa tắt → không đánh giá', async () => {
     const r = await dispatch(handlers, deps, {
       name: 'rules:shadow_evaluate',

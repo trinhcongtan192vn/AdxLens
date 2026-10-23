@@ -14,6 +14,7 @@ import { asUser, call, installTestServer, uninstallTestServer } from '../../../.
 import * as modeRoute from './[id]/mode/route';
 import * as itemRoute from './[id]/route';
 import * as backtestRoute from './backtest/route';
+import * as effRoute from './effectiveness/route';
 import * as listRoute from './route';
 import * as templatesRoute from './templates/route';
 
@@ -58,6 +59,7 @@ describe('API rule tự động (P211–P214)', () => {
     expect((await call(listRoute.POST, { user, workspaceId: ws, body })).status).toBe(404);
     expect((await call(templatesRoute.GET, { user, workspaceId: ws })).status).toBe(404);
     expect((await call(backtestRoute.POST, { user, workspaceId: ws, body })).status).toBe(404);
+    expect((await call(effRoute.GET, { user, workspaceId: ws })).status).toBe(404);
   });
 
   it('cờ bật: mẫu, backtest, tạo (shadow), bật live bị chặn khi chưa đủ 14 ngày, tạm dừng; buyer 403', async () => {

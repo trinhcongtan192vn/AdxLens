@@ -254,6 +254,94 @@ export async function requestAction(
   return row!;
 }
 
+/** Một đối tượng không bị cùng rule thao tác lại trong 24 giờ (ADR-0012 mục 6). */
+export const AUTO_COOLDOWN_MS = 24 * 3_600_000;
+
+/**
+ * Hành động `tier=auto` do rule live tạo (P2b, ADR-0012): cùng cổng an toàn như duyệt tay (cờ duyệt hành
+ * động + cờ tự chạy, gói, kill switch, breaker, quyền ghi) và guardrails `auto` (giờ yên lặng, không bật lại /
+ * nhân bản, giới hạn số hành động/ngày chặt hơn của rule, loại trừ). Trả action hoặc lý do bỏ qua.
+ */
+export async function requestAutoAction(
+  ctx: WorkspaceCtx,
+  input: {
+    ruleId: string;
+    adAccountId: string;
+    actionType: ActionType;
+    targetMetaId: string;
+    newDailyBudget?: string | null;
+    ruleMaxActionsPerDay?: number;
+    ruleExcludeMetaIds?: string[];
+  },
+  deps: { enqueue: Enqueue; clock?: Clock },
+): Promise<{ action: ActionRow } | { skipped: string }> {
+  const now = (deps.clock ?? systemClock).now();
+  const account = await accountOf(ctx, input.adAccountId);
+  if (!account) return { skipped: 'account_missing' };
+  if (!(await isEnabled(ctx, 'p2b_auto'))) return { skipped: 'feature_disabled' };
+  const block = await safetyBlock(ctx, account.id, account.connectionId);
+  if (block) return { skipped: block };
+  const [recent] = await ctx.db
+    .select({ id: actions.id })
+    .from(actions)
+    .where(
+      and(
+        eq(actions.workspaceId, ctx.workspaceId),
+        eq(actions.ruleId, input.ruleId),
+        eq(actions.targetMetaId, input.targetMetaId),
+        inArray(actions.status, ['pending', 'executing', 'success']),
+        gte(actions.createdAt, new Date(now.getTime() - AUTO_COOLDOWN_MS)),
+      ),
+    )
+    .limit(1);
+  if (recent) return { skipped: 'cooldown' };
+  const type = TARGET_TYPE[input.actionType];
+  const e = await targetEntity(ctx, account.id, type, input.targetMetaId);
+  if (!e) return { skipped: 'target_missing' };
+  const g = await effectiveGuardrails(ctx);
+  const newBudget = input.actionType === 'set_adset_budget' ? minorUnits(input.newDailyBudget) : null;
+  const before: State =
+    input.actionType === 'set_adset_budget' ? { daily_budget: minorUnits(e.daily_budget) } : { status: e.status };
+  const after = expectedAfter(input.actionType, newBudget);
+  const violations = checkGuardrails({
+    guardrails: {
+      ...g,
+      maxActionsPerDay: Math.min(g.maxActionsPerDay, input.ruleMaxActionsPerDay ?? g.maxActionsPerDay),
+      excludeMetaIds: [...g.excludeMetaIds, ...(input.ruleExcludeMetaIds ?? [])],
+    },
+    actionType: input.actionType,
+    tier: 'auto',
+    targetIds: [input.targetMetaId, e.parent, e.campaign].filter((x): x is string => !!x),
+    accountTimezone: account.timezone,
+    now,
+    actionsToday: await actionsToday(ctx, account.id, account.timezone, now),
+    dataDays: await dataDays(ctx, account.id, type, input.targetMetaId, localDate(now, account.timezone)),
+    currentDailyBudget: before.daily_budget ?? null,
+    newDailyBudget: newBudget,
+  });
+  if (violations.length) return { skipped: violations.map((v) => v.code).join(',') };
+  const [row] = await ctx.db
+    .insert(actions)
+    .values({
+      workspaceId: ctx.workspaceId,
+      adAccountId: account.id,
+      ruleId: input.ruleId,
+      actionType: input.actionType,
+      targetType: type,
+      targetMetaId: input.targetMetaId,
+      targetName: e.name,
+      tier: 'auto',
+      params: after.daily_budget ? { daily_budget: after.daily_budget } : {},
+      beforeState: before,
+      afterExpected: after,
+      idempotencyKey: `${ctx.workspaceId}:rule:${input.ruleId}:${input.targetMetaId}:${now.toISOString()}`,
+    })
+    .returning();
+  await log(ctx, row!.id, 'auto_requested', { rule_id: input.ruleId, before, after });
+  await deps.enqueue('execute:action', { workspaceId: ctx.workspaceId, actionId: row!.id });
+  return { action: row! };
+}
+
 function scrub(e: unknown): { code: string; message: string } {
   if (e instanceof MetaApiError) return { code: `meta_${e.code ?? e.status}`, message: e.message.slice(0, 300) };
   if (e instanceof AppError) return { code: e.code, message: e.message.slice(0, 300) };

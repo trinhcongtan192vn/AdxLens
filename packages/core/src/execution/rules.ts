@@ -1,6 +1,7 @@
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { schema } from '@adxlens/db';
+import type { Enqueue } from '@adxlens/jobs';
 import { hasPlanEntitlement } from '@adxlens/core/billing';
 import { listAdAccounts } from '@adxlens/core/connections';
 import { isEnabled } from '@adxlens/core/flags';
@@ -16,7 +17,7 @@ import {
   type WorkspaceCtx,
 } from '@adxlens/core/shared';
 import { assertCan } from '@adxlens/core/tenancy';
-import { minorUnits } from './gateway';
+import { minorUnits, requestAutoAction } from './gateway';
 import { checkGuardrails, effectiveGuardrails, GUARDRAIL_DEFAULTS, type ActionType } from './guardrails';
 
 const { automationRules, ruleEvaluations, recommendations } = schema;
@@ -514,4 +515,111 @@ export async function simulateShadowDays(ctx: WorkspaceCtx, ruleId: string, days
       ),
     );
   return { recorded };
+}
+
+/**
+ * Rule live (P2b, `evaluate_rules`): đánh giá trên snapshot, tạo hành động `tier=auto` qua Execution Gateway
+ * cho từng đối tượng khớp; ghi một dòng `rule_evaluations` (hành động đã tạo, lý do bị bỏ qua).
+ */
+export async function liveEvaluate(ctx: WorkspaceCtx, ruleId: string, deps: { enqueue: Enqueue; clock?: Clock }) {
+  const clock = deps.clock ?? systemClock;
+  const [rule] = await ctx.db
+    .select()
+    .from(automationRules)
+    .where(and(eq(automationRules.workspaceId, ctx.workspaceId), eq(automationRules.id, ruleId)));
+  if (!rule || rule.mode !== 'live') return { status: 'skipped' as const };
+  const ev = await evaluateRule(ctx, rule, clock);
+  if (!ev) return { status: 'skipped' as const };
+  const created: string[] = [];
+  const wouldDo: { metaId: string; actionType: string; newDailyBudget?: string | null; blockedBy?: string | null }[] =
+    [];
+  for (const w of ev.wouldDo) {
+    const r = await requestAutoAction(
+      ctx,
+      {
+        ruleId: rule.id,
+        adAccountId: rule.adAccountId,
+        actionType: w.actionType,
+        targetMetaId: w.metaId,
+        newDailyBudget: w.newDailyBudget,
+        ruleMaxActionsPerDay: rule.guardrails.maxActionsPerDay,
+        ruleExcludeMetaIds: rule.guardrails.excludeMetaIds,
+      },
+      { enqueue: deps.enqueue, clock },
+    );
+    if ('action' in r) created.push(r.action.id);
+    wouldDo.push({
+      metaId: w.metaId,
+      actionType: w.actionType,
+      newDailyBudget: w.newDailyBudget,
+      blockedBy: 'skipped' in r ? r.skipped : null,
+    });
+  }
+  const blocked = wouldDo.filter((w) => w.blockedBy && w.blockedBy !== 'cooldown').map((w) => w.blockedBy);
+  await ctx.db.insert(ruleEvaluations).values({
+    workspaceId: ctx.workspaceId,
+    ruleId: rule.id,
+    mode: 'live',
+    asOfDate: ev.asOf,
+    evaluatedAt: clock.now(),
+    matchedEntities: ev.matched,
+    wouldDo,
+    actionIds: created,
+    blockedByGuardrail: blocked.length ? [...new Set(blocked)].join(',') : null,
+  });
+  return { status: 'evaluated' as const, created: created.length };
+}
+
+/**
+ * P215 Hiệu quả tự động hóa (P2-14), 30 ngày: theo rule — số hành động, thành công, thất bại, hoàn tác (mục tiêu
+ * ≤ 5%), chi tiêu 7 ngày trước của đối tượng bị tạm dừng (ước tính, không phải nhân quả).
+ */
+export async function automationEffectiveness(ctx: ActorCtx, opts: { days?: number; clock?: Clock } = {}) {
+  assertCan(ctx.actor, 'automation.manage');
+  const now = (opts.clock ?? systemClock).now();
+  const since = new Date(now.getTime() - (opts.days ?? 30) * 86_400_000);
+  const rules = await listRules(ctx);
+  if (!rules.length) return [];
+  const rows = await ctx.db.execute<{
+    rule_id: string;
+    total: string;
+    success: string;
+    failed: string;
+    undone: string;
+    paused_spend: string | null;
+  }>(sql`
+    select a.rule_id,
+      count(*)::text as total,
+      (count(*) filter (where a.status in ('success', 'undone')))::text as success,
+      (count(*) filter (where a.status = 'failed'))::text as failed,
+      (count(*) filter (where a.status = 'undone'))::text as undone,
+      sum(case when a.action_type in ('pause_ad', 'pause_adset') and a.status = 'success' then (
+        select sum(i.spend) from analytics.insights_daily i
+        where i.workspace_id = a.workspace_id and i.ad_account_id = a.ad_account_id
+          and (case when a.target_type = 'ad' then i.meta_id else i.adset_id end) = a.target_meta_id
+          and i.date between (a.created_at::date - 7) and (a.created_at::date - 1)
+      ) end)::text as paused_spend
+    from app.actions a
+    where a.workspace_id = ${ctx.workspaceId} and a.tier = 'auto' and a.rule_id is not null and a.created_at >= ${since.toISOString()}::timestamptz
+    group by a.rule_id`);
+  const byRule = new Map(rows.map((r) => [r.rule_id, r]));
+  return rules.map((r) => {
+    const x = byRule.get(r.id);
+    const total = Number(x?.total ?? 0);
+    const success = Number(x?.success ?? 0);
+    const undone = Number(x?.undone ?? 0);
+    return {
+      ruleId: r.id,
+      name: r.name,
+      mode: r.mode,
+      accountName: r.accountName,
+      currency: r.currency,
+      total,
+      success,
+      failed: Number(x?.failed ?? 0),
+      undone,
+      undoRate: success ? undone / success : null,
+      pausedSpend7d: x?.paused_spend ?? '0',
+    };
+  });
 }

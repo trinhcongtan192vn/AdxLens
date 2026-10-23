@@ -388,6 +388,7 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     }),
   },
   'GET /api/v1/automation-rules/templates': { kind: 'workspace' },
+  'GET /api/v1/automation-rules/effectiveness': { kind: 'workspace' },
   'POST /api/v1/automation-rules/backtest': {
     kind: 'workspace',
     body: (w) => ({

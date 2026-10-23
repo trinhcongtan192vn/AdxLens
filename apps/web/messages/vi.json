@@ -1771,6 +1771,20 @@
       "GUARDRAIL_VIOLATION": "Vượt giới hạn an toàn: thay đổi ngân sách tối đa ±15%, giới hạn chỉ được chặt hơn workspace.",
       "VALIDATION_FAILED": "Kiểm tra lại điều kiện / hành động (tăng ngân sách cần trần; cấp phải khớp hành động).",
       "NOT_FOUND": "Không tìm thấy tài khoản."
+    },
+    "results": {
+      "note": "30 ngày gần nhất. \"Chi tiêu 7 ngày trước khi tạm dừng\" là chi tiêu của đối tượng trong 7 ngày trước khi rule tạm dừng nó — chỉ để tham khảo, không chứng minh khoản tiết kiệm thật. Mục tiêu tỷ lệ hoàn tác ≤ 5%.",
+      "emptyTitle": "Chưa có hành động tự động nào",
+      "emptyBody": "Rule đang chạy thật sẽ hiện kết quả ở đây.",
+      "cols": {
+        "rule": "Rule",
+        "mode": "Chế độ",
+        "total": "Hành động",
+        "success": "Thành công",
+        "failed": "Thất bại",
+        "undoRate": "Tỷ lệ hoàn tác",
+        "pausedSpend": "Chi tiêu 7 ngày trước khi tạm dừng"
+      }
     }
   }
 }

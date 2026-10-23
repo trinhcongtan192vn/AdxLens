@@ -19,6 +19,8 @@ import { listNotifications } from '@adxlens/core/notification';
 import { listIncidents } from '@adxlens/core/ops';
 import { resolveActor } from '@adxlens/core/tenancy';
 import {
+  automationEffectiveness,
+  liveEvaluate,
   approveRecommendation,
   executeAction,
   getAction,
@@ -630,5 +632,98 @@ describe('duyệt từ gợi ý (P202, P2-03)', () => {
     const r = await rec(b, 'creative_fatigue', 'ad', metaId);
     await expect(proposalForRecommendation(a.ctx, r.id)).rejects.toMatchObject({ code: 'NOT_FOUND' });
     await expect(approveRecommendation(a.ctx, r.id, a)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  });
+});
+
+describe('rule live tạo hành động tự động (P2b, ADR-0012)', () => {
+  async function liveRule(s: Awaited<ReturnType<typeof setup>>, extra: { maxActionsPerDay?: number } = {}) {
+    const pm = await seedStaff(db, true);
+    await enableFlag(db, {
+      workspaceId: s.workspaceId,
+      key: 'p2b_auto',
+      staffUserId: pm.id,
+      reason: 'test live rule',
+      override: true,
+    });
+    const [r] = await db
+      .insert(schema.automationRules)
+      .values({
+        workspaceId: s.workspaceId,
+        adAccountId: s.adAccountId,
+        name: 'Tạm dừng mọi ad có chi tiêu',
+        level: 'ad',
+        condition: [{ metric: 'spend', op: 'gte', value: '0' }],
+        action: { type: 'pause_ad' },
+        guardrails: extra,
+        mode: 'live',
+        createdBy: s.owner.id,
+      })
+      .returning();
+    return r!;
+  }
+
+  it('khớp → tạo hành động tier auto, tối đa theo giới hạn/ngày; worker thực hiện; lần sau trong 24 giờ không lặp', async () => {
+    const s = await setup();
+    const rule = await liveRule(s, { maxActionsPerDay: 2 });
+    const ctx = { db, workspaceId: s.workspaceId };
+    const r = await liveEvaluate(ctx, rule.id, { enqueue: s.enqueue, clock });
+    expect(r).toEqual({ status: 'evaluated', created: 2 });
+    const auto = await db.select().from(schema.actions).where(eq(schema.actions.ruleId, rule.id));
+    expect(auto.every((a) => a.tier === 'auto' && a.requestedBy === null)).toBe(true);
+    expect(await s.run(auto[0]!.id)).toEqual({ status: 'success', resultCode: 'ok' });
+    const [ev] = await db.select().from(schema.ruleEvaluations).where(eq(schema.ruleEvaluations.ruleId, rule.id));
+    expect(ev!.actionIds).toHaveLength(2);
+    expect(ev!.blockedByGuardrail).toContain('too_many_actions');
+    const again = await liveEvaluate(ctx, rule.id, { enqueue: s.enqueue, clock });
+    expect(again).toEqual({ status: 'evaluated', created: 0 });
+  });
+
+  it('giờ yên lặng (23:30 giờ tài khoản), kill switch, tắt cờ tự chạy → không tạo hành động', async () => {
+    const s = await setup();
+    const rule = await liveRule(s);
+    const ctx = { db, workspaceId: s.workspaceId };
+    const night = { now: () => new Date('2026-10-23T16:30:00Z') };
+    expect(await liveEvaluate(ctx, rule.id, { enqueue: s.enqueue, clock: night })).toEqual({
+      status: 'evaluated',
+      created: 0,
+    });
+    await db.insert(schema.killSwitches).values({ scopeKey: s.workspaceId, workspaceId: s.workspaceId, active: true });
+    expect(await liveEvaluate(ctx, rule.id, { enqueue: s.enqueue, clock })).toEqual({
+      status: 'evaluated',
+      created: 0,
+    });
+    await db.delete(schema.killSwitches);
+    const pm = await seedStaff(db, true);
+    await disableFlag(db, { workspaceId: s.workspaceId, key: 'p2b_auto', staffUserId: pm.id, reason: 'tắt tự chạy' });
+    expect(await liveEvaluate(ctx, rule.id, { enqueue: s.enqueue, clock })).toEqual({
+      status: 'evaluated',
+      created: 0,
+    });
+    const evs = await db.select().from(schema.ruleEvaluations).where(eq(schema.ruleEvaluations.ruleId, rule.id));
+    expect(evs.map((e) => e.blockedByGuardrail)).toEqual(
+      expect.arrayContaining(['quiet_hours', 'kill_switch', 'feature_disabled']),
+    );
+  });
+
+  it('rule không ở chế độ live → bỏ qua', async () => {
+    const s = await setup();
+    const rule = await liveRule(s);
+    await db.update(schema.automationRules).set({ mode: 'paused' }).where(eq(schema.automationRules.id, rule.id));
+    expect(await liveEvaluate({ db, workspaceId: s.workspaceId }, rule.id, { enqueue: s.enqueue, clock })).toEqual({
+      status: 'skipped',
+    });
+  });
+
+  it('hiệu quả tự động hóa (P215): số hành động, thành công, hoàn tác, chi tiêu 7 ngày trước của đối tượng bị tạm dừng', async () => {
+    const s = await setup();
+    const rule = await liveRule(s, { maxActionsPerDay: 1 });
+    await liveEvaluate({ db, workspaceId: s.workspaceId }, rule.id, { enqueue: s.enqueue, clock });
+    const [a] = await db.select().from(schema.actions).where(eq(schema.actions.ruleId, rule.id));
+    await s.run(a!.id);
+    const u = await undoAction(s.ctx, a!.id, s);
+    await s.run(u.id);
+    const [eff] = await automationEffectiveness(s.ctx, { clock });
+    expect(eff).toMatchObject({ ruleId: rule.id, total: 1, success: 1, failed: 0, undone: 1, undoRate: 1 });
+    expect(Number(eff!.pausedSpend7d)).toBeGreaterThanOrEqual(0);
   });
 });
