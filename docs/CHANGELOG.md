@@ -2,6 +2,36 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [039] Rule tự động: mô hình, rule builder từ mẫu (P211, P212), backtest (P213) — 2026-10-23
+
+> Chạm `packages/core/execution` — **cần PM duyệt ADR-0012 và chạy staging trước khi merge `develop → main`**.
+
+**Thay đổi**
+- ADR-0012 (Đề xuất): điều kiện tối giản kiểm bằng zod (cấp ad / ad set; điều kiện VÀ trên spend, results, CPA, CTR, tần suất, % thay đổi CTR/CPA so tuần trước); hành động rule chỉ tạm dừng ad / ad set hoặc ngân sách ±15% (tăng phải có trần; không bật lại, không nhân bản); mẫu từ gợi ý P1; shadow ≥ 14 ngày trước live; guardrails rule chỉ chặt hơn workspace.
+- DB: `app.automation_rules`, `app.rule_evaluations` + RLS (migration 0049–0050).
+- `core/execution/rules.ts`:
+  - `RULE_TEMPLATES` + `listRuleTemplates` (sắp theo số gợi ý loại đó đã làm);
+  - `createRule` (luôn shadow; kiểm hợp lệ ngữ nghĩa và guardrails);
+  - `setRuleMode` + `liveBlocker` (cờ tự chạy, gói, đủ 14 ngày shadow; về shadow đặt lại mốc);
+  - `entityMetrics` (snapshot 7 ngày + 7 ngày trước, thập phân);
+  - `matchConditions` (chỉ đối tượng đang chạy);
+  - `ruleBudget` (làm tròn xuống, không vượt trần);
+  - `backtestRule` (30 ngày, mỗi đối tượng ≤ 1 lần / 24 giờ);
+  - `evaluateRule` (kèm lý do guardrails sẽ chặn, tier auto);
+  - `shadowEvaluate` (một lần mỗi ngày dữ liệu, không tạo hành động);
+  - `ruleEvaluationsFor`.
+- API `/automation-rules` (GET, POST), `/templates`, `/backtest`, `/{id}` (GET, DELETE), `/{id}/mode` — Owner/manager, sau cờ tự động hóa.
+- Trang P211 `/automation`, P212 `/automation/new` (chọn mẫu, sửa điều kiện / hành động / giới hạn, **bắt buộc backtest trước khi lưu**, kết quả P213 ngay dưới), chi tiết `/automation/{id}` (tóm tắt rule, tiến độ chạy thử x/14 ngày, lý do chưa bật live, kết quả đánh giá, đổi chế độ, xóa).
+
+**Test tự động**
+- `execution/rules.test.ts` (8): chỉ số snapshot + mẫu "ad mệt" khớp đúng (bỏ ad đã tắt); ngân sách làm tròn + trần; kiểm hợp lệ (cấp, ±15%, tăng cần trần, guardrails chặt hơn); vòng đời shadow → live (cờ, gói, 14 ngày; về shadow đặt lại mốc); quyền + cách ly; backtest 30 ngày không lặp trong 24 giờ; shadow ghi một lần / ngày, loại trừ hiện lý do chặn, không tạo hành động; mẫu sắp theo số lần làm.
+- `api/v1/automation-rules/automation.test.ts` (2): **cờ tắt → 404**; cờ bật: mẫu, backtest, tạo, live 409, tạm dừng, buyer 403.
+- Bộ cách ly: probe 6 route (tài khoản / rule của B → từ chối); world B có rule bí mật; A bật thêm cờ tự động hóa.
+
+**Vùng bảo vệ:** `packages/core/execution/**`, `packages/db/**` (2 bảng + RLS, migration 0049–0050).
+
+**PM kiểm tra:** duyệt ADR-0012. Bật cờ "Tự động hóa" → Rule tự động → Tạo rule → chọn mẫu → Chạy backtest → Lưu và chạy thử → chi tiết hiện "Đã chạy thử 0/14 ngày", nút "Bật chạy thật" bị khóa.
+
 ## [038] Hộp thoại duyệt hành động từ gợi ý (P202) — 2026-10-23
 
 > Chạm `packages/core/execution` — **cần PM chạy staging trước khi merge `develop → main`**.

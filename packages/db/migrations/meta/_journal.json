@@ -344,6 +344,20 @@
       "when": 1792734249653,
       "tag": "0048_rls_execution_checks",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1792756851692,
+      "tag": "0049_automation_rules",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1792756852806,
+      "tag": "0050_rls_automation_rules",
+      "breakpoints": true
     }
   ]
 }

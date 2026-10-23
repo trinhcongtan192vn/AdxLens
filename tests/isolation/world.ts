@@ -148,9 +148,23 @@ export async function seedWorld(db: Db) {
     })
     .returning();
 
-  // Cờ P0/P1/P2a bật cho A (qua core/flags, như PM bật) để probe chạy hết logic route sau cờ.
+  const [bRule] = await db
+    .insert(schema.automationRules)
+    .values({
+      workspaceId: b.workspace.id,
+      adAccountId: bAdAccount.id,
+      name: 'Beta Rule Secret',
+      level: 'ad',
+      condition: [{ metric: 'spend', op: 'gte', value: '1' }],
+      action: { type: 'pause_ad' },
+      guardrails: {},
+      createdBy: b.owner.id,
+    })
+    .returning();
+
+  // Cờ P0/P1/P2a/P2b bật cho A (qua core/flags, như PM bật) để probe chạy hết logic route sau cờ.
   const pm = await seedStaff(db, true);
-  for (const key of ['p0_reports', 'p1_recommendations', 'p2a_approve'] as const) {
+  for (const key of ['p0_reports', 'p1_recommendations', 'p2a_approve', 'p2b_auto'] as const) {
     await enableFlag(db, {
       workspaceId: a.workspace.id,
       key,
@@ -262,6 +276,7 @@ export async function seedWorld(db: Db) {
       finding: bFinding!,
       recommendation: bRecommendation!,
       action: bAction!,
+      rule: bRule!,
       report: bReport!,
       shareLink: bShare!,
       notification: bNote!,
@@ -300,6 +315,8 @@ export async function seedWorld(db: Db) {
       'Beta Creative Secret',
       'Beta Recommendation Secret',
       'Beta Action Secret',
+      'Beta Rule Secret',
+      bRule!.id,
       bAction!.id,
       bRecommendation!.id,
       'beta-creative-secret',
