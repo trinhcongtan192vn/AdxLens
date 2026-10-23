@@ -453,7 +453,10 @@
     "pastDue": "Chưa thanh toán kỳ hiện tại của gói. Thanh toán trong 7 ngày để giữ gói.",
     "overLimit": "Workspace có {active} tài khoản đang hoạt động, vượt hạn mức {limit} của gói. Sau 7 ngày, tài khoản ngoài hạn mức sẽ ngừng cập nhật.",
     "overLimitExpired": "Đã hết thời gian ân hạn: chỉ {limit} tài khoản trong hạn mức còn được cập nhật. Dữ liệu cũ vẫn giữ nguyên.",
-    "openBilling": "Xem gói"
+    "openBilling": "Xem gói",
+    "killSwitch": "Kill switch đang bật: AdxLens không thực hiện thay đổi nào trên Meta.",
+    "killSwitchGlobal": "AdxLens đang tạm dừng mọi thay đổi trên Meta để kiểm tra an toàn. Số liệu và báo cáo vẫn hoạt động bình thường.",
+    "openKillSwitch": "Xem kill switch"
   },
   "connect": {
     "step": "Thiết lập · bước {n}/{total}",
@@ -1081,7 +1084,7 @@
     "nav": {
       "flags": "Ma trận cờ",
       "incidents": "Sự cố & playbook",
-      "killSwitch": "Kill switch toàn cục"
+      "killSwitch": "Kill switch"
     },
     "flags": {
       "title": "Ma trận cờ tính năng",
@@ -1119,6 +1122,19 @@
         "noHistory": "Chưa có thay đổi.",
         "overrideTag": "vượt checklist"
       }
+    },
+    "killSwitch": {
+      "nav": "Kill switch",
+      "title": "Kill switch toàn cục",
+      "body": "Dừng mọi thay đổi trên Meta của mọi workspace và hủy hành động đang chờ. Dùng khi có sự cố thực thi.",
+      "state": "Trạng thái",
+      "on": "Đang bật",
+      "off": "Đang tắt",
+      "reason": "Lý do (bắt buộc)",
+      "turnOn": "Bật toàn cục",
+      "turnOff": "Tắt toàn cục",
+      "pmOnly": "Chỉ PM được bật/tắt.",
+      "done": "Đã cập nhật, hủy {count} hành động đang chờ"
     }
   },
   "notifications": {
@@ -1612,5 +1628,25 @@
       "CONFLICT": "Hành động đang được thực hiện hoặc không còn áp dụng được.",
       "NOT_FOUND": "Không tìm thấy đối tượng."
     }
+  },
+  "killSwitch": {
+    "title": "Kill switch",
+    "on": "Đang bật",
+    "off": "Đang tắt",
+    "body": "Bật kill switch sẽ dừng ngay mọi thay đổi AdxLens làm trên Meta cho workspace này và hủy các hành động đang chờ.",
+    "reason": "Lý do: {reason}",
+    "turnOn": "Bật kill switch",
+    "turnOff": "Tắt kill switch",
+    "globalOn": "Kill switch toàn hệ thống đang bật: mọi thay đổi trên Meta đang tạm dừng.",
+    "confirmTitle": "Bật kill switch?",
+    "confirmBody": "Mọi hành động đang chờ sẽ bị hủy và không hành động mới nào được thực hiện cho tới khi bạn tắt.",
+    "reasonLabel": "Lý do (bắt buộc, ≥ 5 ký tự)",
+    "onToast": "Đã bật kill switch, hủy {count} hành động đang chờ",
+    "offToast": "Đã tắt kill switch",
+    "breakers": "Tài khoản bị tạm khóa do lỗi liên tiếp",
+    "locked": "Tạm khóa",
+    "failures": "{count} lỗi liên tiếp",
+    "unlock": "Mở khóa",
+    "breakerClosed": "Đã mở khóa tài khoản"
   }
 }

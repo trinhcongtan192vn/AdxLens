@@ -12,6 +12,7 @@
     "e4:report": "tsx scripts/e4-report.ts",
     "job:trigger": "pnpm --filter @adxlens/worker exec tsx src/cli/trigger.ts",
     "execution:check": "pnpm --filter @adxlens/worker exec tsx src/cli/execution-check.ts",
+    "killswitch": "pnpm --filter @adxlens/worker exec tsx src/cli/killswitch.ts",
     "build": "turbo run build",
     "lint": "eslint . && node scripts/check-boundaries.mjs",
     "typecheck": "turbo run typecheck",

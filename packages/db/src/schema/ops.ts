@@ -1,4 +1,4 @@
-import { index, integer, jsonb, text, uuid } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, jsonb, text, uuid } from 'drizzle-orm/pg-core';
 import { app, createdAt, tsz, updatedAt } from './_common';
 
 export const INCIDENT_SEVERITIES = ['P1', 'P2', 'P3'] as const;
@@ -45,4 +45,22 @@ export const opsPlaybookRuns = app.table(
     at: tsz('at').notNull().defaultNow(),
   },
   (t) => [index().on(t.playbook, t.scopeKey, t.at)],
+);
+
+/**
+ * Kết quả `pnpm execution:check` (test tích hợp lớp ghi trên tài khoản Meta test, ADR-0008 mục 9). Checklist
+ * cờ `p2a_approve` đòi lần chạy gần nhất của bản deploy hiện tại (`APP_VERSION`) đạt. Dữ liệu vận hành,
+ * không thuộc workspace.
+ */
+export const opsExecutionChecks = app.table(
+  'ops_execution_checks',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    appVersion: text('app_version').notNull(),
+    appEnv: text('app_env').notNull(),
+    passed: boolean('passed').notNull(),
+    steps: jsonb('steps').$type<{ action: string; ok: boolean }[]>().notNull(),
+    ranAt: tsz('ran_at').notNull().defaultNow(),
+  },
+  (t) => [index().on(t.appVersion, t.ranAt)],
 );

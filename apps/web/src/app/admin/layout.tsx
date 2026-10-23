@@ -21,6 +21,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Link href="/admin/flags" className="text-fg-secondary hover:text-fg">
             {t('nav.flags')}
           </Link>
+          <Link href="/admin/kill-switch" className="text-fg-secondary hover:text-fg">
+            {t('nav.killSwitch')}
+          </Link>
         </nav>
         <div className="flex-1" />
         <span className="text-small text-fg-secondary">

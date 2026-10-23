@@ -2,6 +2,49 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [037] Kill switch (workspace + toàn cục, CLI dự phòng), circuit breaker, playbook execution_failed, checklist cờ duyệt hành động — 2026-10-23
+
+> Chạm `packages/core/execution` — **cần PM chạy staging trước khi merge `develop → main`**.
+
+**Thay đổi**
+- `core/execution/controls.ts`:
+  - `setWorkspaceKillSwitch` (Owner; bật cần lý do; hủy ngay hành động đang chờ; audit);
+  - `executionControls` (trạng thái + breaker theo tài khoản);
+  - `closeBreaker` (Owner mở khóa, audit);
+  - `registerExecutionHooks`: checklist kỹ thuật cờ `p2a_approve` (L3 18.3) — có kết nối được cấp quyền ghi; `execution:check` của **phiên bản deploy hiện tại** (`APP_VERSION`) đạt; kill switch toàn cục tắt; Owner đã lưu guardrails. Tắt cờ duyệt hành động → hủy mọi hành động đang chờ; tắt cờ tự chạy → hủy hành động `auto` đang chờ (L3 18.1).
+- `core/ops/kill-switch.ts`:
+  - kill switch toàn cục (xuyên workspace có chú thích): bật → hủy hành động đang chờ của mọi workspace, mở sự cố P1;
+  - bản cho CLI theo workspace;
+  - `recordExecutionCheck` / `latestExecutionCheck`.
+- DB: `app.ops_execution_checks` (migration 0047–0048). Env `APP_VERSION`.
+- Playbook `execution_failed` (L3 12): mọi thất bại mở / gom sự cố theo tài khoản (P2). Breaker vừa mở → nâng P1 và hủy các hành động đang chờ khác của tài khoản. `openIncident` nay **nâng mức** khi lần lặp nghiêm trọng hơn (không bao giờ hạ).
+- CLI: `pnpm killswitch -- on|off [--workspace <id>] --reason "…"`; `pnpm execution:check` ghi kết quả vào DB (chạy mock không tính là đạt).
+- API:
+  - `GET|POST /kill-switch`, `POST /circuit-breakers/{id}/close` (Owner, sau cờ);
+  - `GET|POST /admin/kill-switch` (staff xem, chỉ PM đổi, cần lý do).
+- Giao diện:
+  - P205 thêm thẻ Kill switch (trạng thái, bật có hộp thoại lý do, tắt, danh sách tài khoản bị tạm khóa + "Mở khóa");
+  - AD04 `/admin/kill-switch`;
+  - X04 biến thể kill switch (workspace / toàn cục), chỉ hiện khi cờ duyệt hành động bật.
+- Runbook `docs/runbooks/execution-incident.md`.
+
+**Test tự động**
+- `execution/controls.test.ts` (7):
+  - kill switch workspace: cần lý do, hủy hành động đang chờ, audit, tắt lại;
+  - chỉ Owner, không ảnh hưởng workspace khác;
+  - breaker hiện ở P205, Owner mở khóa, tài khoản workspace khác 404;
+  - toàn cục hủy hành động mọi workspace + sự cố P1;
+  - CLI theo workspace;
+  - **checklist cờ** (đúng phiên bản deploy);
+  - **tắt cờ hủy hành động đang chờ** (tự chạy chỉ hủy `auto`).
+- `execution/gateway.test.ts` (+1, +assert): sự cố gom theo tài khoản và nâng P1 khi breaker mở; breaker mở hủy hành động đang chờ khác.
+- `api/v1/admin/admin.test.ts` (+1): AD04 không phải staff 404, staff 403 khi đổi, PM cần lý do. `api/v1/guardrails` (+1): kill switch workspace cờ tắt 404, bật / trạng thái.
+- Bộ cách ly: probe 3 route workspace (breaker của B → 404); 2 route admin miễn trừ có lý do.
+
+**Vùng bảo vệ:** `packages/core/execution/**`, `packages/db/**` (1 bảng + RLS, migration 0047–0048). `packages/core/ops` (đổi `openIncident`: nâng mức).
+
+**PM kiểm tra:** Cài đặt → Guardrails → Bật kill switch (lý do) → banner đỏ trên mọi trang; tắt. `/admin/kill-switch` bật / tắt toàn cục. `pnpm killswitch -- on --reason "thử CLI"` rồi `off`.
+
 ## [036] Nhật ký hành động (P203), chi tiết + hoàn tác (P204) — 2026-10-23
 
 > Chạm `packages/core/execution` — **cần PM chạy staging trước khi merge `develop → main`** (cùng lượt với 035).

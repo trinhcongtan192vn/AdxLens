@@ -25,14 +25,16 @@ export type IncidentInput = {
  */
 export async function openIncident(db: DbOrTx, input: IncidentInput) {
   const [existing] = await db
-    .select({ id: opsIncidents.id })
+    .select({ id: opsIncidents.id, severity: opsIncidents.severity })
     .from(opsIncidents)
     .where(and(eq(opsIncidents.fingerprint, input.fingerprint), inArray(opsIncidents.status, ['open', 'mitigated'])))
     .limit(1);
   if (existing) {
+    // Lần lặp nghiêm trọng hơn (ví dụ breaker vừa mở) thì nâng mức sự cố; không bao giờ hạ.
+    const escalate = input.severity < existing.severity;
     const [row] = await db
       .update(opsIncidents)
-      .set({ occurrences: sql`${opsIncidents.occurrences} + 1` })
+      .set({ occurrences: sql`${opsIncidents.occurrences} + 1`, ...(escalate ? { severity: input.severity } : {}) })
       .where(eq(opsIncidents.id, existing.id))
       .returning();
     return { incident: row!, created: false };

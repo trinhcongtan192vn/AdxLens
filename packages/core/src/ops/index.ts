@@ -8,3 +8,4 @@ export * from './admin';
 export * from './report-schedules';
 export * from './billing-webhooks';
 export * from './billing-renewals';
+export * from './kill-switch';

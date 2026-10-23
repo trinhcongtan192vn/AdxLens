@@ -15,6 +15,8 @@ const base64Key32 = z.string().refine((v) => Buffer.from(v, 'base64').length ===
 export const baseEnvSchema = z.object({
   APP_ENV: z.enum(['local', 'test', 'staging', 'production']).default('local'),
   APP_URL: z.string().url().default('http://localhost:3000'),
+  /** Phiên bản bản deploy (git sha) — checklist cờ P2a đòi test tích hợp ghi đạt cho đúng phiên bản này. */
+  APP_VERSION: z.string().default('local'),
   PUBLIC_REPORT_URL: z.string().url().default('http://localhost:3000/r'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   DATABASE_URL: z.string().min(1),

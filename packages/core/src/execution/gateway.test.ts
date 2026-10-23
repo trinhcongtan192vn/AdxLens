@@ -16,6 +16,7 @@ import {
 import { disableFlag, enableFlag } from '@adxlens/core/flags';
 import { startBackfill, syncRange } from '@adxlens/core/ingestion';
 import { listNotifications } from '@adxlens/core/notification';
+import { listIncidents } from '@adxlens/core/ops';
 import { resolveActor } from '@adxlens/core/tenancy';
 import { executeAction, getAction, listActions, minorUnits, previewAction, requestAction, undoAction } from './index';
 
@@ -289,6 +290,10 @@ describe('Execution Gateway — lỗi giữa chừng, xác minh, idempotency (L3
     await expect(
       requestAction(s.ctx, { adAccountId: s.adAccountId, actionType: 'pause_ad', targetMetaId: metaId }, s),
     ).rejects.toMatchObject({ code: 'KILL_SWITCH_ACTIVE', details: { reason: 'circuit_breaker_open' } });
+    // Playbook execution_failed: gom sự cố theo tài khoản (một sự cố, 3 lần), nâng P1 khi breaker mở.
+    const inc = (await listIncidents(db, {})).filter((i) => i.kind === 'execution_failed');
+    expect(inc).toHaveLength(1);
+    expect(inc[0]).toMatchObject({ severity: 'P1', occurrences: 3, adAccountId: s.adAccountId });
   });
 });
 
@@ -508,5 +513,31 @@ describe('nhật ký và hoàn tác (P203, P204, P2-06)', () => {
     await expect(getAction(bctx, a.id)).rejects.toMatchObject({ code: 'NOT_FOUND' });
     const other = await setup();
     await expect(getAction(other.ctx, a.id)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  });
+});
+
+describe('playbook execution_failed', () => {
+  it('breaker mở → hủy hành động đang chờ khác của tài khoản; lần đầu mở sự cố P1', async () => {
+    const s = await setup();
+    const { saveGuardrails, GUARDRAIL_DEFAULTS } = await import('./index');
+    await saveGuardrails(s.ctx, { ...GUARDRAIL_DEFAULTS, excludeMetaIds: [], breakerFailures: 1 });
+    const first = await s.ad(0);
+    const second = await s.ad(1);
+    const a = await requestAction(
+      s.ctx,
+      { adAccountId: s.adAccountId, actionType: 'pause_ad', targetMetaId: first.metaId },
+      s,
+    );
+    const b = await requestAction(
+      s.ctx,
+      { adAccountId: s.adAccountId, actionType: 'pause_ad', targetMetaId: second.metaId },
+      s,
+    );
+    writer.failNext('error_before');
+    await s.run(a.id);
+    const [rb] = await db.select().from(schema.actions).where(eq(schema.actions.id, b.id));
+    expect(rb).toMatchObject({ status: 'canceled', resultCode: 'circuit_breaker_open' });
+    const inc = (await listIncidents(db, {})).find((i) => i.kind === 'execution_failed');
+    expect(inc?.severity).toBe('P1');
   });
 });

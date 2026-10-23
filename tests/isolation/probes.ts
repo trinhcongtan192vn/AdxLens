@@ -344,6 +344,21 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
     crossParams: (w) => ({ id: w.b.action.id }),
   },
+  'GET /api/v1/kill-switch': { kind: 'workspace' },
+  'POST /api/v1/kill-switch': { kind: 'workspace', body: () => ({ active: false, reason: '' }) },
+  'POST /api/v1/circuit-breakers/[id]/close': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.adAccount.id }),
+    crossParams: (w) => ({ id: w.b.adAccount.id }),
+  },
+  'GET /api/v1/admin/kill-switch': {
+    kind: 'exempt',
+    reason: 'Trang nội bộ staff: công tắc toàn hệ thống, không đọc dữ liệu nghiệp vụ theo workspace',
+  },
+  'POST /api/v1/admin/kill-switch': {
+    kind: 'exempt',
+    reason: 'Trang nội bộ PM: công tắc toàn hệ thống; có test riêng ở admin.test.ts',
+  },
   'POST /api/v1/demo': { kind: 'workspace' },
   'DELETE /api/v1/demo': { kind: 'workspace' },
   'GET /api/v1/clients': { kind: 'workspace' },
