@@ -3,6 +3,7 @@ import { schema } from '@adxlens/db';
 import type { Enqueue } from '@adxlens/jobs';
 import { DEFAULT_ATTRIBUTION, MetaApiError, type MetaInsight, type MetaReadApi } from '@adxlens/meta-client';
 import { markConnectionExpired, withConnectionToken, type TokenKeys } from '@adxlens/core/connections';
+import { notify } from '@adxlens/core/notification';
 import {
   AppError,
   addDays,
@@ -395,6 +396,20 @@ export async function syncRange(
   const runDone = updated!.done >= updated!.total;
   if (runDone) {
     await finishRun(ctx, run.id, account.id, account.timezone, deps.clock ?? systemClock);
+    if (run.kind === 'backfill') {
+      // P0-25: báo "đồng bộ xong" cho owner/manager được xem Client của tài khoản.
+      await notify(
+        ctx,
+        {
+          kind: 'sync_done',
+          recipients: { roles: ['owner', 'manager'], clientId: account.clientId },
+          params: { account: account.name },
+          link: `/accounts/${account.id}`,
+          dedupeKey: `sync_done:${run.id}`,
+        },
+        { enqueue: deps.enqueue },
+      );
+    }
     await deps.enqueue?.('reconcile:account', {
       workspaceId: ctx.workspaceId,
       adAccountId: account.id,

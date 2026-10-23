@@ -96,20 +96,29 @@ describe('đối chiếu tài khoản', () => {
     expect(incidents).toMatchObject([
       { kind: 'reconciliation_warning', severity: 'P2', adAccountId, workspaceId: ctx.workspaceId, status: 'open' },
     ]);
-    expect(enqueue.calls).toHaveLength(1);
-    expect(enqueue.calls[0]).toMatchObject({
+    // P0-25: owner nhận thông báo lệch (bắt buộc, có email).
+    const notes = await db
+      .select()
+      .from(schema.notifications)
+      .where(eq(schema.notifications.kind, 'reconciliation_warning'));
+    expect(notes).toHaveLength(1);
+    expect(notes[0]).toMatchObject({ emailStatus: 'queued', params: { dates: LECH } });
+    const sync = enqueue.calls.filter((c) => c.name === 'sync:backfill_account');
+    expect(sync).toHaveLength(1);
+    expect(sync[0]).toMatchObject({
       name: 'sync:backfill_account',
       payload: { adAccountId, from: LECH, to: LECH },
       opts: { delayMs: RECONCILE_RETRY_DELAY_MS },
     });
 
-    // Lần 2 trong ngày: playbook vượt giới hạn 1 lần/ngày → leo thang, không lên lịch thêm.
+    // Lần 2 trong ngày: playbook vượt giới hạn 1 lần/ngày → leo thang, không lên lịch thêm; không báo trùng.
     await reconcileAccount(
       ctx,
       { adAccountId, from: '2026-10-09', to: '2026-10-22' },
       { meta, keys: KEYS.keys, clock, enqueue },
     );
-    expect(enqueue.calls).toHaveLength(1);
+    expect(enqueue.calls.filter((c) => c.name === 'sync:backfill_account')).toHaveLength(1);
+    expect(enqueue.calls.filter((c) => c.name === 'notify:send_email')).toHaveLength(1);
     const runs = await db.execute<{ result: string }>(sql`select result from app.ops_playbook_runs order by at`);
     expect(runs.map((x) => x.result)).toEqual(['done', 'escalated']);
 

@@ -1,7 +1,7 @@
 import { and, eq, gte, lte, sql } from 'drizzle-orm';
 import type { DbOrTx } from '@adxlens/db';
 import { schema } from '@adxlens/db';
-import { connectionExpiringEmail, type EmailSender } from '@adxlens/core/notification';
+import { connectionExpiringEmail, notify, type EmailSender } from '@adxlens/core/notification';
 import { systemClock, type Clock } from '@adxlens/core/shared';
 import { registerHealthCheck, type HealthResult } from './health';
 import { openIncident, runPlaybook } from './incidents';
@@ -29,6 +29,7 @@ export async function runTokenExpiringPlaybook(
     .select({
       id: metaConnections.id,
       workspaceId: metaConnections.workspaceId,
+      createdBy: metaConnections.createdBy,
       expiresAt: metaConnections.expiresAt,
       email: users.email,
       locale: users.locale,
@@ -78,8 +79,21 @@ export async function runTokenExpiringPlaybook(
       },
       clock,
     );
-    if (r === 'done') notified++;
-    else skipped++;
+    if (r === 'done') {
+      notified++;
+      // Trung tâm thông báo (P0-25): cùng nội dung email vừa gửi.
+      await notify(
+        { db, workspaceId: c.workspaceId },
+        {
+          kind: daysLeft === 0 ? 'token_expired' : 'token_expiring',
+          recipients: { userIds: [c.createdBy] },
+          params: { days: daysLeft },
+          link: '/connections',
+          dedupeKey: `token:${c.id}:${now.toISOString().slice(0, 10)}`,
+          email: false,
+        },
+      );
+    } else skipped++;
   }
   return { notified, expired, skipped };
 }

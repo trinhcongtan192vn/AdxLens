@@ -215,6 +215,18 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     reason: 'Staff AD02, bật cờ chỉ PM qua core/flags (admin.test.ts)',
   },
   'GET /api/v1/admin/workspaces/[id]/flag-history': { kind: 'exempt', reason: 'Staff AD02 (admin.test.ts)' },
+  'GET /api/v1/notifications': { kind: 'workspace' },
+  'POST /api/v1/notifications': { kind: 'workspace' },
+  'POST /api/v1/notifications/[id]/read': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.notification.id }),
+  },
+  'GET /api/v1/me/notification-settings': { kind: 'workspace' },
+  'PATCH /api/v1/me/notification-settings': {
+    kind: 'workspace',
+    body: () => ({ items: [{ kind: 'sync_done', in_app: true, email: true }] }),
+  },
   'GET /api/v1/clients': { kind: 'workspace' },
   'POST /api/v1/clients': { kind: 'workspace', body: () => ({ name: 'Client mới' }) },
   'GET /api/v1/clients/[id]': {

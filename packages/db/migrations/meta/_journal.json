@@ -176,6 +176,20 @@
       "when": 1792723078391,
       "tag": "0024_share_links_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792725619193,
+      "tag": "0025_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1792725620241,
+      "tag": "0026_rls_notifications",
+      "breakpoints": true
     }
   ]
 }

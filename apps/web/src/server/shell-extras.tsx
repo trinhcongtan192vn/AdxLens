@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { connectionHealth } from '@adxlens/core/connections';
+import { unreadCount } from '@adxlens/core/notification';
 import { can } from '@adxlens/core/tenancy';
 import { Banner } from '@adxlens/ui';
 import type { PageContext } from './page-context';
@@ -40,6 +41,6 @@ export function registerUnreadSource(s: (pc: PageContext) => Promise<number>): v
 
 export async function getShellExtras(pc: PageContext): Promise<{ unread: number; banner: ReactNode }> {
   const banner = await systemBanner(pc);
-  const unread = unreadSource ? await unreadSource(pc) : 0;
+  const unread = unreadSource ? await unreadSource(pc) : await unreadCount(pc.ctx, pc.actor.userId);
   return { unread, banner: banner ? <div className="px-4 pt-4">{banner}</div> : null };
 }

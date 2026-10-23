@@ -94,6 +94,10 @@ export const JOB_PROBES: Record<string, JobProbe> = {
   'pdf:render': {
     payload: (w) => ({ workspaceId: w.a.workspace.id, reportId: w.b.report.id, version: '1' }),
   },
+  // Workspace A nhưng thông báo của B: không gửi/ghi thông báo của B.
+  'notify:send_email': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, notificationId: w.b.notification.id }),
+  },
   'reconcile:account': {
     prepare: backfillForA,
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, from: p!.from, to: p!.to }),
