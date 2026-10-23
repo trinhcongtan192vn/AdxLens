@@ -19,3 +19,17 @@ test('ST03 gói Free + thông tin xuất hóa đơn; ST04 kết quả hủy', as
   await page.goto('/settings/billing/checkout?status=cancel');
   await expect(page.getByText('Bạn đã hủy thanh toán. Gói hiện tại không thay đổi.')).toBeVisible();
 });
+
+/** M06 (PRD 13.3): trang hoà vốn công khai, không cần đăng nhập; đi từ M02. */
+test('M06 hoà vốn: mặc định 5 tài khoản → Starter; đổi số liệu → tính lại', async ({ page }) => {
+  await page.goto('/pricing');
+  await page.getByRole('link', { name: /Trang hoà vốn/ }).click();
+  await expect(page.getByRole('heading', { name: 'Hoà vốn khi dùng AdxLens' })).toBeVisible();
+  await expect(page.getByTestId('break-even-result')).toContainText('Starter');
+  await page.getByLabel('Số tài khoản quảng cáo đang chạy').fill('1');
+  await page.getByLabel('Giờ tiết kiệm mỗi tài khoản mỗi tháng').fill('1');
+  await page.getByLabel('Giá một giờ làm việc của đội (VND)').fill('100000');
+  await page.getByRole('button', { name: 'Tính' }).click();
+  await expect(page).toHaveURL(/accounts=1/);
+  await expect(page.getByTestId('break-even-net')).toContainText('-');
+});

@@ -209,6 +209,23 @@
           "cancelled": "Yêu cầu đã hủy vì tài khoản được kết nối lại."
         }
       }
+    },
+    "breakEven": {
+      "title": "Hoà vốn khi dùng AdxLens",
+      "intro": "Ước tính thời gian đội của bạn tiết kiệm được khi kiểm tra tài khoản và làm báo cáo bằng AdxLens, so với phí hằng tháng.",
+      "accounts": "Số tài khoản quảng cáo đang chạy",
+      "hours": "Giờ tiết kiệm mỗi tài khoản mỗi tháng",
+      "hoursHint": "Kiểm tra số liệu, rà lỗi tài khoản, làm báo cáo cho khách.",
+      "rate": "Giá một giờ làm việc của đội (VND)",
+      "calculate": "Tính",
+      "plan": "Gói phù hợp",
+      "extra": "{count} tài khoản thêm",
+      "fee": "Phí mỗi tháng",
+      "saved": "Giá trị {hours} giờ tiết kiệm",
+      "net": "Chênh lệch mỗi tháng",
+      "threshold": "Hoà vốn khi giá một giờ của đội từ {rate} trở lên.",
+      "formula": "Công thức: số tài khoản × giờ tiết kiệm mỗi tài khoản × giá một giờ − phí gói rẻ nhất đủ số tài khoản. Không tính theo % chi tiêu quảng cáo.",
+      "toPricing": "Xem bảng giá"
     }
   },
   "auth": {

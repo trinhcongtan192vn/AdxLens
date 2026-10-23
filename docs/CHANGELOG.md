@@ -2,6 +2,21 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [029] Trang hoà vốn công khai M06 — 2026-10-23
+
+**Thay đổi**
+- `packages/core/billing/break-even.ts`: công thức PRD 13.3 — tài khoản × giờ tiết kiệm mỗi tài khoản × giá giờ, so với phí gói rẻ nhất đủ số tài khoản (vượt Scale thì cộng phí tài khoản thêm); tiền tính BigInt; giá giờ hoà vốn làm tròn lên. Giá gói đọc từ `app.billing_plans`.
+- Trang `/break-even` (M06): công khai, không gắn cờ (ADR-0001 B7), form GET tính ở server; link từ M02. Song ngữ.
+- Tech-debt: mặc định 6 giờ / 150.000đ là giả định, cần PM chốt và so khung Penpot M06.
+
+**Test tự động**
+- `billing/break-even.test.ts` (3): chọn gói đúng theo số tài khoản, giá trị, chênh lệch, giá giờ hoà vốn; vượt Scale cộng tài khoản thêm; lỗ ròng âm; 0 giờ không chia cho 0.
+- E2E `billing.spec.ts` (+1): M02 → M06, mặc định Starter, đổi số liệu → tính lại, chênh lệch âm.
+
+**Vùng bảo vệ:** không.
+
+**PM kiểm tra:** `/pricing` → "Trang hoà vốn" → đổi số tài khoản / giờ / giá giờ → "Tính".
+
 ## [028] Cổng thanh toán VN — PayOS (sandbox): thanh toán theo kỳ, webhook, gia hạn, nhắc gia hạn — 2026-10-23
 
 **Thay đổi**
