@@ -1049,5 +1049,53 @@
     "open": "Mở báo cáo",
     "wrongPassword": "Mật khẩu không đúng.",
     "notFoundTitle": "Không tìm thấy báo cáo"
+  },
+  "admin": {
+    "brand": "AdxLens Admin",
+    "internal": "Nội bộ",
+    "pm": "PM",
+    "staff": "Staff",
+    "nav": {
+      "flags": "Ma trận cờ",
+      "incidents": "Sự cố & playbook",
+      "killSwitch": "Kill switch toàn cục"
+    },
+    "flags": {
+      "title": "Ma trận cờ tính năng",
+      "search": "Tìm workspace…",
+      "cols": {
+        "workspace": "Workspace",
+        "owner": "Owner",
+        "accounts": "Tài khoản QC",
+        "created": "Tạo lúc"
+      },
+      "names": {
+        "reports": "Báo cáo",
+        "recommendations": "Gợi ý",
+        "approve": "Duyệt 1 click",
+        "auto": "Tự động hóa"
+      },
+      "on": "Bật",
+      "off": "Tắt",
+      "empty": "Không có workspace.",
+      "dialog": {
+        "enableTitle": "Bật {flag} cho {workspace}",
+        "disableTitle": "Tắt {flag} cho {workspace}",
+        "checklist": "Checklist kỹ thuật",
+        "passed": "Đạt",
+        "failed": "Chưa đạt",
+        "checking": "Đang chạy checklist…",
+        "reason": "Lý do (bắt buộc, ≥ 5 ký tự)",
+        "override": "Vượt checklist chưa đạt (được ghi log)",
+        "enable": "Bật cờ",
+        "disable": "Tắt cờ",
+        "dependents": "Tắt cờ này sẽ tắt luôn các cờ phụ thuộc đang bật.",
+        "onlyPm": "Chỉ PM được bật cờ.",
+        "done": "Đã cập nhật cờ",
+        "history": "Lịch sử",
+        "noHistory": "Chưa có thay đổi.",
+        "overrideTag": "vượt checklist"
+      }
+    }
   }
 }

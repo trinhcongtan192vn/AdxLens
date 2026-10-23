@@ -1,4 +1,10 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
+
+// Biến môi trường local (DATABASE_URL…) cho helper E2E chạy trong worker của Playwright.
+const envFile = path.resolve(import.meta.dirname, '../../.env.local');
+if (existsSync(envFile)) process.loadEnvFile(envFile);
 
 /**
  * E2E (L3 mục 14): chạy trên stack local (Supabase CLI + Redis) với `META_MOCK=1`.

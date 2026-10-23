@@ -2,6 +2,32 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [042] Trang nội bộ bật/tắt cờ (AD01, AD02) + E2E báo cáo đầy đủ — 2026-10-23
+
+**Thay đổi**
+- Trang nội bộ `/admin` (chỉ đội AdxLens; người khác thấy 404, không lộ có trang admin): khung "AdxLens Admin · Nội bộ", email + PM/Staff.
+- AD01 `/admin/flags`: ma trận workspace × cờ (owner, số tài khoản QC, ngày tạo, tìm theo tên), bấm ô để bật/tắt.
+- AD02 (hộp thoại): chạy checklist kỹ thuật tự động; bật chỉ PM (`can_enable_flags`); checklist chưa đạt → chặn, PM có thể **vượt kèm lý do (ghi log `override`)**; phụ thuộc cờ cha không vượt được; tắt mọi staff được, tắt kéo theo cờ phụ thuộc; lý do bắt buộc ≥ 5 ký tự; lịch sử đổi cờ. Đường bật cờ duy nhất vẫn là `core/flags` (CLAUDE.md quy tắc 7). Nhãn cờ trên giao diện không chứa tên cờ/mã giai đoạn (khóa cờ chỉ hiện từ code ở trang nội bộ).
+- Checklist `p0_reports` (L3 18.3) trong `core/reporting/flag-checks.ts`: mọi tài khoản QC đã xác nhận gán; đối chiếu 7 ngày gần nhất không lệch; không có sự cố P1 mở.
+- `core/ops/admin.ts`: truy vấn ma trận (xuyên workspace có chú thích lý do, chỉ route `staff`).
+- API (staff): `GET /api/v1/admin/workspaces`, `GET /api/v1/admin/workspaces/{id}/flags/{key}/checklist`, `POST /api/v1/admin/workspaces/{id}/flags/{key}`, `GET /api/v1/admin/workspaces/{id}/flag-history`.
+
+**Sửa lỗi hạ tầng phát hiện khi chạy E2E đầy đủ**
+- Storage bucket local chưa được tạo (logo, PDF lỗi "Bucket not found"): `pnpm dev` và CI chạy `supabase seed buckets` sau khi bật Supabase.
+- Next.js dev nạp lại module theo route → mỗi lần tạo pool Postgres mới → cạn 100 kết nối ("remaining connection slots are reserved"). `getDb` giữ pool trên `globalThis`.
+- Playwright: nạp `.env.local` trong config; reporter `github` trên CI (lỗi E2E hiện thành annotation); ESLint/Prettier bỏ qua `playwright-report/`, `test-results/`.
+- Truy vấn con trong ma trận admin tham chiếu cột ngoài phải ghi đủ tên bảng (drizzle render cột không kèm bảng → đếm sai) — đã sửa và có test.
+
+**Test tự động**
+- `flag-checks.test.ts` (4): checklist đạt/chưa đạt từng mục, phụ thuộc cờ cha, ma trận admin.
+- `admin.test.ts` (3): không phải staff → 404; staff thường không bật được; PM bật bị chặn khi checklist chưa đạt, vượt được và ghi log `override`; tắt kéo theo; lịch sử; khóa cờ sai 404, lý do ngắn 422.
+- **E2E mới `reports-share.spec.ts`**: đồng bộ tài khoản khớp số liệu → cờ tắt không có mục Báo cáo → PM bật `p0_reports` qua AD01/AD02 (checklist 3/3 đạt) → tạo báo cáo → worker dựng (có nguồn "Khớp Meta tính đến") → tạo link → khách (trình duyệt khác, không đăng nhập) mở trang công khai có "Powered by" → **xuất PDF thật bằng Chromium trong worker** → thu hồi → khách thấy "đã hết hạn hoặc bị thu hồi".
+- Bộ cách ly: 4 route admin miễn (có lý do; kiểm chặn người không phải staff ở `admin.test.ts`).
+
+**Vùng bảo vệ:** `packages/db/**` (`getDb` giữ pool trên `globalThis` — không đổi schema/RLS), `infra/**` (không đổi; CI chạy thêm `supabase seed buckets`). Không chạm `packages/core/flags/**` (chỉ gọi API có sẵn).
+
+**PM kiểm tra:** `pnpm seed:staff -- --email <email> --password "..." --can-enable-flags` → đăng nhập → `/admin/flags` → bật "Báo cáo" cho workspace (xem checklist, thử vượt có lý do).
+
 ## [022] PDF báo cáo A4 qua worker (Playwright) — 2026-10-23
 
 **Thay đổi**

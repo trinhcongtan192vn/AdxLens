@@ -205,6 +205,16 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
     crossParams: (w) => ({ id: w.b.report.id }),
   },
+  'GET /api/v1/admin/workspaces': {
+    kind: 'exempt',
+    reason: 'Trang nội bộ staff (AD01): xuyên workspace có chủ đích, chặn người không phải staff (admin.test.ts)',
+  },
+  'GET /api/v1/admin/workspaces/[id]/flags/[key]/checklist': { kind: 'exempt', reason: 'Staff AD02 (admin.test.ts)' },
+  'POST /api/v1/admin/workspaces/[id]/flags/[key]': {
+    kind: 'exempt',
+    reason: 'Staff AD02, bật cờ chỉ PM qua core/flags (admin.test.ts)',
+  },
+  'GET /api/v1/admin/workspaces/[id]/flag-history': { kind: 'exempt', reason: 'Staff AD02 (admin.test.ts)' },
   'GET /api/v1/clients': { kind: 'workspace' },
   'POST /api/v1/clients': { kind: 'workspace', body: () => ({ name: 'Client mới' }) },
   'GET /api/v1/clients/[id]': {

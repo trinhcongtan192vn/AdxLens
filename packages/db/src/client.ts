@@ -29,16 +29,19 @@ export async function ping(db: Db): Promise<void> {
   await db.execute(sql`select 1`);
 }
 
-let singleton: DbHandle | undefined;
+/**
+ * Kết nối dùng chung trong một tiến trình (web hoặc worker). Giữ trên `globalThis`: Next.js dev nạp lại
+ * module theo từng route/HMR, biến module-level tạo pool mới mỗi lần và làm cạn kết nối Postgres.
+ */
+const holder = globalThis as unknown as { __adxlensDb?: DbHandle };
 
-/** Kết nối dùng chung trong một tiến trình (web hoặc worker). */
 export function getDb(url = process.env.DATABASE_URL): Db {
   if (!url) throw new Error('DATABASE_URL chưa cấu hình');
-  singleton ??= createDb(url);
-  return singleton.db;
+  holder.__adxlensDb ??= createDb(url);
+  return holder.__adxlensDb.db;
 }
 
 export async function closeDb(): Promise<void> {
-  await singleton?.close();
-  singleton = undefined;
+  await holder.__adxlensDb?.close();
+  holder.__adxlensDb = undefined;
 }

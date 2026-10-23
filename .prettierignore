@@ -11,3 +11,5 @@ infra/supabase/.temp
 packages/db/migrations/meta
 CLAUDE.md
 *.md
+playwright-report/
+test-results/

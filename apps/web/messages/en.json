@@ -1049,5 +1049,53 @@
     "open": "Open report",
     "wrongPassword": "Incorrect password.",
     "notFoundTitle": "Report not found"
+  },
+  "admin": {
+    "brand": "AdxLens Admin",
+    "internal": "Internal",
+    "pm": "PM",
+    "staff": "Staff",
+    "nav": {
+      "flags": "Flag matrix",
+      "incidents": "Incidents & playbooks",
+      "killSwitch": "Global kill switch"
+    },
+    "flags": {
+      "title": "Feature flag matrix",
+      "search": "Search workspaces…",
+      "cols": {
+        "workspace": "Workspace",
+        "owner": "Owner",
+        "accounts": "Ad accounts",
+        "created": "Created"
+      },
+      "names": {
+        "reports": "Reports",
+        "recommendations": "Recommendations",
+        "approve": "One-click approval",
+        "auto": "Automation"
+      },
+      "on": "On",
+      "off": "Off",
+      "empty": "No workspaces.",
+      "dialog": {
+        "enableTitle": "Enable {flag} for {workspace}",
+        "disableTitle": "Disable {flag} for {workspace}",
+        "checklist": "Technical checklist",
+        "passed": "Passed",
+        "failed": "Not passed",
+        "checking": "Running checklist…",
+        "reason": "Reason (required, ≥ 5 characters)",
+        "override": "Override failed checklist (logged)",
+        "enable": "Enable flag",
+        "disable": "Disable flag",
+        "dependents": "Disabling this flag also disables dependent flags that are on.",
+        "onlyPm": "Only the PM can enable flags.",
+        "done": "Flag updated",
+        "history": "History",
+        "noHistory": "No changes yet.",
+        "overrideTag": "override"
+      }
+    }
   }
 }

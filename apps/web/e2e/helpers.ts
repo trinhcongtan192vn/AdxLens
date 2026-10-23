@@ -54,3 +54,20 @@ export async function signUpAndCreateWorkspace(page: Page, opts: { workspace?: s
   await expect(page).toHaveURL(/\/overview/);
   return email;
 }
+
+/**
+ * Cấp quyền staff (PM nếu `canEnableFlags`) cho tài khoản E2E — chỉ ở DB local của E2E, giống
+ * `pnpm seed:staff`. Bật cờ vẫn đi qua giao diện AD01/AD02 (core/flags).
+ */
+export async function makeStaff(email: string, canEnableFlags = true): Promise<void> {
+  const { createDb } = await import('@adxlens/db');
+  const { sql } = await import('drizzle-orm');
+  const { db, close } = createDb(process.env.DATABASE_URL!);
+  try {
+    await db.execute(sql`insert into app.staff (user_id, can_enable_flags)
+      select id, ${canEnableFlags} from app.users where email = ${email}
+      on conflict (user_id) do update set can_enable_flags = excluded.can_enable_flags`);
+  } finally {
+    await close();
+  }
+}
