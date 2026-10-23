@@ -2,6 +2,28 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [011] Gán tài khoản QC cho Client: S05, C01, khung C02 — 2026-10-23
+
+**Thay đổi**
+- `packages/core/connections/assignment.ts`: gán + xác nhận tài khoản QC cho Client có sẵn hoặc tạo Client mới; tài khoản đã xác nhận cho Client khác → 409 (phải bỏ gán trước); bỏ gán (về "chưa gán"); đếm tài khoản chưa xác nhận (BR01); lưu trữ Client kéo theo trả tài khoản về "chưa gán"; tổng quan C01 (Client actor thấy được + tài khoản đã gán). Chỉ owner/manager (`clients.manage`); không gán vào Client của workspace khác hay Client đã lưu trữ.
+- API: `GET /api/v1/ad-accounts`, `POST|DELETE /api/v1/ad-accounts/{id}/assign` (đúng một trong `client_id` / `create_client_name`), `GET|POST /api/v1/clients`, `GET|PATCH|DELETE /api/v1/clients/{id}` (DELETE = lưu trữ, báo cáo cũ giữ nguyên).
+- Giao diện theo Penpot:
+  - S05 "Gán mỗi tài khoản cho một Client" (bước 4/4): gợi ý "Khớp tên", ô chọn Client có sẵn hoặc "+ Tạo Client mới: <tên gợi ý>", Xác nhận / Đã xác nhận + Đổi, banner "Còn N dòng chưa xác nhận…", hộp thoại "+ Tạo Client mới", "Xong, bắt đầu đồng bộ" → C01.
+  - C01 Clients: badge "N Client · M tài khoản", tìm Client/tài khoản (không phân biệt dấu), banner tài khoản chưa xác nhận + "Xác nhận gán", thao tác dòng (Xác nhận gán / Kết nối lại), trạng thái trống, "+ Thêm Client". Cột chi tiêu/health/vấn đề/đối chiếu/báo cáo cuối hiện "—" tới khi có dữ liệu (012, 013, 015+, 023+).
+  - C02 Client: breadcrumb, tab Chiến dịch | Nhóm QC | Quảng cáo | Báo cáo | Cài đặt (bảng số liệu ở 012+); tab Cài đặt liệt kê tài khoản QC + Bỏ gán; Đổi tên, Lưu trữ Client.
+- i18n vi/en: namespace `clients`.
+
+**Test tự động**
+- `packages/core/src/connections/assignment.test.ts` (7): gán Client có sẵn, tạo Client khi gán, 409 khi đã thuộc Client khác + bỏ gán rồi gán lại, không gán vào Client workspace khác, buyer không gán được, lưu trữ Client trả tài khoản về chưa gán, buyer chỉ thấy Client được gán.
+- `apps/web/src/app/api/v1/clients/clients.test.ts` (5): luồng S05 → C01, validate body, 409/bỏ gán, tạo/đổi tên/lưu trữ, buyer 403 + chỉ thấy Client của mình.
+- `apps/web/src/lib/assign.test.ts` (3), `apps/web/src/lib/clients.test.ts` (3): lựa chọn mặc định S05, tìm không dấu C01.
+- Bộ cách ly: probe 8 route mới (có `crossParams`/`crossBody` dùng tài khoản và Client của B).
+- E2E `apps/web/e2e/clients-assign.spec.ts`: đăng ký → Meta giả → S04 chọn 2 tài khoản → S05 xác nhận (tên gợi ý + Client tạo bằng hộp thoại) → C01 tìm → C02 → Bỏ gán → banner C01.
+
+**Vùng bảo vệ:** `packages/core/connections/**` (chỉ thêm `assignment.ts`, không chạm token).
+
+**PM kiểm tra:** sau S04 → S05: xác nhận từng dòng, thử đổi Client; vào Clients thấy số Client/tài khoản; mở Client → tab Cài đặt → Bỏ gán → quay lại Clients thấy banner chưa xác nhận.
+
 ## [010] Kết nối Meta: OAuth chỉ đọc, token mã hóa, S02–S04 — 2026-10-23
 
 **Thay đổi**
