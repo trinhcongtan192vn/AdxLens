@@ -13,6 +13,12 @@ describe('tab Cài đặt', () => {
     expect(settingsTabs('manager', { ...off, p2a_approve: true })).toEqual(['members', 'notifications', 'profile']);
   });
 
+  it('Tích hợp (MCP) chỉ khi cờ P1 bật, cho owner / manager', () => {
+    expect(settingsTabs('owner', off)).not.toContain('integrations');
+    expect(settingsTabs('manager', { ...off, p1_recommendations: true })).toContain('integrations');
+    expect(settingsTabs('buyer', { ...off, p1_recommendations: true })).not.toContain('integrations');
+  });
+
   it('buyer chỉ thấy Thông báo và Hồ sơ', () => {
     expect(settingsTabs('buyer', off)).toEqual(['notifications', 'profile']);
   });

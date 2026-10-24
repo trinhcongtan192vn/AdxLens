@@ -13,9 +13,10 @@
   - `list_accounts`, `account_kpis(period)`, `top_entities(level, metric, period)`, `explain_cpa_change`;
   - `findings`, `health_score`, `breakdown(kind)`, `change_log`.
 - **Công cụ đề xuất ghi:** `propose_action(action_type, target, params)`.
-  - Chỉ tạo **đề xuất ở trạng thái chờ duyệt**, qua đúng đường "Việc tuần này" đang dùng.
-  - Không bao giờ gọi Meta trực tiếp.
-  - Duyệt và thực thi vẫn đi qua Execution Gateway: guardrails, kill switch, hoàn tác.
+  - Chỉ tạo **thẻ đề xuất** lưu trong tin trả lời (`agent_messages.data.proposals`). Không tạo action, không gọi Meta.
+  - Người dùng bấm "Xem trước và duyệt" → mở đúng hộp thoại G4 đang dùng (xem trước, guardrails, Execution Gateway,
+    hoàn tác). Đây là thay đổi so với bản nháp đầu ("qua Việc tuần này"): dùng lại hộp thoại G4 thì không cần đổi schema
+    `recommendations` hay đường duyệt, và người dùng vẫn duyệt từng lần.
 - LLM được gọi theo kiểu tool-use, qua `ANTHROPIC_API_KEY` sẵn có (model mặc định trong env).
 
 **LLM không tạo số (quy tắc 5):**
@@ -31,6 +32,9 @@
 **Cờ:**
 - Chat **đọc** là P1, nên kiểm cờ `p1_recommendations` ở server, cả ở API lẫn đầu job.
 - `propose_action` thêm điều kiện cờ `p2a_approve`. Cờ tắt thì công cụ này không có trong danh sách gửi LLM.
+
+**Chạy ở worker:** API lưu câu hỏi và tin trả lời "đang soạn", enqueue `recommend:agent_reply`; worker chạy vòng
+tool-use với quyền của người hỏi; giao diện đọc lại hội thoại (poll). Lý do: LLM có thể > 10 giây (CLAUDE.md).
 
 **Lưu trữ:**
 - Bảng `app.agent_threads` và `app.agent_messages`, theo `workspace_id` và `user_id`.
@@ -48,4 +52,4 @@
 
 - Prompt injection qua tên quảng cáo: rủi ro chỉ dừng ở **đề xuất**, vì việc ghi luôn cần người duyệt.
 - Chi phí LLM.
-  - Giới hạn số lượt hỏi / người / ngày trong `system_settings`, mặc định 50.
+  - Giới hạn 50 câu hỏi / người / 24 giờ (hằng số `AGENT_DAILY_LIMIT`; chuyển sang `system_settings` khi cần chỉnh ở admin).

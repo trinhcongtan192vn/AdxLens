@@ -298,6 +298,18 @@ export async function seedWorld(db: Db) {
     content: 'Beta Answer Secret',
   });
 
+  // W10: khóa API MCP của B.
+  const [bKey] = await db
+    .insert(schema.apiKeys)
+    .values({
+      workspaceId: b.workspace.id,
+      createdBy: b.owner.id,
+      name: 'Beta Key Secret',
+      prefix: 'betasecr',
+      hash: 'f'.repeat(64),
+    })
+    .returning();
+
   const world = {
     a: {
       workspace: a.workspace,
@@ -326,6 +338,7 @@ export async function seedWorld(db: Db) {
       delivery: bDelivery!,
       alert: bAlert!,
       thread: bThread!,
+      apiKey: bKey!,
     },
     /** Chuỗi của B tuyệt đối không được xuất hiện trong phản hồi cho ngữ cảnh A. */
     bFingerprints: [
@@ -346,6 +359,8 @@ export async function seedWorld(db: Db) {
       'Beta Page Secret',
       '987654',
       'Beta Thread Secret',
+      'Beta Key Secret',
+      'betasecr',
       'Beta Answer Secret',
       bThread!.id,
       bAlert!.id,

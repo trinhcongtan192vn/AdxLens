@@ -542,6 +542,18 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     crossParams: (w) => ({ id: w.b.client.id }),
     query: () => ({ month: '2026-10' }),
   },
+  'GET /api/v1/api-keys': { kind: 'workspace' },
+  'POST /api/v1/api-keys': { kind: 'workspace', body: () => ({ name: 'Khóa A', scopes: ['read'] }) },
+  'DELETE /api/v1/api-keys/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.apiKey.id }),
+  },
+  'POST /api/v1/mcp': {
+    kind: 'exempt',
+    reason: 'Xác thực bằng khóa API (workspace lấy từ khóa, không từ request); cách ly kiểm ở core/agent/mcp.test.ts',
+  },
+  'GET /api/v1/mcp': { kind: 'exempt', reason: 'Trả 405, không đọc dữ liệu' },
   'POST /api/v1/agent/ask': { kind: 'workspace', body: () => ({ threadId: null, question: 'Chi tiêu tuần này?' }) },
   'GET /api/v1/agent/threads': { kind: 'workspace' },
   'GET /api/v1/agent/threads/[id]': {

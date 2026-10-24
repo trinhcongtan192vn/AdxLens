@@ -101,7 +101,8 @@
     "billing": "Plan & billing",
     "notifications": "Notifications",
     "profile": "Profile",
-    "guardrails": "Guardrails"
+    "guardrails": "Guardrails",
+    "integrations": "Integrations"
   },
   "pages": {
     "notifications": "Notifications",
@@ -3142,5 +3143,39 @@
     "floating": "Why did my cost go up? Ask AdxLens…",
     "limit": "Daily question limit reached, try again tomorrow.",
     "error": "Could not send the question"
+  },
+  "integrations": {
+    "title": "MCP server — connect AdxLens to Claude and other AI tools",
+    "intro": "Create an API key so Claude Desktop, Claude Code or any MCP client can read this workspace’s data (same tools as AI Agents). The key runs with your permissions; read-only, and change proposals still need approval in AdxLens.",
+    "endpoint": "MCP endpoint:",
+    "create": "Create API key",
+    "createdTitle": "New API key",
+    "emptyTitle": "No API keys yet",
+    "emptyBody": "Create a key to use AdxLens in Claude or another MCP tool.",
+    "cols": {
+      "name": "Name",
+      "key": "Key",
+      "scopes": "Scopes",
+      "lastUsed": "Last used",
+      "created": "Created"
+    },
+    "scopes": {
+      "read": "Read data",
+      "propose": "Propose changes"
+    },
+    "revoke": "Revoke",
+    "revoked": "Revoked",
+    "revokedToast": "Key revoked",
+    "once": "Copy the key now: AdxLens shows it only once and does not store it in plain text.",
+    "copy": "Copy key",
+    "copied": "Copied",
+    "copyConfig": "Copy configuration",
+    "configTitle": "Sample configuration (Claude Desktop / MCP clients):",
+    "claudeCode": "Claude Code: claude mcp add --transport http adxlens {url} --header \"Authorization: Bearer <key>\"",
+    "done": "Done",
+    "error": "Could not create the key",
+    "proposeLabel": "Allow change proposals (pause / resume / budget)",
+    "proposeHint": "Proposals appear in AI Agents as cards for you to preview and approve; MCP never changes ads by itself.",
+    "proposeOff": "Requires a plan with action approval."
   }
 }
