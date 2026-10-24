@@ -213,6 +213,34 @@ describe('AI agent (ADR-0019)', () => {
     expect(a).toMatchObject({ status: 'done', data: { source: 'unconfigured' } });
   });
 
+  it('ghi khóa nào trả lời (ADR-0022); LLM lỗi → bảng số kèm mã lỗi, không có thông điệp nhà cung cấp', async () => {
+    const { ctx } = await setup();
+    const llmInfo = { via: 'workspace' as const, provider: 'openai', model: 'gpt-5' };
+    const q1 = await ask(ctx, 'xin chào');
+    await runAgentReply(ctx, q1.messageId, {
+      llm: scripted([() => [{ type: 'text', text: 'Chào bạn' }]]),
+      llmInfo,
+      clock,
+    });
+    const a1 = (await getThread(ctx, q1.threadId)).messages.find((m) => m.role === 'assistant')!;
+    expect(a1.data).toMatchObject({ source: 'llm', llm: llmInfo });
+
+    const q2 = await ask(ctx, 'xin chào lần nữa');
+    const failing: AgentLlm = {
+      chat: () => Promise.reject(new Error('LLM_HTTP_429')),
+    };
+    expect(await runAgentReply(ctx, q2.messageId, { llm: failing, llmInfo, clock })).toEqual({ source: 'facts' });
+    const a2 = (await getThread(ctx, q2.threadId)).messages.find((m) => m.role === 'assistant')!;
+    expect(a2.data).toMatchObject({ source: 'facts', llm: llmInfo, llmError: 'LLM_HTTP_429' });
+
+    const q3 = await ask(ctx, 'câu ba');
+    const leaky: AgentLlm = { chat: () => Promise.reject(new Error('invalid x-api-key sk-ant-secret')) };
+    await runAgentReply(ctx, q3.messageId, { llm: leaky, clock });
+    const a3 = (await getThread(ctx, q3.threadId)).messages.find((m) => m.role === 'assistant')!;
+    expect(a3.data.llmError).toBe('LLM_ERROR');
+    expect(JSON.stringify(a3)).not.toContain('sk-ant-secret');
+  });
+
   it('trả lời theo ngôn ngữ người hỏi', async () => {
     const { ctx } = await setup();
     const enqueue = recordingEnqueue();

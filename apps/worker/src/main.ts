@@ -75,6 +75,7 @@ const services: WorkerServices = {
   agentLlm: env.ANTHROPIC_API_KEY
     ? anthropicAgentClient({ apiKey: env.ANTHROPIC_API_KEY, model: env.ANTHROPIC_MODEL })
     : null,
+  agentLlmModel: env.ANTHROPIC_MODEL,
   throttleQueue: (q, ms) => queues[q].rateLimit(ms),
 };
 

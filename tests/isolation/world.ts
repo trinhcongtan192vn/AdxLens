@@ -310,6 +310,17 @@ export async function seedWorld(db: Db) {
     })
     .returning();
 
+  // ADR-0022: khóa AI tự mang của B (bản mã giả; chỉ cần dấu vết model / hint không lộ sang A).
+  await db.insert(schema.llmKeys).values({
+    workspaceId: b.workspace.id,
+    provider: 'openai',
+    model: 'beta-model-secret',
+    keyCiphertext: Buffer.alloc(40, 1),
+    keyVersion: 1,
+    keyHint: 'Bsec',
+    updatedBy: b.owner.id,
+  });
+
   const world = {
     a: {
       workspace: a.workspace,
@@ -361,6 +372,7 @@ export async function seedWorld(db: Db) {
       'Beta Thread Secret',
       'Beta Key Secret',
       'betasecr',
+      'beta-model-secret',
       'Beta Answer Secret',
       bThread!.id,
       bAlert!.id,

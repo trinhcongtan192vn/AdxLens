@@ -25,6 +25,8 @@ export type WorkerServices = {
   llm: LlmClient | null;
   /** LLM có tool-use cho AI agent (ADR-0019); null khi không có ANTHROPIC_API_KEY. */
   agentLlm: AgentLlm | null;
+  /** Model của khóa nền tảng (ghi vào tin trả lời). */
+  agentLlmModel?: string;
   /** In trang nội bộ thành PDF A4 (Playwright). */
   renderPdf: (url: string) => Promise<Uint8Array>;
   /** Lưu tệp báo cáo (bucket `reports`). */

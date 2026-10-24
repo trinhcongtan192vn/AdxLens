@@ -202,6 +202,8 @@ Mọi thao tác ghi đều bắt buộc lý do và ghi vào `/admin/audit`. Tạ
   - cần `ANTHROPIC_API_KEY` (và `ANTHROPIC_MODEL`) cho **worker**; web chỉ hiện banner khi thiếu;
   - trả lời chạy ở job `recommend:agent_reply`;
   - test dùng LLM giả (`packages/core/src/agent/agent.test.ts`), không gọi mạng.
+  - workspace có thể dùng khóa Anthropic / OpenAI riêng (ADR-0022, Cài đặt → Tích hợp). Khóa mã hóa bằng
+    `TOKEN_ENC_KEY_V{n}`, worker giải mã; khóa riêng lỗi thì không dùng khóa nền tảng thay.
 - **MCP server** (ADR-0020): Cài đặt → Tích hợp tạo khóa; endpoint `POST /api/v1/mcp`. Thử nhanh:
   ```
   curl -s -X POST http://localhost:3000/api/v1/mcp -H "Authorization: Bearer adx_..." \

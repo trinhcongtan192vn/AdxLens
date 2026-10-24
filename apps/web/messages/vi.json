@@ -3206,7 +3206,9 @@
     "disclaimer": "AI có thể sai. Số liệu lấy từ AdxLens (đối chiếu Ads Manager ≤ 1%); mọi thay đổi cần bạn duyệt.",
     "floating": "Vì sao chi phí của tôi tăng? Hỏi AdxLens…",
     "limit": "Đã hết lượt hỏi hôm nay, thử lại ngày mai.",
-    "error": "Không gửi được câu hỏi"
+    "error": "Không gửi được câu hỏi",
+    "ownKey": "Trả lời bằng khóa AI của workspace · {model}",
+    "ownKeyFailed": "Khóa AI của workspace bị từ chối (xem Cài đặt → Tích hợp). Đây là số AdxLens đã tính:"
   },
   "integrations": {
     "title": "MCP server — kết nối AdxLens với Claude và công cụ AI khác",
@@ -3240,7 +3242,39 @@
     "error": "Không tạo được khóa",
     "proposeLabel": "Cho phép đề xuất thay đổi (tạm dừng / bật lại / ngân sách)",
     "proposeHint": "Đề xuất hiện trong AI Agents dưới dạng thẻ chờ bạn xem trước và duyệt; MCP không bao giờ tự thay đổi quảng cáo.",
-    "proposeOff": "Cần gói có tính năng duyệt hành động."
+    "proposeOff": "Cần gói có tính năng duyệt hành động.",
+    "llm": {
+      "title": "Mô hình AI của workspace",
+      "intro": "AI Agents trả lời bằng tài khoản Anthropic (Claude) hoặc OpenAI (GPT) của chính agency: chi phí tính vào tài khoản của bạn ở nhà cung cấp. Số liệu vẫn do AdxLens tính và kiểm tra trước khi hiện.",
+      "statusOn": "Đang dùng",
+      "statusError": "Lỗi",
+      "using": "{provider} · {model}",
+      "lastUsed": "Dùng lần cuối {at}",
+      "nonePlatform": "Chưa có khóa riêng: AI Agents đang dùng mô hình mặc định của AdxLens.",
+      "noneOff": "Chưa có khóa: thêm khóa để dùng AI Agents.",
+      "provider": "Nhà cung cấp",
+      "providers": {
+        "anthropic": "Anthropic (Claude)",
+        "openai": "OpenAI (GPT)"
+      },
+      "model": "Model",
+      "key": "Khóa API",
+      "keyKeep": "Để trống để giữ khóa hiện tại",
+      "whereAnthropic": "Tạo khóa ở console.anthropic.com → API Keys.",
+      "whereOpenai": "Tạo khóa ở platform.openai.com → API keys.",
+      "security": "Khóa được mã hóa khi lưu, không hiện lại và chỉ dùng để trả lời câu hỏi trong AI Agents.",
+      "save": "Lưu khóa",
+      "remove": "Gỡ khóa",
+      "saved": "Đã lưu khóa AI",
+      "removed": "Đã gỡ khóa AI",
+      "error": "Không lưu được: kiểm tra nhà cung cấp, model và khóa",
+      "errors": {
+        "auth": "Lần gọi gần nhất bị từ chối: khóa sai hoặc đã bị thu hồi. Nhập khóa mới.",
+        "quota": "Lần gọi gần nhất bị từ chối vì hết hạn mức hoặc hết tiền ở nhà cung cấp.",
+        "model": "Lần gọi gần nhất bị từ chối: tài khoản của bạn không dùng được model này. Đổi model.",
+        "other": "Lần gọi gần nhất bị lỗi. Thử lại sau ít phút."
+      }
+    }
   },
   "creativeInsights": {
     "formatsTitle": "Theo định dạng",

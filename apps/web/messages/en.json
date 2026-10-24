@@ -3206,7 +3206,9 @@
     "disclaimer": "AI can make mistakes. Numbers come from AdxLens (reconciled with Ads Manager ≤ 1%); every change needs your approval.",
     "floating": "Why did my cost go up? Ask AdxLens…",
     "limit": "Daily question limit reached, try again tomorrow.",
-    "error": "Could not send the question"
+    "error": "Could not send the question",
+    "ownKey": "Answered with the workspace's AI key · {model}",
+    "ownKeyFailed": "The workspace's AI key was rejected (see Settings → Integrations). Here are the numbers AdxLens computed:"
   },
   "integrations": {
     "title": "MCP server — connect AdxLens to Claude and other AI tools",
@@ -3240,7 +3242,39 @@
     "error": "Could not create the key",
     "proposeLabel": "Allow change proposals (pause / resume / budget)",
     "proposeHint": "Proposals appear in AI Agents as cards for you to preview and approve; MCP never changes ads by itself.",
-    "proposeOff": "Requires a plan with action approval."
+    "proposeOff": "Requires a plan with action approval.",
+    "llm": {
+      "title": "Workspace AI model",
+      "intro": "AI Agents answer with your agency's own Anthropic (Claude) or OpenAI (GPT) account: usage is billed to your account with the provider. Numbers are still computed by AdxLens and checked before they are shown.",
+      "statusOn": "In use",
+      "statusError": "Error",
+      "using": "{provider} · {model}",
+      "lastUsed": "Last used {at}",
+      "nonePlatform": "No key of your own: AI Agents use AdxLens's default model.",
+      "noneOff": "No key yet: add one to use AI Agents.",
+      "provider": "Provider",
+      "providers": {
+        "anthropic": "Anthropic (Claude)",
+        "openai": "OpenAI (GPT)"
+      },
+      "model": "Model",
+      "key": "API key",
+      "keyKeep": "Leave empty to keep the current key",
+      "whereAnthropic": "Create a key at console.anthropic.com → API Keys.",
+      "whereOpenai": "Create a key at platform.openai.com → API keys.",
+      "security": "The key is encrypted at rest, never shown again and only used to answer questions in AI Agents.",
+      "save": "Save key",
+      "remove": "Remove key",
+      "saved": "AI key saved",
+      "removed": "AI key removed",
+      "error": "Could not save: check the provider, model and key",
+      "errors": {
+        "auth": "The last call was rejected: the key is wrong or revoked. Enter a new key.",
+        "quota": "The last call was rejected: quota or credit exhausted at the provider.",
+        "model": "The last call was rejected: your account cannot use this model. Change the model.",
+        "other": "The last call failed. Try again in a few minutes."
+      }
+    }
   },
   "creativeInsights": {
     "formatsTitle": "By format",

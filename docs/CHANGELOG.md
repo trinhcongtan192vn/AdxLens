@@ -2,6 +2,44 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [093] AI Agents chạy bằng khóa AI của chính agency (Anthropic / OpenAI) — 2026-10-25
+
+- **Cài đặt → Tích hợp** có thêm thẻ **Mô hình AI của workspace** (ADR-0022 phần A):
+  - Owner / Manager chọn Anthropic (Claude) hoặc OpenAI (GPT), nhập model và khóa API;
+  - khóa được mã hóa khi lưu (cùng khóa với token Meta), chỉ hiện 4 ký tự cuối;
+  - trang báo lần dùng gần nhất và lỗi gần nhất: khóa sai, hết hạn mức, model không dùng được.
+- **Worker** `recommend:agent_reply`:
+  - workspace có khóa thì dùng khóa đó, không có thì dùng khóa nền tảng;
+  - khóa workspace lỗi thì **không** rơi sang khóa nền tảng: trả bảng số kèm mã lỗi.
+  - OpenAI gọi Chat Completions có function calling, dùng chung công cụ, bộ kiểm số, cờ và giới hạn câu hỏi.
+- **AI Agents**: câu trả lời ghi "Trả lời bằng khóa AI của workspace · model". Khóa riêng bị từ chối thì báo rõ.
+- **Sửa thiếu sót của 084**: `/api/v1/api-keys` chưa kiểm cờ P1 ở server; nay đã kiểm (quy tắc 7).
+- Vì sao không dùng "đăng nhập Claude / ChatGPT" trong app: Anthropic và OpenAI không cho bên thứ ba dùng gói
+  subscription của user (ADR-0022). Cách dùng gói của user là connector MCP (mục 094).
+
+**Vùng bảo vệ:**
+- `packages/db`: bảng `app.llm_keys`, migration 0071–0072; RLS bật, không có policy cho người dùng.
+- `packages/core/connections`: chỉ thêm `encryptSecret` / `decryptSecret`.
+
+**Test tự động:**
+- `agent/llm-keys.test.ts`:
+  - quyền Owner / Manager;
+  - dạng khóa theo nhà cung cấp;
+  - không lưu hoặc trả khóa rõ (DB, API, nhật ký);
+  - đổi model giữ khóa; đổi nhà cung cấp phải nhập khóa;
+  - client OpenAI (URL, header, tool_calls), ghi lần dùng / lỗi `LLM_HTTP_401` không lộ khóa;
+  - chuyển hội thoại sang định dạng OpenAI.
+- `agent.test.ts`: ghi khóa nào trả lời; lỗi thì có mã lỗi, không có thông điệp nhà cung cấp.
+- `worker handlers/recommend.test.ts`: khóa workspace được dùng thay khóa nền tảng; không có khóa thì dùng khóa nền tảng.
+- `api/v1/llm-key/llm-key.test.ts`: cờ tắt → 404 (cả khóa API MCP), lưu / đọc / xóa.
+- Cách ly workspace: probe 3 route mới, dấu vết model của B.
+
+**PM kiểm tra:**
+1. Bật cờ P1.
+2. Vào Cài đặt → Tích hợp, chọn OpenAI hoặc Anthropic, dán khóa của anh, lưu.
+3. Hỏi ở Workspace → AI Agents: câu trả lời ghi "Trả lời bằng khóa AI của workspace".
+4. Thử khóa sai: câu trả lời là bảng số, trang Tích hợp báo "khóa sai".
+
 ## [092] Trang chủ Workspace: bảng "Theo khách hàng" (tab Agency) — 2026-10-25
 
 - Ở phạm vi **Tất cả tài khoản** (≥ 2 khách), trang chủ có bảng theo từng khách: chi tiêu 7 ngày, so tuần trước, sức khỏe thấp nhất, **mục tiêu so với thực tế 7 ngày** (hoặc link "Đặt mục tiêu"). Khách lệch mục tiêu nhiều nhất lên đầu, rồi sức khỏe thấp. Như tab Agency của Madgicx Home (Madgicx khóa khi chỉ có 1 tài khoản; AdxLens hiện khi có từ 2 khách).

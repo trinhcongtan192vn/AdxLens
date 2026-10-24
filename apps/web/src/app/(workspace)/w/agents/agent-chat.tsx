@@ -27,6 +27,8 @@ type Message = {
   proposals: Proposal[];
   source: 'llm' | 'facts' | 'unconfigured' | null;
   facts: { label: string; text: string }[];
+  llm?: { via: 'workspace' | 'platform'; provider: string; model: string } | null;
+  llmError?: string | null;
 };
 
 /** Trang AI Agents (ADR-0019, bố cục Madgicx Agents): lịch sử + yêu thích, câu mẫu, chat, đề xuất chờ duyệt. */
@@ -265,7 +267,9 @@ export function AgentChat({
                         </span>
                       ) : m.source === 'facts' ? (
                         <>
-                          <p className="text-fg-secondary">{t('factsIntro')}</p>
+                          <p className="text-fg-secondary">
+                            {m.llmError && m.llm?.via === 'workspace' ? t('ownKeyFailed') : t('factsIntro')}
+                          </p>
                           <dl className="mt-2 grid grid-cols-[1fr_auto] gap-x-4 text-caption">
                             {m.facts.map((f, i) => (
                               <div key={i} className="contents">
@@ -278,6 +282,11 @@ export function AgentChat({
                       ) : (
                         <p className="whitespace-pre-wrap">{m.content}</p>
                       )}
+                      {m.llm?.via === 'workspace' && m.status === 'done' ? (
+                        <p className="mt-2 text-caption text-fg-tertiary" data-testid="agent-own-key">
+                          {t('ownKey', { model: m.llm.model })}
+                        </p>
+                      ) : null}
                       {m.tools.length ? (
                         <p className="mt-2 flex flex-wrap items-center gap-1 text-caption text-fg-tertiary">
                           <Wrench className="size-3" aria-hidden />

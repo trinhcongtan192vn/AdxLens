@@ -1,4 +1,4 @@
-import { boolean, index, jsonb, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, customType, index, integer, jsonb, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { app, createdAt, updatedAt } from './_common';
 import { workspaces } from './tenancy';
 
@@ -36,6 +36,10 @@ export type AgentMessageData = {
   }[];
   /** llm: qua kiểm tra số; facts: trả bảng số từ công cụ vì LLM không qua kiểm tra / không có key. */
   source?: 'llm' | 'facts' | 'unconfigured';
+  /** Khóa nào trả lời: khóa workspace tự mang (ADR-0022) hay khóa nền tảng. */
+  llm?: { via: 'workspace' | 'platform'; provider: string; model: string };
+  /** Mã lỗi LLM khi rơi về bảng số (vd. LLM_HTTP_401 = khóa sai). */
+  llmError?: string;
   facts?: { label: string; text: string }[];
   rejected?: number[][];
   /** Ngữ cảnh người dùng chọn (tài khoản / kỳ). */
@@ -87,3 +91,31 @@ export const apiKeys = app.table(
   },
   (t) => [index().on(t.workspaceId)],
 );
+
+export const LLM_PROVIDERS = ['anthropic', 'openai'] as const;
+
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({ dataType: () => 'bytea' });
+
+/**
+ * Khóa LLM workspace tự mang (BYOK, ADR-0022): AI agent chạy bằng tài khoản Anthropic / OpenAI của chính agency.
+ * Khóa mã hóa AES-256-GCM như token Meta; web chỉ mã hóa, worker giải mã. RLS bật, không có policy cho người dùng.
+ */
+export const llmKeys = app.table('llm_keys', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  workspaceId: uuid('workspace_id')
+    .notNull()
+    .unique()
+    .references(() => workspaces.id, { onDelete: 'cascade' }),
+  provider: text('provider', { enum: LLM_PROVIDERS }).notNull(),
+  model: text('model').notNull(),
+  keyCiphertext: bytea('key_ciphertext').notNull(),
+  keyVersion: integer('key_version').notNull(),
+  /** 4 ký tự cuối để nhận diện (không đủ để dùng). */
+  keyHint: text('key_hint').notNull(),
+  updatedBy: uuid('updated_by').notNull(),
+  lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+  /** Mã lỗi gần nhất từ nhà cung cấp (vd. LLM_HTTP_401) — không chứa khóa. */
+  lastError: text('last_error'),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
