@@ -82,6 +82,10 @@ if (current === target && builtNow && teamAppRunning(TEAM) && (await healthy()))
   process.exit(0);
 }
 
+// Next.js tự ghi đường dẫn thư mục build (.next-next) vào 2 file này khi build — trả lại như trong git.
+const NEXT_GENERATED = ['apps/web/next-env.d.ts', 'apps/web/tsconfig.json'];
+const restoreGenerated = () => ok('git', ['checkout', '--', ...NEXT_GENERATED], inTeam);
+restoreGenerated();
 if (current !== target) {
   if (out('git', ['status', '--porcelain', '--untracked-files=no'], inTeam)) {
     fail(`Thư mục team có file bị sửa tay. Không sửa code ở ${TEAM}; hỏi dev trước khi xóa thay đổi.`);
@@ -105,6 +109,7 @@ step('Build bản mới (app cũ vẫn chạy cho team dùng, khoảng 2–4 ph�
 const nextDir = path.join(TEAM, 'apps/web/.next-next');
 rmSync(nextDir, { recursive: true, force: true });
 run('pnpm', ['--filter', '@adxlens/web', 'build'], { ...inTeam, env: { ...process.env, NEXT_DIST_DIR: '.next-next' } });
+restoreGenerated();
 // Dấu build giống start-local → khi bật lại (kể cả Mo-AdxLens.cmd) không build lại.
 const stamp = buildStamp(target, out('git', ['status', '--porcelain', '--', 'apps/web', 'packages'], inTeam));
 writeFileSync(path.join(nextDir, 'adxlens-build-stamp'), stamp);
