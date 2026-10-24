@@ -13,7 +13,15 @@ import {
 } from '@adxlens/core/connections';
 import { startBackfill, syncRange } from '@adxlens/core/ingestion';
 import { resolveActor } from '@adxlens/core/tenancy';
-import { computeMetrics, getClientGoal, goalSuggestions, listClientGoals, saveClientGoal, vsTarget } from './index';
+import {
+  clientGoalStatus,
+  computeMetrics,
+  getClientGoal,
+  goalSuggestions,
+  listClientGoals,
+  saveClientGoal,
+  vsTarget,
+} from './index';
 
 const db = testDb();
 beforeEach(() => truncateAll(db));
@@ -114,6 +122,16 @@ describe('mục tiêu theo Client (ADR-0017)', () => {
     await expect(saveClientGoal(bctx, a.clientId, { primaryMetric: 'cpa' })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
+  });
+
+  it('trạng thái mục tiêu của Client: 7 ngày qua so với mục tiêu (danh sách Client)', async () => {
+    const { ctx, clientId } = await setup();
+    expect((await clientGoalStatus(ctx, { now })).size).toBe(0);
+    const s = await goalSuggestions(ctx, clientId, { now });
+    await saveClientGoal(ctx, clientId, { primaryMetric: 'cpa', primaryTarget: '100000' });
+    const st = (await clientGoalStatus(ctx, { now })).get(clientId)!;
+    expect(st.actual).toBe(s.last7.cpa);
+    expect(st.vsTargetPct).toBe(vsTarget('cpa', s.last7.cpa, '100000'));
   });
 
   it('so với mục tiêu theo hướng tốt của chỉ số', () => {

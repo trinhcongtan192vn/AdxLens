@@ -79,6 +79,27 @@ describe('mẫu báo cáo', () => {
     expect(h).toContain('16/10/2026');
   });
 
+  it('mục tiêu Client (ADR-0017): thực tế so với mục tiêu, tốt / kém hơn, chỉ số phụ; không có mục tiêu → không có khối', () => {
+    expect(html(content)).not.toContain('report-goal');
+    const h = html({
+      ...content,
+      goal: {
+        metric: 'cpa',
+        target: '150000.0000',
+        currency: 'VND',
+        actual: '142500.0000',
+        previous: '160000.0000',
+        vsTargetPct: 5,
+        secondary: [{ metric: 'ctr', actual: '1.85', previous: '1.60' }],
+      },
+    });
+    expect(h).toContain('Mục tiêu của kỳ');
+    expect(h).toMatch(/Mục tiêu: 150\.000\s₫/);
+    expect(h).toContain('Tốt hơn mục tiêu 5%');
+    expect(h).toContain('CTR (liên kết)');
+    expect(h).toContain('1,85%');
+  });
+
   it('báo cáo tiếng Anh dùng nhãn tiếng Anh', () => {
     const h = html({ ...content, locale: 'en' });
     expect(h).toContain('Performance report');

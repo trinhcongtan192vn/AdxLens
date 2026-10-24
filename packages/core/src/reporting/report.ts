@@ -16,6 +16,8 @@ import {
   type Clock,
 } from '@adxlens/core/shared';
 import { assertCan, getClient } from '@adxlens/core/tenancy';
+import { getClientGoal, vsTarget } from './goals';
+import { metricValues } from './metric-catalog';
 import { agencyWork, type AgencyWork } from './agency-work';
 import { explainCpaChange, type CpaChange } from './cpa-change';
 import { breakdownTable, topAds, type BreakdownRow, type TopAd } from './report-extras';
@@ -74,6 +76,20 @@ export type ReportContent = {
     whatToDo: I18nText;
     impact: { amount: string; currency: string } | null;
   }[];
+  /**
+   * ADR-0017: mục tiêu KPI của Client so với thực tế kỳ báo cáo (chỉ khi Client đã đặt mục tiêu). Số do code tính trên
+   * các tài khoản cùng tiền tệ mục tiêu; báo cáo cũ không có trường này.
+   */
+  goal?: {
+    metric: string;
+    target: string;
+    currency: string | null;
+    actual: string | null;
+    previous: string | null;
+    /** % tốt hơn (+) / kém hơn (−) mục tiêu theo hướng tốt của chỉ số. */
+    vsTargetPct: number | null;
+    secondary: { metric: string; actual: string | null; previous: string | null }[];
+  } | null;
   /** A2: việc agency đã làm trong kỳ, tổng hợp tự động (báo cáo cũ không có trường này). */
   agencyWork?: AgencyWork | null;
   /** Báo cáo audit: số phát hiện theo mức độ và tổng tác động ước tính theo tiền tệ (cộng decimal). */
@@ -291,6 +307,7 @@ export async function buildReport(
       findings: findingsOut.slice(0, findingsLimit),
       // Audit là ảnh chụp sức khỏe tài khoản (cả khi pitch khách mới) — không kèm "việc agency đã làm".
       agencyWork: isAudit ? null : await agencyWork(ctx, ids, period),
+      goal: await reportGoal(ctx, client.id, accs, period, compare),
       audit: isAudit ? auditTotals(findingsOut.slice(0, findingsLimit)) : null,
     };
     const integrity = await reportIntegrity(ctx, client.id, period);
@@ -398,4 +415,28 @@ export async function deleteReport(ctx: ActorCtx, reportId: string) {
   assertCan(ctx.actor, 'reports.manage');
   const r = await getReport(ctx, reportId);
   await ctx.db.delete(reports).where(and(eq(reports.workspaceId, ctx.workspaceId), eq(reports.id, r.id)));
+}
+
+/** Khối "Mục tiêu" của báo cáo (ADR-0017): mục tiêu chính + chỉ số phụ, kỳ này và kỳ trước. */
+async function reportGoal(
+  ctx: ActorCtx,
+  clientId: string,
+  accs: { id: string; currency: string }[],
+  period: DateRange,
+  compare: DateRange,
+): Promise<ReportContent['goal']> {
+  const g = await getClientGoal(ctx, clientId);
+  if (!g?.primaryMetric || !g.primaryTarget) return null;
+  const ids = accs.filter((a) => !g.currency || a.currency === g.currency).map((a) => a.id);
+  if (!ids.length) return null;
+  const [cur, prev] = await Promise.all([metricValues(ctx, ids, period), metricValues(ctx, ids, compare)]);
+  return {
+    metric: g.primaryMetric,
+    target: g.primaryTarget,
+    currency: g.currency,
+    actual: cur[g.primaryMetric],
+    previous: prev[g.primaryMetric],
+    vsTargetPct: vsTarget(g.primaryMetric, cur[g.primaryMetric], g.primaryTarget),
+    secondary: g.secondaryMetrics.map((m) => ({ metric: m, actual: cur[m], previous: prev[m] })),
+  };
 }

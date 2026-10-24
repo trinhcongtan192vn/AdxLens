@@ -1125,6 +1125,13 @@
       "counts": "{high} high-severity issues · {medium} medium · {low} low",
       "impact": "estimated impact {amount}",
       "healthy": "No rule group lost points."
+    },
+    "goal": {
+      "title": "Goal for the period",
+      "target": "Target: {value}",
+      "better": "{pct} better than target",
+      "worse": "{pct} short of target",
+      "previous": "Previous: {value}"
     }
   },
   "reports": {
