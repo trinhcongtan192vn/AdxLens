@@ -35,7 +35,20 @@
     "connections": "Kết nối",
     "settings": "Cài đặt",
     "support": "Hỗ trợ",
-    "mainNav": "Điều hướng chính"
+    "mainNav": "Điều hướng chính",
+    "allClients": "Tất cả khách",
+    "client": {
+      "campaigns": "Chiến dịch",
+      "adsets": "Nhóm QC",
+      "ads": "Quảng cáo",
+      "reconciliation": "Đối chiếu số liệu",
+      "reports": "Báo cáo",
+      "weeklyActions": "Việc cần làm",
+      "creatives": "Creative",
+      "automation": "Rule tự động",
+      "actionLog": "Nhật ký hành động",
+      "clientSettings": "Cài đặt khách"
+    }
   },
   "shell": {
     "period": "Kỳ",
@@ -58,7 +71,11 @@
     "languages": {
       "vi": "Tiếng Việt",
       "en": "English"
-    }
+    },
+    "switchClient": "Chọn khách",
+    "allClients": "Tất cả khách",
+    "clientFilter": "Khách: {name}",
+    "clearClient": "Xem mọi khách"
   },
   "errors": {
     "notFoundTitle": "Không tìm thấy trang",
@@ -883,7 +900,16 @@
     "emptyBody": "Kết nối Meta (chỉ đọc) và chọn tài khoản để xem tổng quan agency.",
     "connect": "Kết nối Meta",
     "footnote": "Ngày theo múi giờ từng tài khoản · tới hết hôm qua · tiền theo tiền tệ tài khoản, không quy đổi.",
-    "healthHint": "Health của Client = tài khoản thấp nhất."
+    "healthHint": "Health của Client = tài khoản thấp nhất.",
+    "attention": {
+      "title": "Khách cần chú ý ({count})",
+      "none": "Không có khách nào cần chú ý lúc này.",
+      "recon": "Lệch số với Meta {pct}",
+      "sync": "{count} tài khoản đồng bộ lỗi",
+      "issues": "{count} vấn đề mức cao",
+      "budget": "Ngân sách dự kiến {status, select, over {vượt} other {thiếu}} {pct}%",
+      "health": "Health {score}"
+    }
   },
   "entities": {
     "level": {

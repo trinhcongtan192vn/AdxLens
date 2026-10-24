@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
+import { ClientFilter, clientParam } from '@/components/client-filter';
 import { schema } from '@adxlens/db';
 import { listWeeklyActions } from '@adxlens/core/recommendation';
 import { can } from '@adxlens/core/tenancy';
@@ -29,7 +30,7 @@ type Status = (typeof schema.RECOMMENDATION_STATUSES)[number];
 export default async function WeeklyActionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ week?: string; status?: string; mine?: string }>;
+  searchParams: Promise<{ week?: string; status?: string; mine?: string; client?: string }>;
 }) {
   const pc = await getPageContext();
   await requireFlag(pc, 'p1_recommendations');
@@ -42,7 +43,13 @@ export default async function WeeklyActionsPage({
     : undefined;
   const mine = q.mine === '1';
   const week = q.week && /^\d{4}-\d{2}-\d{2}$/.test(q.week) ? q.week : undefined;
-  const r = await listWeeklyActions(pc.ctx, { week, status, assignee: mine ? pc.actor.userId : undefined });
+  const clientId = clientParam(q.client);
+  const r = await listWeeklyActions(pc.ctx, {
+    week,
+    status,
+    assignee: mine ? pc.actor.userId : undefined,
+    clientId,
+  });
   const href = (p: { status?: string | null; mine?: boolean; week?: string | null }) => {
     const s = new URLSearchParams();
     const w = p.week === undefined ? r.week : p.week;
@@ -50,6 +57,7 @@ export default async function WeeklyActionsPage({
     const st = p.status === undefined ? status : p.status;
     if (st) s.set('status', st);
     if (p.mine ?? mine) s.set('mine', '1');
+    if (clientId) s.set('client', clientId);
     return `/weekly-actions?${s}`;
   };
   const items: ActionView[] = r.items.map((i) => ({
@@ -96,6 +104,7 @@ export default async function WeeklyActionsPage({
           ) : null
         }
       />
+      <ClientFilter ctx={pc.ctx} clientId={clientId} clearHref="/weekly-actions" />
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <Link href={href({ status: null })} className={chip(!status)}>
           {t('all')}

@@ -35,7 +35,20 @@
     "connections": "Connections",
     "settings": "Settings",
     "support": "Support",
-    "mainNav": "Main navigation"
+    "mainNav": "Main navigation",
+    "allClients": "All clients",
+    "client": {
+      "campaigns": "Campaigns",
+      "adsets": "Ad sets",
+      "ads": "Ads",
+      "reconciliation": "Reconciliation",
+      "reports": "Reports",
+      "weeklyActions": "To-dos",
+      "creatives": "Creatives",
+      "automation": "Automation rules",
+      "actionLog": "Action log",
+      "clientSettings": "Client settings"
+    }
   },
   "shell": {
     "period": "Period",
@@ -58,7 +71,11 @@
     "languages": {
       "vi": "Tiếng Việt",
       "en": "English"
-    }
+    },
+    "switchClient": "Choose client",
+    "allClients": "All clients",
+    "clientFilter": "Client: {name}",
+    "clearClient": "Show all clients"
   },
   "errors": {
     "notFoundTitle": "Page not found",
@@ -883,7 +900,16 @@
     "emptyBody": "Connect Meta (read-only) and pick accounts to see the agency overview.",
     "connect": "Connect Meta",
     "footnote": "Dates in each account's time zone · through yesterday · amounts in account currency, not converted.",
-    "healthHint": "Client health = its lowest account."
+    "healthHint": "Client health = its lowest account.",
+    "attention": {
+      "title": "Clients needing attention ({count})",
+      "none": "No clients need attention right now.",
+      "recon": "Off Meta by {pct}",
+      "sync": "{count} accounts failing to sync",
+      "issues": "{count} high-severity issues",
+      "budget": "Budget projected {status, select, over {to overspend} other {to underspend}} by {pct}%",
+      "health": "Health {score}"
+    }
   },
   "entities": {
     "level": {

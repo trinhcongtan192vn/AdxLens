@@ -205,8 +205,8 @@ export async function getRule(ctx: ActorCtx, id: string): Promise<RuleRow> {
   return r;
 }
 
-export async function listRules(ctx: ActorCtx) {
-  const accounts = await listAdAccounts(ctx);
+export async function listRules(ctx: ActorCtx, opts: { clientId?: string } = {}) {
+  const accounts = await listAdAccounts(ctx, { clientId: opts.clientId });
   if (!accounts.length) return [];
   const byId = new Map(accounts.map((a) => [a.id, a]));
   const rows = await ctx.db

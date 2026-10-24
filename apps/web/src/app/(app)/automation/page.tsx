@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
+import { ClientFilter, clientParam } from '@/components/client-filter';
 import { listRules } from '@adxlens/core/execution';
 import { Badge, buttonVariants, Card, EmptyState, PageHeader, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
 import { MODE_TONE } from '@/lib/automation';
@@ -12,14 +13,15 @@ export async function generateMetadata() {
 }
 
 /** P211 Danh sách rule tự động (P2b): chế độ, tài khoản, hành động. Sau cờ tự động hóa. */
-export default async function AutomationPage() {
+export default async function AutomationPage({ searchParams }: { searchParams: Promise<{ client?: string }> }) {
   const pc = await getPageContext();
   await requireFlag(pc, 'p2b_auto');
   requirePermission(pc, 'automation.manage');
   const t = await getTranslations('automation');
   const ta = await getTranslations('actionLog');
   const format = await getFormatter();
-  const rules = await listRules(pc.ctx);
+  const clientId = clientParam((await searchParams).client);
+  const rules = await listRules(pc.ctx, { clientId });
   return (
     <>
       <PageHeader
@@ -35,6 +37,7 @@ export default async function AutomationPage() {
           </span>
         }
       />
+      <ClientFilter ctx={pc.ctx} clientId={clientId} clearHref="/automation" />
       {rules.length === 0 ? (
         <Card>
           <EmptyState title={t('emptyTitle')} description={t('emptyBody')} />

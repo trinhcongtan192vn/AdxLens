@@ -307,9 +307,17 @@ export type WeeklyActionItem = Awaited<ReturnType<typeof listWeeklyActions>>['it
 /** P101: danh sách tuần (mặc định tuần mới nhất có dữ liệu), xếp theo điểm; buyer chỉ thấy Client được gán. */
 export async function listWeeklyActions(
   ctx: ActorCtx,
-  opts: { week?: string; status?: (typeof schema.RECOMMENDATION_STATUSES)[number]; assignee?: string } = {},
+  opts: {
+    week?: string;
+    status?: (typeof schema.RECOMMENDATION_STATUSES)[number];
+    assignee?: string;
+    /** G3: chỉ tài khoản của Client này. */
+    clientId?: string;
+  } = {},
 ) {
-  const accounts = (await listAdAccounts(ctx)).filter((a) => a.connectionStatus !== 'revoked');
+  const accounts = (await listAdAccounts(ctx, { clientId: opts.clientId })).filter(
+    (a) => a.connectionStatus !== 'revoked',
+  );
   const byId = new Map(accounts.map((a) => [a.id, a]));
   if (!accounts.length) return { week: opts.week ?? null, weeks: [] as string[], items: [] };
   const weeks = (
