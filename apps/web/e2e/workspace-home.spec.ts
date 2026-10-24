@@ -49,6 +49,9 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   // Cảnh báo: tạo từ trang Cảnh báo, có gợi ý trung bình 7 ngày.
   // Link sidebar có kèm số thông báo chưa đọc trong tên → chọn theo đường dẫn.
   await page.locator('nav a[href="/w/alerts"]').click();
+  // Chờ sang hẳn trang Cảnh báo (trang chủ cũng có nút "Tạo cảnh báo" ở khối gợi ý).
+  await expect(page).toHaveURL(/\/w\/alerts$/);
+  await expect(page.getByRole('heading', { name: 'Cảnh báo', level: 1 })).toBeVisible();
   await page.getByRole('button', { name: 'Tạo cảnh báo' }).first().click();
   await page.getByRole('dialog').getByLabel('Chỉ số').selectOption({ label: 'CPM' });
   await expect(page.getByRole('dialog').getByText(/Trung bình 7 ngày qua/)).toBeVisible();
