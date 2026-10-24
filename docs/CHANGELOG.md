@@ -2,6 +2,17 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [077] W3 — Khung giao diện Workspace `/w` song song giao diện cổ điển — 2026-10-24
+
+**Thay đổi:**
+- Route group mới `(workspace)/w`: sidebar trái kiểu Madgicx Workspace (logo + tên workspace, nút **Tạo mới** mở menu Báo cáo / Quản lý quảng cáo / Hỏi AI agent / Rule tự động / Cảnh báo theo cờ và vai trò; Trang chủ, AI Agents, Quảng cáo, Ads Manager, Phễu, Địa lý, Mở rộng; đáy: Cảnh báo, Cài đặt, **Giao diện cổ điển**).
+- Đầu trang Workspace: bộ chọn **phạm vi** (Tất cả tài khoản = agency, hoặc một tài khoản; cookie `w_scope`, server kiểm lại tài khoản thuộc quyền xem) + kỳ **7 / 14 / 30 ngày** (dùng chung cookie kỳ).
+- Phạm vi agency chỉ cộng tài khoản cùng tiền tệ chính (không cộng khác tiền tệ), báo số tài khoản bị loại.
+- Giao diện cổ điển: nút **Giao diện mới** trên thanh trên.
+- AI Agents sau cờ `p1_recommendations` (ẩn menu + chặn trang ở server).
+
+**Test tự động:** `workspace-nav.test.ts` (ẩn Agents khi cờ tắt, mục đang chọn).
+
 ## [076] W2 — Onboarding theo Client: mục tiêu KPI có số thực tế, chỉ số phụ, ngành, tài sản mặc định — 2026-10-24
 
 **Thay đổi** (ADR-0017, vùng bảo vệ `db`: bảng `app.client_goals` + RLS):

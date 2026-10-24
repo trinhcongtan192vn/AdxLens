@@ -2760,5 +2760,55 @@
       "name": "Khác",
       "other": "Khác"
     }
+  },
+  "ws": {
+    "nav": {
+      "label": "Điều hướng Workspace",
+      "home": "Trang chủ",
+      "agents": "AI Agents",
+      "ads": "Quảng cáo",
+      "adsManager": "Ads Manager",
+      "funnels": "Phễu",
+      "geography": "Địa lý",
+      "scale": "Mở rộng",
+      "alerts": "Cảnh báo",
+      "settings": "Cài đặt",
+      "classic": "Giao diện cổ điển"
+    },
+    "create": {
+      "button": "Tạo mới",
+      "report": {
+        "title": "Báo cáo",
+        "body": "Báo cáo khách hàng có thương hiệu agency"
+      },
+      "manageAds": {
+        "title": "Quản lý quảng cáo",
+        "body": "Bật / tắt, ngân sách trong Ads Manager"
+      },
+      "agent": {
+        "title": "Hỏi AI agent",
+        "body": "Đặt câu hỏi về tài khoản"
+      },
+      "rule": {
+        "title": "Rule tự động",
+        "body": "Tự động hóa việc lặp lại"
+      },
+      "alert": {
+        "title": "Cảnh báo",
+        "body": "Báo khi chỉ số vượt ngưỡng"
+      }
+    },
+    "scope": {
+      "label": "Phạm vi",
+      "agency": "Tất cả tài khoản ({n})"
+    },
+    "periodLabel": "Kỳ",
+    "periods": {
+      "last7": "7 ngày",
+      "last14": "14 ngày",
+      "last30": "30 ngày"
+    },
+    "coming": "Đang được dựng trong đợt này.",
+    "switchNew": "Giao diện mới"
   }
 }
