@@ -1,6 +1,7 @@
 import { FileText } from 'lucide-react';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
+import { ClientFilter, clientParam } from '@/components/client-filter';
 import { isBlocked, listReports } from '@adxlens/core/reporting';
 import { Badge, buttonVariants, Card, EmptyState, PageHeader, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
 import { requirePermission } from '@/server/guards';
@@ -12,14 +13,15 @@ export async function generateMetadata() {
 }
 
 /** R01 Danh sách báo cáo (D, E). Sau cờ `p0_reports`. */
-export default async function ReportsPage() {
+export default async function ReportsPage({ searchParams }: { searchParams: Promise<{ client?: string }> }) {
   const pc = await getPageContext();
   await requireFlag(pc, 'p0_reports');
   requirePermission(pc, 'reports.manage');
   const t = await getTranslations('reports');
   const ts = await getTranslations('schedules');
   const format = await getFormatter();
-  const items = await listReports(pc.ctx);
+  const clientId = clientParam((await searchParams).client);
+  const items = await listReports(pc.ctx, { clientId });
   const create = (
     <Link href="/reports/new" className={buttonVariants({ kind: 'primary', size: 'm' })}>
       {t('create')}
@@ -39,6 +41,7 @@ export default async function ReportsPage() {
           </>
         }
       />
+      <ClientFilter ctx={pc.ctx} clientId={clientId} clearHref="/reports" />
       <Card>
         {items.length === 0 ? (
           <EmptyState icon={<FileText />} title={t('emptyTitle')} description={t('emptyBody')} action={create} />

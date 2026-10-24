@@ -2,13 +2,14 @@ import { redirect } from 'next/navigation';
 import { LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
-import { agencyOverview } from '@adxlens/core/reporting';
+import { agencyOverview, clientsNeedingAttention } from '@adxlens/core/reporting';
 import { can } from '@adxlens/core/tenancy';
 import {
   Badge,
   Banner,
   buttonVariants,
   Card,
+  CardHeader,
   Delta,
   EmptyState,
   KpiStat,
@@ -44,6 +45,7 @@ export default async function OverviewPage() {
   const t = await getTranslations('overview');
   const format = await getFormatter();
   const { clients, unassigned } = await agencyOverview(pc.ctx);
+  const attention = await clientsNeedingAttention(pc.ctx, clients);
   const all = [...clients.flatMap((c) => c.accounts), ...unassigned];
 
   if (!all.length) {
@@ -99,6 +101,43 @@ export default async function OverviewPage() {
         <KpiStat label={t('spend30')} value={single ? money(sum('spend30'), single) : t('multiCurrency')} />
         <KpiStat label={t('highIssues')} value={format.number(all.reduce((s, a) => s + a.highIssues, 0))} />
         <KpiStat label={t('mismatch')} value={format.number(all.filter((a) => a.recon.status === 'warning').length)} />
+      </Card>
+      <Card className="mb-4" data-testid="attention">
+        <CardHeader title={t('attention.title', { count: attention.length })} />
+        {attention.length === 0 ? (
+          <p className="px-4 py-3 text-body text-fg-secondary">{t('attention.none')}</p>
+        ) : (
+          <ul className="divide-y divide-line">
+            {attention.map((a) => (
+              <li key={a.clientId} className="flex flex-wrap items-center gap-2 px-4 py-2 text-body">
+                <Link href={`/clients/${a.clientId}`} className="min-w-40 font-medium text-fg hover:text-brand">
+                  {a.name}
+                </Link>
+                {a.reasons.map((r) => (
+                  <Badge
+                    key={r.kind}
+                    tone={r.kind === 'recon_warning' || r.kind === 'sync_error' ? 'danger' : 'warning'}
+                  >
+                    {r.kind === 'recon_warning'
+                      ? t('attention.recon', {
+                          pct: r.pct === null ? '—' : `${format.number(Number(r.pct), { maximumFractionDigits: 1 })}%`,
+                        })
+                      : r.kind === 'sync_error'
+                        ? t('attention.sync', { count: r.accounts })
+                        : r.kind === 'high_issues'
+                          ? t('attention.issues', { count: r.count })
+                          : r.kind === 'budget'
+                            ? t('attention.budget', {
+                                status: r.status,
+                                pct: format.number(Math.abs(r.pct ?? 0), { maximumFractionDigits: 0 }),
+                              })
+                            : t('attention.health', { score: r.score })}
+                  </Badge>
+                ))}
+              </li>
+            ))}
+          </ul>
+        )}
       </Card>
       {unassigned.length ? (
         <Banner

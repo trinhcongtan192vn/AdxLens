@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
+import { ClientFilter, clientParam } from '@/components/client-filter';
 import { listAdAccounts } from '@adxlens/core/connections';
 import { CREATIVE_CLASSES, creativeLibrary, type CreativeClass } from '@adxlens/core/recommendation';
 import {
@@ -45,14 +46,15 @@ function chip(active: boolean) {
 export default async function CreativesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ account?: string; view?: string; class?: string }>;
+  searchParams: Promise<{ account?: string; view?: string; class?: string; client?: string }>;
 }) {
   const pc = await getPageContext();
   await requireFlag(pc, 'p1_recommendations');
   const t = await getTranslations('creatives');
   const format = await getFormatter();
   const q = await searchParams;
-  const accounts = await listAdAccounts(pc.ctx);
+  const clientId = clientParam(q.client);
+  const accounts = await listAdAccounts(pc.ctx, { clientId });
   const account = accounts.find((a) => a.id === q.account) ?? accounts[0];
   if (!account) {
     return (
@@ -75,7 +77,12 @@ export default async function CreativesPage({
   const pct = (v: number | null) =>
     v === null ? '—' : format.number(v, { style: 'percent', maximumFractionDigits: 2 });
   const href = (p: Record<string, string | null>) => {
-    const s = new URLSearchParams({ account: account.id, view, ...(filter ? { class: filter } : {}) });
+    const s = new URLSearchParams({
+      account: account.id,
+      view,
+      ...(filter ? { class: filter } : {}),
+      ...(clientId ? { client: clientId } : {}),
+    });
     for (const [k, v] of Object.entries(p)) {
       if (v === null) s.delete(k);
       else s.set(k, v);
@@ -97,6 +104,7 @@ export default async function CreativesPage({
         actions={
           <form method="get" className="flex items-center gap-2">
             <input type="hidden" name="view" value={view} />
+            {clientId ? <input type="hidden" name="client" value={clientId} /> : null}
             <Select name="account" defaultValue={account.id} aria-label={t('account')} className="w-auto">
               {accounts.map((a) => (
                 <option key={a.id} value={a.id}>
@@ -110,6 +118,7 @@ export default async function CreativesPage({
           </form>
         }
       />
+      <ClientFilter ctx={pc.ctx} clientId={clientId} clearHref="/creatives" />
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <Link href={href({ class: null })} className={chip(!filter)}>
           {t('all')} · {all.length}

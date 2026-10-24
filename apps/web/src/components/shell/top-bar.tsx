@@ -2,13 +2,14 @@
 
 import { TrendingUp } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useTransition } from 'react';
 import { Menu, Select } from '@adxlens/ui';
 import { api } from '@/lib/api-client';
 import { breadcrumbFor } from '@/lib/breadcrumb';
 import { PERIODS, type Period } from '@/lib/period';
+import { clientScopeOf } from '@/lib/scope';
 
 type Ws = { id: string; name: string };
 
@@ -26,6 +27,8 @@ export function TopBar({
   user,
   locale,
   unread,
+  clients = [],
+  accountClients = {},
 }: {
   period: Period;
   workspaces: Ws[];
@@ -33,12 +36,17 @@ export function TopBar({
   user: { email: string; fullName: string | null };
   locale: 'vi' | 'en';
   unread: number;
+  /** G3: bộ chọn khách (như chọn tài khoản trong Google Ads). */
+  clients?: { id: string; name: string }[];
+  accountClients?: Record<string, string | null>;
 }) {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const [pending, start] = useTransition();
   const crumbs = breadcrumbFor(pathname);
+  const search = useSearchParams()?.toString() ?? '';
+  const scopeClient = clientScopeOf(pathname, search, accountClients);
 
   const setPref = (body: Record<string, string>) =>
     start(async () => {
@@ -78,6 +86,23 @@ export function TopBar({
       ) : null}
 
       <div className="flex-1" />
+
+      {clients.length ? (
+        <Select
+          className="w-56"
+          value={scopeClient ?? ''}
+          onChange={(e) => router.push(e.target.value ? `/clients/${e.target.value}` : '/overview')}
+          aria-label={t('shell.switchClient')}
+          data-testid="client-switcher"
+        >
+          <option value="">{t('shell.allClients')}</option>
+          {clients.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </Select>
+      ) : null}
 
       <Select
         className="w-50"

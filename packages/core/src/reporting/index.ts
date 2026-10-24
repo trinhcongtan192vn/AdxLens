@@ -12,3 +12,4 @@ export * from './cpa-change';
 export * from './pacing';
 export * from './report-extras';
 export * from './entity-detail';
+export * from './attention';

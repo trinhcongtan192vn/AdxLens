@@ -12,10 +12,16 @@ const { actions, actionLogs, users } = schema;
 /** P203 Nhật ký hành động (P2-05): ai, khi nào, gì, vì sao, kết quả, hoàn tác. Theo phạm vi Client. */
 export async function listActions(
   ctx: ActorCtx,
-  opts: { status?: (typeof schema.ACTION_STATUSES)[number]; adAccountId?: string; limit?: number } = {},
+  opts: {
+    status?: (typeof schema.ACTION_STATUSES)[number];
+    adAccountId?: string;
+    /** G3: chỉ tài khoản của Client này. */
+    clientId?: string;
+    limit?: number;
+  } = {},
 ) {
   assertCan(ctx.actor, 'actions.view');
-  const accounts = await listAdAccounts(ctx, { includeRevoked: true });
+  const accounts = await listAdAccounts(ctx, { includeRevoked: true, clientId: opts.clientId });
   const byId = new Map(accounts.map((a) => [a.id, a]));
   const ids = opts.adAccountId ? [opts.adAccountId].filter((id) => byId.has(id)) : [...byId.keys()];
   if (!ids.length) return [];

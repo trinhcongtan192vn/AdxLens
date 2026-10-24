@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
+import { ClientFilter, clientParam, withClient } from '@/components/client-filter';
 import { schema } from '@adxlens/db';
 import { listActions } from '@adxlens/core/execution';
 import { Badge, Card, cn, EmptyState, PageHeader, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
@@ -19,7 +20,11 @@ function chip(active: boolean) {
 }
 
 /** P203 Nhật ký hành động (P2-05): mọi thay đổi AdxLens đã làm trên Meta. Sau cờ duyệt hành động. */
-export default async function ActionLogPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+export default async function ActionLogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string; client?: string }>;
+}) {
   const pc = await getPageContext();
   await requireFlag(pc, 'p2a_approve');
   const t = await getTranslations('actionLog');
@@ -28,16 +33,22 @@ export default async function ActionLogPage({ searchParams }: { searchParams: Pr
   const status = (schema.ACTION_STATUSES as readonly string[]).includes(q.status ?? '')
     ? (q.status as (typeof schema.ACTION_STATUSES)[number])
     : undefined;
-  const items = await listActions(pc.ctx, { status });
+  const clientId = clientParam(q.client);
+  const items = await listActions(pc.ctx, { status, clientId });
   return (
     <>
       <PageHeader title={t('title')} />
+      <ClientFilter
+        ctx={pc.ctx}
+        clientId={clientId}
+        clearHref={status ? `/action-log?status=${status}` : '/action-log'}
+      />
       <div className="mb-3 flex flex-wrap gap-2">
-        <Link href="/action-log" className={chip(!status)}>
+        <Link href={withClient('/action-log', clientId)} className={chip(!status)}>
           {t('all')}
         </Link>
         {schema.ACTION_STATUSES.map((s) => (
-          <Link key={s} href={`/action-log?status=${s}`} className={chip(status === s)}>
+          <Link key={s} href={withClient(`/action-log?status=${s}`, clientId)} className={chip(status === s)}>
             {t(`status.${s}`)}
           </Link>
         ))}

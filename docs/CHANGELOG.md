@@ -2,6 +2,18 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [062] Bộ chọn khách, thanh bên theo phạm vi, "Khách cần chú ý" (G3) — 2026-10-24
+
+**Thay đổi** (theo cách tài khoản quản lý của Google Ads)
+- **Bộ chọn khách** trên thanh trên: "Tất cả khách" hoặc một Client → chuyển phạm vi.
+- **Thanh bên hai phạm vi**: phạm vi agency như cũ; khi đang xem một Client (trang Client, tài khoản / chiến dịch / nhóm QC / quảng cáo của Client, hoặc danh sách lọc `?client=`) thanh bên đổi sang mục của khách đó: ← Tất cả khách · tên Client · Chiến dịch · Nhóm QC · Quảng cáo · Đối chiếu số liệu · Báo cáo · Việc cần làm · Creative · Rule tự động · Nhật ký hành động · Cài đặt khách (mục P1/P2 chỉ khi cờ bật, mục Báo cáo chỉ Owner / Manager).
+- **Danh sách lọc theo khách** `?client=`: Việc cần làm, Creative (chỉ tài khoản của khách), Rule tự động, Nhật ký hành động, Báo cáo; chip "Khách: X · Xem mọi khách"; các bộ lọc khác giữ phạm vi khách. Core: `listWeeklyActions`, `listActions`, `listRules` nhận `clientId` (lọc qua `listAdAccounts` — vẫn theo quyền người xem).
+- **Tổng quan agency — "Khách cần chú ý"**: mỗi khách kèm lý do — lệch số với Meta, tài khoản đồng bộ lỗi, vấn đề mức cao, ngân sách tháng dự kiến vượt / thiếu (từ ngày thứ 5), health < 60; xếp theo mức nghiêm trọng (`core/reporting/attention.ts`, chỉ đọc kết quả đã tính).
+
+**Test tự động:** `lib/scope.test.ts` (nhận phạm vi từ đường dẫn / `?client=` / tài khoản thuộc khách; mục theo cờ và vai trò; mục đang chọn theo tab); `attention.test.ts` (gom và xếp lý do; khách ổn không hiện; `listRules` lọc theo khách).
+
+**PM kiểm tra:** chọn TRON_GLAMPING ở bộ chọn khách → thanh bên đổi sang mục của khách; Việc cần làm / Nhật ký trong phạm vi khách có chip lọc; "← Tất cả khách" quay về; Tổng quan có khối "Khách cần chú ý".
+
 ## [061] Bảng chiến dịch kiểu Google Ads + trang riêng cho từng chiến dịch / nhóm QC / quảng cáo (G1, G2) — 2026-10-24
 
 **Nguyên nhân (PM báo):** mọi dòng ở tab Chiến dịch / Nhóm QC / Quảng cáo của Client đều dẫn về **cùng trang tổng quan tài khoản** — chưa có trang cho từng đối tượng, nên "phân tích mở camp nào cũng giống nhau". Bảng còn hiện hàng chục đối tượng tắt, 0 chi tiêu; không lọc / sắp xếp / so kỳ trước.
