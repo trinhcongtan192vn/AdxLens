@@ -2,6 +2,19 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [063] Thao tác ngay trên bảng chiến dịch + bộ cột (G4) — 2026-10-24
+
+**Thay đổi**
+- **Bộ cột** trên mọi bảng chiến dịch / nhóm QC / quảng cáo: *Hiệu suất* (chi tiêu, hiển thị, click, CTR, kết quả, CPA, ROAS), *Chuyển đổi* (chi tiêu, kết quả, CPA, giá trị chuyển đổi, ROAS), *Phân phối* (chi tiêu, hiển thị, CPM, click, CTR); nhớ lựa chọn ở trình duyệt (tiện ích riêng từng người xem, lỗi bộ nhớ → mặc định). Dòng tổng theo bộ cột.
+- **Thao tác trên dòng / hàng loạt** (khi cờ Duyệt 1 click bật **và** người dùng được duyệt hành động cho Client đó): bảng nhóm QC và quảng cáo có cột chọn (tối đa 20) + nút **Tạm dừng / Bật lại** từng dòng và hàng loạt, **Ngân sách** cho nhóm QC dùng ngân sách ngày. Mọi thao tác mở **hộp thoại xem trước**: trước → sau, vi phạm guardrails từng đối tượng; chỉ gửi đối tượng không vi phạm; theo dõi ở Nhật ký hành động. Chiến dịch không có thao tác ghi (Execution Gateway chỉ hỗ trợ ad / ad set — ADR-0009, 0010); nhân bản không làm từ bảng (ADR-0011).
+- API (sau cờ `p2a_approve`): `POST /api/v1/actions/preview` (xem trước, không gọi Meta), `POST /api/v1/actions/bulk` (1–20) → `execution.requestManualActions`: **lần lượt từng cái qua `requestAction`** (cờ, gói, kill switch, breaker, quyền ghi, quyền duyệt theo Client, guardrails — số hành động / ngày tính dần); tài khoản ngoài phạm vi → 404 cả lô; lỗi nghiệp vụ từng cái trả về. Không có đường tắt qua guardrails.
+
+**Test tự động:** `gateway.test.ts` (tạm dừng nhiều ad từ bảng: 2 thành công + 1 đối tượng không tồn tại → NOT_FOUND riêng; hành động `approve`, không gắn gợi ý; tài khoản workspace khác → 404 cả lô; rỗng → 422); `grid-actions.test.ts` (cờ tắt → 404 cả preview và bulk; cờ bật: đổi ngân sách thiếu số tiền / nhân bản → 422); bộ cách ly: 2 route mới (`crossBody` tài khoản B → bị từ chối).
+
+**Vùng bảo vệ:** `packages/core/execution/**` (`requestManualActions` chỉ gọi lại `requestAction`) — **cần PM chạy staging** trước khi merge main. Coverage `execution` 96,01% dòng.
+
+**PM kiểm tra:** bật cờ Duyệt 1 click cho workspace dữ liệu mẫu → Client → tab Nhóm QC → chọn 2 nhóm → Tạm dừng → xem trước → Thực hiện → Nhật ký hành động; nút Ngân sách → nhập ngân sách mới → Xem trước (vượt ±15% → báo vi phạm). Đổi bộ cột sang "Chuyển đổi".
+
 ## [062] Bộ chọn khách, thanh bên theo phạm vi, "Khách cần chú ý" (G3) — 2026-10-24
 
 **Thay đổi** (theo cách tài khoản quản lý của Google Ads)

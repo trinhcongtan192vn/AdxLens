@@ -366,6 +366,18 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: (w) => ({ id: w.a.adAccount.id }),
     crossParams: (w) => ({ id: w.b.adAccount.id }),
   },
+  'POST /api/v1/actions/preview': {
+    kind: 'workspace',
+    body: (w) => ({ ad_account_id: w.a.adAccount.id, action_type: 'pause_ad', target_meta_id: '999999' }),
+    crossBody: (w) => ({ ad_account_id: w.b.adAccount.id, action_type: 'pause_ad', target_meta_id: '999999' }),
+  },
+  'POST /api/v1/actions/bulk': {
+    kind: 'workspace',
+    body: (w) => ({ items: [{ ad_account_id: w.a.adAccount.id, action_type: 'pause_ad', target_meta_id: '999999' }] }),
+    crossBody: (w) => ({
+      items: [{ ad_account_id: w.b.adAccount.id, action_type: 'pause_ad', target_meta_id: '999999' }],
+    }),
+  },
   'GET /api/v1/admin/incidents': {
     kind: 'exempt',
     reason: 'Trang nội bộ staff: sự cố vận hành, không theo workspace; có test ở admin.test.ts',

@@ -39,6 +39,17 @@ export function toGridRows(
       currency: currencyOf[r.adAccountId] ?? '',
       cur: pick(r.kpis),
       prev: p ? pick(p) : null,
+      // G4: chỉ nhóm QC / quảng cáo có hành động ghi (ADR-0009, 0010).
+      ...(level !== 'campaign'
+        ? {
+            target: {
+              adAccountId: r.adAccountId,
+              metaId: r.metaId,
+              name: r.name ?? r.metaId,
+              dailyBudget: r.dailyBudget ?? null,
+            },
+          }
+        : {}),
     };
   });
 }

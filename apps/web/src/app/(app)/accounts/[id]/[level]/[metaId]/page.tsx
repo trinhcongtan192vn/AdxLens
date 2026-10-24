@@ -15,6 +15,7 @@ import {
   type EntityLevel,
 } from '@adxlens/core/reporting';
 import { isAppError } from '@adxlens/core/shared';
+import { canApproveActions } from '@adxlens/core/tenancy';
 import {
   Badge,
   buttonVariants,
@@ -167,6 +168,7 @@ export default async function EntityPage({
       ) : tab === 'children' && child ? (
         <EntityGrid
           level={child}
+          canAct={pc.flags.p2a_approve && !!acc.clientId && canApproveActions(pc.ctx.actor, acc.clientId)}
           rows={toGridRows(
             child,
             await childRows(pc.ctx, acc.id, level, metaId, ranges.cur),
