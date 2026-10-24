@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { exchangeOAuthCode, saveConnection, setWriteEnabled, WRITE_SCOPE } from '@adxlens/core/connections';
 import { isEnabled } from '@adxlens/core/flags';
 import { AppError, safeEqual } from '@adxlens/core/shared';
+import { publicUrl } from '@/lib/public-url';
 import { metaConfig, metaRead, oauthRedirectUri, tokenKeys } from '@/server/meta';
 import { route } from '@/server/route';
 import { verify } from '@/server/signed';
@@ -14,7 +15,7 @@ function readCookie(req: Request, name: string): string | undefined {
 }
 
 function redirect(req: Request, path: string): Response {
-  const res = new Response(null, { status: 302, headers: { location: new URL(path, req.url).toString() } });
+  const res = new Response(null, { status: 302, headers: { location: publicUrl(path, req).toString() } });
   res.headers.append('set-cookie', `${COOKIE}=; Path=/api/v1/connections/meta; Max-Age=0`);
   return res;
 }

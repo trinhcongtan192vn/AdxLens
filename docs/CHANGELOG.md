@@ -2,6 +2,24 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [069] Redirect sau đăng nhập / OAuth theo địa chỉ công khai (sau Cloudflare Tunnel) — 2026-10-24
+
+**Lỗi:** sau Cloudflare Tunnel, `request.url` là `http://localhost:3000`. Các redirect tuyệt đối tạo từ nó đưa người dùng ngoài về `localhost`:
+- xác minh email / đặt lại mật khẩu (`/auth/callback`);
+- đăng xuất;
+- kết nối Meta (`/api/v1/connections/meta/callback`);
+- middleware chuyển về `/login?next=`.
+
+**Sửa:**
+- `lib/public-url.ts` (`publicOrigin`, `publicUrl`) lấy origin theo thứ tự: `APP_URL` (cấu hình tin cậy; script dev công khai đặt bằng `PUBLIC_DEV_APP_URL`) → `x-forwarded-host` + `x-forwarded-proto` (host phải hợp lệ) → `request.url` (localhost).
+- Dùng cho cả 4 chỗ trên.
+- Đã rà các chỗ khác, đều đã dùng `APP_URL`: link mời, `redirectTo` đăng ký / quên mật khẩu, redirect URI Meta OAuth, link thanh toán, data deletion. Kiểm CSRF `route.ts` đã dùng `x-forwarded-host`.
+
+**Test tự động:**
+- `lib/public-url.test.ts`: ưu tiên `APP_URL`; header chuyển tiếp; host không hợp lệ / `APP_URL` sai → bỏ qua; fallback localhost.
+- `connections.test.ts`: callback Meta với `APP_URL` công khai → `Location` theo domain công khai.
+- E2E 15/15 ở localhost: chạy khi Supabase và SMTP ở chế độ local. Khi đang bật chế độ dev công khai, email E2E đi qua Resend nên E2E local không dùng được → dùng CI.
+
 ## [068] Chế độ "dev công khai": team test bản dev trên máy local qua domain — 2026-10-24
 
 **Thay đổi**
