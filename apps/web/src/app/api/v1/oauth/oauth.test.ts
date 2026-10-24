@@ -40,9 +40,13 @@ async function postForm(handler: typeof token.POST, form: Record<string, string>
 
 describe('OAuth connector MCP qua HTTP (ADR-0022 B)', () => {
   it('discovery → 401 có WWW-Authenticate → đăng ký → cấp quyền → token → MCP → thu hồi', async () => {
-    const pr = await call(protectedResource.GET, {});
+    const pr = {
+      body: await protectedResource.GET(new Request('http://localhost/.well-known/oauth-protected-resource')).json(),
+    };
     expect(pr.body).toMatchObject({ resource: expect.stringMatching(/\/api\/v1\/mcp$/) });
-    const as = await call(authServer.GET, {});
+    const as = {
+      body: await authServer.GET(new Request('http://localhost/.well-known/oauth-authorization-server')).json(),
+    };
     expect(as.body).toMatchObject({
       code_challenge_methods_supported: ['S256'],
       token_endpoint_auth_methods_supported: ['none'],
