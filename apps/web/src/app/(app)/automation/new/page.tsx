@@ -13,7 +13,12 @@ export async function generateMetadata() {
 }
 
 /** P212 Rule builder từ mẫu (P2-10) + P213 backtest 30 ngày trước khi lưu (P2-11). */
-export default async function NewRulePage() {
+export default async function NewRulePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ template?: string; account?: string }>;
+}) {
+  const sp = await searchParams;
   const pc = await getPageContext();
   await requireFlag(pc, 'p2b_auto');
   requirePermission(pc, 'automation.manage');
@@ -31,6 +36,8 @@ export default async function NewRulePage() {
         title={t('new')}
       />
       <RuleBuilder
+        initialTemplate={sp.template ?? null}
+        initialAccountId={sp.account ?? null}
         accounts={accounts.filter((a) => a.connectionStatus !== 'revoked').map((a) => ({ id: a.id, name: a.name }))}
         templates={templates.map((x) => ({
           key: x.key,

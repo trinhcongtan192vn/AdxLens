@@ -2150,7 +2150,9 @@
       "clear": "Bỏ chọn",
       "all": "Chọn tất cả (tối đa 20)",
       "select": "Chọn: {action}"
-    }
+    },
+    "automate": "Tạo automation từ gợi ý này",
+    "automateHint": "Để AdxLens tự làm việc này lần sau: ngưỡng lấy từ dữ liệu tài khoản, xem trước sẽ tiết kiệm bao nhiêu trong 30 ngày qua, chạy thử 14 ngày trước khi thật."
   },
   "outcomes": {
     "title": "Kết quả trước / sau",
@@ -2518,6 +2520,16 @@
         "last7d": "7 ngày",
         "lastAt": "Kích hoạt cuối"
       }
+    },
+    "whyValue": "Vì sao giá trị này?",
+    "suggestReasons": {
+      "cpa_x2": "Gấp 2 lần chi phí / kết quả 30 ngày qua của tài khoản ({cpa}): đã tiêu chừng đó mà chưa có kết quả nào là dấu hiệu lãng phí.",
+      "frequency_x1_5": "Gấp 1,5 lần tần suất trung bình 30 ngày qua ({frequency}), tối thiểu 2."
+    },
+    "savings": {
+      "saved": "Nếu rule này đã chạy, bạn có thể đã tránh được khoảng {amount} chi tiêu trong {days} ngày qua",
+      "extra": "Nếu rule này đã chạy, chi tiêu sẽ tăng thêm khoảng {amount} trong {days} ngày qua cho nhóm QC đang tốt",
+      "note": "Ước tính trên dữ liệu đã đồng bộ cho {entities} đối tượng, tính từ ngày rule kích hoạt lần đầu; giả định Meta không dồn ngân sách sang chỗ khác."
     }
   },
   "entity": {

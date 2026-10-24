@@ -43,6 +43,8 @@ export type ActionView = {
   assigneeId: string | null;
   assigneeName: string | null;
   deepLink: string | null;
+  /** Có mẫu rule ứng với gợi ý và cờ P2b bật. */
+  automationHref?: string | null;
 };
 
 const STATUS_TONE = { proposed: 'info', in_progress: 'warning', done: 'success', skipped: 'neutral' } as const;
@@ -268,6 +270,17 @@ export function WeeklyActionsList({
             {canExecute && canUpdate && open.status !== 'done' && open.status !== 'skipped' ? (
               <section className="border-t border-line pt-3">
                 <ApproveAction recommendationId={open.id} />
+              </section>
+            ) : null}
+            {open.automationHref ? (
+              <section className="rounded-lg border border-line bg-subtle p-3" data-testid="weekly-automate">
+                <p className="text-small text-fg">{t('automateHint')}</p>
+                <a
+                  href={open.automationHref}
+                  className={buttonVariants({ kind: 'secondary', size: 's', className: 'mt-2' })}
+                >
+                  {t('automate')}
+                </a>
               </section>
             ) : null}
             {open.deepLink ? (

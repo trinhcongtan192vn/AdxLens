@@ -2150,7 +2150,9 @@
       "clear": "Clear",
       "all": "Select all (max 20)",
       "select": "Select: {action}"
-    }
+    },
+    "automate": "Create automation from this",
+    "automateHint": "Let AdxLens do this next time: thresholds from your account data, preview the 30-day savings, 14-day shadow run before going live."
   },
   "outcomes": {
     "title": "Before / after results",
@@ -2518,6 +2520,16 @@
         "last7d": "7d",
         "lastAt": "Last triggered"
       }
+    },
+    "whyValue": "Why this value?",
+    "suggestReasons": {
+      "cpa_x2": "2× the account's cost per result over the last 30 days ({cpa}): spending that much with no result signals waste.",
+      "frequency_x1_5": "1.5× the average frequency over the last 30 days ({frequency}), at least 2."
+    },
+    "savings": {
+      "saved": "Had this rule been running, you could have avoided about {amount} of spend in the last {days} days",
+      "extra": "Had this rule been running, spend would have grown by about {amount} in the last {days} days on winning ad sets",
+      "note": "Estimate on synced data for {entities} items, counted from the first trigger day; assumes Meta does not shift the budget elsewhere."
     }
   },
   "entity": {
