@@ -47,7 +47,8 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page.getByTestId('ws-kpi-roas')).toHaveCount(0);
 
   // Cảnh báo: tạo từ trang Cảnh báo, có gợi ý trung bình 7 ngày.
-  await page.getByRole('link', { name: 'Cảnh báo', exact: true }).click();
+  // Link sidebar có kèm số thông báo chưa đọc trong tên → chọn theo đường dẫn.
+  await page.locator('nav a[href="/w/alerts"]').click();
   await page.getByRole('button', { name: 'Tạo cảnh báo' }).first().click();
   await page.getByRole('dialog').getByLabel('Chỉ số').selectOption({ label: 'CPM' });
   await expect(page.getByRole('dialog').getByText(/Trung bình 7 ngày qua/)).toBeVisible();
