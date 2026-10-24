@@ -2,6 +2,7 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import type { Enqueue } from '@adxlens/jobs';
 import { AppError, notFound, type ActorCtx, type Clock } from '@adxlens/core/shared';
+import { listAdAccounts } from '@adxlens/core/connections';
 import { canApproveActions } from '@adxlens/core/tenancy';
 import { minorUnits, previewAction, requestAction, type ActionRequest } from './gateway';
 import { GUARDRAIL_DEFAULTS, type ActionType } from './guardrails';
@@ -157,6 +158,35 @@ export async function approveRecommendations(
       out.push({ id, ok: true, actionId: a.id });
     } catch (e) {
       // Lỗi nghiệp vụ (vi phạm guardrail, không tự động được, không có quyền…) ghi theo từng gợi ý; lỗi khác (DB…) ném lên.
+      if (!(e instanceof AppError)) throw e;
+      out.push({ id, ok: false, code: e.code, message: e.message });
+    }
+  }
+  return out;
+}
+
+/**
+ * G4: tạm dừng / bật lại / đổi ngân sách nhiều đối tượng từ bảng chiến dịch (không từ gợi ý): lần lượt từng cái qua
+ * `requestAction` — đủ cờ, gói, kill switch, breaker, quyền ghi, quyền duyệt theo Client, guardrails (số hành động /
+ * ngày tính dần). Tài khoản ngoài phạm vi người dùng → 404 cả lô; lỗi nghiệp vụ từng cái trả về, không dừng cả lô.
+ */
+export async function requestManualActions(
+  ctx: ActorCtx,
+  items: ActionRequest[],
+  deps: { enqueue: Enqueue; clock?: Clock },
+): Promise<BulkApproveResult[]> {
+  if (!items.length || items.length > BULK_APPROVE_LIMIT) {
+    throw new AppError('VALIDATION_FAILED', `Chọn 1–${BULK_APPROVE_LIMIT} đối tượng`);
+  }
+  const visible = new Set((await listAdAccounts(ctx)).map((a) => a.id));
+  if (items.some((i) => !visible.has(i.adAccountId))) throw notFound('Tài khoản');
+  const out: BulkApproveResult[] = [];
+  for (const item of items) {
+    const id = `${item.adAccountId}:${item.targetMetaId}`;
+    try {
+      const a = await requestAction(ctx, { ...item, recommendationId: null, undoOf: null }, deps);
+      out.push({ id, ok: true, actionId: a.id });
+    } catch (e) {
       if (!(e instanceof AppError)) throw e;
       out.push({ id, ok: false, code: e.code, message: e.message });
     }

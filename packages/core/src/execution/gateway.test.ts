@@ -28,6 +28,7 @@ import {
   minorUnits,
   previewAction,
   approveRecommendations,
+  requestManualActions,
   proposalForRecommendation,
   requestAction,
   undoAction,
@@ -650,6 +651,36 @@ describe('duyệt từ gợi ý (P202, P2-03)', () => {
       (_, i) => `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
     );
     await expect(approveRecommendations(s.ctx, many, s)).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+  });
+
+  it('thao tác từ bảng chiến dịch (G4): tạm dừng nhiều ad qua gateway; tài khoản workspace khác → 404 cả lô', async () => {
+    const s = await setup();
+    const a1 = await s.ad(0);
+    const a2 = await s.ad(1);
+    const out = await requestManualActions(
+      s.ctx,
+      [
+        { adAccountId: s.adAccountId, actionType: 'pause_ad', targetMetaId: a1.metaId },
+        { adAccountId: s.adAccountId, actionType: 'pause_ad', targetMetaId: a2.metaId },
+        { adAccountId: s.adAccountId, actionType: 'pause_ad', targetMetaId: '999999999' },
+      ],
+      s,
+    );
+    expect(out.map((r) => [r.ok, r.ok ? null : r.code])).toEqual([
+      [true, null],
+      [true, null],
+      [false, 'NOT_FOUND'],
+    ]);
+    const acts = await db.select().from(schema.actions).where(eq(schema.actions.workspaceId, s.workspaceId));
+    expect(acts.map((a) => [a.actionType, a.tier, a.recommendationId])).toEqual([
+      ['pause_ad', 'approve', null],
+      ['pause_ad', 'approve', null],
+    ]);
+    const other = await setup();
+    await expect(
+      requestManualActions(s.ctx, [{ adAccountId: other.adAccountId, actionType: 'pause_ad', targetMetaId: '1' }], s),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(requestManualActions(s.ctx, [], s)).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
   });
 
   it('gợi ý của workspace khác → 404', async () => {

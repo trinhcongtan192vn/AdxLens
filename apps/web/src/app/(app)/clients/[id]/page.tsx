@@ -7,7 +7,7 @@ import { getTranslations } from 'next-intl/server';
 import { z } from 'zod';
 import { listAdAccounts } from '@adxlens/core/connections';
 import { accountReconciliation } from '@adxlens/core/reconciliation';
-import { can, getClient } from '@adxlens/core/tenancy';
+import { can, canApproveActions, getClient } from '@adxlens/core/tenancy';
 import { entityTable } from '@adxlens/core/reporting';
 import { Card, EmptyState, PageHeader, SourceFootnote, TabBar, tabItemClass } from '@adxlens/ui';
 import { EntityGrid } from '@/components/entity-grid';
@@ -120,6 +120,7 @@ export default async function ClientPage({
         <>
           <EntityGrid
             level={LEVEL[tab]}
+            canAct={pc.flags.p2a_approve && canApproveActions(pc.ctx.actor, client.id)}
             showParent={LEVEL[tab] !== 'campaign'}
             rows={await clientGrid(pc.ctx, accounts, LEVEL[tab], ranges)}
           />

@@ -100,6 +100,8 @@ export type EntityRow = {
   name: string | null;
   status: string | null;
   parentMetaId: string | null;
+  /** Ngân sách ngày (nhóm QC dùng ngân sách ngày), chuỗi decimal theo tiền tệ tài khoản. */
+  dailyBudget?: string | null;
   kpis: Kpis;
 };
 
@@ -114,7 +116,14 @@ export async function entityTable(
   if (!ids.length) return [];
   const key = sql.raw(level === 'ad' ? 'meta_id' : level === 'adset' ? 'adset_id' : 'campaign_id');
   const rows = await ctx.db.execute<
-    Raw & { ad_account_id: string; meta_id: string; name: string | null; status: string | null; parent: string | null }
+    Raw & {
+      ad_account_id: string;
+      meta_id: string;
+      name: string | null;
+      status: string | null;
+      parent: string | null;
+      daily_budget: string | null;
+    }
   >(sql`
     with m as (
       select ad_account_id, ${key} as key, ${SUMS} from analytics.insights_daily
@@ -122,7 +131,8 @@ export async function entityTable(
         and date between ${range.from} and ${range.to} and ${key} is not null
       group by ad_account_id, ${key}
     )
-    select e.ad_account_id, e.meta_id, e.name, e.status, e.parent_meta_id as parent, m.spend, m.impressions,
+    select e.ad_account_id, e.meta_id, e.name, e.status, e.parent_meta_id as parent, e.daily_budget::text as daily_budget,
+      m.spend, m.impressions,
       m.reach, m.clicks, m.link_clicks, m.results, m.conversion_value, m.result_types
     from analytics.entities e
     left join m on m.ad_account_id = e.ad_account_id and m.key = e.meta_id
@@ -134,6 +144,7 @@ export async function entityTable(
     name: r.name,
     status: r.status,
     parentMetaId: r.parent,
+    dailyBudget: r.daily_budget,
     kpis: toKpis(r.spend === null ? undefined : r),
   }));
 }

@@ -24,3 +24,14 @@ export function pctChange(cur: number | null, prev: number | null): number | nul
   if (cur === null || prev === null || prev === 0) return null;
   return ((cur - prev) / prev) * 100;
 }
+
+export type MetricKey =
+  'spend' | 'impressions' | 'linkClicks' | 'ctr' | 'results' | 'cpa' | 'roas' | 'conversionValue' | 'cpm';
+
+/** Bộ cột như Google Ads (G4): mỗi bộ trả lời một câu hỏi — hiệu suất, chuyển đổi, phân phối. */
+export const COLUMN_SETS = {
+  performance: ['spend', 'impressions', 'linkClicks', 'ctr', 'results', 'cpa', 'roas'],
+  conversion: ['spend', 'results', 'cpa', 'conversionValue', 'roas'],
+  delivery: ['spend', 'impressions', 'cpm', 'linkClicks', 'ctr'],
+} as const satisfies Record<string, readonly MetricKey[]>;
+export type ColumnSet = keyof typeof COLUMN_SETS;

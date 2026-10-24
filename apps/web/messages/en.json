@@ -925,7 +925,10 @@
       "ctr": "CTR",
       "results": "Results",
       "cpa": "CPA",
-      "roas": "ROAS"
+      "roas": "ROAS",
+      "conversionValue": "Conversion value",
+      "cpm": "CPM",
+      "linkClicks": "Clicks"
     },
     "status": {
       "ACTIVE": "Active",
@@ -951,7 +954,13 @@
       "showSpend": "With spend in period",
       "showAll": "All",
       "hidden": "{count} paused objects without spend hidden",
-      "total": "Total ({count})"
+      "total": "Total ({count})",
+      "columns": "Columns",
+      "sets": {
+        "performance": "Performance",
+        "conversion": "Conversions",
+        "delivery": "Delivery"
+      }
     },
     "levelPlural": {
       "campaign": "Campaigns",
@@ -2345,5 +2354,30 @@
       "change": "Change",
       "status": "Status"
     }
+  },
+  "gridActions": {
+    "header": "Actions",
+    "pause": "Pause",
+    "resume": "Resume",
+    "budget": "Budget",
+    "selected": "{count} selected",
+    "clear": "Clear",
+    "selectAll": "Select all (max 20)",
+    "select": "Select {name}",
+    "title": {
+      "pause_ad": "Pause {count} ads",
+      "resume_ad": "Resume {count} ads",
+      "pause_adset": "Pause {count} ad sets",
+      "resume_adset": "Resume {count} ad sets",
+      "set_adset_budget": "Change daily budget"
+    },
+    "confirm": "Run {count} actions",
+    "note": "Each action is checked against guardrails, executed on Meta and verified; only objects without violations are sent. Follow results in the",
+    "log": "Action log",
+    "newBudget": "New daily budget",
+    "preview": "Preview",
+    "ok": "Ready",
+    "queued": "{count} actions sent",
+    "partial": "{ok} sent, {failed} could not run"
   }
 }

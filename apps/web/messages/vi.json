@@ -925,7 +925,10 @@
       "ctr": "CTR",
       "results": "Kết quả",
       "cpa": "CPA",
-      "roas": "ROAS"
+      "roas": "ROAS",
+      "conversionValue": "Giá trị chuyển đổi",
+      "cpm": "CPM",
+      "linkClicks": "Click"
     },
     "status": {
       "ACTIVE": "Đang chạy",
@@ -951,7 +954,13 @@
       "showSpend": "Có chi tiêu trong kỳ",
       "showAll": "Tất cả",
       "hidden": "Ẩn {count} đối tượng tắt, không chi tiêu",
-      "total": "Tổng ({count})"
+      "total": "Tổng ({count})",
+      "columns": "Bộ cột",
+      "sets": {
+        "performance": "Hiệu suất",
+        "conversion": "Chuyển đổi",
+        "delivery": "Phân phối"
+      }
     },
     "levelPlural": {
       "campaign": "Chiến dịch",
@@ -2345,5 +2354,30 @@
       "change": "Thay đổi",
       "status": "Trạng thái"
     }
+  },
+  "gridActions": {
+    "header": "Thao tác",
+    "pause": "Tạm dừng",
+    "resume": "Bật lại",
+    "budget": "Ngân sách",
+    "selected": "Đã chọn {count}",
+    "clear": "Bỏ chọn",
+    "selectAll": "Chọn tất cả (tối đa 20)",
+    "select": "Chọn {name}",
+    "title": {
+      "pause_ad": "Tạm dừng {count} quảng cáo",
+      "resume_ad": "Bật lại {count} quảng cáo",
+      "pause_adset": "Tạm dừng {count} nhóm QC",
+      "resume_adset": "Bật lại {count} nhóm QC",
+      "set_adset_budget": "Đổi ngân sách ngày"
+    },
+    "confirm": "Thực hiện {count} hành động",
+    "note": "Mỗi hành động được kiểm guardrails, thực hiện qua Meta rồi xác minh lại; chỉ gửi đối tượng không vi phạm. Theo dõi kết quả ở",
+    "log": "Nhật ký hành động",
+    "newBudget": "Ngân sách ngày mới",
+    "preview": "Xem trước",
+    "ok": "Sẵn sàng",
+    "queued": "Đã gửi {count} hành động",
+    "partial": "Đã gửi {ok}, {failed} không thực hiện được"
   }
 }

@@ -150,14 +150,16 @@ export async function childRows(
   if (!child) return [];
   await account(ctx, adAccountId);
   const key = sql.raw(KEY_COL[child]);
-  const rows = await ctx.db.execute<RawSums & { meta_id: string; name: string | null; status: string | null }>(sql`
+  const rows = await ctx.db.execute<
+    RawSums & { meta_id: string; name: string | null; status: string | null; daily_budget: string | null }
+  >(sql`
     with m as (
       select ${key} as key, ${SUMS} from analytics.insights_daily
       where workspace_id = ${ctx.workspaceId} and ad_account_id = ${adAccountId}
         and date between ${range.from} and ${range.to} and ${key} is not null
       group by ${key}
     )
-    select e.meta_id, e.name, e.status, m.spend, m.impressions, m.reach, m.clicks, m.link_clicks, m.results,
+    select e.meta_id, e.name, e.status, e.daily_budget::text as daily_budget, m.spend, m.impressions, m.reach, m.clicks, m.link_clicks, m.results,
       m.conversion_value, m.result_types
     from analytics.entities e
     left join m on m.key = e.meta_id
@@ -170,6 +172,7 @@ export async function childRows(
     name: r.name,
     status: r.status,
     parentMetaId: metaId,
+    dailyBudget: r.daily_budget,
     kpis: toKpis(r.spend === null ? undefined : r),
   }));
 }
