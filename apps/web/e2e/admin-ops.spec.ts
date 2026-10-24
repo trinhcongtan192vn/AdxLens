@@ -14,6 +14,22 @@ test('superadmin: các trang vận hành, sửa gói, thông báo bảo trì t�
   const email = await signUpAndCreateWorkspace(page, { workspace: ws });
   await makeStaff(email, true);
 
+  // Trang vào "Hôm nay" + sidebar theo luồng; tìm chung theo email (một kết quả → mở thẳng chi tiết workspace).
+  await page.goto('/admin');
+  await expect(page.getByRole('heading', { name: 'Hôm nay', level: 1 })).toBeVisible();
+  const sidebar = page.getByTestId('admin-sidebar');
+  await expect(sidebar.getByText('Vận hành dữ liệu')).toBeVisible();
+  await expect(sidebar.getByRole('link', { name: /Hôm nay/ })).toHaveAttribute('aria-current', 'page');
+  await page.getByRole('search').getByRole('textbox').fill(email);
+  await page.getByRole('search').getByRole('textbox').press('Enter');
+  await expect(page.getByRole('heading', { name: ws })).toBeVisible();
+  await expect(sidebar.getByRole('link', { name: /Workspace/ })).toHaveAttribute('aria-current', 'page');
+  await page
+    .getByRole('navigation', { name: 'Các phần' })
+    .getByRole('link', { name: /Thành viên/ })
+    .click();
+  await expect(page).toHaveURL(/#members$/);
+
   // Tra cứu theo email thành viên → chi tiết workspace.
   await page.goto(`/admin/workspaces?q=${encodeURIComponent(email)}`);
   await page.getByRole('link', { name: ws }).click();

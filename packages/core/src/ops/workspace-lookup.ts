@@ -189,3 +189,52 @@ export async function adminWorkspaceDetail(db: DbOrTx, workspaceId: string) {
     deletions,
   };
 }
+
+export type AdminSearchResult = {
+  workspaces: Awaited<ReturnType<typeof searchWorkspaces>>;
+  accounts: { id: string; name: string; metaAccountId: string; workspaceId: string; workspaceName: string }[];
+  deletions: { code: string; status: string; workspaceId: string | null; workspaceName: string | null }[];
+};
+
+/**
+ * Ô tìm kiếm chung của admin: tên workspace / email thành viên, tài khoản QC theo mã `act_…` (có hoặc không tiền tố)
+ * hoặc tên, mã yêu cầu xóa dữ liệu (khớp đúng). XUYÊN WORKSPACE có chủ đích (CLAUDE.md quy tắc 1): chỉ trang staff gọi;
+ * chỉ trả tên và mã để mở đúng trang chi tiết workspace.
+ */
+export async function adminSearch(db: DbOrTx, q: string): Promise<AdminSearchResult> {
+  const term = q.trim();
+  if (term.length < 2) return { workspaces: [], accounts: [], deletions: [] };
+  const digits = term.replace(/^act_/i, '');
+  const [ws, accounts, deletions] = await Promise.all([
+    searchWorkspaces(db, term, 20),
+    db
+      .select({
+        id: adAccounts.id,
+        name: adAccounts.name,
+        metaAccountId: adAccounts.metaAccountId,
+        workspaceId: adAccounts.workspaceId,
+        workspaceName: workspaces.name,
+      })
+      .from(adAccounts)
+      .innerJoin(workspaces, eq(workspaces.id, adAccounts.workspaceId))
+      .where(
+        /^\d{3,}$/.test(digits)
+          ? sql`${adAccounts.metaAccountId} like ${`act_${digits}%`}`
+          : sql`${adAccounts.name} ilike ${`%${term}%`}`,
+      )
+      .orderBy(adAccounts.name)
+      .limit(20),
+    db
+      .select({
+        code: deletionRequests.code,
+        status: deletionRequests.status,
+        workspaceId: deletionRequests.workspaceId,
+        workspaceName: workspaces.name,
+      })
+      .from(deletionRequests)
+      .leftJoin(workspaces, eq(workspaces.id, deletionRequests.workspaceId))
+      .where(sql`upper(${deletionRequests.code}) = upper(${term})`)
+      .limit(5),
+  ]);
+  return { workspaces: ws, accounts, deletions };
+}
