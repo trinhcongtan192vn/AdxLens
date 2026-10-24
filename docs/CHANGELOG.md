@@ -2,6 +2,45 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [066] Admin: sidebar theo luồng việc, trang "Hôm nay", banner kill switch — 2026-10-24
+
+**Thay đổi**
+- **Sidebar thay cho tab ngang.** Các mục xếp theo luồng việc của operator:
+  - Hôm nay;
+  - Khách hàng (Workspace);
+  - Vận hành dữ liệu (Sự cố, Đồng bộ & hàng đợi, Đối chiếu số liệu);
+  - An toàn thực thi (Thực thi & breaker, Kill switch);
+  - Phát hành (Cờ tính năng);
+  - Doanh thu (Gói & thanh toán);
+  - Tuân thủ (Xóa dữ liệu, Nhật ký admin);
+  - Cấu hình (Đội ngũ, Mẫu email, Hệ thống).
+- **Trên sidebar:**
+  - mục đang mở được tô sáng;
+  - mỗi mục có **số việc đang chờ**, đỏ khi khẩn: sự cố P1, breaker mở, xóa dữ liệu quá hạn, đồng bộ kẹt;
+  - Kill switch hiện thẳng trạng thái BẬT / TẮT;
+  - mục chỉ superadmin thao tác được có khóa 🔒 khi người xem là operator (vẫn mở để xem).
+- **Trang "Hôm nay"** (`/admin`, trước đây chuyển thẳng sang Ma trận cờ):
+  - mỗi loại việc đang chờ là một thẻ, việc khẩn lên trước: số lượng, việc tồn lâu nhất, tối đa 3 mục kèm link về workspace, nút "Xử lý →";
+  - không còn việc gì thì ghi "Mọi thứ ổn".
+- **Banner đỏ trên mọi trang admin** khi kill switch toàn cục đang BẬT, kèm lý do.
+- **Core:** `ops.adminInbox`
+  - dùng chính các hàm mà từng trang dùng (`syncIssues`, `reconciliationBoard`, `executionOverview`, `billingOverview`, `deletionRequestsOverview`) + sự cố mở + đề xuất cờ chờ duyệt + kill switch, nên số trên sidebar khớp với trang;
+  - xuyên workspace có chủ đích, chỉ trang staff gọi; không trả số liệu quảng cáo hay token.
+- **Đổi tên mục:**
+  - Vận hành → Đồng bộ & hàng đợi;
+  - Đối chiếu → Đối chiếu số liệu;
+  - Thực thi → Thực thi & breaker;
+  - Ma trận cờ → Cờ tính năng;
+  - Thanh toán → Gói & thanh toán.
+- i18n kèm luôn chuỗi cho [067].
+
+**Test tự động:**
+- `ops/admin-inbox.test.ts`: không có việc → 0; gom sự cố (P1 lên đầu, khẩn), breaker, chỉ xóa quá hạn, đề xuất cờ, thanh toán quá hạn; kill switch bật → hiện lý do.
+- `lib/admin-nav.test.ts`: mỗi trang đúng một mục; mục đang mở (trang con khớp mục cha); màu số.
+- E2E `admin-ops.spec.ts`: vào `/admin` thấy "Hôm nay" + sidebar, mục đang mở.
+
+**PM kiểm tra:** vào http://localhost:3000/admin → trang Hôm nay; sidebar có nhóm và số việc. Bật kill switch toàn cục → banner đỏ trên mọi trang admin → tắt.
+
 ## [065] Bộ chọn workspace + "Tạo workspace mới"; giới hạn 1 workspace Free mỗi user — 2026-10-24
 
 **Thay đổi**

@@ -1229,19 +1229,20 @@
       "removeTitle": "Gỡ quyền staff của {email}"
     },
     "nav": {
-      "flags": "Ma trận cờ",
+      "flags": "Cờ tính năng",
       "incidents": "Sự cố",
       "killSwitch": "Kill switch",
       "staff": "Đội ngũ",
       "audit": "Nhật ký admin",
       "workspaces": "Workspace",
-      "operations": "Vận hành",
-      "reconciliation": "Đối chiếu",
-      "execution": "Thực thi",
-      "billing": "Thanh toán",
+      "operations": "Đồng bộ & hàng đợi",
+      "reconciliation": "Đối chiếu số liệu",
+      "execution": "Thực thi & breaker",
+      "billing": "Gói & thanh toán",
       "deletions": "Xóa dữ liệu",
       "system": "Hệ thống",
-      "emails": "Mẫu email"
+      "emails": "Mẫu email",
+      "today": "Hôm nay"
     },
     "flags": {
       "title": "Ma trận cờ tính năng",
@@ -1344,7 +1345,8 @@
         "skipped": "Bỏ qua",
         "failed": "Lỗi",
         "escalated": "Leo thang (báo PM)"
-      }
+      },
+      "openWorkspace": "Mở workspace"
     },
     "roles": {
       "superadmin": "Superadmin",
@@ -1445,6 +1447,17 @@
         "range": "Khoảng ngày",
         "started": "Bắt đầu",
         "error": "Lỗi"
+      },
+      "toc": {
+        "label": "Các phần",
+        "billing": "Gói",
+        "flags": "Cờ",
+        "members": "Thành viên ({count})",
+        "connections": "Kết nối ({count})",
+        "accounts": "Tài khoản QC ({count})",
+        "syncRuns": "Đồng bộ",
+        "incidents": "Sự cố ({count})",
+        "deletions": "Xóa dữ liệu ({count})"
       }
     },
     "operations": {
@@ -1649,6 +1662,81 @@
         "digest": "Tổng kết tuần",
         "scheduled_report": "Báo cáo theo lịch"
       }
+    },
+    "navLabel": "Điều hướng admin",
+    "superadminOnly": "Chỉ superadmin thao tác được",
+    "ksShort": {
+      "on": "BẬT",
+      "off": "TẮT"
+    },
+    "ksBanner": {
+      "title": "Kill switch toàn cục đang BẬT",
+      "body": "Mọi thay đổi trên Meta của mọi workspace đang dừng. Lý do: {reason}.",
+      "link": "Mở kill switch"
+    },
+    "groups": {
+      "customers": "Khách hàng",
+      "data": "Vận hành dữ liệu",
+      "safety": "An toàn thực thi",
+      "release": "Phát hành",
+      "revenue": "Doanh thu",
+      "compliance": "Tuân thủ",
+      "config": "Cấu hình"
+    },
+    "today": {
+      "title": "Hôm nay",
+      "subtitle": "{count, plural, =0 {Không có việc đang chờ.} other {# việc đang chờ trên toàn hệ thống, việc khẩn ở trên.}}",
+      "allClear": "Mọi thứ ổn",
+      "allClearBody": "Không có sự cố, đồng bộ lỗi, lệch số, breaker, thanh toán lỗi, xóa quá hạn hay đề xuất cờ đang chờ.",
+      "handle": "Xử lý →",
+      "oldest": "Tồn lâu nhất: {when}",
+      "more": "và {count} mục khác",
+      "system": "Toàn hệ thống",
+      "waitSuperadmin": "Chờ superadmin duyệt.",
+      "killSwitch": "Kill switch toàn cục:",
+      "ksOn": "đang BẬT",
+      "ksOff": "đang tắt",
+      "items": {
+        "incidents": {
+          "title": "Sự cố đang mở",
+          "body": "Sự cố chưa xử lý xong (mở hoặc đã giảm thiểu), nghiêm trọng nhất lên đầu."
+        },
+        "syncs": {
+          "title": "Đồng bộ lỗi hoặc kẹt",
+          "body": "Lần đồng bộ lỗi trong 7 ngày hoặc đang chạy quá 3 giờ."
+        },
+        "reconciliation": {
+          "title": "Đối chiếu cần xem",
+          "body": "Tài khoản có ngày lệch > 1%, gán Client chưa xác nhận hoặc lâu chưa đối chiếu."
+        },
+        "breakers": {
+          "title": "Breaker đang mở",
+          "body": "Tài khoản tạm khóa thực thi do lỗi liên tiếp."
+        },
+        "billing": {
+          "title": "Thanh toán cần chú ý",
+          "body": "Workspace quá hạn thanh toán hoặc vượt hạn mức tài khoản."
+        },
+        "deletions": {
+          "title": "Xóa dữ liệu quá hạn",
+          "body": "Yêu cầu xóa đã qua hạn hơn 1 ngày mà chưa xong."
+        },
+        "flagProposals": {
+          "title": "Đề xuất bật cờ",
+          "body": "Đề xuất của operator đang chờ duyệt."
+        }
+      }
+    },
+    "search": {
+      "label": "Tìm trong admin",
+      "placeholder": "Workspace, email, act_…, mã xóa dữ liệu",
+      "title": "Tìm kiếm",
+      "for": "Kết quả cho \"{q}\"",
+      "hint": "Tìm theo tên workspace, email thành viên, mã tài khoản QC (act_…) hoặc tên tài khoản, mã yêu cầu xóa dữ liệu.",
+      "none": "Không tìm thấy",
+      "workspaces": "Workspace ({count})",
+      "accounts": "Tài khoản quảng cáo ({count})",
+      "deletions": "Yêu cầu xóa dữ liệu ({count})"
     }
   },
   "notifications": {
