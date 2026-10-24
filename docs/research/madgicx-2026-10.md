@@ -203,7 +203,54 @@
 - Preset bộ lọc lưu được.
 - **Tránh:** paywall bật lên khi bấm đề xuất; trừ thẻ tự động.
 
-## 5. Ảnh chụp
+## 5. Kết nối và onboarding (PM cung cấp, 24/10/2026)
+
+### 5.1 Quyền Meta xin ngay lần kết nối đầu (một lần, gộp tất cả)
+- **Quảng cáo:** quản lý quảng cáo (ghi) + đọc quảng cáo và số liệu.
+- **Doanh nghiệp:** quản lý Business (chọn Business cụ thể); quản lý **danh mục sản phẩm** (catalog).
+- **Page** (chọn từng Page):
+  - tạo / quản lý nội dung, quản lý bình luận;
+  - đọc nội dung Page, đọc nội dung người dùng đăng;
+  - tạo / quản lý quảng cáo cho Page;
+  - danh sách Page;
+  - **đọc lead từ form quảng cáo**.
+- **Instagram:** hồ sơ và bài đăng.
+- **Sau khi nhập thẻ thanh toán:** bắt chấp nhận **Meta Terms** để chat được thay đổi tài khoản (bật / tắt, ngân sách,
+  audience): Meta Business Tools Terms + **Customer List Custom Audiences Terms** (mở trên Facebook).
+
+### 5.2 Onboarding sau khi kết nối
+1. **Mục tiêu tối ưu chính** (vd. ROAS). Bên cạnh là **giá trị thực tế của chỉ số đó** (hôm qua / 3 ngày / 7 ngày;
+   toàn tài khoản và riêng prospecting) để đặt mục tiêu sát thực tế.
+2. **Chỉ số thứ 2 và thứ 3** (vd. Cost per add to cart, Cost per purchase), kèm khoảng giá trị 30 ngày. Dùng cho
+   dashboard / widget.
+3. **Xác nhận tài sản:** **ngành + ngành con** (vd. Hospitality Services › Hotel Resort Accommodations), Page mặc định,
+   Instagram mặc định, Pixel mặc định.
+
+### 5.3 Đối chiếu với AdxLens
+
+| | Madgicx | AdxLens hiện tại | Nhận xét |
+|---|---|---|---|
+| Quyền lúc kết nối | Xin rộng ngay từ đầu: ghi quảng cáo, Page (nội dung, bình luận, lead), Instagram, catalog | Chỉ `ads_read` + `business_management`; `ads_management` chỉ xin khi nâng cấp quyền ghi (P201) | Giữ cách của ta: màn xin quyền ghi rõ "chỉ đọc" (PRD P0-03), App Review dễ hơn, khách agency yên tâm hơn. Đây là điểm bán hàng nên nói rõ. |
+| Điều khoản Meta | Bắt chấp nhận Custom Audiences Terms để chat thao tác | Chưa cần (chưa làm audience) | Chỉ cần khi làm tính năng audience. |
+| Mục tiêu KPI | Hỏi ngay ở onboarding, **gợi ý bằng số thực tế** | **Chưa có.** Rule audit / health / gợi ý dùng trung bình tài khoản; báo cáo hiện bộ KPI cố định | **Khoảng trống lớn nhất.** |
+| Ngành | Ngành + ngành con | Chưa có | Nền cho so sánh với ngành sau này (cần dữ liệu đủ lớn, ẩn danh). |
+| Page / IG / Pixel mặc định | Chọn khi onboarding | Không cần (chưa tạo quảng cáo) | Chỉ cần khi làm tạo quảng cáo / tracking. |
+
+### 5.4 Cơ hội rút ra
+- **Mục tiêu KPI theo Client** (ưu tiên cao): khi gán tài khoản cho Client (S05) hoặc trong Cài đặt khách, chọn chỉ số
+  chính (CPA / ROAS / CPL / CPM…) + mục tiêu, **gợi ý bằng giá trị thực tế** hôm qua / 7 ngày / 30 ngày (số do code tính).
+  Mục tiêu này dùng cho:
+  - KPI đầu báo cáo và trang Client, hiện **so với mục tiêu**;
+  - ngưỡng của finding / gợi ý / rule mẫu thay cho trung bình tài khoản;
+  - "Khách cần chú ý" khi lệch mục tiêu;
+  - câu "Vì sao CPA tăng?" khi vượt mục tiêu.
+  - Nằm trong core (tenancy / reporting), không đụng quyền Meta.
+- **Chỉ số phụ 2–3 theo Client** → bộ cột / KPI mặc định của bảng và báo cáo khách đó.
+- **Ngành / ngành con theo Client** → template báo cáo theo ngành (lead gen / e-commerce / dịch vụ); về sau là benchmark
+  ẩn danh.
+- **Không** học cách xin quyền rộng ngay lần đầu.
+
+## 6. Ảnh chụp
 
 Khoảng 70 ảnh chụp giao diện lưu tạm trong thư mục scratchpad của phiên ngày 24/10/2026 (không commit vì chứa dữ liệu tài
 khoản quảng cáo thật). Cần ảnh nào cho PRD thì chụp lại.
