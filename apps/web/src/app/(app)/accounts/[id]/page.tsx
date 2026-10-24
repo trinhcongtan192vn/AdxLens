@@ -3,7 +3,7 @@ import { getFormatter, getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import { healthScores, listFindings } from '@adxlens/core/insight';
 import { accountReconciliation } from '@adxlens/core/reconciliation';
-import { accountKpis, dailySeries, entityTable, explainCpaChange } from '@adxlens/core/reporting';
+import { accountKpis, dailySeries, entityTable, explainCpaChange, latestEntityChanges } from '@adxlens/core/reporting';
 import { CpaChangeBlock } from '@/report/report-view';
 import { EntityGrid } from '@/components/entity-grid';
 import { toGridRows } from '@/server/grid';
@@ -180,7 +180,14 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
       <h2 className="mb-2 mt-6 text-h3 font-semibold">{te('levelPlural.campaign')}</h2>
       <EntityGrid
         level="campaign"
-        rows={toGridRows('campaign', campsCur, campsPrev, { [account.id]: account.currency })}
+        rows={toGridRows(
+          'campaign',
+          campsCur,
+          campsPrev,
+          { [account.id]: account.currency },
+          undefined,
+          await latestEntityChanges(pc.ctx, [account.id], 'campaign'),
+        )}
       />
       <SourceFootnote className="mt-2">
         {t('footnote', { from: cur.from, to: cur.to, currency: account.currency, timezone: account.timezone })}

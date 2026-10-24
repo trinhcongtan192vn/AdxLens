@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { listAdAccounts, listAssets } from '@adxlens/core/connections';
 import { accountReconciliation } from '@adxlens/core/reconciliation';
 import { can, canApproveActions, getClient } from '@adxlens/core/tenancy';
-import { entityTable } from '@adxlens/core/reporting';
+import { entityTable, latestEntityChanges } from '@adxlens/core/reporting';
 import {
   Banner,
   buttonVariants,
@@ -176,11 +176,12 @@ async function clientGrid(
 ) {
   const ids = accounts.map((a) => a.id);
   const parentLevel = level === 'ad' ? 'adset' : level === 'adset' ? 'campaign' : null;
-  const [cur, prev, parents] = await Promise.all([
+  const [cur, prev, parents, changes] = await Promise.all([
     entityTable(ctx, ids, level, ranges.cur),
     entityTable(ctx, ids, level, ranges.prev),
     parentLevel ? entityTable(ctx, ids, parentLevel, ranges.cur) : Promise.resolve([]),
+    latestEntityChanges(ctx, ids, level),
   ]);
   const names = new Map(parents.map((p) => [`${p.adAccountId}:${p.metaId}`, p.name]));
-  return toGridRows(level, cur, prev, Object.fromEntries(accounts.map((a) => [a.id, a.currency])), names);
+  return toGridRows(level, cur, prev, Object.fromEntries(accounts.map((a) => [a.id, a.currency])), names, changes);
 }

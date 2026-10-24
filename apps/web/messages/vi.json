@@ -962,7 +962,8 @@
       "roas": "ROAS",
       "conversionValue": "Giá trị chuyển đổi",
       "cpm": "CPM",
-      "linkClicks": "Click"
+      "linkClicks": "Click",
+      "lastChange": "Thay đổi gần nhất"
     },
     "status": {
       "ACTIVE": "Đang chạy",
@@ -994,7 +995,10 @@
         "performance": "Hiệu suất",
         "conversion": "Chuyển đổi",
         "delivery": "Phân phối"
-      }
+      },
+      "savedFilters": "Bộ lọc đã lưu",
+      "saveFilter": "Lưu bộ lọc",
+      "saveFilterPrompt": "Tên bộ lọc (tìm, hiển thị, sắp xếp, bộ cột hiện tại):"
     },
     "levelPlural": {
       "campaign": "Chiến dịch",
