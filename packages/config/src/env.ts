@@ -38,6 +38,8 @@ export const metaEnvSchema = z.object({
     .string()
     .regex(/^v\d+\.\d+$/)
     .default('v24.0'),
+  /** ADR-0016: ghi đè bộ quyền khi kết nối (phẩy ngăn cách) khi app Meta chưa có use case cho một số quyền. */
+  META_CONNECT_SCOPES: optionalString,
   /** Chỉ dùng ở local/test: thay Meta thật bằng dữ liệu giả để chạy luồng không cần app Meta. */
   META_MOCK: z
     .enum(['0', '1'])

@@ -3,6 +3,7 @@ import { getFormatter, getNow, getTranslations } from 'next-intl/server';
 import {
   DELETION_COMMITMENT_DAYS,
   listAdAccounts,
+  listAssets,
   listConnections,
   listDeletionRequests,
   PURGE_DELAY_DAYS,
@@ -22,6 +23,7 @@ import {
   THead,
   TR,
 } from '@adxlens/ui';
+import { CONNECT_SCOPES } from '@adxlens/meta-client';
 import { maskAccountId, tokenState } from '@/lib/format';
 import { requirePermission } from '@/server/guards';
 import { getPageContext } from '@/server/page-context';
@@ -42,10 +44,11 @@ export default async function ConnectionsPage({ searchParams }: { searchParams: 
   const format = await getFormatter();
   const now = await getNow();
   const { error } = await searchParams;
-  const [allConnections, allAccounts, deletions] = await Promise.all([
+  const [allConnections, allAccounts, deletions, assets] = await Promise.all([
     listConnections(pc.ctx),
     listAdAccounts(pc.ctx),
     listDeletionRequests(pc.ctx),
+    listAssets(pc.ctx),
   ]);
   const td = await getTranslations('disconnect');
   // Kết nối đã ngắt: tài khoản QC của nó không còn hiện trong bảng (dữ liệu chờ xóa).
@@ -183,6 +186,19 @@ export default async function ConnectionsPage({ searchParams }: { searchParams: 
             </Table>
           </Card>
           <SourceFootnote className="mt-2">{t('footnote')}</SourceFootnote>
+          <AssetsCard
+            counts={(['page', 'instagram', 'pixel', 'catalog'] as const).map((k) => ({
+              k,
+              n: assets.filter((x) => x.kind === k).length,
+            }))}
+            missing={
+              connections.some((c) => !c.isDemo && c.status === 'active')
+                ? CONNECT_SCOPES.filter(
+                    (s) => !connections.some((c) => !c.isDemo && c.status === 'active' && c.scopes.includes(s)),
+                  )
+                : []
+            }
+          />
         </>
       )}
       {connections.length ? (
@@ -198,5 +214,36 @@ export default async function ConnectionsPage({ searchParams }: { searchParams: 
         />
       ) : null}
     </>
+  );
+}
+
+/** ADR-0016: tài sản Meta đọc được (chọn mặc định theo Client) + quyền người dùng đã bỏ chọn. */
+async function AssetsCard({
+  counts,
+  missing,
+}: {
+  counts: { k: 'page' | 'instagram' | 'pixel' | 'catalog'; n: number }[];
+  missing: string[];
+}) {
+  const t = await getTranslations('connect');
+  return (
+    <Card className="mt-4">
+      <h2 className="text-h4 font-semibold text-fg">{t('assets.title')}</h2>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {counts.map((c) => (
+          <Badge key={c.k} tone={c.n ? 'success' : 'neutral'}>
+            {t(`assets.${c.k}`, { n: c.n })}
+          </Badge>
+        ))}
+      </div>
+      {missing.length ? (
+        <p className="mt-3 text-small text-fg-secondary">
+          {t('assets.missing', { scopes: missing.join(', ') })}{' '}
+          <a href={AUTHORIZE} className="text-link hover:underline">
+            {t('assets.regrant')}
+          </a>
+        </p>
+      ) : null}
+    </Card>
   );
 }

@@ -428,6 +428,20 @@
       "when": 1792776102142,
       "tag": "0060_rule_match_check",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1792859796151,
+      "tag": "0061_meta_assets",
+      "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1792859797298,
+      "tag": "0062_meta_assets_rls",
+      "breakpoints": true
     }
   ]
 }

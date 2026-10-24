@@ -2,6 +2,21 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [075] W1 — Xin quyền Meta rộng khi kết nối + đọc Page / Instagram / Pixel / Catalog — 2026-10-24
+
+**Thay đổi** (ADR-0016, vùng bảo vệ `connections` + `meta-client` + `db`, PM chọn 24/10):
+- Kết nối xin một lần `CONNECT_SCOPES` (quảng cáo đọc + quản lý, Business, catalog, Page, lead, Instagram). Chỉ `ads_read` bắt buộc. Ghi đè bằng env `META_CONNECT_SCOPES` nếu app Meta chưa có use case.
+- **Ghi vẫn tắt:** có `ads_management` chưa cho ghi; Owner vẫn phải bật ở trang Quyền ghi (nay chỉ là công tắc, không cần OAuth lại) + cờ P2 + Execution Gateway.
+- Bảng mới `app.meta_assets` (RLS theo workspace): worker đọc danh sách Page (+ Instagram business), Pixel theo ad account, catalog theo Business mỗi lần làm mới tài khoản. Không lưu page token, chưa đọc nội dung Page / lead. Thiếu quyền nhóm nào thì bỏ qua nhóm đó.
+- Màn S03 viết lại: từng nhóm quyền dùng để làm gì, "AdxLens không tự thay đổi quảng cáo".
+- Trang Kết nối: thẻ "Tài sản Meta" (số Page / Instagram / Pixel / catalog) + quyền chưa cấp, link kết nối lại.
+- Runbook dev-public mục 2.6: use case cần thêm trong app Meta, cách xử lý "Invalid Scopes".
+
+**Test tự động:**
+- `oauth.test.ts`: khóa danh sách `CONNECT_SCOPES` (đổi test cũ chỉ-đọc theo ADR-0016), ghi đè env luôn giữ `ads_read`.
+- `assets.test.ts`: lưu đủ 4 nhóm, cách ly workspace, không lưu page token, thiếu quyền một nhóm vẫn làm mới tài khoản.
+- `write-access.test.ts`: kết nối có `ads_management` nhưng `write_enabled` vẫn false.
+
 ## [074] Lộ trình Workspace + ADR 0016–0020 (tài liệu) — 2026-10-24
 
 - `docs/roadmap-workspace.md`: 11 đợt W0–W10 (quyền rộng, onboarding theo Client, giao diện Workspace song song, Home, alert, Ads, Ads Manager, Funnels / Geography / Scale, AI agents, MCP).

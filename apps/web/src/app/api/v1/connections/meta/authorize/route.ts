@@ -2,7 +2,8 @@ import { z } from 'zod';
 import { isEnabled } from '@adxlens/core/flags';
 import { AppError, randomToken } from '@adxlens/core/shared';
 import { can } from '@adxlens/core/tenancy';
-import { authorizeUrl, READ_SCOPES, WRITE_SCOPES } from '@adxlens/meta-client';
+import { getEnv } from '@adxlens/config/env';
+import { authorizeUrl, connectScopes, WRITE_SCOPES } from '@adxlens/meta-client';
 import { metaConfig, oauthRedirectUri } from '@/server/meta';
 import { route } from '@/server/route';
 import { sign } from '@/server/signed';
@@ -10,7 +11,7 @@ import { sign } from '@/server/signed';
 const OAUTH_COOKIE = 'meta_oauth';
 
 /**
- * Bắt đầu OAuth Meta (L3 10.2). `scope=read` cho P0–P1; `write` (P201, P2-01) chỉ khi cờ `p2a_approve` bật
+ * Bắt đầu OAuth Meta (L3 10.2). `scope=read` = kết nối với bộ quyền rộng ADR-0016 (ghi vẫn tắt tới khi Owner bật); `write` (P201, P2-01) chỉ khi cờ `p2a_approve` bật
  * và người dùng có quyền `write_scope.manage` (Owner). State ký HMAC lưu cookie 10 phút, gắn workspace và user.
  */
 export const GET = route({
@@ -33,7 +34,7 @@ export const GET = route({
           appId: cfg.appId ?? '',
           redirectUri,
           state,
-          scopes: query.scope === 'read' ? READ_SCOPES : WRITE_SCOPES,
+          scopes: query.scope === 'read' ? connectScopes(getEnv().META_CONNECT_SCOPES) : WRITE_SCOPES,
           rerequest: query.scope === 'write',
         });
     const res = new Response(null, { status: 302, headers: { location: target } });

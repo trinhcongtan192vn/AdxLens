@@ -521,25 +521,25 @@
       "missing_scope": "Cần cấp quyền đọc quảng cáo (ads_read) để AdxLens đồng bộ số liệu.",
       "failed": "Không kết nối được với Meta. Vui lòng thử lại."
     },
-    "s03Title": "AdxLens chỉ đọc dữ liệu quảng cáo của bạn",
-    "s03Intro": "Ở bước tiếp theo, Meta sẽ hỏi bạn cấp quyền đọc. Đây là những gì chúng tôi làm và không làm.",
+    "s03Title": "Kết nối Meta để AdxLens đọc số liệu và tài sản",
+    "s03Intro": "Meta sẽ hỏi bạn cấp quyền một lần. Dưới đây là AdxLens làm gì và không làm gì với các quyền đó.",
     "s03": {
       "read": {
-        "title": "Đọc số liệu",
-        "body": "Chiến dịch, nhóm quảng cáo, quảng cáo, chi tiêu, kết quả, ngân sách."
+        "title": "Đọc số liệu và tài sản",
+        "body": "Chiến dịch, nhóm QC, quảng cáo, chi tiêu, kết quả; danh sách Page, Instagram, Pixel, catalog để chọn mặc định cho từng khách."
       },
       "write": {
-        "title": "Chỉnh sửa gì trên Meta",
-        "body": "Không tạm dừng, không đổi ngân sách, không tạo hay xóa quảng cáo."
+        "title": "Tự thay đổi quảng cáo",
+        "body": "AdxLens không tự tạm dừng, đổi ngân sách hay tạo quảng cáo. Quyền quản lý chỉ dùng khi Owner bật quyền ghi và bạn duyệt từng thay đổi."
       },
       "control": {
-        "title": "Bạn kiểm soát",
-        "body": "Ngắt kết nối bất cứ lúc nào và yêu cầu xóa dữ liệu (Kết nối)."
+        "title": "Bạn luôn kiểm soát",
+        "body": "Bỏ chọn quyền không muốn cấp ngay trong hộp thoại Meta, ngắt kết nối và yêu cầu xóa dữ liệu bất cứ lúc nào (Kết nối)."
       }
     },
     "continueWithMeta": "Tiếp tục với Meta",
     "viewDemo": "Xem tài khoản mẫu trước",
-    "scopes": "Quyền xin: {scopes} (chỉ đọc).",
+    "scopes": "Quyền xin: {scopes}. Chỉ quyền đọc quảng cáo (ads_read) là bắt buộc.",
     "s04Title": "Chọn tài khoản quảng cáo để theo dõi",
     "s04Limit": "Gói {plan} theo dõi tối đa {limit} tài khoản. Bạn có thể đổi sau.",
     "s04Loading": "Đang lấy chi tiêu 30 ngày từ Meta…",
@@ -554,7 +554,23 @@
       "growth": "Growth",
       "scale": "Scale"
     },
-    "writeAccess": "Quyền ghi"
+    "writeAccess": "Quyền ghi",
+    "scopeGroups": {
+      "title": "Các nhóm quyền Meta sẽ hỏi",
+      "ads": "Quảng cáo — đọc số liệu; quản lý (chỉ khi bạn duyệt thay đổi)",
+      "business": "Doanh nghiệp — danh sách Business và catalog sản phẩm",
+      "pages": "Page — danh sách Page, nội dung và bình luận, lead từ form quảng cáo",
+      "instagram": "Instagram — hồ sơ và bài đăng"
+    },
+    "assets": {
+      "title": "Tài sản Meta",
+      "page": "{n} Page",
+      "instagram": "{n} Instagram",
+      "pixel": "{n} Pixel",
+      "catalog": "{n} catalog",
+      "missing": "Chưa cấp: {scopes}. Một số tính năng (chọn Page / Pixel mặc định, lead, catalog) sẽ không có dữ liệu.",
+      "regrant": "Kết nối lại để cấp thêm"
+    }
   },
   "placeholder": {
     "comingSoon": "Màn hình này sẽ có ở bản tiếp theo."

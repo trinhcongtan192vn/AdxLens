@@ -1,4 +1,4 @@
-import { boolean, customType, index, integer, text, unique, uuid } from 'drizzle-orm/pg-core';
+import { boolean, customType, index, integer, jsonb, text, unique, uuid } from 'drizzle-orm/pg-core';
 import { app, createdAt, money, tsz, updatedAt } from './_common';
 import { clients, workspaces } from './tenancy';
 
@@ -108,4 +108,31 @@ export const jobAudit = app.table(
     at: tsz('at').notNull().defaultNow(),
   },
   (t) => [index().on(t.at), index().on(t.workspaceId, t.at)],
+);
+
+export const META_ASSET_KINDS = ['page', 'instagram', 'pixel', 'catalog'] as const;
+export type MetaAssetKind = (typeof META_ASSET_KINDS)[number];
+
+/**
+ * Tài sản Meta của kết nối (ADR-0016): chỉ danh sách id / tên để chọn mặc định theo Client (ADR-0017). Không lưu
+ * page token, không lưu nội dung Page / lead. `parentId`: Page của Instagram, ad account của Pixel, Business của
+ * catalog.
+ */
+export const metaAssets = app.table(
+  'meta_assets',
+  {
+    workspaceId: uuid('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    connectionId: uuid('connection_id')
+      .notNull()
+      .references(() => metaConnections.id, { onDelete: 'cascade' }),
+    kind: text('kind', { enum: META_ASSET_KINDS }).notNull(),
+    metaId: text('meta_id').notNull(),
+    name: text('name').notNull(),
+    parentId: text('parent_id'),
+    attrs: jsonb('attrs').$type<Record<string, string | null>>().notNull().default({}),
+    seenAt: tsz('seen_at').notNull().defaultNow(),
+  },
+  (t) => [unique().on(t.connectionId, t.kind, t.metaId), index().on(t.workspaceId, t.kind)],
 );

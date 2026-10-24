@@ -15,6 +15,7 @@ const PUBLIC_CONNECTION_FIELDS = {
   metaUserName: metaConnections.metaUserName,
   scopes: metaConnections.scopes,
   status: metaConnections.status,
+  isDemo: metaConnections.isDemo,
   expiresAt: metaConnections.expiresAt,
   createdBy: metaConnections.createdBy,
   createdAt: metaConnections.createdAt,
