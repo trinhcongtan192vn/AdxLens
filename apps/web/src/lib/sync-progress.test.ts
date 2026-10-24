@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { summarizeSync } from './sync-progress';
+import { backgroundSync, summarizeSync } from './sync-progress';
 
 describe('S06 tóm tắt tiến độ', () => {
   it('% theo ngày, đếm tài khoản xong', () => {
@@ -24,5 +24,30 @@ describe('S06 tóm tắt tiến độ', () => {
   });
   it('rỗng → 0%, chưa xong', () => {
     expect(summarizeSync([])).toMatchObject({ percent: 0, allDone: false, active: false });
+  });
+});
+
+describe('đồng bộ ở nền (chỉ báo toàn app)', () => {
+  const row = (
+    kind: 'backfill' | 'daily' | 'manual' | null,
+    status: 'queued' | 'running' | 'succeeded',
+    d: number,
+  ) => ({
+    kind,
+    status,
+    daysDone: d,
+    daysTotal: 90,
+    error: null,
+  });
+
+  it('backfill / đồng bộ lại đang chạy → % theo ngày của các lần đó', () => {
+    expect(
+      backgroundSync([row('backfill', 'running', 30), row('manual', 'queued', 0), row(null, 'succeeded', 0)]),
+    ).toEqual({ percent: 16, accounts: 2 });
+  });
+
+  it('chỉ đồng bộ hằng ngày hoặc đã xong → không hiện', () => {
+    expect(backgroundSync([row('daily', 'running', 0), row('backfill', 'succeeded', 90)])).toBeNull();
+    expect(backgroundSync([])).toBeNull();
   });
 });

@@ -638,7 +638,7 @@
   "sync": {
     "title": "Đang đồng bộ dữ liệu 90 ngày",
     "doneTitle": "Đồng bộ xong dữ liệu 90 ngày",
-    "summary": "{percent}% · {done} / {total} tài khoản. Bạn có thể đóng trang, đồng bộ vẫn tiếp tục.",
+    "summary": "{percent}% · {done} / {total} tài khoản. Không cần chờ: vào trang chủ dùng ngay, số liệu hiện dần (mới nhất trước).",
     "emptyTitle": "Chưa có tài khoản quảng cáo để đồng bộ.",
     "connect": "Kết nối Meta",
     "retry": "Thử lại đồng bộ",
@@ -657,6 +657,11 @@
       "TRANSIENT": "Đồng bộ dừng ở {percent}%: Meta trả lỗi tạm thời. Dữ liệu đã đồng bộ vẫn giữ nguyên.",
       "META_NO_ACCESS": "Đồng bộ dừng ở {percent}%: mất quyền truy cập tài khoản quảng cáo. Kiểm tra quyền trong Business Manager rồi thử lại.",
       "META_TOKEN_INVALID": "Đồng bộ dừng ở {percent}%: kết nối Meta đã hết hạn. Kết nối lại để tiếp tục."
+    },
+    "continueBackground": "Vào trang chủ, đồng bộ tiếp ở nền",
+    "banner": {
+      "body": "Đang đồng bộ dữ liệu 90 ngày ({percent}%, {count, plural, other {# tài khoản}}). Số liệu hiện dần, mới nhất trước; khi chưa xong, số của khoảng thời gian dài có thể chưa đủ và chưa được đối chiếu với Meta.",
+      "link": "Xem tiến độ"
     }
   },
   "recon": {

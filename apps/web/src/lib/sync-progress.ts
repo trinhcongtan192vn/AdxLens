@@ -22,3 +22,18 @@ export function summarizeSync(rows: AccountSync[]) {
       (failed.length ? 'TRANSIENT' : null)) as 'META_TOKEN_INVALID' | 'META_NO_ACCESS' | 'TRANSIENT' | null,
   };
 }
+
+/**
+ * Đồng bộ dài đang chạy ở nền (backfill 90 ngày, đồng bộ lại thủ công) cho chỉ báo trên toàn app: người dùng vào trang
+ * chủ ngay, số liệu hiện dần theo từng khối 7 ngày (mới nhất trước). Đồng bộ hằng ngày (vài chục giây) không tính.
+ * Không có → null.
+ */
+export function backgroundSync(rows: (AccountSync & { kind: 'backfill' | 'daily' | 'manual' | null })[]) {
+  const long = rows.filter(
+    (r) => (r.kind === 'backfill' || r.kind === 'manual') && (r.status === 'queued' || r.status === 'running'),
+  );
+  if (!long.length) return null;
+  const total = long.reduce((n, r) => n + (r.daysTotal || 0), 0);
+  const done = long.reduce((n, r) => n + Math.min(r.daysDone, r.daysTotal), 0);
+  return { percent: total ? Math.floor((done / total) * 100) : 0, accounts: long.length };
+}

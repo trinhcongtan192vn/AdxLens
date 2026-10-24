@@ -4,8 +4,11 @@ import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { billingStatus } from '@adxlens/core/billing';
 import { killSwitchState } from '@adxlens/core/execution';
-import { connectionHealth, demoConnection } from '@adxlens/core/connections';
+import { connectionHealth, demoConnection, listAdAccounts } from '@adxlens/core/connections';
+import { syncStatuses } from '@adxlens/core/ingestion';
+import { AutoRefresh } from '@/components/auto-refresh';
 import { DemoActions } from '@/components/demo-actions';
+import { backgroundSync } from '@/lib/sync-progress';
 import { unreadCount } from '@adxlens/core/notification';
 import { activeMaintenanceNotice } from '@adxlens/core/ops';
 import { can } from '@adxlens/core/tenancy';
@@ -106,16 +109,58 @@ async function maintenanceBanner(pc: PageContext): Promise<ReactNode> {
   );
 }
 
+/**
+ * Đồng bộ 90 ngày / đồng bộ lại đang chạy ở nền: người dùng dùng app ngay, số liệu hiện dần (khối 7 ngày, mới nhất
+ * trước), trang tự làm mới tới khi xong. Ghi rõ số liệu chưa đủ và chưa đối chiếu với Meta.
+ */
+async function syncBanner(pc: PageContext): Promise<ReactNode> {
+  const accounts = await listAdAccounts(pc.ctx);
+  if (!accounts.length) return null;
+  const statuses = await syncStatuses(
+    pc.ctx,
+    accounts.map((a) => a.id),
+  );
+  const s = backgroundSync(
+    [...statuses.values()].map((x) => ({
+      kind: x.kind,
+      status: x.status,
+      daysDone: x.progress.daysDone,
+      daysTotal: x.progress.daysTotal,
+      error: x.error,
+    })),
+  );
+  if (!s) return null;
+  const t = await getTranslations('sync');
+  return (
+    <div data-testid="sync-banner">
+      <AutoRefresh />
+      <Banner
+        tone="info"
+        action={
+          can(pc.actor.role, 'connections.manage') ? (
+            <Link href="/connections/sync" className="text-body font-medium underline">
+              {t('banner.link')}
+            </Link>
+          ) : null
+        }
+      >
+        {t('banner.body', { percent: s.percent, count: s.accounts })}
+      </Banner>
+    </div>
+  );
+}
+
 export async function getShellExtras(pc: PageContext): Promise<{ unread: number; banner: ReactNode }> {
-  const [maintenance, banner] = await Promise.all([maintenanceBanner(pc), systemBanner(pc)]);
+  const [maintenance, banner, sync] = await Promise.all([maintenanceBanner(pc), systemBanner(pc), syncBanner(pc)]);
   const unread = unreadSource ? await unreadSource(pc) : await unreadCount(pc.ctx, pc.actor.userId);
   return {
     unread,
     banner:
-      maintenance || banner ? (
+      maintenance || banner || sync ? (
         <div className="flex flex-col gap-2 px-4 pt-4">
           {maintenance}
           {banner}
+          {sync}
         </div>
       ) : null,
   };

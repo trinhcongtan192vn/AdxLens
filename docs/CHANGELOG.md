@@ -2,6 +2,20 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [072] Không bắt chờ đồng bộ 90 ngày: vào trang chủ ngay, số liệu hiện dần — 2026-10-24
+
+**Thay đổi**
+- **Màn đồng bộ (S06):** khi chưa xong, nút **"Vào trang chủ, đồng bộ tiếp ở nền"** dùng được ngay (trước đây nút Tiếp tục bị khóa tới khi xong). Xong thì vẫn "Tiếp tục" sang Clients như cũ.
+- **Chỉ báo đồng bộ trên toàn app** khi backfill 90 ngày hoặc đồng bộ lại đang chạy (đồng bộ hằng ngày không tính):
+  - banner "Đang đồng bộ dữ liệu 90 ngày (x%, n tài khoản)…", ghi rõ số của khoảng dài có thể chưa đủ và chưa đối chiếu với Meta;
+  - link "Xem tiến độ" cho người quản lý kết nối;
+  - **trang tự làm mới mỗi 15 giây** (bỏ qua khi tab ẩn, giữ trạng thái trên trình duyệt) để số liệu hiện dần; xong thì banner tự biến mất.
+- **Dữ liệu vốn đã ghi theo từng khối 7 ngày, khối mới nhất trước** (worker chạy 3 khối song song), nên số liệu gần đây có trước. Không đổi worker, đối chiếu hay ngưỡng.
+
+**Test tự động:** `lib/sync-progress.test.ts` (`backgroundSync`: backfill / đồng bộ lại đang chạy → %, đồng bộ hằng ngày hoặc đã xong → không hiện).
+
+**PM kiểm tra:** kết nối thêm một tài khoản QC → ở màn đồng bộ bấm "Vào trang chủ…" → thấy banner tiến độ, số liệu tăng dần sau mỗi lần làm mới.
+
 ## [071] Mọi URL tuyệt đối do web tạo theo origin công khai (Meta OAuth, email, thanh toán, link báo cáo) — 2026-10-24
 
 **Lỗi tiềm ẩn:** các chỗ dưới đây lấy `getEnv().APP_URL` / `PUBLIC_REPORT_URL`. Hai biến này **tự điền `http://localhost:3000`** khi thiếu, nên chạy sau Cloudflare Tunnel mà thiếu biến sẽ ra link localhost:

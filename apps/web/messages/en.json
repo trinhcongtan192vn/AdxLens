@@ -638,7 +638,7 @@
   "sync": {
     "title": "Syncing 90 days of data",
     "doneTitle": "90 days of data synced",
-    "summary": "{percent}% · {done} / {total} accounts. You can close this page; syncing continues.",
+    "summary": "{percent}% · {done} / {total} accounts. No need to wait: open the dashboard now, data appears as it loads (newest first).",
     "emptyTitle": "There are no ad accounts to sync yet.",
     "connect": "Connect Meta",
     "retry": "Retry sync",
@@ -657,6 +657,11 @@
       "TRANSIENT": "Sync stopped at {percent}%: Meta returned a temporary error. Data already synced is kept.",
       "META_NO_ACCESS": "Sync stopped at {percent}%: access to the ad account was lost. Check permissions in Business Manager, then retry.",
       "META_TOKEN_INVALID": "Sync stopped at {percent}%: the Meta connection expired. Reconnect to continue."
+    },
+    "continueBackground": "Go to dashboard, keep syncing in background",
+    "banner": {
+      "body": "Syncing 90 days of data ({percent}%, {count, plural, one {# account} other {# accounts}}). Data appears as it loads, newest first; until done, longer date ranges may be incomplete and not yet reconciled with Meta.",
+      "link": "View progress"
     }
   },
   "recon": {
