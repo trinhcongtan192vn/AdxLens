@@ -10,7 +10,8 @@ import { accountReconciliation } from '@adxlens/core/reconciliation';
 import { can, getClient } from '@adxlens/core/tenancy';
 import { entityTable } from '@adxlens/core/reporting';
 import { Card, EmptyState, PageHeader, SourceFootnote, TabBar, tabItemClass } from '@adxlens/ui';
-import { EntityTable } from '@/components/entity-table';
+import { EntityGrid } from '@/components/entity-grid';
+import { toGridRows } from '@/server/grid';
 import { ClientReports } from './client-reports';
 import { currentRanges } from '@/server/period';
 import { ReconBadge } from '@/components/recon-badge';
@@ -117,15 +118,10 @@ export default async function ClientPage({
         />
       ) : tab === 'campaigns' || tab === 'adsets' || tab === 'ads' ? (
         <>
-          <EntityTable
+          <EntityGrid
             level={LEVEL[tab]}
-            rows={await entityTable(
-              pc.ctx,
-              accounts.map((a) => a.id),
-              LEVEL[tab],
-              ranges.cur,
-            )}
-            currencyOf={Object.fromEntries(accounts.map((a) => [a.id, a.currency]))}
+            showParent={LEVEL[tab] !== 'campaign'}
+            rows={await clientGrid(pc.ctx, accounts, LEVEL[tab], ranges)}
           />
           <SourceFootnote className="mt-2">{te('footnote', ranges.cur)}</SourceFootnote>
         </>
@@ -138,4 +134,22 @@ export default async function ClientPage({
       )}
     </>
   );
+}
+
+/** G1: dòng bảng kỳ này + kỳ trước + tên cấp cha (chiến dịch của nhóm QC, nhóm QC của quảng cáo). */
+async function clientGrid(
+  ctx: Parameters<typeof entityTable>[0],
+  accounts: { id: string; currency: string }[],
+  level: 'campaign' | 'adset' | 'ad',
+  ranges: { cur: { from: string; to: string }; prev: { from: string; to: string } },
+) {
+  const ids = accounts.map((a) => a.id);
+  const parentLevel = level === 'ad' ? 'adset' : level === 'adset' ? 'campaign' : null;
+  const [cur, prev, parents] = await Promise.all([
+    entityTable(ctx, ids, level, ranges.cur),
+    entityTable(ctx, ids, level, ranges.prev),
+    parentLevel ? entityTable(ctx, ids, parentLevel, ranges.cur) : Promise.resolve([]),
+  ]);
+  const names = new Map(parents.map((p) => [`${p.adAccountId}:${p.metaId}`, p.name]));
+  return toGridRows(level, cur, prev, Object.fromEntries(accounts.map((a) => [a.id, a.currency])), names);
 }

@@ -488,7 +488,7 @@ export function CpaChangeBlock({
 }
 
 /** Nhãn nhóm: "25-34|female" → "25–34 · Nữ", "instagram|story" → "Instagram · Story", khu vực giữ nguyên. */
-function breakdownLabel(
+export function breakdownLabel(
   b: 'age_gender' | 'placement' | 'region',
   key: string,
   t: (key: string, values?: Record<string, string | number>) => string,
@@ -504,7 +504,7 @@ function breakdownLabel(
 }
 
 /** A4: danh sách theo nhóm (tỷ trọng chi tiêu, kết quả, CPA). */
-function BreakdownList({
+export function BreakdownList({
   title,
   rows,
   label,

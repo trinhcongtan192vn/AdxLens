@@ -5,6 +5,8 @@ import { healthScores, listFindings } from '@adxlens/core/insight';
 import { accountReconciliation } from '@adxlens/core/reconciliation';
 import { accountKpis, dailySeries, entityTable, explainCpaChange } from '@adxlens/core/reporting';
 import { CpaChangeBlock } from '@/report/report-view';
+import { EntityGrid } from '@/components/entity-grid';
+import { toGridRows } from '@/server/grid';
 import {
   Badge,
   buttonVariants,
@@ -57,6 +59,7 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
   // A1: vì sao CPA thay đổi so với kỳ trước (null khi không đủ dữ liệu hoặc gần như không đổi).
   const cpaChange = explainCpaChange(k, kp.get(account.id)!, { current: campsCur, previous: campsPrev });
   const trep = await getTranslations('report');
+  const te = await getTranslations('entities');
   const nf = (v: number, o: Intl.NumberFormatOptions = {}) => format.number(v, o as never);
   const moneyCur = (v: string | null, cur: string) =>
     v === null ? '—' : `${format.number(Number(v), { maximumFractionDigits: cur === 'VND' ? 0 : 2 })} ${cur}`;
@@ -174,6 +177,11 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
           <EmptyState title={t('noFindings')} />
         )}
       </Card>
+      <h2 className="mb-2 mt-6 text-h3 font-semibold">{te('levelPlural.campaign')}</h2>
+      <EntityGrid
+        level="campaign"
+        rows={toGridRows('campaign', campsCur, campsPrev, { [account.id]: account.currency })}
+      />
       <SourceFootnote className="mt-2">
         {t('footnote', { from: cur.from, to: cur.to, currency: account.currency, timezone: account.timezone })}
       </SourceFootnote>

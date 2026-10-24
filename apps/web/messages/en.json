@@ -632,8 +632,8 @@
     }
   },
   "recon": {
-    "ok": "Match {pct}",
-    "warning": "Off by {pct}",
+    "ok": "Matches Meta (off {pct})",
+    "warning": "Off {pct} vs Meta",
     "pending": "Not reconciled",
     "title": "Data reconciliation",
     "resync": "Re-run sync",
@@ -917,7 +917,21 @@
       "adset": "No ad sets in this period.",
       "ad": "No ads in this period."
     },
-    "footnote": "{from} → {to} · attribution 7d click / 1d view · account time zone"
+    "footnote": "{from} → {to} · attribution 7d click / 1d view · account time zone",
+    "grid": {
+      "search": "Search by name…",
+      "show": "Show",
+      "showActive": "Active or with spend",
+      "showSpend": "With spend in period",
+      "showAll": "All",
+      "hidden": "{count} paused objects without spend hidden",
+      "total": "Total ({count})"
+    },
+    "levelPlural": {
+      "campaign": "Campaigns",
+      "adset": "Ad sets",
+      "ad": "Ads"
+    }
   },
   "report": {
     "kindLabel": {
@@ -2277,5 +2291,33 @@
     },
     "and": "AND",
     "or": "OR"
+  },
+  "entity": {
+    "title": "Object detail",
+    "crumbs": {
+      "clients": "Clients"
+    },
+    "openAdsManager": "Open in Ads Manager",
+    "dailyBudget": "Daily budget {budget}",
+    "learning": "Learning phase: {stage}",
+    "tabs": {
+      "overview": "Overview",
+      "children": "Children",
+      "findings": "Issues",
+      "history": "Change history"
+    },
+    "trend": "Spend and results by day",
+    "noData": "No spend in this period.",
+    "adsetScope": "Breakdown data comes from the ad set containing this ad.",
+    "noFindings": "No open issues on this object.",
+    "noHistory": "No changes made through AdxLens yet.",
+    "noHistoryBody": "Changes approved from Weekly actions or made by automation rules appear here.",
+    "auto": "automatic (rule)",
+    "cols": {
+      "at": "At",
+      "action": "Action",
+      "change": "Change",
+      "status": "Status"
+    }
   }
 }

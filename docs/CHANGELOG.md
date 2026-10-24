@@ -2,6 +2,25 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [061] Bảng chiến dịch kiểu Google Ads + trang riêng cho từng chiến dịch / nhóm QC / quảng cáo (G1, G2) — 2026-10-24
+
+**Nguyên nhân (PM báo):** mọi dòng ở tab Chiến dịch / Nhóm QC / Quảng cáo của Client đều dẫn về **cùng trang tổng quan tài khoản** — chưa có trang cho từng đối tượng, nên "phân tích mở camp nào cũng giống nhau". Bảng còn hiện hàng chục đối tượng tắt, 0 chi tiêu; không lọc / sắp xếp / so kỳ trước.
+
+**Thay đổi**
+- **G1 — bảng mới** (`EntityGrid`, thay `EntityTable`): mặc định chỉ hiện đối tượng **đang chạy hoặc có chi tiêu** (chọn "Có chi tiêu trong kỳ" / "Tất cả", báo số đối tượng đang ẩn); **tìm theo tên**; **sắp xếp** mọi cột; **dòng tổng** (tiền cộng trên BigInt, không qua số thực; chỉ khi một tiền tệ); dưới chi tiêu / kết quả / CPA có **% so với kỳ trước** (CPA giảm = xanh). Tab Nhóm QC / Quảng cáo hiện tên chiến dịch / nhóm QC cha. Trang tài khoản (D01) thêm bảng chiến dịch.
+- Nhãn đối chiếu rõ nghĩa: "Khớp Meta (lệch 0%)" / "Lệch 1,4% so với Meta" (trước "Khớp 0%" dễ hiểu nhầm).
+- **G2 — trang `/accounts/[id]/{campaign|adset|ad}/[metaId]`**: đường dẫn phạm vi Clients › Client › Tài khoản › Chiến dịch › Nhóm QC › Quảng cáo; trạng thái, ngân sách ngày, giai đoạn học, nút "Mở trong Ads Manager"; tab:
+  - **Tổng quan**: số liệu + so kỳ trước **của riêng đối tượng**, "Vì sao CPA thay đổi" với **con đóng góp nhiều nhất** (chiến dịch → nhóm QC, nhóm QC → quảng cáo), chi tiêu / kết quả theo ngày, đối tượng / vị trí / khu vực (chiến dịch = mọi nhóm QC của nó; quảng cáo = nhóm QC chứa nó, có ghi chú);
+  - **Nhóm QC / Quảng cáo** (con trực tiếp, cùng bảng G1);
+  - **Vấn đề** đang mở của đối tượng và con cháu;
+  - **Lịch sử thay đổi** qua AdxLens (Execution Gateway) trên đối tượng và con cháu.
+- `core/reporting/entity-detail.ts` (`entityInfo`, `entityKpis`, `entityDaily`, `childRows`, `descendantIds`, `entityCpaChange`, `entityBreakdown`, `entityFindings`, `entityHistory`): mọi truy vấn có `workspace_id` + kiểm tài khoản người xem được thấy.
+
+**Test tự động:** `entity-detail.test.ts` (KPI / chuỗi ngày đúng cấp, không lẫn chiến dịch khác; con trực tiếp xếp theo chi tiêu; con cháu; chuỗi cha; CPA chiến dịch tăng do đúng nhóm QC; vấn đề / lịch sử chỉ của đối tượng + con cháu; workspace khác → 404); `lib/grid.test.ts` (cộng tiền decimal, % so kỳ trước).
+- **Test đổi (lý do):** E2E `clients-assign.spec.ts`, `reports-share.spec.ts` — chữ badge đối chiếu đổi từ "Khớp 1%" sang "Khớp Meta (lệch 1%)" / "Lệch 1,4% so với Meta"; selector cập nhật theo chữ mới, cùng số phần tử mong đợi.
+
+**PM kiểm tra:** Client TRON_GLAMPING → tab Chiến dịch: chỉ còn chiến dịch có chi tiêu / đang chạy; bấm "Cdich _ tuong tac _ inbox" → trang riêng của chiến dịch (số, vì sao CPA, nhóm QC con, vấn đề); đi tiếp vào nhóm QC → quảng cáo; đường dẫn phía trên quay lại từng cấp.
+
 ## [060] Rule tự động mạnh hơn: điều kiện HOẶC, mẫu tăng ngân sách ad set thắng, nhật ký kích hoạt, sao chép rule (B1) — 2026-10-24
 
 **Thay đổi** (ADR-0014, sửa đổi ADR-0012 mục 1)
