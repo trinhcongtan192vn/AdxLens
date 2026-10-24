@@ -111,7 +111,8 @@ function firstOf(types: readonly string[]) {
   );
 }
 
-const SUMS = sql`coalesce(sum(i.spend), 0)::text as spend, coalesce(sum(i.impressions), 0)::text as impressions,
+/** Biểu thức SQL tổng thành phần (bảng `analytics.insights_daily` đặt bí danh `i`). */
+export const METRIC_SUMS = sql`coalesce(sum(i.spend), 0)::text as spend, coalesce(sum(i.impressions), 0)::text as impressions,
   coalesce(sum(i.reach), 0)::text as reach, coalesce(sum(i.link_clicks), 0)::text as link_clicks,
   coalesce(sum(i.results), 0)::text as results, coalesce(sum(i.conversion_value), 0)::text as conversion_value,
   coalesce(sum(${firstOf(ACTION_GROUPS.purchases)}), 0)::text as purchases,
@@ -176,7 +177,7 @@ export async function metricValuesForAccounts(
 ): Promise<MetricValues> {
   if (!ids.length) return computeMetrics(undefined);
   const [r] = await ctx.db.execute<MetricRaw>(sql`
-    select ${SUMS} from analytics.insights_daily i
+    select ${METRIC_SUMS} from analytics.insights_daily i
     where i.workspace_id = ${ctx.workspaceId} and i.ad_account_id in ${ids}
       and i.date between ${range.from} and ${range.to}`);
   return computeMetrics(r);
@@ -207,7 +208,7 @@ export async function metricSeries(
   const ids = await visible(ctx, adAccountIds);
   if (!ids.length) return [];
   const rows = await ctx.db.execute<MetricRaw & { date: string; n: string }>(sql`
-    select d::date::text as date, count(i.meta_id)::text as n, ${SUMS}
+    select d::date::text as date, count(i.meta_id)::text as n, ${METRIC_SUMS}
     from generate_series(${range.from}::date, ${range.to}::date, interval '1 day') d
     left join analytics.insights_daily i
       on i.date = d::date and i.workspace_id = ${ctx.workspaceId} and i.ad_account_id in ${ids}
@@ -227,7 +228,7 @@ export async function entityMetricValues(
   if (!ids.length) return out;
   const key = sql.raw(level === 'ad' ? 'i.meta_id' : level === 'adset' ? 'i.adset_id' : 'i.campaign_id');
   const rows = await ctx.db.execute<MetricRaw & { key: string }>(sql`
-    select ${key} as key, ${SUMS} from analytics.insights_daily i
+    select ${key} as key, ${METRIC_SUMS} from analytics.insights_daily i
     where i.workspace_id = ${ctx.workspaceId} and i.ad_account_id in ${ids}
       and i.date between ${range.from} and ${range.to}
     group by ${key}`);

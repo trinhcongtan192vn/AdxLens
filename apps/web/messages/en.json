@@ -2924,5 +2924,65 @@
     "avg7": "7-day average: {value}",
     "fromData": "Suggestions from 30 days of data:",
     "save": "Create alert"
+  },
+  "wsAds": {
+    "subtitle": "Each ad, {from} → {to}, vs previous period",
+    "search": "Search ads, campaigns",
+    "allFormats": "All types",
+    "formats": {
+      "image": "Image",
+      "video": "Video",
+      "carousel": "Carousel",
+      "dynamic": "Dynamic",
+      "text": "Text",
+      "other": "Other"
+    },
+    "objective": "Objective",
+    "allObjectives": "All objectives",
+    "objectives": {
+      "OUTCOME_SALES": "Sales",
+      "OUTCOME_LEADS": "Leads",
+      "OUTCOME_TRAFFIC": "Traffic",
+      "OUTCOME_AWARENESS": "Awareness",
+      "OUTCOME_ENGAGEMENT": "Engagement",
+      "OUTCOME_APP_PROMOTION": "App promotion"
+    },
+    "status": "Status",
+    "statusAll": "All statuses",
+    "statusActive": "Active",
+    "statusPaused": "Paused",
+    "sort": "Sort",
+    "sortBy": "Sort by {metric}",
+    "metrics": "Metrics shown:",
+    "metricN": "Metric {n}",
+    "count": "{n} ads",
+    "emptyTitle": "No matching ads",
+    "emptyBody": "Change filters or the period."
+  },
+  "wsAm": {
+    "subtitle": "Campaigns, ad sets, ads · {from} → {to} · % vs previous period, daily sparklines",
+    "views": {
+      "tree": "Campaigns",
+      "adset": "Ad sets",
+      "ad": "Ads"
+    },
+    "levels": {
+      "campaign": "Camp.",
+      "adset": "Set",
+      "ad": "Ad"
+    },
+    "search": "Search by name",
+    "hideZero": "Hide items with no spend",
+    "columns": "Columns",
+    "columnsHint": "Pick up to 10 columns. Saved in this browser.",
+    "total": "Total",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "select": "Select {name}",
+    "selected": "{n} selected",
+    "pause": "Pause",
+    "resume": "Resume",
+    "emptyTitle": "Nothing to show",
+    "emptyBody": "Change the period, filters, or untick \"Hide items with no spend\"."
   }
 }

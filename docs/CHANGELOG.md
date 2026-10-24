@@ -2,6 +2,26 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [081] W7 — Ads Manager của Workspace: cây 3 cấp, cột chọn được, sparkline + % trong từng ô, dòng tổng — 2026-10-24
+
+**Thay đổi** (như Madgicx "Ads Manager"):
+- 3 chế độ xem: **cây** Chiến dịch › Nhóm QC › Quảng cáo (mở / thu gọn từng dòng), **phẳng** theo nhóm QC, **phẳng** theo quảng cáo.
+- Mỗi ô: giá trị, **% so kỳ trước** (xanh / đỏ theo hướng tốt), **sparkline theo ngày**.
+- **Cột chọn được** (tối đa 10 trong 18 chỉ số, nhớ theo trình duyệt); **dòng tổng** ở đầu bảng; **ẩn đối tượng không chi tiêu** (mặc định bật); tìm theo tên (giữ cha của dòng khớp).
+- Chọn nhiều nhóm QC / quảng cáo → **Tạm dừng / Bật lại** qua hộp thoại G4 sẵn có (xem trước, guardrails, Execution Gateway). Chỉ hiện khi cờ `p2a_approve` bật và người dùng được duyệt hành động; chiến dịch không có thao tác (ADR-0015 chưa duyệt).
+- Core `reporting/ads-manager.ts` (`adsManagerData`): một truy vấn theo (đối tượng, ngày) mỗi cấp, cộng ngày bằng `sumRaw` (tiền thập phân); dùng chung `METRIC_SUMS` của danh mục chỉ số.
+
+**Test tự động:** `ads-grid.test.ts` (đủ 3 cấp, dòng chiến dịch và dòng tổng = tổng insight, chuỗi 7 ngày, nhóm QC theo cha); E2E `workspace-home.spec.ts` (dòng tổng, mở chiến dịch, chế độ quảng cáo).
+
+## [080] W6 — Lưới Quảng cáo của Workspace (thẻ theo từng quảng cáo) — 2026-10-24
+
+**Thay đổi** (như Madgicx Workspace "Ads"):
+- Mỗi quảng cáo một thẻ: **thumbnail** creative, trạng thái, **loại** (Ảnh / Video / Băng chuyền / Động / Văn bản, từ `object_type`), **mục tiêu** chiến dịch, tên chiến dịch, **4 chỉ số chọn được** (nhớ theo trình duyệt) kèm % so kỳ trước.
+- Lọc theo loại (chip), mục tiêu, trạng thái; tìm theo tên quảng cáo / chiến dịch; sắp theo bất kỳ chỉ số nào (chỉ số chi phí sắp tăng dần). Kỳ 7 / 14 / 30 ngày theo đầu trang.
+- Core `reporting/ads-grid.ts` (`adsGrid`, `adFormat`); chỉ quảng cáo có chi tiêu trong kỳ hoặc đang chạy.
+
+**Test tự động:** `ads-grid.test.ts` (loại theo creative, mục tiêu, chỉ số = tổng insight, có kỳ trước, cách ly workspace, ánh xạ object_type); E2E lọc Video.
+
 ## [079] W5 — Cảnh báo tự đặt + gợi ý ngưỡng từ dữ liệu 30 ngày — 2026-10-24
 
 **Thay đổi** (ADR-0018, vùng bảo vệ `db`: bảng `app.custom_alerts` + RLS):

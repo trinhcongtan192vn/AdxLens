@@ -58,6 +58,21 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await page.getByRole('button', { name: 'Tắt cảnh báo' }).click();
   await expect(page.getByText('Đã tắt', { exact: true })).toBeVisible();
 
+  // W6: lưới quảng cáo — thẻ theo từng quảng cáo, lọc loại.
+  await page.getByRole('link', { name: 'Quảng cáo', exact: true }).click();
+  await expect(page.getByTestId('ad-card').first()).toBeVisible();
+  const all = await page.getByTestId('ad-card').count();
+  await page.getByRole('button', { name: 'Video', exact: true }).click();
+  await expect(async () => expect(await page.getByTestId('ad-card').count()).toBeLessThan(all)).toPass();
+
+  // W7: Ads Manager — dòng tổng, mở chiến dịch thấy nhóm QC, chế độ phẳng theo quảng cáo.
+  await page.getByRole('link', { name: 'Ads Manager', exact: true }).click();
+  await expect(page.getByTestId('am-total')).toBeVisible();
+  await page.getByTestId('am-row-campaign').first().getByRole('button', { name: 'Mở' }).click();
+  await expect(page.getByTestId('am-row-adset').first()).toBeVisible();
+  await page.getByRole('button', { name: 'Quảng cáo', exact: true }).click();
+  await expect(page.getByTestId('am-row-ad').first()).toBeVisible();
+
   await page.getByTestId('switch-classic').click();
   await expect(page).toHaveURL(/\/overview$/);
 });
