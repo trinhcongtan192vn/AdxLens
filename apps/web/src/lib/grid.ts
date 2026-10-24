@@ -35,3 +35,12 @@ export const COLUMN_SETS = {
   delivery: ['spend', 'impressions', 'cpm', 'linkClicks', 'ctr'],
 } as const satisfies Record<string, readonly MetricKey[]>;
 export type ColumnSet = keyof typeof COLUMN_SETS;
+
+/**
+ * Trạng thái hiệu lực của Meta khi đối tượng bị dừng do cấp trên (chiến dịch / nhóm QC tạm dừng). Bật lại chính
+ * đối tượng không làm nó chạy, nên bảng không cho bật / tắt mà báo cần bật cấp trên.
+ */
+export function pausedByParent(status: string | null): 'campaign' | 'adset' | null {
+  const s = (status ?? '').toUpperCase();
+  return s === 'CAMPAIGN_PAUSED' ? 'campaign' : s === 'ADSET_PAUSED' ? 'adset' : null;
+}

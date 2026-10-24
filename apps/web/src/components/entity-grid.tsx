@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useFormatter, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { Badge, Button, Card, Checkbox, EmptyState, Input, Select, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
-import { COLUMN_SETS, type ColumnSet, type MetricKey, addDecimal, pctChange } from '@/lib/grid';
+import { COLUMN_SETS, type ColumnSet, type MetricKey, addDecimal, pausedByParent, pctChange } from '@/lib/grid';
 import { ActionDialog, type ActionTarget, type GridActionType } from './entity-actions';
 
 export type GridKpis = {
@@ -215,7 +215,9 @@ export function EntityGrid({
     </TH>
   );
 
-  const selectedRows = visible.filter((r) => selected.has(r.key) && r.target);
+  const canToggle = (r: GridRow) => Boolean(r.target) && !pausedByParent(r.status);
+  const selectedRows = visible.filter((r) => selected.has(r.key) && canToggle(r));
+  const toggleable = visible.filter(canToggle);
   const open = (type: GridActionType, targets: ActionTarget[]) => setDialog({ type, targets });
   const pauseType: GridActionType = level === 'ad' ? 'pause_ad' : 'pause_adset';
   const resumeType: GridActionType = level === 'ad' ? 'resume_ad' : 'resume_adset';
@@ -297,9 +299,9 @@ export function EntityGrid({
                   <TH className="w-8">
                     <Checkbox
                       aria-label={tg('selectAll')}
-                      checked={visible.length > 0 && visible.slice(0, 20).every((r) => selected.has(r.key))}
+                      checked={toggleable.length > 0 && toggleable.slice(0, 20).every((r) => selected.has(r.key))}
                       onChange={(e) =>
-                        setSelected(e.target.checked ? new Set(visible.slice(0, 20).map((r) => r.key)) : new Set())
+                        setSelected(e.target.checked ? new Set(toggleable.slice(0, 20).map((r) => r.key)) : new Set())
                       }
                     />
                   </TH>
@@ -315,7 +317,7 @@ export function EntityGrid({
                 <TR key={r.key} data-testid="grid-row">
                   {actable ? (
                     <TD>
-                      {r.target ? (
+                      {canToggle(r) ? (
                         <Checkbox
                           aria-label={tg('select', { name: r.name })}
                           checked={selected.has(r.key)}
@@ -354,15 +356,21 @@ export function EntityGrid({
                   {actable ? (
                     <TD>
                       {r.target ? (
-                        <span className="flex gap-1">
-                          <Button
-                            kind="ghost"
-                            size="s"
-                            onClick={() => open(isActive(r.status) ? pauseType : resumeType, [r.target!])}
-                            data-testid="row-toggle"
-                          >
-                            {isActive(r.status) ? tg('pause') : tg('resume')}
-                          </Button>
+                        <span className="flex items-center gap-1">
+                          {pausedByParent(r.status) ? (
+                            <span className="text-small text-fg-tertiary" data-testid="row-parent-paused">
+                              {tg(`parentPaused.${pausedByParent(r.status)!}`)}
+                            </span>
+                          ) : (
+                            <Button
+                              kind="ghost"
+                              size="s"
+                              onClick={() => open(isActive(r.status) ? pauseType : resumeType, [r.target!])}
+                              data-testid="row-toggle"
+                            >
+                              {isActive(r.status) ? tg('pause') : tg('resume')}
+                            </Button>
+                          )}
                           {level === 'adset' && r.target.dailyBudget ? (
                             <Button kind="ghost" size="s" onClick={() => open('set_adset_budget', [r.target!])}>
                               {tg('budget')}

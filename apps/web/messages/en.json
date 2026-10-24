@@ -2378,6 +2378,10 @@
     "preview": "Preview",
     "ok": "Ready",
     "queued": "{count} actions sent",
-    "partial": "{ok} sent, {failed} could not run"
+    "partial": "{ok} sent, {failed} could not run",
+    "parentPaused": {
+      "campaign": "Turn on the campaign first (Ads Manager)",
+      "adset": "Turn on the ad set first"
+    }
   }
 }

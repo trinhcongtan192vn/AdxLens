@@ -2,6 +2,19 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [fix] Bảng chiến dịch: đối tượng bị dừng do cấp trên — 2026-10-24
+
+**Thay đổi**
+- Ad set / ad có trạng thái hiệu lực "Chiến dịch tạm dừng" hoặc "Nhóm tạm dừng":
+  - bảng không còn nút Bật lại / Tạm dừng và ô chọn hàng loạt cho chúng, vì bật lại chính chúng không làm chúng chạy;
+  - thay vào đó hiện ghi chú "Bật chiến dịch trước (Ads Manager)" / "Bật nhóm QC trước";
+  - nút Ngân sách vẫn còn.
+- ADR-0015 (đề xuất, chờ PM duyệt): thêm tạm dừng / bật lại **chiến dịch** qua Execution Gateway, chỉ ở mức duyệt.
+
+**Test tự động:** `lib/grid.test.ts` (nhận `CAMPAIGN_PAUSED` / `ADSET_PAUSED`; `PAUSED`, `ACTIVE` không tính).
+
+**PM kiểm tra:** TRON_GLAMPING → chiến dịch TG_T9_TRUNGTHU → nhóm QC TT_HN+TN_20-45_FB → các quảng cáo "Chiến dịch tạm dừng" hiện ghi chú thay cho nút Bật lại.
+
 ## [fix] Thông báo khởi động báo đúng Meta thật / giả — 2026-10-24
 
 `scripts/start-local.mjs`: dòng "Meta… bản GIẢ" trước đây viết cứng; giờ đọc `META_MOCK` trong `.env.local` (`META_MOCK=0` → "Meta: THẬT"). Chỉ đổi chữ hiển thị, không đổi cách chạy. **PM kiểm tra:** mở `Mo-AdxLens.cmd` với `META_MOCK=0` → bảng thông tin ghi "Meta: THẬT".

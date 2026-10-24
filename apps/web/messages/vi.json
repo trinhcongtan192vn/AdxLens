@@ -2378,6 +2378,10 @@
     "preview": "Xem trước",
     "ok": "Sẵn sàng",
     "queued": "Đã gửi {count} hành động",
-    "partial": "Đã gửi {ok}, {failed} không thực hiện được"
+    "partial": "Đã gửi {ok}, {failed} không thực hiện được",
+    "parentPaused": {
+      "campaign": "Bật chiến dịch trước (Ads Manager)",
+      "adset": "Bật nhóm QC trước"
+    }
   }
 }
