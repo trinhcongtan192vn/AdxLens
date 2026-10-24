@@ -3274,6 +3274,34 @@
         "model": "Lần gọi gần nhất bị từ chối: tài khoản của bạn không dùng được model này. Đổi model.",
         "other": "Lần gọi gần nhất bị lỗi. Thử lại sau ít phút."
       }
+    },
+    "connector": {
+      "title": "Dùng AdxLens trong Claude / ChatGPT",
+      "intro": "Thêm AdxLens làm connector trong Claude hoặc ChatGPT, đăng nhập AdxLens một lần rồi hỏi về quảng cáo ngay trong ứng dụng đó, bằng gói Claude / ChatGPT của chính bạn. Connector chỉ đọc số liệu (và tạo đề xuất chờ duyệt nếu được phép), không bao giờ sửa quảng cáo.",
+      "steps": {
+        "claude": {
+          "title": "Claude (claude.ai, Claude Desktop)",
+          "body": "Settings → Connectors → Add custom connector → dán URL ở trên → Connect → đăng nhập AdxLens và bấm Cho phép."
+        },
+        "chatgpt": {
+          "title": "ChatGPT",
+          "body": "Settings → Apps & Connectors → Create (cần bật Developer mode) → dán URL, chọn xác thực OAuth → đăng nhập AdxLens và bấm Cho phép."
+        },
+        "code": {
+          "title": "Claude Code",
+          "body": "Chạy lệnh dưới đây rồi gõ /mcp để đăng nhập (bấm để sao chép)."
+        }
+      },
+      "connected": "Ứng dụng đã kết nối",
+      "none": "Chưa có ứng dụng nào kết nối.",
+      "mine": "của bạn",
+      "revoked": "Đã ngắt kết nối ứng dụng",
+      "cols": {
+        "app": "Ứng dụng",
+        "scopes": "Quyền",
+        "lastUsed": "Dùng lần cuối",
+        "connected": "Kết nối từ"
+      }
     }
   },
   "creativeInsights": {
@@ -3344,5 +3372,21 @@
       }
     },
     "topEmojis": "Emoji dùng nhiều:"
+  },
+  "oauthConsent": {
+    "pageTitle": "Cấp quyền ứng dụng",
+    "title": "{app} muốn truy cập AdxLens",
+    "signedInAs": "Đăng nhập với {email}",
+    "workspace": "Workspace",
+    "willAllow": "{app} sẽ được:",
+    "scopeRead": "Đọc số liệu quảng cáo, phát hiện và mục tiêu trong workspace, theo đúng quyền của bạn",
+    "scopePropose": "Tạo đề xuất thay đổi chờ bạn duyệt trong AdxLens",
+    "never": "Ứng dụng không bao giờ sửa quảng cáo trên Meta. Bạn ngắt kết nối được bất cứ lúc nào ở Cài đặt → Tích hợp.",
+    "disabled": "Tính năng AI chưa bật cho workspace này. Liên hệ đội AdxLens hoặc chọn workspace khác.",
+    "error": "Không cấp quyền được. Thử lại.",
+    "allow": "Cho phép",
+    "deny": "Từ chối",
+    "badClient": "Liên kết cấp quyền không hợp lệ (ứng dụng hoặc địa chỉ chuyển về không khớp). Thêm lại connector trong ứng dụng.",
+    "badRequest": "Yêu cầu cấp quyền thiếu thông tin bảo mật bắt buộc. Thêm lại connector trong ứng dụng."
   }
 }

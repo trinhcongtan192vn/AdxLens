@@ -559,6 +559,31 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     }),
   },
   'DELETE /api/v1/llm-key': { kind: 'workspace' },
+  'POST /api/v1/oauth/register': {
+    kind: 'exempt',
+    reason: 'Đăng ký ứng dụng OAuth trước khi có người dùng / workspace; bảng client không thuộc workspace (ADR-0022)',
+  },
+  'POST /api/v1/oauth/token': {
+    kind: 'exempt',
+    reason: 'Đổi mã / refresh token trước khi biết workspace (tra hash ở core/ops); cách ly kiểm ở agent/oauth.test.ts',
+  },
+  'POST /api/v1/oauth/revoke': { kind: 'exempt', reason: 'Thu hồi theo token (RFC 7009), không đọc dữ liệu nghiệp vụ' },
+  'POST /api/v1/oauth/authorize': {
+    kind: 'workspace',
+    body: () => ({
+      client_id: 'adxcl_isolationclient01',
+      redirect_uri: 'https://claude.ai/cb',
+      code_challenge: 'c'.repeat(43),
+      code_challenge_method: 'S256',
+      decision: 'allow',
+    }),
+  },
+  'GET /api/v1/oauth/grants': { kind: 'workspace' },
+  'DELETE /api/v1/oauth/grants/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.oauthGrant.id }),
+  },
   'POST /api/v1/mcp': {
     kind: 'exempt',
     reason: 'Xác thực bằng khóa API (workspace lấy từ khóa, không từ request); cách ly kiểm ở core/agent/mcp.test.ts',

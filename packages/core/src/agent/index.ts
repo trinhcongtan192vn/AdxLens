@@ -4,3 +4,4 @@ export * from './service';
 export * from './api-keys';
 export * from './mcp';
 export * from './llm-keys';
+export * from './oauth-grants';

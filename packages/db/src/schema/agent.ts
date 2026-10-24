@@ -119,3 +119,45 @@ export const llmKeys = app.table('llm_keys', {
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
+
+/**
+ * Ứng dụng OAuth đăng ký động (RFC 7591) để kết nối MCP (ADR-0022 B): Claude, ChatGPT… Không thuộc workspace — là
+ * ứng dụng, không phải dữ liệu nghiệp vụ. Chỉ client công khai (PKCE, không secret).
+ */
+export const oauthClients = app.table('oauth_clients', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  redirectUris: text('redirect_uris').array().notNull(),
+  createdAt: createdAt(),
+});
+
+/**
+ * Quyền một người dùng cấp cho một ứng dụng trên một workspace (ADR-0022 B). Chỉ lưu SHA-256 của mã cấp quyền / access /
+ * refresh token. Chạy với quyền của người cấp; người đó rời workspace thì grant ngừng.
+ */
+export const oauthGrants = app.table(
+  'oauth_grants',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id').notNull(),
+    clientId: text('client_id')
+      .notNull()
+      .references(() => oauthClients.id, { onDelete: 'cascade' }),
+    scopes: text('scopes').array().notNull().default(['read']),
+    redirectUri: text('redirect_uri').notNull(),
+    codeHash: text('code_hash').unique(),
+    codeChallenge: text('code_challenge').notNull(),
+    codeExpiresAt: timestamp('code_expires_at', { withTimezone: true }),
+    accessHash: text('access_hash').unique(),
+    accessExpiresAt: timestamp('access_expires_at', { withTimezone: true }),
+    refreshHash: text('refresh_hash').unique(),
+    refreshExpiresAt: timestamp('refresh_expires_at', { withTimezone: true }),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+    revokedAt: timestamp('revoked_at', { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index().on(t.workspaceId, t.userId)],
+);

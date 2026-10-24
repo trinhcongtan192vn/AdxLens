@@ -19,6 +19,7 @@ const PUBLIC_PREFIXES = [
   '/data-deletion',
   '/break-even',
   '/print/',
+  '/.well-known/',
 ];
 
 function isPublic(pathname: string): boolean {

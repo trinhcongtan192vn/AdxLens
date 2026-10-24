@@ -2,6 +2,54 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [094] Dùng AdxLens trong Claude / ChatGPT bằng gói của chính user (connector MCP có OAuth) — 2026-10-25
+
+- **MCP server** (ADR-0020) nay hỗ trợ **OAuth 2.1** theo MCP authorization spec (ADR-0022 phần B):
+  - **discovery:** `/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`; MCP trả `401` kèm
+    `WWW-Authenticate: Bearer resource_metadata=…`;
+  - **đăng ký client động** `POST /api/v1/oauth/register`: chỉ client công khai; redirect https hoặc localhost; giới
+    hạn theo IP;
+  - **trang cấp quyền** `/oauth/authorize`: đăng nhập AdxLens, chọn workspace, xem quyền, Cho phép / Từ chối; PKCE S256
+    bắt buộc; redirect_uri sai thì không chuyển hướng;
+  - **token** `POST /api/v1/oauth/token`: mã dùng 1 lần trong 10 phút, access 1 giờ, refresh 30 ngày (xoay mỗi lần
+    dùng); thu hồi `POST /api/v1/oauth/revoke`; chỉ lưu SHA-256.
+  - MCP nhận cả khóa API `adx_…` (như cũ) và access token OAuth `adxo_…`. Grant chạy với quyền của người cấp: buyer
+    chỉ thấy Client được gán.
+- **Cài đặt → Tích hợp** có thẻ **Dùng AdxLens trong Claude / ChatGPT**:
+  - URL connector;
+  - các bước cho claude.ai / Claude Desktop, ChatGPT, Claude Code;
+  - danh sách ứng dụng đã kết nối, thu hồi được.
+- Kết quả: user chat bằng gói Claude / ChatGPT của họ; AdxLens không trả tiền LLM. Connector chỉ đọc (đề xuất chờ
+  duyệt nếu có cờ P2a), không ghi Meta.
+
+**Vùng bảo vệ:** `packages/db`: bảng `app.oauth_clients` (không thuộc workspace, RLS bật, không policy) và
+`app.oauth_grants` (RLS theo workspace), migration 0073–0074. Truy vấn tra token xuyên workspace nằm ở `core/ops/oauth.ts`,
+có ghi chú lý do (quy tắc 1).
+
+**Test tự động:**
+- `agent/oauth.test.ts`:
+  - kiểm redirect_uri;
+  - cờ tắt thì không cấp quyền;
+  - PKCE sai, client sai, redirect sai, hết hạn, dùng lại mã → `invalid_grant`;
+  - access token → đúng workspace + người cấp, hết hạn sau 1 giờ;
+  - refresh xoay (token cũ hết hiệu lực); thu hồi RFC 7009;
+  - buyer chỉ thấy / thu hồi grant của mình; workspace khác không thu hồi được.
+- `api/v1/oauth/oauth.test.ts`: luồng HTTP đầy đủ discovery → 401 → đăng ký → cấp quyền → token (form) → MCP → thu hồi.
+- Cách ly workspace: probe 6 route mới, dấu vết ứng dụng của B.
+- **Đổi test (quy tắc 8)**: `tests/isolation/fingerprint.ts` sắp hàng theo toàn bộ nội dung thay vì cột 1. Lý do: CI
+  của 093 (run PR) báo sai "route làm đổi dữ liệu B" ở `automation-rules/[id]/mode`, dù route bị chặn ở kiểm cờ và
+  chưa chạm DB. 15 bảng có cột 1 là `workspace_id`, nên thứ tự các hàng trùng khóa đổi theo kế hoạch truy vấn. Băm vẫn
+  phủ mọi bảng và mọi cột; không nới assertion nào.
+- E2E `creatives.spec.ts`: trang Tích hợp + luồng OAuth trên trình duyệt (giả callback claude.ai) → `tools/list`.
+
+**PM kiểm tra:**
+1. Cần URL **https công khai** (`start-public` / tunnel). claude.ai và ChatGPT không gọi được `localhost`.
+2. Bật cờ P1.
+3. Trong claude.ai: Settings → Connectors → Add custom connector → dán URL ở trang Tích hợp → Connect → đăng nhập
+   AdxLens → Cho phép.
+4. Hỏi Claude "Chi tiêu 7 ngày qua của tài khoản X?".
+5. Ở trang Tích hợp, "Ứng dụng đã kết nối" có Claude; bấm Thu hồi → Claude mất quyền.
+
 ## [093] AI Agents chạy bằng khóa AI của chính agency (Anthropic / OpenAI) — 2026-10-25
 
 - **Cài đặt → Tích hợp** có thêm thẻ **Mô hình AI của workspace** (ADR-0022 phần A):

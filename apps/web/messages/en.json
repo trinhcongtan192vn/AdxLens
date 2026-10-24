@@ -3274,6 +3274,34 @@
         "model": "The last call was rejected: your account cannot use this model. Change the model.",
         "other": "The last call failed. Try again in a few minutes."
       }
+    },
+    "connector": {
+      "title": "Use AdxLens in Claude / ChatGPT",
+      "intro": "Add AdxLens as a connector in Claude or ChatGPT, sign in to AdxLens once, then ask about your ads right inside that app with your own Claude / ChatGPT plan. The connector only reads numbers (and creates proposals awaiting approval if allowed); it never changes ads.",
+      "steps": {
+        "claude": {
+          "title": "Claude (claude.ai, Claude Desktop)",
+          "body": "Settings → Connectors → Add custom connector → paste the URL above → Connect → sign in to AdxLens and click Allow."
+        },
+        "chatgpt": {
+          "title": "ChatGPT",
+          "body": "Settings → Apps & Connectors → Create (Developer mode required) → paste the URL, choose OAuth → sign in to AdxLens and click Allow."
+        },
+        "code": {
+          "title": "Claude Code",
+          "body": "Run the command below, then type /mcp to sign in (click to copy)."
+        }
+      },
+      "connected": "Connected apps",
+      "none": "No apps connected yet.",
+      "mine": "yours",
+      "revoked": "App disconnected",
+      "cols": {
+        "app": "App",
+        "scopes": "Access",
+        "lastUsed": "Last used",
+        "connected": "Connected"
+      }
     }
   },
   "creativeInsights": {
@@ -3344,5 +3372,21 @@
       }
     },
     "topEmojis": "Most used emoji:"
+  },
+  "oauthConsent": {
+    "pageTitle": "Authorize app",
+    "title": "{app} wants to access AdxLens",
+    "signedInAs": "Signed in as {email}",
+    "workspace": "Workspace",
+    "willAllow": "{app} will be able to:",
+    "scopeRead": "Read ad numbers, findings and goals in the workspace, with exactly your permissions",
+    "scopePropose": "Create change proposals awaiting your approval in AdxLens",
+    "never": "The app never changes ads on Meta. You can disconnect it any time in Settings → Integrations.",
+    "disabled": "AI features are not enabled for this workspace. Contact the AdxLens team or choose another workspace.",
+    "error": "Could not authorize. Try again.",
+    "allow": "Allow",
+    "deny": "Deny",
+    "badClient": "Invalid authorization link (app or redirect address does not match). Add the connector again in the app.",
+    "badRequest": "The authorization request is missing required security parameters. Add the connector again in the app."
   }
 }
