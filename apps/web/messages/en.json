@@ -987,7 +987,9 @@
       "nextSteps": "Next steps",
       "intro": "Agency notes",
       "audience": "Audience, placements and regions",
-      "creatives": "Top spending ads"
+      "creatives": "Top spending ads",
+      "auditOverview": "Audit results",
+      "context": "Performance context for the period"
     },
     "kpi": {
       "spend": "Spend",
@@ -1048,6 +1050,13 @@
       "male": "Male",
       "unknown": "Unknown",
       "note": "Breakdown figures from Meta may differ slightly from account totals (Meta hides or rounds small groups)."
+    },
+    "audit": {
+      "health": "Health score",
+      "penalty": "{group}: −{points} points · {count} issues",
+      "counts": "{high} high-severity issues · {medium} medium · {low} low",
+      "impact": "estimated impact {amount}",
+      "healthy": "No rule group lost points."
     }
   },
   "reports": {
@@ -1089,8 +1098,8 @@
       "submit": "Create report",
       "noClients": "No Clients yet. Create a Client and assign ad accounts first.",
       "kindHelp": {
-        "audit": "Focused on issues and actions.",
-        "periodic": "This period vs the previous one, with findings."
+        "audit": "Health score with points lost per group, every open issue by severity with total estimated impact; period numbers only as context. Good for account checks or pitching new clients.",
+        "periodic": "This period vs the previous one, daily trend, audience and creatives, work done by the agency, plus the main issues."
       },
       "locales": {
         "vi": "Tiếng Việt",
@@ -2382,6 +2391,8 @@
     "parentPaused": {
       "campaign": "Turn on the campaign first (Ads Manager)",
       "adset": "Turn on the ad set first"
-    }
+    },
+    "failed": "{count} actions could not be submitted — see the reason on each item.",
+    "sent": "Submitted"
   }
 }

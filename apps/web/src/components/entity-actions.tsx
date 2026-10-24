@@ -54,11 +54,16 @@ export function ActionDialog({
   const [budget, setBudget] = useState(targets[0]?.dailyBudget ? String(Number(targets[0].dailyBudget)) : '');
   const [previews, setPreviews] = useState<Record<string, Preview | { error: string }> | null>(null);
   const [pending, start] = useTransition();
+  // Lỗi khi gửi (quyền ghi, kill switch, quyền duyệt…) theo từng đối tượng — giữ hộp thoại mở để thấy lý do.
+  const [failures, setFailures] = useState<Record<string, string>>({});
+  const [sent, setSent] = useState<Set<string>>(new Set());
   const key = (x: ActionTarget) => `${x.adAccountId}:${x.metaId}`;
   const isBudget = type === 'set_adset_budget';
 
   const load = () => {
     setPreviews(null);
+    setFailures({});
+    setSent(new Set());
     Promise.all(
       targets.map((x) =>
         api<Preview>('actions/preview', { method: 'POST', body: body(x, type, budget) })
@@ -75,7 +80,7 @@ export function ActionDialog({
   const ready = previews
     ? targets.filter((x) => {
         const p = previews[key(x)];
-        return p && !('error' in p) && p.violations.length === 0;
+        return p && !('error' in p) && p.violations.length === 0 && !failures[key(x)] && !sent.has(key(x));
       })
     : [];
 
@@ -87,8 +92,18 @@ export function ActionDialog({
           { method: 'POST', body: { items: ready.map((x) => body(x, type, budget)) } },
         );
         const failed = r.items.filter((i) => !i.ok);
-        if (failed.length) toast.error(t('partial', { ok: r.requested, failed: failed.length }));
-        else toast.success(t('queued', { count: r.requested }));
+        if (failed.length) {
+          setFailures(Object.fromEntries(failed.map((i) => [i.key, i.message ?? tc('errorGeneric')])));
+          setSent(new Set(r.items.filter((i) => i.ok).map((i) => i.key)));
+          toast.error(
+            r.requested
+              ? t('partial', { ok: r.requested, failed: failed.length })
+              : t('failed', { count: failed.length }),
+          );
+          if (r.requested) router.refresh();
+          return;
+        }
+        toast.success(t('queued', { count: r.requested }));
         onOpenChange(false);
         onDone?.();
         router.refresh();
@@ -160,7 +175,13 @@ export function ActionDialog({
                         t: (k) => ta(k as never),
                       })}
                     </p>
-                    {p.violations.length ? (
+                    {sent.has(key(x)) ? (
+                      <Badge tone="success">{t('sent')}</Badge>
+                    ) : failures[key(x)] ? (
+                      <p className="text-small text-danger" data-testid="grid-action-failure">
+                        {failures[key(x)]}
+                      </p>
+                    ) : p.violations.length ? (
                       <p className="text-small text-danger">
                         {p.violations.map((v) => tap(`violations.${v.code}` as never, v.params as never)).join(' · ')}
                       </p>
