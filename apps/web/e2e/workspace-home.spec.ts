@@ -54,7 +54,7 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Cảnh báo', level: 1 })).toBeVisible();
   await page.getByRole('button', { name: 'Tạo cảnh báo' }).first().click();
   await page.getByRole('dialog').getByLabel('Chỉ số').selectOption({ label: 'CPM' });
-  await expect(page.getByRole('dialog').getByText(/Trung bình 7 ngày qua/)).toBeVisible();
+  await expect(page.getByRole('dialog').getByText(/^Trung bình 7 ngày qua: /)).toBeVisible();
   await page.getByRole('dialog').getByLabel('Ngưỡng').fill('60000');
   await page.getByRole('dialog').getByRole('button', { name: 'Tạo cảnh báo' }).click();
   await expect(page.getByText('Đã tạo cảnh báo')).toBeVisible();
