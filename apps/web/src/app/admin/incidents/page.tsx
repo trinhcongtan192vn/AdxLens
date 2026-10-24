@@ -108,6 +108,13 @@ export default async function AdminIncidentsPage({
               <p className="text-small text-fg-secondary">
                 {selected.kind} · {selected.source} · {selected.fingerprint}
               </p>
+              {selected.workspaceId ? (
+                <p className="text-small">
+                  <Link href={`/admin/workspaces/${selected.workspaceId}`} className="text-link hover:underline">
+                    {t('openWorkspace')}
+                  </Link>
+                </p>
+              ) : null}
               <pre className="max-h-48 overflow-auto rounded-md bg-subtle p-2 text-small text-fg">
                 {JSON.stringify(selected.detail, null, 2)}
               </pre>

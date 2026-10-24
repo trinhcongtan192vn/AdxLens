@@ -2,6 +2,23 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [067] Admin: tìm kiếm chung, liên kết về workspace, mục lục trang workspace — 2026-10-24
+
+**Thay đổi**
+- **Ô tìm kiếm chung trên thanh trên admin:**
+  - tìm theo tên workspace, email thành viên, mã tài khoản QC (`act_…`, có hoặc không tiền tố, khớp đầu mã) hoặc tên tài khoản, mã yêu cầu xóa dữ liệu (khớp đúng);
+  - chỉ một kết quả → mở thẳng trang chi tiết workspace;
+  - nhiều kết quả → trang `/admin/search` chia theo nhóm, mỗi dòng có link về workspace.
+  - Core: `ops.adminSearch`, xuyên workspace có chủ đích, chỉ trả tên và mã.
+- **Sự cố:** chi tiết sự cố của một workspace có link "Mở workspace".
+- **Trang chi tiết workspace:** thanh mục lục dính trên đầu (Gói, Cờ, Thành viên, Kết nối, Tài khoản QC, Đồng bộ, Sự cố, Xóa dữ liệu, kèm số lượng) để nhảy tới từng phần.
+
+**Test tự động:**
+- `ops/workspace-lookup.test.ts`: tìm theo email; tài khoản theo `act_…` / chỉ chữ số / đầu mã / tên; mã xóa dữ liệu khớp đúng, không khớp một phần; chuỗi quá ngắn → rỗng.
+- E2E `admin-ops.spec.ts`: tìm theo email → mở thẳng chi tiết workspace, sidebar tô mục Workspace; mục lục → `#members`.
+
+**PM kiểm tra:** gõ email của anh hoặc `act_…` của TRON_GLAMPING vào ô tìm kiếm admin → Enter → vào thẳng trang workspace; bấm "Thành viên" ở mục lục.
+
 ## [066] Admin: sidebar theo luồng việc, trang "Hôm nay", banner kill switch — 2026-10-24
 
 **Thay đổi**

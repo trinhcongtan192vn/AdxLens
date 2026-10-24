@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
-import { Badge, Banner } from '@adxlens/ui';
+import { Badge, Banner, Input } from '@adxlens/ui';
 import { adminInboxForRequest, requireStaff } from '@/server/admin-context';
 import { AdminSidebar } from './admin-sidebar';
 
@@ -27,6 +27,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           {t('brand')}
         </Link>
         <Badge tone="warning">{t('internal')}</Badge>
+        <form action="/admin/search" method="get" role="search" className="ml-6 w-full max-w-md">
+          <Input name="q" aria-label={t('search.label')} placeholder={t('search.placeholder')} />
+        </form>
         <div className="flex-1" />
         <span className="text-small text-fg-secondary">
           {user.email} · {t(`roles.${staff.role}`)}

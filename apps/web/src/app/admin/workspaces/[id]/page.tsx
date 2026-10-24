@@ -44,8 +44,31 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
         · <span className="font-mono">{d.workspace.id}</span> · {t('createdAt', { at: dt(d.workspace.createdAt) })}
       </p>
 
+      {/* Mục lục: nhảy tới từng phần khi hỗ trợ khách (trang dài). */}
+      <nav
+        aria-label={t('toc.label')}
+        className="sticky top-12 z-10 -mx-6 mb-4 flex flex-wrap gap-x-4 gap-y-1 border-b border-line bg-canvas px-6 py-2 text-body"
+      >
+        {(
+          [
+            ['billing', t('toc.billing')],
+            ['flags', t('toc.flags')],
+            ['members', t('toc.members', { count: d.members.length })],
+            ['connections', t('toc.connections', { count: d.connections.length })],
+            ['accounts', t('toc.accounts', { count: d.accounts.length })],
+            ['sync-runs', t('toc.syncRuns')],
+            ['incidents', t('toc.incidents', { count: d.incidents.length })],
+            ['deletions', t('toc.deletions', { count: d.deletions.length })],
+          ] as const
+        ).map(([id, label]) => (
+          <a key={id} href={`#${id}`} className="text-fg-secondary hover:text-fg">
+            {label}
+          </a>
+        ))}
+      </nav>
+
       <div className="grid gap-4 lg:grid-cols-2">
-        <Section title={t('sections.billing')}>
+        <Section id="billing" title={t('sections.billing')}>
           <dl className="grid grid-cols-2 gap-2 px-4 py-3 text-body">
             <dt className="text-fg-secondary">{t('billing.plan')}</dt>
             <dd>
@@ -107,7 +130,7 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
           ) : null}
         </Section>
 
-        <Section title={t('sections.flags')}>
+        <Section id="flags" title={t('sections.flags')}>
           <ul className="flex flex-wrap gap-2 px-4 py-3">
             {Object.keys(FLAG_LABEL).map((k) => (
               <li key={k}>
@@ -125,7 +148,7 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
         </Section>
       </div>
 
-      <Section title={t('sections.members', { count: d.members.length })}>
+      <Section id="members" title={t('sections.members', { count: d.members.length })}>
         <Table>
           <THead>
             <tr>
@@ -146,7 +169,7 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
         </Table>
       </Section>
 
-      <Section title={t('sections.connections', { count: d.connections.length })}>
+      <Section id="connections" title={t('sections.connections', { count: d.connections.length })}>
         <Table>
           <THead>
             <tr>
@@ -178,7 +201,7 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
         </Table>
       </Section>
 
-      <Section title={t('sections.accounts', { count: d.accounts.length })}>
+      <Section id="accounts" title={t('sections.accounts', { count: d.accounts.length })}>
         <Table>
           <THead>
             <tr>
@@ -229,7 +252,7 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
         </Table>
       </Section>
 
-      <Section title={t('sections.syncRuns')}>
+      <Section id="sync-runs" title={t('sections.syncRuns')}>
         <Table>
           <THead>
             <tr>
@@ -263,7 +286,7 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
       </Section>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Section title={t('sections.incidents', { count: d.incidents.length })}>
+        <Section id="incidents" title={t('sections.incidents', { count: d.incidents.length })}>
           <ul className="divide-y divide-line text-body">
             {d.incidents.length === 0 ? <li className="px-4 py-3 text-fg-tertiary">{t('none')}</li> : null}
             {d.incidents.map((i) => (
@@ -277,7 +300,7 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
             ))}
           </ul>
         </Section>
-        <Section title={t('sections.deletions', { count: d.deletions.length })}>
+        <Section id="deletions" title={t('sections.deletions', { count: d.deletions.length })}>
           <ul className="divide-y divide-line text-body">
             {d.deletions.length === 0 ? <li className="px-4 py-3 text-fg-tertiary">{t('none')}</li> : null}
             {d.deletions.map((x) => (
@@ -293,9 +316,9 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
-    <Card className="mb-4">
+    <Card className="mb-4 scroll-mt-16" id={id}>
       <CardHeader title={title} />
       {children}
     </Card>
