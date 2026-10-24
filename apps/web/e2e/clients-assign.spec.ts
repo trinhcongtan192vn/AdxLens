@@ -50,7 +50,7 @@ test('S04 → S05 gán Client → S06 đồng bộ → C01 → C02', async ({ pa
   // O01: tổng quan agency có Client vừa gán, health và chi tiêu.
   await page.goto('/overview');
   await expect(page.getByRole('heading', { name: 'Tổng quan' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Khách E2E' })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('table').getByRole('link', { name: 'Khách E2E' })).toBeVisible();
   await expect(page.getByText('Chi tiêu 7 ngày').first()).toBeVisible();
   await page.goto('/connections/sync');
   await page.getByRole('link', { name: 'Tiếp tục' }).click();
@@ -59,8 +59,8 @@ test('S04 → S05 gán Client → S06 đồng bộ → C01 → C02', async ({ pa
   await expect(page.getByText('tài khoản chưa xác nhận Client')).toHaveCount(0);
 
   await page.getByPlaceholder('Tìm Client hoặc tài khoản…').fill('khach e2e');
-  await expect(page.getByRole('link', { name: 'Khách E2E' })).toBeVisible();
-  await page.getByRole('link', { name: 'Khách E2E' }).click();
+  await expect(page.getByRole('main').getByRole('table').getByRole('link', { name: 'Khách E2E' })).toBeVisible();
+  await page.getByRole('main').getByRole('table').getByRole('link', { name: 'Khách E2E' }).click();
 
   await expect(page.getByRole('heading', { name: 'Khách E2E' })).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Chiến dịch' })).toHaveAttribute('aria-selected', 'true');

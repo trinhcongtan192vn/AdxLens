@@ -23,6 +23,8 @@ Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự �
 - **Danh sách lọc theo khách** `?client=`: Việc cần làm, Creative (chỉ tài khoản của khách), Rule tự động, Nhật ký hành động, Báo cáo; chip "Khách: X · Xem mọi khách"; các bộ lọc khác giữ phạm vi khách. Core: `listWeeklyActions`, `listActions`, `listRules` nhận `clientId` (lọc qua `listAdAccounts` — vẫn theo quyền người xem).
 - **Tổng quan agency — "Khách cần chú ý"**: mỗi khách kèm lý do — lệch số với Meta, tài khoản đồng bộ lỗi, vấn đề mức cao, ngân sách tháng dự kiến vượt / thiếu (từ ngày thứ 5), health < 60; xếp theo mức nghiêm trọng (`core/reporting/attention.ts`, chỉ đọc kết quả đã tính).
 
+**Test đổi (lý do):** E2E `clients-assign.spec.ts` — trang Tổng quan giờ có link tên Client ở cả khối "Khách cần chú ý" lẫn bảng → bộ chọn thu hẹp về link trong bảng (`getByRole('table')`); hành vi kiểm tra giữ nguyên.
+
 **Test tự động:** `lib/scope.test.ts` (nhận phạm vi từ đường dẫn / `?client=` / tài khoản thuộc khách; mục theo cờ và vai trò; mục đang chọn theo tab); `attention.test.ts` (gom và xếp lý do; khách ổn không hiện; `listRules` lọc theo khách).
 
 **PM kiểm tra:** chọn TRON_GLAMPING ở bộ chọn khách → thanh bên đổi sang mục của khách; Việc cần làm / Nhật ký trong phạm vi khách có chip lọc; "← Tất cả khách" quay về; Tổng quan có khối "Khách cần chú ý".
