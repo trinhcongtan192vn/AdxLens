@@ -2,6 +2,26 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [087] Cổ điển — Creative Insights: theo định dạng + ma trận creative 4 góc — 2026-10-25
+
+**Thay đổi** (trang Creative P103, theo Madgicx 360° Audit "Creative Insights"):
+- **Theo định dạng** (Ảnh / Video / Băng chuyền / Động / Văn bản): số creative, **% chi tiêu so với % doanh thu** (xanh khi doanh thu chiếm nhiều hơn chi tiêu, đỏ khi ngược lại; không có doanh thu thì dùng % kết quả), ROAS, CTR, CVR.
+- Cảnh báo **thiếu định dạng** (ảnh / video / băng chuyền chưa có).
+- **Ma trận creative** chi tiêu × doanh thu (ngưỡng = trung vị): Có thể mở rộng / Chủ lực / Mới bắt đầu / Chi quá tay, kèm việc nên làm và 3 creative mỗi góc.
+- Core `reporting/creative-insights.ts` (hàm thuần trên số đã tính).
+
+**Test tự động:** `creative-insights.test.ts` (tỷ trọng, ROAS / CTR / CVR, thiếu định dạng, 4 góc, dùng kết quả khi không có doanh thu).
+
+## [086] Cổ điển — Tổng quan tự động hóa (đã kích hoạt 7 ngày, tần suất theo rule) — 2026-10-25
+
+**Thay đổi** (trang Tự động hóa P211, theo Madgicx "Automation Overview"):
+- Khối **"Đã kích hoạt 7 ngày qua"**: đếm hành động do rule tạo theo loại (Bật lại / Tạm dừng / Tăng ngân sách / Giảm ngân sách) + biểu đồ theo ngày.
+- Bảng rule thêm cột **48 giờ / 7 ngày / Kích hoạt cuối**.
+- Chỉ ĐỌC bảng `actions` (tier `auto`), không đụng Execution Gateway. Core `reporting/automation-overview.ts`.
+- Sửa định dạng `mcp.test.ts` (CI `format:check`).
+
+**Test tự động:** `automation-overview.test.ts` (đếm theo loại / ngày / rule, bỏ hành động duyệt tay, cách ly workspace, phân loại ngân sách tăng / giảm).
+
 ## [085] Sửa E2E sau W1 / W3 — 2026-10-24
 
 - Trang Quyền ghi: kết nối mới (ADR-0016) đã có `ads_management` nhưng **lần bật đầu vẫn là "Cấp quyền ghi"** (OAuth xác nhận lại với Meta, như trước); "Bật lại quyền ghi" chỉ hiện sau khi đã từng bật rồi thu hồi. Giữ đúng luồng E2E P2a / P2b (không đổi test).
