@@ -3084,5 +3084,63 @@
       "title": "Daily spend",
       "results": "results"
     }
+  },
+  "wsAgents": {
+    "subtitle": "Ask about your accounts or ask for change proposals. Numbers come from AdxLens; changes always need your approval.",
+    "unconfiguredBanner": "AI is not configured (missing ANTHROPIC_API_KEY). Questions are saved but not answered yet.",
+    "newChat": "New chat",
+    "history": "History",
+    "noHistory": "No chats yet.",
+    "favorite": "Add to favorites",
+    "unfavorite": "Remove from favorites",
+    "delete": "Delete chat",
+    "welcome": "How can AdxLens help?",
+    "welcomeBody": "Ask about metrics, trends and issues. The AI only explains numbers AdxLens computed.",
+    "askAbout": "Ask about your account",
+    "getDone": "Get something done",
+    "samples": {
+      "askSpend": "Spend and cost per result over the last 7 days vs the week before?",
+      "askCpa": "Why did cost per result change over the last 7 days?",
+      "askBest": "Which campaign had the best ROAS over the last 30 days?",
+      "askFatigue": "Which ads are getting tired and need new creative?",
+      "askFindings": "What issues should I fix first?",
+      "askRegion": "Which regions spend a lot with few results?",
+      "doPause": "Propose pausing the ad with the worst cost per result",
+      "doBudget": "Propose raising the budget of the best ad set",
+      "doRefresh": "List ads that need new creative this week"
+    },
+    "proposeOff": "Change proposals need a plan with action approval.",
+    "thinking": "AdxLens is checking your data…",
+    "unconfigured": "AI is not configured yet, so there is no answer.",
+    "disabled": "This feature is not enabled for this workspace.",
+    "factsIntro": "Could not write an answer that matches the data; here are the numbers AdxLens looked up:",
+    "usedTools": "Looked at:",
+    "tools": {
+      "list_accounts": "Accounts",
+      "account_kpis": "KPIs",
+      "top_entities": "Rankings",
+      "explain_cpa_change": "Why CPA changed",
+      "open_findings": "Issues",
+      "breakdown": "Breakdowns",
+      "ad_fatigue": "Ad fatigue",
+      "propose_action": "Proposal"
+    },
+    "proposal": "Proposal — needs your approval",
+    "review": "Preview and approve",
+    "actions": {
+      "pause_ad": "Pause ad {name}",
+      "resume_ad": "Resume ad {name}",
+      "pause_adset": "Pause ad set {name}",
+      "resume_adset": "Resume ad set {name}",
+      "set_adset_budget": "Change daily budget of ad set {name}"
+    },
+    "context": "Context",
+    "allAccounts": "All accounts",
+    "placeholder": "Ask about your accounts…",
+    "send": "Send",
+    "disclaimer": "AI can make mistakes. Numbers come from AdxLens (reconciled with Ads Manager ≤ 1%); every change needs your approval.",
+    "floating": "Why did my cost go up? Ask AdxLens…",
+    "limit": "Daily question limit reached, try again tomorrow.",
+    "error": "Could not send the question"
   }
 }

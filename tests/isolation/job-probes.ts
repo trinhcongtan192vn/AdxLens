@@ -1,4 +1,4 @@
-import type { Db } from '@adxlens/db';
+import { schema, type Db } from '@adxlens/db';
 import { importAccounts, keysFromEnv, saveConnection } from '@adxlens/core/connections';
 import { startBackfill } from '@adxlens/core/ingestion';
 import { recordingEnqueue } from '@adxlens/jobs';
@@ -170,6 +170,29 @@ export const JOB_PROBES: Record<string, JobProbe> = {
       return { ruleId: r!.id };
     },
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, ruleId: p!.ruleId, tick: 'probe' }),
+  },
+  'recommend:agent_reply': {
+    prepare: async (db, w) => {
+      const [t] = await db
+        .insert(schema.agentThreads)
+        .values({ workspaceId: w.a.workspace.id, userId: w.a.owner.id, title: 'probe' })
+        .returning();
+      const [m] = await db
+        .insert(schema.agentMessages)
+        .values({
+          workspaceId: w.a.workspace.id,
+          threadId: t!.id,
+          userId: w.a.owner.id,
+          role: 'assistant',
+          status: 'pending',
+        })
+        .returning();
+      return { messageId: m!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, messageId: p!.messageId }),
+  },
+  'recommend:agent_reply#cross': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, messageId: w.b.thread.id }),
   },
   'recommend:build': {
     prepare: backfillForA,

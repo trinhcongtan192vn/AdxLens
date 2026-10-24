@@ -13,3 +13,4 @@ export * from './billing';
 export * from './recommendation';
 export * from './execution';
 export * from './goals';
+export * from './agent';

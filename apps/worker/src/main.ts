@@ -1,3 +1,4 @@
+import { anthropicAgentClient } from '@adxlens/core/agent';
 import { Worker } from 'bullmq';
 import { getEnv } from '@adxlens/config/env';
 import { getDb } from '@adxlens/db';
@@ -71,6 +72,9 @@ const services: WorkerServices = {
   },
   sign: (payload, ttl) => signPayload(payload, ttl, env.INTERNAL_SIGNING_SECRET),
   llm: env.ANTHROPIC_API_KEY ? anthropicClient({ apiKey: env.ANTHROPIC_API_KEY, model: env.ANTHROPIC_MODEL }) : null,
+  agentLlm: env.ANTHROPIC_API_KEY
+    ? anthropicAgentClient({ apiKey: env.ANTHROPIC_API_KEY, model: env.ANTHROPIC_MODEL })
+    : null,
   throttleQueue: (q, ms) => queues[q].rateLimit(ms),
 };
 

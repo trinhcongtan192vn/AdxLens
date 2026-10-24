@@ -2,6 +2,27 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [083] W9 — AI Agents: chat có công cụ đọc, số do AdxLens tính, đề xuất thay đổi chờ duyệt — 2026-10-24
+
+**Thay đổi** (ADR-0019; vùng bảo vệ `db`: `agent_threads`, `agent_messages` + RLS; không sửa `execution` / `flags`):
+- Module mới `packages/core/agent`:
+  - **8 công cụ đọc**: tài khoản, KPI kỳ này / kỳ trước + % thay đổi tính sẵn, xếp hạng chiến dịch / nhóm QC / quảng cáo theo chỉ số, "Vì sao CPA đổi" (phân rã A1), vấn đề đang mở + điểm sức khỏe, breakdown tuổi-giới tính / vị trí / khu vực, độ mệt quảng cáo.
+  - **`propose_action`** (chỉ khi cờ `p2a_approve` bật): chỉ tạo **thẻ đề xuất** trong tin trả lời; người dùng bấm "Xem trước và duyệt" → hộp thoại G4 sẵn có (guardrails, Execution Gateway). Agent không bao giờ ghi Meta.
+  - **LLM không tạo số**: mọi số trong câu trả lời phải có trong kết quả công cụ (bộ kiểm số của tóm tắt báo cáo); sai → sinh lại tối đa 3 lần → trả **bảng số** từ công cụ.
+  - **Dữ liệu không phải lệnh**: tên tài khoản / chiến dịch bọc «», system prompt nêu rõ.
+  - Chạy với quyền của **người hỏi** (buyer chỉ thấy Client được gán); hội thoại riêng từng người.
+  - Giới hạn 50 câu hỏi / người / ngày.
+- Worker job `recommend:agent_reply` (LLM có thể > 10 giây); LLM tool-use Anthropic qua `ANTHROPIC_API_KEY` sẵn có; không có key → tin "chưa cấu hình".
+- Cờ: API + job + trang kiểm `p1_recommendations` ở server.
+- API `POST /api/v1/agent/ask`, `GET /api/v1/agent/threads`, `GET/PATCH/DELETE /api/v1/agent/threads/[id]`.
+- Trang **AI Agents** `/w/agents` (bố cục Madgicx Agents): lịch sử + yêu thích + xóa, câu mẫu "Hỏi về tài khoản" (6) và "Làm việc gì đó" (3), chọn ngữ cảnh tài khoản, "AdxLens đang xem số liệu…", danh sách công cụ đã dùng, thẻ đề xuất, ghi chú "AI có thể sai".
+- **Ô hỏi nổi** trên mọi trang Workspace (khi cờ bật) → mở Agents với câu hỏi; trang chủ "Hỏi AdxLens" cũng vậy.
+
+**Test tự động:**
+- `agent.test.ts` (LLM giả theo kịch bản): cờ tắt; trả lời đúng số → lưu + công cụ đã dùng; bịa số → bảng số; `propose_action` chỉ khi P2a, không tạo action; tên bọc «» + công cụ với tài khoản workspace khác lỗi; giới hạn / ngày + cách ly theo người và workspace; không có key; tập số được phép.
+- `tests/isolation`: dữ liệu B (thread, message) + probe 5 route + job `recommend:agent_reply` (kể cả gọi chéo message của B).
+- E2E: cờ tắt → không menu, không ô hỏi nổi, trang chặn.
+
 ## [082] W8 — Phễu, Địa lý, Mở rộng ("Quảng cáo có mệt không?") của Workspace — 2026-10-24
 
 **Thay đổi** (như Madgicx Funnels / Geography / Scale):

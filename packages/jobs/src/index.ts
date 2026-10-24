@@ -72,6 +72,13 @@ export const JOBS = {
     schema: z.object({ ...ws, week: isoDate }),
     jobId: (p) => `recommend:${p.workspaceId}:${p.week}`,
   }),
+  /** ADR-0019: trả lời AI agent (LLM tool-use, có thể > 10 giây nên chạy ở worker). */
+  'recommend:agent_reply': def({
+    queue: 'recommend',
+    workspaceScoped: true,
+    schema: z.object({ ...ws, messageId: uuid }),
+    jobId: (p) => `agent:${p.messageId}`,
+  }),
   'report:build': def({
     queue: 'report',
     workspaceScoped: true,

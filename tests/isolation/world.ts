@@ -285,6 +285,19 @@ export async function seedWorld(db: Db) {
     })
     .returning();
 
+  // W9: hội thoại AI agent của B.
+  const [bThread] = await db
+    .insert(schema.agentThreads)
+    .values({ workspaceId: b.workspace.id, userId: b.owner.id, title: 'Beta Thread Secret' })
+    .returning();
+  await db.insert(schema.agentMessages).values({
+    workspaceId: b.workspace.id,
+    threadId: bThread!.id,
+    userId: b.owner.id,
+    role: 'assistant',
+    content: 'Beta Answer Secret',
+  });
+
   const world = {
     a: {
       workspace: a.workspace,
@@ -312,6 +325,7 @@ export async function seedWorld(db: Db) {
       schedule: bSchedule!,
       delivery: bDelivery!,
       alert: bAlert!,
+      thread: bThread!,
     },
     /** Chuỗi của B tuyệt đối không được xuất hiện trong phản hồi cho ngữ cảnh A. */
     bFingerprints: [
@@ -331,6 +345,9 @@ export async function seedWorld(db: Db) {
       'page_beta_secret',
       'Beta Page Secret',
       '987654',
+      'Beta Thread Secret',
+      'Beta Answer Secret',
+      bThread!.id,
       bAlert!.id,
       bRun!.id,
       'Beta Campaign Secret',
