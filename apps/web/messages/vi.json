@@ -1,0 +1,2532 @@
+{
+  "meta": {
+    "title": "AdxLens",
+    "description": "Báo cáo Meta Ads có bằng chứng cho agency"
+  },
+  "common": {
+    "close": "Đóng",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "saving": "Đang lưu…",
+    "saved": "Đã lưu",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "create": "Tạo",
+    "confirm": "Xác nhận",
+    "back": "Quay lại",
+    "next": "Tiếp tục",
+    "search": "Tìm kiếm",
+    "loading": "Đang tải…",
+    "retry": "Thử lại",
+    "actions": "Thao tác",
+    "none": "Không có",
+    "learnMore": "Tìm hiểu thêm",
+    "errorGeneric": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+    "errorCode": "Mã lỗi: {code}"
+  },
+  "nav": {
+    "overview": "Tổng quan",
+    "clients": "Clients",
+    "reports": "Báo cáo",
+    "weeklyActions": "Việc tuần này",
+    "creatives": "Creative",
+    "actionLog": "Nhật ký hành động",
+    "automation": "Rule tự động",
+    "connections": "Kết nối",
+    "settings": "Cài đặt",
+    "support": "Hỗ trợ",
+    "mainNav": "Điều hướng chính",
+    "allClients": "Tất cả khách",
+    "client": {
+      "campaigns": "Chiến dịch",
+      "adsets": "Nhóm QC",
+      "ads": "Quảng cáo",
+      "reconciliation": "Đối chiếu số liệu",
+      "reports": "Báo cáo",
+      "weeklyActions": "Việc cần làm",
+      "creatives": "Creative",
+      "automation": "Rule tự động",
+      "actionLog": "Nhật ký hành động",
+      "clientSettings": "Cài đặt khách"
+    }
+  },
+  "shell": {
+    "period": "Kỳ",
+    "periods": {
+      "last7": "7 ngày qua",
+      "last14": "14 ngày qua",
+      "last30": "30 ngày qua",
+      "thisMonth": "Tháng này",
+      "lastMonth": "Tháng trước"
+    },
+    "workspace": "Workspace",
+    "switchWorkspace": "Chuyển workspace",
+    "notifications": "Thông báo",
+    "accountMenu": "Menu tài khoản",
+    "profile": "Hồ sơ cá nhân",
+    "notificationSettings": "Thông báo",
+    "language": "Ngôn ngữ",
+    "languageItem": "Ngôn ngữ: {language}",
+    "logout": "Đăng xuất",
+    "languages": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    },
+    "switchClient": "Chọn khách",
+    "allClients": "Tất cả khách",
+    "clientFilter": "Khách: {name}",
+    "clearClient": "Xem mọi khách",
+    "workspaces": "Workspace của bạn",
+    "newWorkspace": "Tạo workspace mới",
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "buyer": "Media buyer"
+    }
+  },
+  "errors": {
+    "notFoundTitle": "Không tìm thấy trang",
+    "notFoundBody": "Trang bạn tìm không tồn tại hoặc đã bị chuyển đi.",
+    "forbiddenTitle": "Bạn không có quyền xem trang này",
+    "forbiddenBody": "Hãy liên hệ owner của workspace để được cấp quyền.",
+    "genericTitle": "Đã có lỗi xảy ra",
+    "genericBody": "Chúng tôi đã ghi nhận lỗi. Nếu lỗi lặp lại, gửi mã lỗi bên dưới cho bộ phận hỗ trợ.",
+    "goHome": "Về trang chủ",
+    "featureUnavailableTitle": "Tính năng chưa được bật cho workspace này",
+    "featureUnavailableBody": "Liên hệ đội AdxLens nếu bạn muốn dùng thử tính năng này."
+  },
+  "settings": {
+    "workspace": "Workspace",
+    "members": "Thành viên",
+    "billing": "Gói & thanh toán",
+    "notifications": "Thông báo",
+    "profile": "Hồ sơ cá nhân",
+    "guardrails": "Guardrails"
+  },
+  "pages": {
+    "notifications": "Thông báo",
+    "support": "Hỗ trợ",
+    "onboarding": "Bắt đầu"
+  },
+  "marketing": {
+    "nav": {
+      "pricing": "Bảng giá",
+      "guide": "Hướng dẫn",
+      "privacy": "Quyền riêng tư",
+      "login": "Đăng nhập"
+    },
+    "cta": {
+      "tryFree": "Dùng thử miễn phí"
+    },
+    "footer": {
+      "copyright": "© {year} AdxLens · Chỉ đọc dữ liệu Meta Ads",
+      "terms": "Điều khoản",
+      "dataDeletion": "Xóa dữ liệu",
+      "support": "Hỗ trợ"
+    },
+    "landing": {
+      "title": "Báo cáo Meta Ads có bằng chứng, khớp Ads Manager",
+      "subtitle": "Gửi khách báo cáo mang thương hiệu agency, số liệu lệch không quá 1% so với Ads Manager, trong 10 phút sau khi kết nối.",
+      "sampleReport": "Xem báo cáo mẫu",
+      "assurance": "Chỉ đọc dữ liệu · Không cần thẻ · Kết nối trong vài phút",
+      "features": {
+        "match": {
+          "title": "Số liệu khớp",
+          "body": "Mỗi báo cáo có dòng đối chiếu với Ads Manager. Lệch trên 1%, chúng tôi chặn gửi và báo bạn."
+        },
+        "brand": {
+          "title": "Mang thương hiệu agency",
+          "body": "Logo, màu và email của agency. Khách mở bằng một liên kết, không cần đăng nhập."
+        },
+        "evidence": {
+          "title": "Phát hiện kèm bằng chứng",
+          "body": "Mỗi phát hiện dẫn tới số liệu gốc để bạn tự kiểm tra, không có số do AI tự bịa."
+        }
+      },
+      "howItWorks": "Cách hoạt động",
+      "steps": {
+        "connect": "Kết nối Meta (chỉ đọc)",
+        "assign": "Gán tài khoản cho Client",
+        "send": "Xem đối chiếu và gửi báo cáo"
+      }
+    },
+    "pricing": {
+      "title": "Bảng giá",
+      "basis": "Tính theo tài khoản quảng cáo đang hoạt động (có chi tiêu trong 30 ngày gần nhất), không tính theo % ngân sách. Thêm tài khoản: {extra}/tháng. Trả theo năm giảm {discount}%. Giá chưa gồm VAT.",
+      "perMonth": "{price}/tháng",
+      "accounts": "{count} tài khoản",
+      "choose": "Chọn gói",
+      "contact": "Liên hệ",
+      "breakEvenLink": "Trang hoà vốn: giờ tiết kiệm mỗi tài khoản × giá giờ của bạn so với phí hằng tháng. Xem công thức",
+      "plans": {
+        "free": {
+          "name": "Free",
+          "summary": "Báo cáo, link công khai, PDF. Có nhãn \"Powered by AdxLens\"."
+        },
+        "starter": {
+          "name": "Starter",
+          "summary": "Thêm gợi ý hằng tuần, Creative library, đối chiếu chi tiết."
+        },
+        "growth": {
+          "name": "Growth",
+          "summary": "Thêm hành động có duyệt và rule tự động (theo đăng ký sớm)."
+        },
+        "scale": {
+          "name": "Scale",
+          "summary": "Thêm white-label đầy đủ: gỡ nhãn \"Powered by\", hỗ trợ ưu tiên."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Chính sách quyền riêng tư",
+      "updated": "Cập nhật 22/10/2026",
+      "read": {
+        "title": "Dữ liệu chúng tôi đọc",
+        "body": "Số liệu chiến dịch, nhóm quảng cáo, quảng cáo, chi tiêu và kết quả từ tài khoản quảng cáo bạn cấp quyền. Chúng tôi không ghi hay thay đổi gì trên Meta."
+      },
+      "store": {
+        "title": "Cách chúng tôi lưu",
+        "body": "Token truy cập được mã hóa và chỉ dùng để đồng bộ số liệu. Không lưu mật khẩu Meta."
+      },
+      "rights": {
+        "title": "Quyền của bạn",
+        "body": "Ngắt kết nối bất cứ lúc nào và yêu cầu xóa dữ liệu. Xem <link>hướng dẫn xóa dữ liệu</link>."
+      }
+    },
+    "terms": {
+      "title": "Điều khoản sử dụng",
+      "updated": "Cập nhật 22/10/2026",
+      "service": {
+        "title": "1. Dịch vụ",
+        "body": "AdxLens cung cấp báo cáo và phân tích từ dữ liệu Meta Ads mà bạn cấp quyền đọc."
+      },
+      "responsibility": {
+        "title": "2. Trách nhiệm với khách của bạn",
+        "body": "Bạn chịu trách nhiệm về nội dung báo cáo gửi cho khách của mình. Số liệu lệch trên 1% so với Ads Manager sẽ bị chặn chia sẻ."
+      },
+      "billing": {
+        "title": "3. Thanh toán và ân hạn",
+        "body": "Phí tính theo tài khoản đang hoạt động. Khi thanh toán thất bại, dữ liệu vẫn đồng bộ trong thời gian ân hạn."
+      }
+    },
+    "deletion": {
+      "title": "Hướng dẫn xóa dữ liệu",
+      "intro": "Bạn có hai cách yêu cầu xóa dữ liệu AdxLens đã lưu từ tài khoản Meta của bạn.",
+      "inApp": {
+        "title": "Cách 1: Trong AdxLens",
+        "body": "Kết nối › chọn kết nối › \"Ngắt kết nối và xóa dữ liệu\". Chúng tôi gửi email xác nhận khi xóa xong."
+      },
+      "fromFacebook": {
+        "title": "Cách 2: Từ Facebook",
+        "body": "Cài đặt › Ứng dụng và trang web › AdxLens › Xóa. Meta gửi yêu cầu cho chúng tôi, và chúng tôi xóa dữ liệu trong vòng 30 ngày."
+      },
+      "track": {
+        "title": "Theo dõi yêu cầu",
+        "body": "Nhập mã xác nhận để xem trạng thái xóa.",
+        "code": "Mã xác nhận",
+        "submit": "Kiểm tra trạng thái",
+        "notFound": "Không tìm thấy yêu cầu với mã này. Kiểm tra lại mã trong email xác nhận.",
+        "status": {
+          "pending": "Đã nhận yêu cầu, đang chờ xử lý.",
+          "in_progress": "Đang xóa dữ liệu.",
+          "done": "Đã xóa xong dữ liệu.",
+          "cancelled": "Yêu cầu đã hủy vì tài khoản được kết nối lại."
+        }
+      }
+    },
+    "breakEven": {
+      "title": "Hoà vốn khi dùng AdxLens",
+      "intro": "Ước tính thời gian đội của bạn tiết kiệm được khi kiểm tra tài khoản và làm báo cáo bằng AdxLens, so với phí hằng tháng.",
+      "accounts": "Số tài khoản quảng cáo đang chạy",
+      "hours": "Giờ tiết kiệm mỗi tài khoản mỗi tháng",
+      "hoursHint": "Kiểm tra số liệu, rà lỗi tài khoản, làm báo cáo cho khách.",
+      "rate": "Giá một giờ làm việc của đội (VND)",
+      "calculate": "Tính",
+      "plan": "Gói phù hợp",
+      "extra": "{count} tài khoản thêm",
+      "fee": "Phí mỗi tháng",
+      "saved": "Giá trị {hours} giờ tiết kiệm",
+      "net": "Chênh lệch mỗi tháng",
+      "threshold": "Hoà vốn khi giá một giờ của đội từ {rate} trở lên.",
+      "formula": "Công thức: số tài khoản × giờ tiết kiệm mỗi tài khoản × giá một giờ − phí gói rẻ nhất đủ số tài khoản. Không tính theo % chi tiêu quảng cáo.",
+      "toPricing": "Xem bảng giá"
+    }
+  },
+  "auth": {
+    "working": "Đang xử lý…",
+    "passwordHint": "Mật khẩu cần ít nhất {min} ký tự.",
+    "fields": {
+      "fullName": "Họ tên",
+      "email": "Email",
+      "workEmail": "Email công việc",
+      "password": "Mật khẩu"
+    },
+    "placeholders": {
+      "fullName": "Nguyễn Văn A",
+      "email": "ten@agency.vn",
+      "password": "Tối thiểu {min} ký tự"
+    },
+    "fieldErrors": {
+      "email": "Email không hợp lệ.",
+      "mismatch": "Mật khẩu nhập lại không khớp."
+    },
+    "errors": {
+      "invalid_input": "Thông tin chưa hợp lệ. Kiểm tra các ô được đánh dấu.",
+      "invalid_credentials": "Email hoặc mật khẩu không đúng.",
+      "invalid_credentials_remaining": "Email hoặc mật khẩu không đúng. Còn {remaining} lần thử trước khi tạm khóa 15 phút.",
+      "locked": "Đăng nhập tạm khóa do nhập sai nhiều lần. Thử lại sau {minutes} phút hoặc đặt lại mật khẩu.",
+      "email_not_confirmed": "Email chưa được xác minh. Kiểm tra hộp thư để xác minh trước khi đăng nhập.",
+      "weak_password": "Mật khẩu chưa đủ mạnh.",
+      "terms_required": "Bạn cần đồng ý Điều khoản và Chính sách quyền riêng tư.",
+      "email_exists": "Email này đã có tài khoản. Hãy đăng nhập hoặc đặt lại mật khẩu.",
+      "link_expired": "Liên kết đã hết hạn hoặc không hợp lệ.",
+      "rate_limited": "Bạn thao tác quá nhanh. Vui lòng thử lại sau ít phút.",
+      "unknown": "Đã có lỗi xảy ra. Vui lòng thử lại."
+    },
+    "signup": {
+      "title": "Tạo tài khoản agency",
+      "description": "Dùng thử miễn phí. Chỉ đọc dữ liệu Meta, không ghi gì lên tài khoản quảng cáo.",
+      "acceptTerms": "Tôi đồng ý <terms>Điều khoản</terms> và <privacy>Chính sách quyền riêng tư</privacy>",
+      "submit": "Tạo tài khoản",
+      "haveAccount": "Đã có tài khoản?"
+    },
+    "verify": {
+      "title": "Kiểm tra email của bạn",
+      "description": "Chúng tôi đã gửi liên kết xác minh đến {email}. Liên kết có hiệu lực 24 giờ.",
+      "yourEmail": "email của bạn",
+      "resend": "Gửi lại email",
+      "resendIn": "Gửi lại email (sau {seconds} giây)",
+      "resent": "Đã gửi lại email xác minh.",
+      "wrongEmail": "Sai email?",
+      "changeEmail": "Đổi địa chỉ"
+    },
+    "login": {
+      "title": "Đăng nhập",
+      "description": "Dùng email công việc của agency.",
+      "forgot": "Quên mật khẩu?",
+      "submit": "Đăng nhập",
+      "noAccount": "Chưa có tài khoản?",
+      "signup": "Đăng ký"
+    },
+    "forgot": {
+      "title": "Quên mật khẩu",
+      "description": "Nhập email đăng ký, chúng tôi gửi liên kết đặt lại mật khẩu.",
+      "submit": "Gửi liên kết đặt lại",
+      "sent": "Nếu email này có tài khoản, chúng tôi đã gửi liên kết đặt lại mật khẩu. Liên kết có hiệu lực 60 phút.",
+      "back": "Quay lại đăng nhập"
+    },
+    "reset": {
+      "title": "Đặt mật khẩu mới",
+      "newPassword": "Mật khẩu mới",
+      "confirm": "Nhập lại mật khẩu",
+      "note": "Liên kết hết hạn sau 60 phút. Đặt lại xong, mọi phiên đăng nhập cũ bị đăng xuất.",
+      "submit": "Lưu mật khẩu mới",
+      "expiredBadge": "Hết hạn",
+      "expiredTitle": "Liên kết đặt lại đã hết hạn",
+      "expiredBody": "Liên kết chỉ có hiệu lực 60 phút. Gửi yêu cầu mới để nhận liên kết khác.",
+      "sendNew": "Gửi liên kết mới"
+    }
+  },
+  "onboarding": {
+    "title": "Tạo workspace cho agency",
+    "description": "Workspace chứa các Client, tài khoản quảng cáo và thành viên của agency.",
+    "name": "Tên agency",
+    "namePlaceholder": "Agency Sao Mai",
+    "timezone": "Múi giờ",
+    "currency": "Tiền tệ báo cáo",
+    "note": "Múi giờ và tiền tệ của từng tài khoản quảng cáo vẫn theo Meta.",
+    "submit": "Tiếp tục",
+    "working": "Đang tạo…",
+    "invalid": "Thông tin chưa hợp lệ. Kiểm tra tên, múi giờ và tiền tệ.",
+    "error": "Không tạo được workspace. Vui lòng thử lại.",
+    "another": "Mỗi workspace là một agency riêng: thanh toán, kết nối Meta và thành viên riêng. Thêm khách mới cho agency hiện tại? Hãy tạo Client.",
+    "toClients": "Đến Client",
+    "back": "Quay lại",
+    "freeLimit": "Bạn đã sở hữu một workspace gói Free. Nâng cấp gói của workspace đó (Cài đặt › Gói & thanh toán) trước khi tạo thêm, hoặc thêm khách mới dưới dạng Client."
+  },
+  "invite": {
+    "metaTitle": "Lời mời",
+    "title": "Bạn được mời vào {workspace}",
+    "invitedBy": "{name} ({inviterRole}) mời bạn với vai trò {role}.",
+    "invitedAs": "Bạn được mời với vai trò {role}.",
+    "allClients": "Bạn sẽ thấy: tất cả Client",
+    "clientsCount": "Bạn sẽ thấy: {count} Client được gán",
+    "noClients": "Owner sẽ gán Client cho bạn sau khi bạn vào workspace.",
+    "fullName": "Họ tên",
+    "fullNamePlaceholder": "Nguyễn Văn B",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "Tối thiểu {min} ký tự",
+    "accept": "Chấp nhận và vào workspace",
+    "loginToAccept": "Đăng nhập để chấp nhận",
+    "validity": "Lời mời gửi tới {email}, còn hiệu lực {days} ngày.",
+    "wrongAccountTitle": "Bạn đang đăng nhập bằng tài khoản khác",
+    "wrongAccountBody": "Lời mời này dành cho {email}. Đăng xuất rồi mở lại liên kết.",
+    "expiredBadge": "Hết hạn",
+    "expiredTitle": "Lời mời đã hết hạn",
+    "expiredBody": "Lời mời vào {workspace} không còn hiệu lực. Nhờ Owner gửi lại lời mời.",
+    "invalidTitle": "Lời mời không còn hiệu lực",
+    "invalidBody": "Liên kết đã được dùng, bị thu hồi hoặc không đúng. Nhờ Owner gửi lại lời mời.",
+    "toLogin": "Đến trang đăng nhập",
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "buyer": "Media buyer"
+    },
+    "errors": {
+      "invalid": "Lời mời không còn hiệu lực.",
+      "weak_password": "Cần họ tên và mật khẩu tối thiểu {min} ký tự.",
+      "failed": "Không tạo được tài khoản. Vui lòng thử lại."
+    }
+  },
+  "settingsWorkspace": {
+    "name": "Tên agency",
+    "timezone": "Múi giờ mặc định",
+    "locale": "Ngôn ngữ mặc định của workspace",
+    "brandTitle": "Thương hiệu trên báo cáo",
+    "uploadLogo": "Tải logo lên",
+    "logoHint": "PNG hoặc SVG, tối đa 1MB",
+    "logoUploaded": "Đã cập nhật logo",
+    "logoErrors": {
+      "type": "Chỉ nhận ảnh PNG hoặc SVG.",
+      "too_large": "Logo vượt quá 1MB.",
+      "unsafe_svg": "File SVG chứa nội dung không được phép (script hoặc liên kết ngoài)."
+    },
+    "badgeNote": "Nhãn \"Powered by\" hiển thị trên báo cáo ở gói Starter và Growth; gỡ nhãn từ gói Scale.",
+    "primaryColor": "Màu chủ đạo",
+    "colorInvalid": "Màu phải ở dạng #RRGGBB.",
+    "reportFromEmail": "Email gửi báo cáo",
+    "domainUnverified": "Domain {domain} chưa xác minh SPF/DKIM, email báo cáo có thể vào thư rác.",
+    "invalid": "Giá trị không hợp lệ.",
+    "save": "Lưu thay đổi",
+    "deleteTitle": "Xóa workspace",
+    "deleteBody": "Xóa vĩnh viễn workspace cùng kết nối, báo cáo và dữ liệu. Báo cáo công khai sẽ ngừng truy cập được. Chỉ Owner thực hiện được.",
+    "deleteButton": "Xóa workspace…",
+    "deleteConfirmHint": "Nhập chính xác \"{name}\" để xác nhận. Thao tác không hoàn tác được.",
+    "deleteConfirmLabel": "Tên workspace",
+    "deleteForever": "Xóa vĩnh viễn"
+  },
+  "settingsMembers": {
+    "title": "Thành viên & vai trò",
+    "count": "{count} thành viên",
+    "invite": "+ Mời thành viên",
+    "cols": {
+      "member": "Thành viên",
+      "email": "Email",
+      "role": "Vai trò",
+      "clients": "Client được gán",
+      "approve": "Duyệt hành động",
+      "status": "Trạng thái"
+    },
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "buyer": "Media buyer"
+    },
+    "roleHints": {
+      "manager": "Quản lý Client, kết nối và báo cáo.",
+      "buyer": "Rà phát hiện và việc cần làm của các Client được gán."
+    },
+    "allClients": "Tất cả",
+    "nClients": "{count} Client",
+    "approveYes": "Có",
+    "approveNo": "Không",
+    "approveByClient": "Theo Client",
+    "approveFor": "Được duyệt hành động cho Client",
+    "approveNote": "Chỉ Owner cấp quyền duyệt hành động tự động cho Media buyer, theo từng Client. Mặc định tắt.",
+    "active": "Hoạt động",
+    "notAccepted": "Chưa chấp nhận",
+    "invitedAgo": "Đã mời {ago}",
+    "inviteExpired": "Lời mời hết hạn",
+    "resend": "Gửi lại",
+    "resent": "Đã gửi lại lời mời",
+    "emptyTitle": "Workspace mới chỉ có bạn",
+    "emptyBody": "Mời đồng nghiệp và gán Client cho họ.",
+    "inviteTitle": "Mời thành viên",
+    "sendInvite": "Gửi lời mời",
+    "invited": "Đã gửi lời mời tới {email}",
+    "alreadyMember": "Email này đã là thành viên của workspace.",
+    "inviteError": "Không gửi được lời mời. Kiểm tra email và thử lại.",
+    "clientsForBuyer": "Client được gán",
+    "clientsOptionalManager": "Giới hạn Client (bỏ trống = tất cả)",
+    "editTitle": "Sửa thành viên: {name}",
+    "remove": "Xóa khỏi workspace",
+    "removed": "Đã xóa thành viên",
+    "transferTitle": "Chuyển quyền Owner",
+    "transferBody": "Người này trở thành Owner; bạn trở thành Manager. Nhập mật khẩu của bạn để xác nhận.",
+    "yourPassword": "Mật khẩu của bạn",
+    "transfer": "Chuyển quyền",
+    "transferred": "Đã chuyển quyền Owner",
+    "wrongPassword": "Mật khẩu không đúng."
+  },
+  "settingsProfile": {
+    "fullName": "Họ tên",
+    "email": "Email đăng nhập",
+    "language": "Ngôn ngữ của tôi",
+    "password": "Mật khẩu",
+    "changePassword": "Đổi mật khẩu",
+    "sessions": "Phiên đăng nhập",
+    "currentSession": "Trình duyệt này · đang dùng",
+    "signOutOthers": "Đăng xuất mọi thiết bị khác",
+    "signedOutOthers": "Đã đăng xuất các thiết bị khác",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Nhập lại mật khẩu mới",
+    "passwordRule": "Tối thiểu 10 ký tự, hai lần nhập phải khớp.",
+    "passwordChanged": "Đã đổi mật khẩu. Các phiên đăng nhập khác đã bị đăng xuất.",
+    "wrongCurrent": "Mật khẩu hiện tại không đúng."
+  },
+  "banners": {
+    "tokenExpired": "Token Meta của {count} kết nối đã hết hạn. Số liệu của các tài khoản liên quan đã dừng cập nhật.",
+    "reconnect": "Kết nối lại",
+    "pastDue": "Chưa thanh toán kỳ hiện tại của gói. Thanh toán trong 7 ngày để giữ gói.",
+    "overLimit": "Workspace có {active} tài khoản đang hoạt động, vượt hạn mức {limit} của gói. Sau 7 ngày, tài khoản ngoài hạn mức sẽ ngừng cập nhật.",
+    "overLimitExpired": "Đã hết thời gian ân hạn: chỉ {limit} tài khoản trong hạn mức còn được cập nhật. Dữ liệu cũ vẫn giữ nguyên.",
+    "openBilling": "Xem gói",
+    "killSwitch": "Kill switch đang bật: AdxLens không thực hiện thay đổi nào trên Meta.",
+    "killSwitchGlobal": "AdxLens đang tạm dừng mọi thay đổi trên Meta để kiểm tra an toàn. Số liệu và báo cáo vẫn hoạt động bình thường.",
+    "openKillSwitch": "Xem kill switch"
+  },
+  "connect": {
+    "step": "Thiết lập · bước {n}/{total}",
+    "yes": "Có",
+    "no": "Không",
+    "s02Title": "Kết nối Meta",
+    "connectAccount": "+ Kết nối tài khoản",
+    "s02EmptyTitle": "Chưa có kết nối Meta",
+    "s02EmptyBody": "Kết nối Meta (chỉ đọc) để đồng bộ số liệu.",
+    "tokenSummary": "{expired} token hết hạn, {expiring} sắp hết hạn trong 7 ngày.",
+    "reconnect": "Kết nối lại",
+    "todayAt": "{time} hôm nay",
+    "suggested": "Gợi ý: {name}",
+    "footnote": "Số liệu theo cửa sổ attribution 7d click / 1d view, tiền tệ và múi giờ của từng tài khoản.",
+    "token": {
+      "valid": "Hợp lệ",
+      "expired": "Hết hạn",
+      "expiring": "Còn {days} ngày"
+    },
+    "cols": {
+      "adAccount": "Tài khoản QC",
+      "account": "Tài khoản",
+      "id": "ID",
+      "client": "Client",
+      "token": "Token",
+      "lastSync": "Đồng bộ cuối",
+      "timezone": "Múi giờ",
+      "currency": "Tiền tệ",
+      "active30d": "Có chi tiêu 30N",
+      "spend30d": "Chi tiêu 30 ngày"
+    },
+    "errors": {
+      "denied": "Bạn đã hủy cấp quyền trên Meta. Thử lại khi sẵn sàng.",
+      "missing_scope": "Cần cấp quyền đọc quảng cáo (ads_read) để AdxLens đồng bộ số liệu.",
+      "failed": "Không kết nối được với Meta. Vui lòng thử lại."
+    },
+    "s03Title": "AdxLens chỉ đọc dữ liệu quảng cáo của bạn",
+    "s03Intro": "Ở bước tiếp theo, Meta sẽ hỏi bạn cấp quyền đọc. Đây là những gì chúng tôi làm và không làm.",
+    "s03": {
+      "read": {
+        "title": "Đọc số liệu",
+        "body": "Chiến dịch, nhóm quảng cáo, quảng cáo, chi tiêu, kết quả, ngân sách."
+      },
+      "write": {
+        "title": "Chỉnh sửa gì trên Meta",
+        "body": "Không tạm dừng, không đổi ngân sách, không tạo hay xóa quảng cáo."
+      },
+      "control": {
+        "title": "Bạn kiểm soát",
+        "body": "Ngắt kết nối bất cứ lúc nào và yêu cầu xóa dữ liệu (Kết nối)."
+      }
+    },
+    "continueWithMeta": "Tiếp tục với Meta",
+    "viewDemo": "Xem tài khoản mẫu trước",
+    "scopes": "Quyền xin: {scopes} (chỉ đọc).",
+    "s04Title": "Chọn tài khoản quảng cáo để theo dõi",
+    "s04Limit": "Gói {plan} theo dõi tối đa {limit} tài khoản. Bạn có thể đổi sau.",
+    "s04Loading": "Đang lấy chi tiêu 30 ngày từ Meta…",
+    "s04Selected": "Đã chọn {count}/{limit} tài khoản",
+    "s04Over": "Bạn chọn nhiều hơn {limit} tài khoản của gói {plan}. Tài khoản vượt hạn mức vẫn đồng bộ trong thời gian ân hạn; nâng gói để dùng lâu dài.",
+    "s04EmptyTitle": "Không tìm thấy tài khoản quảng cáo",
+    "s04EmptyBody": "Tài khoản Meta này chưa có tài khoản quảng cáo nào bạn được phép xem. Kiểm tra quyền trong Business Manager rồi kết nối lại.",
+    "reconnectMeta": "Kết nối lại với Meta",
+    "plans": {
+      "free": "Free",
+      "starter": "Starter",
+      "growth": "Growth",
+      "scale": "Scale"
+    },
+    "writeAccess": "Quyền ghi"
+  },
+  "placeholder": {
+    "comingSoon": "Màn hình này sẽ có ở bản tiếp theo."
+  },
+  "clients": {
+    "s05Title": "Gán mỗi tài khoản cho một Client",
+    "s05Intro": "AdxLens gợi ý Client theo tên tài khoản. Xác nhận từng dòng để báo cáo của Client chỉ gồm đúng tài khoản của họ.",
+    "s05Remaining": "Còn {count} dòng chưa xác nhận. Bạn vẫn xem được số liệu, nhưng chưa thể chia sẻ báo cáo cho Client đó.",
+    "s05AllDone": "Tất cả tài khoản đã được gán Client.",
+    "s05Empty": "Chưa có tài khoản quảng cáo nào để gán.",
+    "matchName": "Khớp tên",
+    "newClientOption": "+ Tạo Client mới: {name}",
+    "chooseClient": "Chọn Client…",
+    "confirmed": "Đã xác nhận",
+    "change": "Đổi",
+    "createClient": "+ Tạo Client mới",
+    "finish": "Xong, bắt đầu đồng bộ",
+    "conflict": "Tài khoản đã thuộc Client khác. Bỏ gán trước khi gán lại.",
+    "cols": {
+      "account": "Tài khoản",
+      "suggestion": "Gợi ý",
+      "client": "Client",
+      "confirm": "Xác nhận",
+      "adAccounts": "Tài khoản QC",
+      "spend30d": "Chi tiêu 30 ngày",
+      "health": "Health",
+      "highIssues": "Vấn đề cao",
+      "reconciliation": "Đối chiếu",
+      "owner": "Phụ trách",
+      "lastReport": "Báo cáo cuối"
+    },
+    "c01Title": "Clients",
+    "c01Count": "{clients} Client · {accounts} tài khoản",
+    "search": "Tìm Client hoặc tài khoản…",
+    "addClient": "+ Thêm Client",
+    "unconfirmedBanner": "{count} tài khoản chưa xác nhận Client. Báo cáo của các Client liên quan chưa thể chia sẻ.",
+    "confirmAssign": "Xác nhận gán",
+    "emptyTitle": "Chưa có Client",
+    "emptyBody": "Thêm Client đầu tiên và gán tài khoản quảng cáo để bắt đầu tạo báo cáo.",
+    "noResults": "Không có Client khớp “{q}”.",
+    "pendingData": "Chưa có số liệu",
+    "footnote": "Chi tiêu, health và đối chiếu hiển thị sau lần đồng bộ đầu tiên. Số liệu theo tiền tệ và múi giờ của từng tài khoản.",
+    "newClientTitle": "Thêm Client",
+    "nameLabel": "Tên Client",
+    "accountsCount": "{count, plural, other {# tài khoản}}",
+    "tabs": {
+      "campaigns": "Chiến dịch",
+      "adsets": "Nhóm QC",
+      "ads": "Quảng cáo",
+      "reports": "Báo cáo",
+      "settings": "Cài đặt"
+    },
+    "c02NoData": "Số liệu chiến dịch sẽ hiển thị sau khi đồng bộ xong.",
+    "c02Accounts": "Tài khoản QC của Client",
+    "unassign": "Bỏ gán",
+    "rename": "Đổi tên",
+    "archive": "Lưu trữ Client",
+    "archiveConfirm": "Lưu trữ “{name}”? Tài khoản QC sẽ về trạng thái chưa gán. Báo cáo cũ vẫn được giữ.",
+    "noAccounts": "Client này chưa có tài khoản QC.",
+    "backToClients": "Clients",
+    "reconnect": "Kết nối lại",
+    "budget": {
+      "title": "Ngân sách tháng {month}",
+      "status": {
+        "on_track": "Đúng tiến độ",
+        "over": "Dự kiến vượt",
+        "under": "Dự kiến thiếu"
+      },
+      "edit": "Sửa ngân sách",
+      "set": "Đặt ngân sách tháng",
+      "empty": "Chưa đặt ngân sách tháng. Đặt ngân sách hợp đồng để theo dõi tốc độ chi và nhận cảnh báo khi dự kiến lệch quá 10%.",
+      "spent": "Đã chi {spent} / {amount} ({days}/{total} ngày)",
+      "projected": "dự kiến cả tháng {projected} ({pct})",
+      "dailyNeeded": "cần chi {amount}/ngày để vừa ngân sách",
+      "dialogTitle": "Ngân sách tháng {month}",
+      "amount": "Ngân sách ({currency})",
+      "hint": "Tính trên chi tiêu đến hết hôm qua của các tài khoản QC cùng tiền tệ. Cảnh báo Owner và Manager khi dự kiến vượt / thiếu quá 10% (từ ngày thứ 5 của tháng).",
+      "saved": "Đã lưu ngân sách"
+    }
+  },
+  "sync": {
+    "title": "Đang đồng bộ dữ liệu 90 ngày",
+    "doneTitle": "Đồng bộ xong dữ liệu 90 ngày",
+    "summary": "{percent}% · {done} / {total} tài khoản. Không cần chờ: vào trang chủ dùng ngay, số liệu hiện dần (mới nhất trước).",
+    "emptyTitle": "Chưa có tài khoản quảng cáo để đồng bộ.",
+    "connect": "Kết nối Meta",
+    "retry": "Thử lại đồng bộ",
+    "reconnect": "Kết nối lại với Meta",
+    "cols": {
+      "account": "Tài khoản",
+      "progress": "Tiến độ",
+      "reconciliation": "Đối chiếu"
+    },
+    "status": {
+      "done": "Xong",
+      "failed": "Lỗi",
+      "running": "Đang chạy {percent}%"
+    },
+    "errors": {
+      "TRANSIENT": "Đồng bộ dừng ở {percent}%: Meta trả lỗi tạm thời. Dữ liệu đã đồng bộ vẫn giữ nguyên.",
+      "META_NO_ACCESS": "Đồng bộ dừng ở {percent}%: mất quyền truy cập tài khoản quảng cáo. Kiểm tra quyền trong Business Manager rồi thử lại.",
+      "META_TOKEN_INVALID": "Đồng bộ dừng ở {percent}%: kết nối Meta đã hết hạn. Kết nối lại để tiếp tục."
+    },
+    "continueBackground": "Vào trang chủ, đồng bộ tiếp ở nền",
+    "banner": {
+      "body": "Đang đồng bộ dữ liệu 90 ngày ({percent}%, {count, plural, other {# tài khoản}}). Số liệu hiện dần, mới nhất trước; khi chưa xong, số của khoảng thời gian dài có thể chưa đủ và chưa được đối chiếu với Meta.",
+      "link": "Xem tiến độ"
+    }
+  },
+  "recon": {
+    "ok": "Khớp Meta (lệch {pct})",
+    "warning": "Lệch {pct} so với Meta",
+    "pending": "Chưa đối chiếu",
+    "title": "Đối chiếu số liệu",
+    "resync": "Chạy lại đồng bộ",
+    "resyncQueued": "Đã lên lịch đồng bộ lại. Kết quả đối chiếu cập nhật khi đồng bộ xong.",
+    "warningBanner": "Số liệu lệch hơn 1% so với Ads Manager ở {count, plural, other {# ngày}}: {dates}. Báo cáo của Client này chưa chia sẻ được. Hệ thống tự đồng bộ và đối chiếu lại sau 24 giờ.",
+    "pendingBody": "Chưa có dữ liệu đối chiếu cho khoảng này. Đối chiếu chạy sau khi đồng bộ xong.",
+    "noAccounts": "Client này chưa có tài khoản QC để đối chiếu.",
+    "account": "Tài khoản",
+    "range": "Khoảng ngày",
+    "ranges": {
+      "7": "7 ngày qua",
+      "14": "14 ngày qua",
+      "30": "30 ngày qua"
+    },
+    "cols": {
+      "metric": "Chỉ số",
+      "adxlens": "AdxLens",
+      "adsManager": "Ads Manager",
+      "diff": "Chênh lệch",
+      "pct": "%",
+      "status": "Trạng thái"
+    },
+    "metrics": {
+      "spend": "Chi tiêu ({currency})",
+      "impressions": "Hiển thị",
+      "linkClicks": "Click liên kết",
+      "conversionValue": "Doanh thu chuyển đổi ({currency})",
+      "roas": "ROAS",
+      "purchase": "Đơn hàng (7d click / 1d view)",
+      "lead": "Lead (7d click / 1d view)",
+      "landing_page_view": "Lượt xem trang đích",
+      "messaging": "Cuộc trò chuyện",
+      "other": "Kết quả: {type}"
+    },
+    "match": "Khớp",
+    "mismatch": "Lệch",
+    "causesTitle": "Nguyên nhân có thể (chỉ để tham khảo)",
+    "causes": {
+      "recent": "Dữ liệu {dates} chưa ổn định: Meta còn điều chỉnh số liệu chuyển đổi trong vài ngày.",
+      "timezone": "Múi giờ tài khoản ({timezone}) cần khớp với cài đặt trong Ads Manager khi so sánh.",
+      "attribution": "Ads Manager có thể đang hiển thị cửa sổ attribution khác 7d click / 1d view."
+    },
+    "footnote": "Khớp Meta · cập nhật {time} · attribution 7d click / 1d view · {currency} · {timezone}"
+  },
+  "disconnect": {
+    "title": "Kết nối Meta",
+    "account": "Tài khoản Meta",
+    "accounts": "Tài khoản QC",
+    "status": "Trạng thái",
+    "statuses": {
+      "active": "Đang hoạt động",
+      "expired": "Hết hạn",
+      "revoked": "Đã ngắt"
+    },
+    "disconnect": "Ngắt kết nối và xóa dữ liệu",
+    "dialogTitle": "Ngắt kết nối Meta?",
+    "dialogBody": "Token truy cập bị xóa ngay và đồng bộ dừng. Dữ liệu quảng cáo đã đồng bộ của {count, plural, other {# tài khoản QC}} sẽ bị xóa sau {days} ngày (cam kết trong {deadline} ngày). Link báo cáo dùng các tài khoản này bị khóa. Kết nối lại trước hạn sẽ hủy việc xóa.",
+    "facebookHint": "Muốn gỡ hẳn quyền của AdxLens trên Facebook: Cài đặt › Ứng dụng và trang web › AdxLens › Xóa.",
+    "understand": "Tôi hiểu dữ liệu sẽ bị xóa",
+    "confirm": "Ngắt kết nối",
+    "done": "Đã ngắt kết nối. Mã xác nhận {code}.",
+    "pendingBanner": "Đang chờ xóa dữ liệu (mã {code}): xóa vào {date}. Kết nối lại trước ngày đó để hủy.",
+    "doneBanner": "Đã xóa dữ liệu của kết nối cũ (mã {code}) ngày {date}."
+  },
+  "rules": {
+    "groups": {
+      "creative": "Creative",
+      "budget": "Ngân sách",
+      "structure": "Cấu trúc",
+      "learning": "Giai đoạn học",
+      "waste": "Chi tiêu lãng phí",
+      "hygiene": "Vệ sinh tài khoản",
+      "tracking": "Theo dõi chuyển đổi"
+    },
+    "creative_fatigue": {
+      "name": "Creative mệt",
+      "why": "Tần suất tăng {freqRise, number}% (lên {freq, number}) trong khi CTR giảm {ctrDrop, number}% so với 7 ngày trước.",
+      "what": "Thay creative mới, hoặc giảm ngân sách cho ad này trong lúc chuẩn bị creative.",
+      "impact": "Chi tiêu 7 ngày × (1 − CTR hiện tại / CTR 7 ngày trước)"
+    },
+    "budget_misallocation": {
+      "name": "Chi tiêu dồn vào nơi hiệu quả thấp",
+      "why": "Ad set chiếm {share, number}% chi tiêu của mục tiêu này nhưng CPA gấp {ratio, number} lần trung vị các ad set cùng mục tiêu.",
+      "what": "Chuyển bớt ngân sách sang ad set có CPA gần trung vị hoặc tốt hơn; kiểm tra đối tượng và creative của ad set này.",
+      "impact": "Chi tiêu 7 ngày × (1 − CPA trung vị / CPA ad set)"
+    },
+    "starved_winner": {
+      "name": "Ad thắng bị bỏ đói",
+      "why": "CPA tốt hơn ad set {better, number}% nhưng ad chỉ nhận {share, number}% chi tiêu của ad set.",
+      "what": "Tách ad này sang ad set riêng hoặc tắt bớt ad kém để ngân sách đến ad thắng."
+    },
+    "fragmentation": {
+      "name": "Phân mảnh ad set",
+      "why": "{weak}/{total} ad set đang chạy có ngân sách nhỏ hoặc học hạn chế; mỗi ad set không đủ sự kiện để tối ưu.",
+      "what": "Gộp các ad set nhỏ cùng đối tượng, hoặc dùng ngân sách campaign (CBO) để Meta phân bổ."
+    },
+    "learning_limited": {
+      "name": "Học hạn chế",
+      "why": "Meta báo ad set đang \"học hạn chế\": {results, number} kết quả trong 7 ngày, cần khoảng {needed, number}/tuần để thoát học.",
+      "whyInferred": "Ad set chỉ có {results, number} kết quả trong 7 ngày, dưới mức khoảng {needed, number}/tuần mà Meta cần để thoát học.",
+      "what": "Gộp với ad set cùng đối tượng, tăng ngân sách, hoặc tối ưu cho sự kiện xảy ra nhiều hơn."
+    },
+    "spend_no_conversion": {
+      "name": "Chi tiêu không chuyển đổi",
+      "why": "Ad set chi tiêu {days, number} ngày trong tuần qua mà không có kết quả nào, trong khi các ad set khác cùng mục tiêu vẫn có.",
+      "what": "Tạm dừng hoặc giảm ngân sách ad set này; kiểm tra đối tượng, trang đích và sự kiện tối ưu.",
+      "impact": "Toàn bộ chi tiêu 7 ngày của ad set"
+    },
+    "account_hygiene": {
+      "name": "Vệ sinh tài khoản",
+      "why": "Đối tượng cần dọn dẹp.",
+      "whyName": "Đối tượng đang chạy có tên mặc định hoặc bản sao: \"{name}\".",
+      "whyIdle": "Đang bật nhưng không chi tiêu trong 7 ngày qua.",
+      "what": "Đặt tên rõ ràng và tắt đối tượng không dùng.",
+      "whatName": "Đặt tên theo quy ước (sản phẩm · đối tượng · creative) để báo cáo và đọc số dễ hơn.",
+      "whatIdle": "Kiểm tra lịch, ngân sách, trạng thái duyệt; tắt nếu không còn dùng."
+    },
+    "conversion_tracking": {
+      "name": "Theo dõi chuyển đổi",
+      "why": "Kết quả {days, number} ngày gần nhất giảm {drop, number}% so với 14 ngày trước, trong khi chi tiêu và click liên kết không giảm tương ứng.",
+      "what": "Kiểm tra pixel/Conversions API và sự kiện trong Events Manager; xem trang đích có thay đổi gần đây không."
+    }
+  },
+  "account": {
+    "title": "Tổng quan tài khoản",
+    "kpi": {
+      "spend": "Chi tiêu",
+      "results": "Kết quả",
+      "cpa": "CPA",
+      "roas": "ROAS",
+      "ctr": "CTR",
+      "impressions": "Hiển thị"
+    },
+    "vsPrev": "so với kỳ trước",
+    "trend": "Xu hướng theo ngày",
+    "spendSeries": "Chi tiêu",
+    "resultsSeries": "Kết quả",
+    "health": "Health score",
+    "healthNone": "Không có vấn đề đang mở.",
+    "healthPenalty": "−{points, number} điểm · {count, plural, other {# phát hiện}}",
+    "topFindings": "Phát hiện nổi bật",
+    "allFindings": "Xem tất cả phát hiện",
+    "noFindings": "Chưa có phát hiện nào. Audit chạy sau khi đồng bộ và đối chiếu khớp.",
+    "noData": "Chưa có dữ liệu cho kỳ này. Đồng bộ đang chạy hoặc tài khoản không có chi tiêu.",
+    "footnote": "Nguồn: Meta Ads · {from} → {to} · attribution 7d click / 1d view · {currency} · {timezone}",
+    "openAdsManager": "Mở trong Ads Manager"
+  },
+  "findings": {
+    "title": "Phát hiện",
+    "count": "{count, plural, other {# phát hiện}}",
+    "severity": {
+      "high": "Cao",
+      "medium": "Trung bình",
+      "low": "Thấp"
+    },
+    "status": {
+      "new": "Mới",
+      "seen": "Đã xem",
+      "done": "Đã làm",
+      "dismissed": "Bỏ qua",
+      "resolved": "Đã hết"
+    },
+    "filters": {
+      "all": "Tất cả",
+      "severity": "Mức độ",
+      "group": "Nhóm",
+      "status": "Trạng thái",
+      "open": "Đang mở"
+    },
+    "cols": {
+      "severity": "Mức độ",
+      "finding": "Phát hiện",
+      "group": "Nhóm",
+      "impact": "Tác động ước tính",
+      "lastSeen": "Cập nhật",
+      "status": "Trạng thái"
+    },
+    "emptyTitle": "Không có phát hiện",
+    "emptyBody": "Không có phát hiện nào khớp bộ lọc. Tài khoản ổn ở các quy tắc đang bật.",
+    "loading": "Đang tải phát hiện…",
+    "entity": {
+      "account": "Tài khoản",
+      "campaign": "Chiến dịch",
+      "adset": "Nhóm QC",
+      "ad": "Quảng cáo"
+    },
+    "drawer": {
+      "why": "Vì sao",
+      "whatToDo": "Nên làm gì",
+      "evidence": "Bằng chứng",
+      "impact": "Tác động ước tính",
+      "method": "Cách tính: {method}",
+      "noImpact": "Không ước tính bằng tiền cho loại phát hiện này.",
+      "window": "Tuần này {cur} · tuần trước {prev}",
+      "notLlm": "Số liệu do hệ thống tính từ dữ liệu Meta, không do mô hình ngôn ngữ tạo.",
+      "seen": "Đã xem",
+      "done": "Đã làm",
+      "dismiss": "Bỏ qua",
+      "wrong": "Báo sai",
+      "reason": "Lý do bỏ qua",
+      "reasonPlaceholder": "Ví dụ: đang thử creative mới",
+      "wrongNote": "Điều gì chưa đúng? (không bắt buộc)",
+      "saved": "Đã cập nhật phát hiện"
+    },
+    "metric": {
+      "frequency": "Tần suất",
+      "ctr": "CTR",
+      "spend": "Chi tiêu",
+      "cpa": "CPA",
+      "median_cpa": "CPA trung vị",
+      "adset_cpa": "CPA ad set",
+      "spend_share": "Tỷ trọng chi tiêu",
+      "results": "Kết quả",
+      "results_7d": "Kết quả 7 ngày",
+      "weekly_events_needed": "Sự kiện cần/tuần",
+      "adsets": "Ad set đang chạy",
+      "weak_adsets": "Ad set yếu",
+      "small_budget_threshold": "Ngưỡng ngân sách nhỏ",
+      "link_clicks": "Click liên kết",
+      "threshold": "Ngưỡng chi tiêu",
+      "results_per_day": "Kết quả/ngày",
+      "spend_drop": "Chi tiêu giảm (%)",
+      "click_drop": "Click giảm (%)"
+    }
+  },
+  "overview": {
+    "title": "Tổng quan",
+    "spend7": "Chi tiêu 7 ngày",
+    "spend30": "Chi tiêu 30 ngày",
+    "highIssues": "Vấn đề mức cao",
+    "mismatch": "Tài khoản lệch số liệu",
+    "clients": "Clients",
+    "multiCurrency": "Nhiều tiền tệ, không cộng gộp",
+    "cols": {
+      "client": "Client",
+      "accounts": "Tài khoản QC",
+      "spend7": "Chi tiêu 7 ngày",
+      "spend30": "Chi tiêu 30 ngày",
+      "health": "Health",
+      "highIssues": "Vấn đề cao",
+      "reconciliation": "Đối chiếu"
+    },
+    "unassignedTitle": "Tài khoản chưa gán Client",
+    "unassignedBody": "{count, plural, other {# tài khoản}} có số liệu nhưng chưa thuộc Client nào.",
+    "assign": "Gán Client",
+    "emptyTitle": "Chưa có dữ liệu quảng cáo",
+    "emptyBody": "Kết nối Meta (chỉ đọc) và chọn tài khoản để xem tổng quan agency.",
+    "connect": "Kết nối Meta",
+    "footnote": "Ngày theo múi giờ từng tài khoản · tới hết hôm qua · tiền theo tiền tệ tài khoản, không quy đổi.",
+    "healthHint": "Health của Client = tài khoản thấp nhất.",
+    "attention": {
+      "title": "Khách cần chú ý ({count})",
+      "none": "Không có khách nào cần chú ý lúc này.",
+      "recon": "Lệch số với Meta {pct}",
+      "sync": "{count} tài khoản đồng bộ lỗi",
+      "issues": "{count} vấn đề mức cao",
+      "budget": "Ngân sách dự kiến {status, select, over {vượt} other {thiếu}} {pct}%",
+      "health": "Health {score}"
+    }
+  },
+  "entities": {
+    "level": {
+      "campaign": "Chiến dịch",
+      "adset": "Nhóm QC",
+      "ad": "Quảng cáo"
+    },
+    "cols": {
+      "status": "Trạng thái",
+      "spend": "Chi tiêu",
+      "impressions": "Hiển thị",
+      "clicks": "Click",
+      "ctr": "CTR",
+      "results": "Kết quả",
+      "cpa": "CPA",
+      "roas": "ROAS",
+      "conversionValue": "Giá trị chuyển đổi",
+      "cpm": "CPM",
+      "linkClicks": "Click"
+    },
+    "status": {
+      "ACTIVE": "Đang chạy",
+      "PAUSED": "Tạm dừng",
+      "CAMPAIGN_PAUSED": "Chiến dịch tạm dừng",
+      "ADSET_PAUSED": "Nhóm tạm dừng",
+      "ARCHIVED": "Lưu trữ",
+      "DELETED": "Đã xóa",
+      "WITH_ISSUES": "Có lỗi",
+      "DISAPPROVED": "Bị từ chối",
+      "PENDING_REVIEW": "Chờ duyệt"
+    },
+    "empty": {
+      "campaign": "Chưa có chiến dịch trong kỳ này.",
+      "adset": "Chưa có nhóm quảng cáo trong kỳ này.",
+      "ad": "Chưa có quảng cáo trong kỳ này."
+    },
+    "footnote": "{from} → {to} · attribution 7d click / 1d view · theo múi giờ tài khoản",
+    "grid": {
+      "search": "Tìm theo tên…",
+      "show": "Hiển thị",
+      "showActive": "Đang chạy hoặc có chi tiêu",
+      "showSpend": "Có chi tiêu trong kỳ",
+      "showAll": "Tất cả",
+      "hidden": "Ẩn {count} đối tượng tắt, không chi tiêu",
+      "total": "Tổng ({count})",
+      "columns": "Bộ cột",
+      "sets": {
+        "performance": "Hiệu suất",
+        "conversion": "Chuyển đổi",
+        "delivery": "Phân phối"
+      }
+    },
+    "levelPlural": {
+      "campaign": "Chiến dịch",
+      "adset": "Nhóm QC",
+      "ad": "Quảng cáo"
+    }
+  },
+  "report": {
+    "kindLabel": {
+      "audit": "Báo cáo audit",
+      "periodic": "Báo cáo định kỳ",
+      "pitch": "Báo cáo đánh giá"
+    },
+    "preparedFor": "Báo cáo cho {client}",
+    "period": "{from} – {to}",
+    "compare": "So với {from} – {to}",
+    "sections": {
+      "summary": "Tóm tắt",
+      "kpis": "Số liệu chính",
+      "trend": "Chi tiêu theo ngày",
+      "campaigns": "Chiến dịch nổi bật",
+      "findings": "Vấn đề cần xử lý",
+      "workDone": "Việc đã làm",
+      "nextSteps": "Kế hoạch tiếp theo",
+      "intro": "Nhận xét của agency",
+      "audience": "Đối tượng, vị trí và khu vực",
+      "creatives": "Quảng cáo chi nhiều nhất",
+      "auditOverview": "Kết quả kiểm tra",
+      "context": "Bối cảnh số liệu trong kỳ"
+    },
+    "kpi": {
+      "spend": "Chi tiêu",
+      "results": "Kết quả",
+      "cpa": "Chi phí/kết quả",
+      "roas": "ROAS",
+      "ctr": "CTR",
+      "impressions": "Hiển thị"
+    },
+    "cols": {
+      "campaign": "Chiến dịch",
+      "spend": "Chi tiêu",
+      "results": "Kết quả",
+      "cpa": "CPA",
+      "roas": "ROAS"
+    },
+    "severity": {
+      "high": "Cao",
+      "medium": "Trung bình",
+      "low": "Thấp"
+    },
+    "impact": "Tác động ước tính: {amount}",
+    "noFindings": "Không có vấn đề mức đáng kể trong kỳ.",
+    "noData": "Không có chi tiêu trong kỳ.",
+    "source": "Khớp Meta tính đến {matchedAt} · attribution 7 ngày click / 1 ngày xem · {currencies} · {timezones}",
+    "sourcePending": "Chưa đối chiếu với Meta · attribution 7 ngày click / 1 ngày xem · {currencies} · {timezones}",
+    "poweredBy": "Powered by AdxLens",
+    "account": "Tài khoản {name}",
+    "demo": "Báo cáo mẫu — số liệu minh họa, không phải dữ liệu thật.",
+    "work": {
+      "summary": "Trong kỳ: {actions} thay đổi trên Meta (đã xác minh), {tasks} việc đã hoàn thành, {findings} vấn đề đã xử lý.",
+      "actions": "Thay đổi trên Meta",
+      "tasks": "Việc đã hoàn thành",
+      "auto": "tự động (rule)",
+      "undone": "đã hoàn tác",
+      "more": "… và {count} mục khác"
+    },
+    "cpa": {
+      "titleUp": "Vì sao CPA tăng?",
+      "titleDown": "Vì sao CPA giảm?",
+      "headline": "CPA {previous} → {current} ({change}) so với kỳ trước.",
+      "factors": {
+        "cpm": "Giá hiển thị (CPM)",
+        "ctr": "Tỷ lệ click (CTR)",
+        "cvr": "Tỷ lệ chuyển đổi"
+      },
+      "share": "giải thích {share}% thay đổi CPA",
+      "drivers": "Chiến dịch đóng góp nhiều nhất",
+      "method": "CPA = CPM ÷ CTR ÷ tỷ lệ chuyển đổi. Phần giải thích tính từ số liệu đã đối chiếu của hai kỳ.",
+      "label": "CPA",
+      "vsPrevious": "so với kỳ trước",
+      "mainUp": "Chủ yếu do",
+      "mainDown": "Chủ yếu nhờ",
+      "mixedUp": "Do nhiều yếu tố cùng lúc, không có yếu tố nào chiếm quá nửa. Xem từng yếu tố bên dưới.",
+      "mixedDown": "Nhờ nhiều yếu tố cùng lúc, không có yếu tố nào chiếm quá nửa. Xem từng yếu tố bên dưới.",
+      "short": {
+        "cpm": "giá hiển thị",
+        "ctr": "tỷ lệ click",
+        "cvr": "tỷ lệ chuyển đổi"
+      },
+      "help": {
+        "cpm": "chi phí cho 1.000 lượt hiển thị",
+        "ctr": "tỷ lệ người xem bấm vào quảng cáo",
+        "cvr": "tỷ lệ người bấm tạo ra kết quả"
+      },
+      "rise": "tăng {v}%",
+      "fall": "giảm {v}%",
+      "shareUp": "{share}% mức tăng",
+      "shareDown": "{share}% mức giảm",
+      "offset": "bù lại {share}%",
+      "hintTitle": "Nên kiểm tra:",
+      "hint": {
+        "cpm": "cạnh tranh đấu giá, đối tượng quá hẹp, tần suất cao hoặc mùa cao điểm.",
+        "ctr": "creative đã cũ hoặc chưa hợp đối tượng; thử mẫu quảng cáo mới.",
+        "cvr": "trang đích, ưu đãi, tốc độ tải trang và theo dõi chuyển đổi (pixel, CAPI)."
+      },
+      "colCampaign": "Chiến dịch",
+      "colCpa": "CPA trước → nay",
+      "colShare": "Đóng góp"
+    },
+    "audience": {
+      "age_gender": "Độ tuổi · giới tính",
+      "placement": "Vị trí hiển thị",
+      "region": "Khu vực",
+      "group": "Nhóm",
+      "share": "Tỷ trọng chi",
+      "female": "Nữ",
+      "male": "Nam",
+      "unknown": "Không rõ",
+      "note": "Số theo nhóm từ Meta có thể lệch nhẹ tổng tài khoản (Meta ẩn hoặc làm tròn nhóm nhỏ)."
+    },
+    "audit": {
+      "health": "Điểm sức khỏe",
+      "penalty": "{group}: −{points} điểm · {count} vấn đề",
+      "counts": "{high} vấn đề mức cao · {medium} mức trung bình · {low} mức thấp",
+      "impact": "tác động ước tính {amount}",
+      "healthy": "Không nhóm quy tắc nào bị trừ điểm."
+    }
+  },
+  "reports": {
+    "title": "Báo cáo",
+    "create": "+ Tạo báo cáo",
+    "emptyTitle": "Chưa có báo cáo",
+    "emptyBody": "Tạo báo cáo đầu tiên cho Client: số liệu khớp Ads Manager, phát hiện và kế hoạch, mang thương hiệu agency.",
+    "cols": {
+      "report": "Báo cáo",
+      "client": "Client",
+      "period": "Kỳ",
+      "status": "Trạng thái",
+      "created": "Tạo lúc"
+    },
+    "status": {
+      "building": "Đang dựng",
+      "ready": "Sẵn sàng",
+      "failed": "Lỗi"
+    },
+    "blocked": "Chưa chia sẻ được",
+    "kind": {
+      "audit": "Audit",
+      "periodic": "Định kỳ"
+    },
+    "new": {
+      "title": "Tạo báo cáo",
+      "client": "Client",
+      "kind": "Loại báo cáo",
+      "period": "Kỳ báo cáo",
+      "locale": "Ngôn ngữ báo cáo",
+      "from": "Từ ngày",
+      "to": "Đến ngày",
+      "presets": {
+        "last7": "7 ngày qua",
+        "last30": "30 ngày qua",
+        "lastMonth": "Tháng trước",
+        "custom": "Tùy chọn"
+      },
+      "submit": "Tạo báo cáo",
+      "noClients": "Chưa có Client. Tạo Client và gán tài khoản quảng cáo trước.",
+      "kindHelp": {
+        "audit": "Điểm sức khỏe và từng nhóm bị trừ điểm, toàn bộ vấn đề xếp theo mức độ kèm tổng tác động ước tính; số liệu kỳ chỉ để làm bối cảnh. Hợp để kiểm tra tài khoản hoặc pitch khách mới.",
+        "periodic": "Số liệu kỳ này so với kỳ trước, xu hướng theo ngày, đối tượng và creative, việc agency đã làm, kèm các vấn đề chính."
+      },
+      "locales": {
+        "vi": "Tiếng Việt",
+        "en": "English"
+      }
+    },
+    "view": {
+      "building": "Đang dựng báo cáo… trang tự cập nhật.",
+      "failed": "Không dựng được báo cáo ({code}). Thử dựng lại.",
+      "rebuild": "Dựng lại",
+      "edit": "Chỉnh nội dung",
+      "save": "Lưu thay đổi",
+      "saved": "Đã lưu",
+      "titleLabel": "Tiêu đề",
+      "workDone": "Việc đã làm",
+      "nextSteps": "Kế hoạch tiếp theo",
+      "hide": "Ẩn mục",
+      "share": "Chia sẻ",
+      "delete": "Xóa báo cáo",
+      "deleteConfirm": "Xóa báo cáo này? Link chia sẻ của báo cáo cũng bị xóa.",
+      "blockedTitle": "Chưa chia sẻ được báo cáo này",
+      "unconfirmed": "{count, plural, other {# tài khoản}} chưa xác nhận gán Client.",
+      "warning": "Số liệu lệch hơn 1% so với Ads Manager ngày {dates}.",
+      "fix": "Xử lý xong thì bấm \"Dựng lại\".",
+      "goAssign": "Xác nhận gán",
+      "goRecon": "Xem đối chiếu",
+      "sections": {
+        "kpis": "Số liệu chính",
+        "trend": "Chi tiêu theo ngày",
+        "campaigns": "Chiến dịch nổi bật",
+        "findings": "Vấn đề cần xử lý",
+        "workDone": "Việc đã làm",
+        "nextSteps": "Kế hoạch tiếp theo",
+        "audience": "Đối tượng, vị trí và khu vực",
+        "creatives": "Quảng cáo chi nhiều nhất"
+      },
+      "summaryLlm": "Tóm tắt do AI viết từ số liệu đã tính; mọi con số đã được kiểm tra khớp dữ liệu.",
+      "summaryTemplate": "Tóm tắt tự động từ số liệu (không dùng AI).",
+      "intro": "Nhận xét của agency (hiện sau tóm tắt)"
+    }
+  },
+  "share": {
+    "title": "Chia sẻ báo cáo",
+    "create": "Tạo link chia sẻ",
+    "expiry": "Hạn dùng",
+    "expiries": {
+      "none": "Không hết hạn",
+      "7": "7 ngày",
+      "30": "30 ngày",
+      "90": "90 ngày"
+    },
+    "password": "Mật khẩu (không bắt buộc, ≥ 6 ký tự)",
+    "created": "Đã tạo link. Gửi link này cho khách.",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép",
+    "revoke": "Thu hồi",
+    "revoked": "Đã thu hồi",
+    "links": "Link đã tạo",
+    "noLinks": "Chưa có link nào.",
+    "cols": {
+      "link": "Link",
+      "expires": "Hết hạn",
+      "views": "Lượt xem",
+      "status": "Trạng thái"
+    },
+    "active": "Đang dùng",
+    "expired": "Hết hạn",
+    "withPassword": "Có mật khẩu",
+    "blockedTitle": "Chưa chia sẻ được báo cáo này",
+    "blockedBody": "Khách chỉ xem được báo cáo khi mọi tài khoản đã xác nhận gán Client, số liệu khớp Ads Manager (lệch ≤ 1%) và kết nối Meta còn hoạt động.",
+    "connectionRevoked": "Kết nối Meta của Client này đã bị ngắt.",
+    "pdfLater": "Xuất PDF ở mục bên dưới.",
+    "pdfTitle": "PDF (A4)",
+    "pdfBody": "Xuất báo cáo thành PDF để gửi kèm email. Liên kết tải có hiệu lực 1 giờ.",
+    "pdfExport": "Xuất PDF",
+    "pdfWorking": "Đang tạo PDF…",
+    "pdfDownload": "Tải PDF",
+    "pdfTimeout": "Tạo PDF lâu hơn dự kiến. Thử lại sau ít phút."
+  },
+  "publicReport": {
+    "expiredTitle": "Liên kết đã hết hạn hoặc bị thu hồi",
+    "expiredBody": "Liên hệ agency gửi báo cáo để nhận liên kết mới.",
+    "lockedTitle": "Báo cáo đang tạm khóa",
+    "lockedBody": "Agency đang kiểm tra lại số liệu. Báo cáo sẽ mở lại khi số liệu khớp Ads Manager.",
+    "passwordTitle": "Báo cáo có mật khẩu",
+    "passwordLabel": "Mật khẩu",
+    "open": "Mở báo cáo",
+    "wrongPassword": "Mật khẩu không đúng.",
+    "notFoundTitle": "Không tìm thấy báo cáo"
+  },
+  "admin": {
+    "brand": "AdxLens Admin",
+    "internal": "Nội bộ",
+    "pm": "PM",
+    "staff": {
+      "title": "Đội ngũ AdxLens",
+      "body": "Superadmin quản lý staff, bật cờ, tắt kill switch, sửa gói. Operator vận hành: xem, chạy lại đồng bộ, retry job, bật kill switch, đề xuất bật cờ.",
+      "cols": {
+        "email": "Email",
+        "name": "Tên",
+        "role": "Vai trò",
+        "since": "Từ ngày",
+        "actions": "Thao tác"
+      },
+      "reason": "Lý do (bắt buộc, ≥ 5 ký tự)",
+      "add": "Thêm staff",
+      "addHint": "Người được thêm phải đã đăng ký tài khoản AdxLens bằng email này.",
+      "added": "Đã thêm staff",
+      "updated": "Đã đổi vai trò",
+      "removed": "Đã gỡ quyền staff",
+      "makeRole": "Chuyển thành {role}",
+      "remove": "Gỡ quyền",
+      "confirm": "Xác nhận",
+      "you": "Bạn",
+      "roleTitle": "Chuyển {email} thành {role}",
+      "removeTitle": "Gỡ quyền staff của {email}"
+    },
+    "nav": {
+      "flags": "Cờ tính năng",
+      "incidents": "Sự cố",
+      "killSwitch": "Kill switch",
+      "staff": "Đội ngũ",
+      "audit": "Nhật ký admin",
+      "workspaces": "Workspace",
+      "operations": "Đồng bộ & hàng đợi",
+      "reconciliation": "Đối chiếu số liệu",
+      "execution": "Thực thi & breaker",
+      "billing": "Gói & thanh toán",
+      "deletions": "Xóa dữ liệu",
+      "system": "Hệ thống",
+      "emails": "Mẫu email",
+      "today": "Hôm nay"
+    },
+    "flags": {
+      "title": "Ma trận cờ tính năng",
+      "search": "Tìm workspace…",
+      "cols": {
+        "workspace": "Workspace",
+        "owner": "Owner",
+        "accounts": "Tài khoản QC",
+        "created": "Tạo lúc"
+      },
+      "names": {
+        "reports": "Báo cáo",
+        "recommendations": "Gợi ý",
+        "approve": "Duyệt 1 click",
+        "auto": "Tự động hóa"
+      },
+      "on": "Bật",
+      "off": "Tắt",
+      "empty": "Không có workspace.",
+      "dialog": {
+        "enableTitle": "Bật {flag} cho {workspace}",
+        "disableTitle": "Tắt {flag} cho {workspace}",
+        "checklist": "Checklist kỹ thuật",
+        "passed": "Đạt",
+        "failed": "Chưa đạt",
+        "checking": "Đang chạy checklist…",
+        "reason": "Lý do (bắt buộc, ≥ 5 ký tự)",
+        "override": "Vượt checklist chưa đạt (được ghi log)",
+        "enable": "Bật cờ",
+        "disable": "Tắt cờ",
+        "dependents": "Tắt cờ này sẽ tắt luôn các cờ phụ thuộc đang bật.",
+        "onlyPm": "Chỉ PM được bật cờ.",
+        "done": "Đã cập nhật cờ",
+        "history": "Lịch sử",
+        "noHistory": "Chưa có thay đổi.",
+        "overrideTag": "vượt checklist",
+        "propose": "Gửi đề xuất",
+        "proposeHint": "Bạn là operator: đề xuất sẽ được gửi cho superadmin duyệt. Checklist vẫn chạy khi duyệt.",
+        "proposed": "Đã gửi đề xuất bật cờ"
+      },
+      "proposals": {
+        "title": "Đề xuất bật cờ đang chờ ({count})",
+        "by": "{email} · {at}",
+        "approve": "Duyệt",
+        "reject": "Từ chối",
+        "cancel": "Hủy đề xuất",
+        "noteOptional": "Ghi chú (không bắt buộc)",
+        "dialog": {
+          "approve": "Duyệt bật {flag} cho {workspace}",
+          "reject": "Từ chối bật {flag} cho {workspace}",
+          "cancel": "Hủy đề xuất bật {flag} cho {workspace}"
+        },
+        "done": {
+          "approve": "Đã duyệt, cờ đã bật",
+          "reject": "Đã từ chối đề xuất",
+          "cancel": "Đã hủy đề xuất"
+        }
+      }
+    },
+    "killSwitch": {
+      "nav": "Kill switch",
+      "title": "Kill switch toàn cục",
+      "body": "Dừng mọi thay đổi trên Meta của mọi workspace và hủy hành động đang chờ. Dùng khi có sự cố thực thi.",
+      "state": "Trạng thái",
+      "on": "Đang bật",
+      "off": "Đang tắt",
+      "reason": "Lý do (bắt buộc)",
+      "turnOn": "Bật toàn cục",
+      "turnOff": "Tắt toàn cục",
+      "pmOnly": "Operator chỉ bật được kill switch; tắt cần superadmin.",
+      "done": "Đã cập nhật, hủy {count} hành động đang chờ"
+    },
+    "incidents": {
+      "nav": "Sự cố",
+      "title": "Sự cố & playbook",
+      "all": "Tất cả",
+      "status": {
+        "open": "Đang mở",
+        "mitigated": "Đã giảm thiểu",
+        "resolved": "Đã xử lý"
+      },
+      "cols": {
+        "severity": "Mức",
+        "title": "Sự cố",
+        "kind": "Loại",
+        "occurrences": "Số lần",
+        "status": "Trạng thái",
+        "opened": "Mở lúc"
+      },
+      "emptyTitle": "Không có sự cố",
+      "emptyBody": "Sự cố do kiểm tra sức khỏe, đối chiếu, thực thi hoặc deploy mở sẽ hiện ở đây.",
+      "runs": "Lần chạy playbook",
+      "noRuns": "Chưa có lần chạy playbook.",
+      "mitigate": "Đã giảm thiểu",
+      "resolve": "Đã xử lý",
+      "updated": "Đã cập nhật sự cố",
+      "detail": "Chi tiết",
+      "runResult": {
+        "done": "Đã chạy",
+        "skipped": "Bỏ qua",
+        "failed": "Lỗi",
+        "escalated": "Leo thang (báo PM)"
+      },
+      "openWorkspace": "Mở workspace"
+    },
+    "roles": {
+      "superadmin": "Superadmin",
+      "operator": "Operator"
+    },
+    "audit": {
+      "title": "Nhật ký thao tác admin",
+      "bodyAll": "Mọi thao tác ghi từ trang admin. Chỉ thêm, không sửa hay xóa được.",
+      "bodyMine": "Thao tác của bạn trên trang admin. Superadmin xem được toàn bộ.",
+      "empty": "Chưa có thao tác nào.",
+      "cols": {
+        "at": "Lúc",
+        "actor": "Người làm",
+        "action": "Hành động",
+        "target": "Đối tượng",
+        "reason": "Lý do"
+      },
+      "actions": {
+        "staff_add": "Thêm staff",
+        "staff_role": "Đổi vai trò staff",
+        "staff_remove": "Gỡ staff",
+        "flag_propose": "Đề xuất bật cờ",
+        "flag_proposal_approve": "Duyệt đề xuất bật cờ",
+        "flag_proposal_reject": "Từ chối đề xuất bật cờ",
+        "flag_proposal_cancel": "Hủy đề xuất bật cờ",
+        "kill_switch_on": "Bật kill switch toàn cục",
+        "kill_switch_off": "Tắt kill switch toàn cục",
+        "sync_resync": "Chạy lại đồng bộ",
+        "queue_retry": "Chạy lại job lỗi",
+        "queue_discard": "Bỏ job lỗi",
+        "billing_plan_update": "Sửa gói",
+        "billing_comp_plan": "Đặt gói thủ công",
+        "billing_extend_grace": "Gia hạn ân hạn",
+        "execution_breaker_close": "Đóng breaker",
+        "settings_alert_emails": "Đổi email cảnh báo",
+        "settings_maintenance_on": "Bật thông báo bảo trì",
+        "settings_maintenance_off": "Tắt thông báo bảo trì"
+      }
+    },
+    "workspaces": {
+      "title": "Tra cứu workspace",
+      "detailTitle": "Chi tiết workspace",
+      "search": "Tên workspace hoặc email thành viên…",
+      "empty": "Không tìm thấy workspace.",
+      "back": "← Tra cứu",
+      "createdAt": "tạo {at}",
+      "openFlags": "Mở ma trận cờ của workspace này",
+      "demo": "Mẫu",
+      "yes": "Có",
+      "no": "Không",
+      "none": "Không có.",
+      "pendingDeletion": "Kết nối đã ngắt · chờ xóa",
+      "reconSummary": "{warnings}/{days} ngày lệch (30 ngày)",
+      "purgeAfter": "xóa lúc {at}",
+      "sections": {
+        "billing": "Gói & thanh toán",
+        "flags": "Cờ tính năng",
+        "members": "Thành viên ({count})",
+        "connections": "Kết nối Meta ({count})",
+        "accounts": "Tài khoản QC ({count})",
+        "syncRuns": "Đồng bộ gần đây",
+        "incidents": "Sự cố đang mở ({count})",
+        "deletions": "Yêu cầu xóa dữ liệu ({count})"
+      },
+      "billing": {
+        "plan": "Gói đang hưởng",
+        "subscribed": "đã đăng ký {plan}",
+        "status": "Trạng thái",
+        "accounts": "Tài khoản active / hạn mức",
+        "overLimit": "Vượt hạn mức",
+        "periodEnd": "Hết kỳ",
+        "grace": "Ân hạn đến",
+        "comp": "Đặt gói thủ công",
+        "compTitle": "Đặt gói thủ công cho {workspace}",
+        "extendGrace": "Gia hạn ân hạn",
+        "extendTitle": "Gia hạn ân hạn cho {workspace}",
+        "days": "Số ngày (1–14)",
+        "saved": "Đã cập nhật gói"
+      },
+      "cols": {
+        "name": "Workspace",
+        "owner": "Owner",
+        "members": "Thành viên",
+        "accounts": "Tài khoản QC",
+        "created": "Tạo lúc",
+        "email": "Email",
+        "role": "Vai trò",
+        "metaUser": "Người kết nối Meta",
+        "status": "Trạng thái",
+        "expires": "Token hết hạn",
+        "write": "Quyền ghi",
+        "account": "Tài khoản",
+        "client": "Client · gán",
+        "sync": "Đồng bộ",
+        "lastSync": "Đồng bộ gần nhất",
+        "recon": "Đối chiếu",
+        "kind": "Loại",
+        "range": "Khoảng ngày",
+        "started": "Bắt đầu",
+        "error": "Lỗi"
+      },
+      "toc": {
+        "label": "Các phần",
+        "billing": "Gói",
+        "flags": "Cờ",
+        "members": "Thành viên ({count})",
+        "connections": "Kết nối ({count})",
+        "accounts": "Tài khoản QC ({count})",
+        "syncRuns": "Đồng bộ",
+        "incidents": "Sự cố ({count})",
+        "deletions": "Xóa dữ liệu ({count})"
+      }
+    },
+    "operations": {
+      "title": "Vận hành",
+      "syncTitle": "Đồng bộ lỗi (7 ngày) hoặc kẹt > 3 giờ ({count})",
+      "syncEmpty": "Không có đồng bộ lỗi hay kẹt.",
+      "failed": "Lỗi",
+      "stuck": "Kẹt",
+      "resync": "Chạy lại đồng bộ",
+      "resyncTitle": "Chạy lại đồng bộ {account}",
+      "resyncQueued": "Đã lên lịch đồng bộ lại",
+      "days": "Khoảng ngày (đến hôm qua theo giờ tài khoản)",
+      "daysOption": "{days} ngày gần nhất",
+      "reason": "Lý do (bắt buộc, ≥ 5 ký tự)",
+      "queuesTitle": "Hàng đợi job",
+      "redisDown": "Không đọc được Redis.",
+      "failedTitle": "Job lỗi · {queue}",
+      "noRetry": "Queue này ghi lên Meta: không chạy lại (ADR-0008). Kiểm tra trên Ads Manager rồi bỏ job.",
+      "loading": "Đang tải…",
+      "noFailed": "Không còn job lỗi.",
+      "attempts": "{n} lần thử",
+      "retry": "Chạy lại",
+      "discard": "Bỏ",
+      "retried": "Đã chạy lại job",
+      "discarded": "Đã bỏ job",
+      "metaTitle": "Meta API · 60 phút gần nhất",
+      "noWorkspace": "(không theo workspace)",
+      "meta": {
+        "calls": "Lời gọi",
+        "errors": "Lỗi",
+        "rateLimited": "Bị giới hạn (rate limit)",
+        "avgMs": "Thời gian trung bình"
+      },
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Tài khoản QC",
+        "status": "Trạng thái",
+        "range": "Khoảng ngày",
+        "error": "Lỗi",
+        "at": "Lúc",
+        "actions": "Thao tác",
+        "queue": "Queue",
+        "waiting": "Chờ",
+        "active": "Đang chạy",
+        "delayed": "Hẹn giờ",
+        "failed": "Lỗi",
+        "job": "Job"
+      }
+    },
+    "reconciliation": {
+      "title": "Đối chiếu toàn hệ thống",
+      "body": "Tài khoản QC thật (bỏ dữ liệu mẫu và kết nối đã ngắt) với số ngày lệch Meta > 1% trong kỳ. Ngưỡng 1% cố định; trạng thái lấy từ kết quả đối chiếu đã tính. Bị chặn chia sẻ khi có ngày lệch hoặc gán Client chưa xác nhận (cùng quy tắc báo cáo).",
+      "days": "{days} ngày",
+      "onlyIssues": "Chỉ có vấn đề",
+      "all": "Tất cả",
+      "empty": "Không có tài khoản lệch, bị chặn hay đối chiếu trễ.",
+      "emptyAll": "Chưa có tài khoản QC thật.",
+      "noClient": "Chưa gán Client",
+      "blocked": "Chặn chia sẻ",
+      "ok": "Khớp",
+      "unconfirmed": "Gán chưa xác nhận",
+      "stale": "Đối chiếu trễ > 3 ngày",
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Tài khoản QC",
+        "warningDays": "Ngày lệch / đã đối chiếu",
+        "maxSpend": "Lệch chi tiêu lớn nhất",
+        "maxResults": "Lệch kết quả lớn nhất",
+        "state": "Trạng thái",
+        "lastChecked": "Đối chiếu gần nhất"
+      }
+    },
+    "reasonRequired": "Lý do (bắt buộc, ≥ 5 ký tự)",
+    "billing": {
+      "title": "Thanh toán",
+      "plansTitle": "Gói",
+      "defaultConfig": "mặc định trong code",
+      "edit": "Sửa",
+      "editTitle": "Sửa gói {plan}",
+      "saved": "Đã lưu gói",
+      "entitlementsNote": "Quyền của từng gói chỉ xem: Duyệt 1 click / Tự động hóa cần Growth trở lên (quyết định PM), không đổi ở đây.",
+      "attentionTitle": "Cần chú ý: quá hạn hoặc vượt hạn mức ({count})",
+      "attentionEmpty": "Không có workspace quá hạn hay vượt hạn mức.",
+      "pastDue": "Quá hạn",
+      "overLimit": "Vượt hạn mức",
+      "ordersTitle": "Đơn PayOS gần đây",
+      "eventsTitle": "Sự kiện webhook gần đây",
+      "none": "Chưa có.",
+      "cols": {
+        "plan": "Gói",
+        "priceVnd": "Giá/tháng (VND)",
+        "priceUsd": "Giá/tháng (USD)",
+        "included": "Tài khoản kèm gói",
+        "extra": "Phí tài khoản vượt (VND)",
+        "entitlements": "Quyền",
+        "workspace": "Workspace",
+        "status": "Trạng thái",
+        "since": "Từ",
+        "order": "Đơn",
+        "amount": "Số tiền",
+        "at": "Lúc",
+        "event": "Sự kiện"
+      }
+    },
+    "deletions": {
+      "title": "Yêu cầu xóa dữ liệu",
+      "body": "Theo dõi hạn cam kết xóa dữ liệu (chính sách Meta). Worker tự xóa khi tới hạn; quá hạn > 1 ngày mà chưa xong cần kiểm tra (runbook data-deletion).",
+      "overdueCount": "{count} yêu cầu quá hạn",
+      "empty": "Chưa có yêu cầu xóa dữ liệu.",
+      "deletedWorkspace": "(workspace đã xóa)",
+      "overdue": "Quá hạn",
+      "cols": {
+        "code": "Mã",
+        "workspace": "Workspace",
+        "source": "Nguồn",
+        "status": "Trạng thái",
+        "purgeAfter": "Hạn xóa",
+        "completed": "Xong lúc"
+      }
+    },
+    "execution": {
+      "title": "Thực thi trên Meta",
+      "last7": "7 ngày gần nhất, mọi workspace",
+      "status": {
+        "success": "Thành công",
+        "failed": "Thất bại",
+        "pending": "Đang chờ",
+        "undone": "Đã hoàn tác",
+        "canceled": "Đã hủy"
+      },
+      "breakersTitle": "Breaker đang mở ({count})",
+      "breakersEmpty": "Không có breaker nào đang mở.",
+      "closeBreaker": "Đóng breaker",
+      "closeTitle": "Đóng breaker của {account} (cho phép ghi Meta lại)",
+      "closed": "Đã đóng breaker",
+      "superOnly": "Chỉ superadmin",
+      "failedTitle": "Hành động thất bại gần đây",
+      "liveTitle": "Rule đang chạy thật ({count})",
+      "none": "Không có.",
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Tài khoản QC",
+        "failures": "Lỗi liên tiếp",
+        "openedAt": "Mở lúc",
+        "action": "Hành động",
+        "result": "Mã kết quả",
+        "rule": "Rule",
+        "liveSince": "Chạy thật từ"
+      }
+    },
+    "system": {
+      "title": "Hệ thống",
+      "healthTitle": "Sức khỏe",
+      "version": "Phiên bản",
+      "executionCheck": "Kiểm thực thi (phiên bản này)",
+      "passed": "Đạt",
+      "failed": "Lỗi",
+      "notRun": "Chưa chạy",
+      "incidents": "Sự cố đang mở",
+      "smoke": "Smoke sau deploy",
+      "smokeOk": "Đạt",
+      "smokeFailed": "Lỗi",
+      "smokeNone": "Chưa có lỗi nào được ghi",
+      "alertsTitle": "Kênh cảnh báo đội",
+      "edit": "Sửa",
+      "saved": "Đã lưu",
+      "emailsLabel": "Email nhận cảnh báo (mỗi dòng một email, tối đa 20)",
+      "emails": "Email (đặt ở đây)",
+      "envEmails": "OPS_ALERT_EMAILS (môi trường)",
+      "slack": "Slack webhook",
+      "configured": "Đã cấu hình",
+      "notConfigured": "Chưa cấu hình",
+      "yes": "Có",
+      "no": "Không",
+      "alertsNote": "Sự cố mức cao và trung bình gửi tới cả email đặt ở đây và OPS_ALERT_EMAILS. Slack webhook là secret nên chỉ đặt qua biến môi trường.",
+      "maintenanceTitle": "Thông báo bảo trì",
+      "maintenanceActive": "Hiện cho mọi khách",
+      "messageVi": "Nội dung tiếng Việt",
+      "messageEn": "Nội dung tiếng Anh",
+      "endsAt": "Tự tắt lúc (để trống = đến khi tắt)",
+      "maintenanceOn": "Đang hiện",
+      "maintenanceOff": "Không có thông báo bảo trì.",
+      "until": "đến {at}",
+      "untilOff": "đến khi tắt",
+      "schedulesTitle": "Lịch định kỳ",
+      "redisDown": "Không đọc được Redis.",
+      "every": "mỗi {minutes} phút",
+      "late": "Trễ — worker có thể đang dừng",
+      "cols": {
+        "job": "Job",
+        "when": "Lịch",
+        "next": "Lần chạy kế tiếp"
+      }
+    },
+    "emails": {
+      "title": "Mẫu email",
+      "body": "Xem trước mọi mẫu email bằng dữ liệu mẫu cố định (không phải dữ liệu khách). Không gửi email.",
+      "keys": {
+        "invitation": "Lời mời thành viên",
+        "connection_expiring": "Kết nối Meta sắp hết hạn",
+        "data_deletion": "Xóa dữ liệu",
+        "digest": "Tổng kết tuần",
+        "scheduled_report": "Báo cáo theo lịch"
+      }
+    },
+    "navLabel": "Điều hướng admin",
+    "superadminOnly": "Chỉ superadmin thao tác được",
+    "ksShort": {
+      "on": "BẬT",
+      "off": "TẮT"
+    },
+    "ksBanner": {
+      "title": "Kill switch toàn cục đang BẬT",
+      "body": "Mọi thay đổi trên Meta của mọi workspace đang dừng. Lý do: {reason}.",
+      "link": "Mở kill switch"
+    },
+    "groups": {
+      "customers": "Khách hàng",
+      "data": "Vận hành dữ liệu",
+      "safety": "An toàn thực thi",
+      "release": "Phát hành",
+      "revenue": "Doanh thu",
+      "compliance": "Tuân thủ",
+      "config": "Cấu hình"
+    },
+    "today": {
+      "title": "Hôm nay",
+      "subtitle": "{count, plural, =0 {Không có việc đang chờ.} other {# việc đang chờ trên toàn hệ thống, việc khẩn ở trên.}}",
+      "allClear": "Mọi thứ ổn",
+      "allClearBody": "Không có sự cố, đồng bộ lỗi, lệch số, breaker, thanh toán lỗi, xóa quá hạn hay đề xuất cờ đang chờ.",
+      "handle": "Xử lý →",
+      "oldest": "Tồn lâu nhất: {when}",
+      "more": "và {count} mục khác",
+      "system": "Toàn hệ thống",
+      "waitSuperadmin": "Chờ superadmin duyệt.",
+      "killSwitch": "Kill switch toàn cục:",
+      "ksOn": "đang BẬT",
+      "ksOff": "đang tắt",
+      "items": {
+        "incidents": {
+          "title": "Sự cố đang mở",
+          "body": "Sự cố chưa xử lý xong (mở hoặc đã giảm thiểu), nghiêm trọng nhất lên đầu."
+        },
+        "syncs": {
+          "title": "Đồng bộ lỗi hoặc kẹt",
+          "body": "Lần đồng bộ lỗi trong 7 ngày hoặc đang chạy quá 3 giờ."
+        },
+        "reconciliation": {
+          "title": "Đối chiếu cần xem",
+          "body": "Tài khoản có ngày lệch > 1%, gán Client chưa xác nhận hoặc lâu chưa đối chiếu."
+        },
+        "breakers": {
+          "title": "Breaker đang mở",
+          "body": "Tài khoản tạm khóa thực thi do lỗi liên tiếp."
+        },
+        "billing": {
+          "title": "Thanh toán cần chú ý",
+          "body": "Workspace quá hạn thanh toán hoặc vượt hạn mức tài khoản."
+        },
+        "deletions": {
+          "title": "Xóa dữ liệu quá hạn",
+          "body": "Yêu cầu xóa đã qua hạn hơn 1 ngày mà chưa xong."
+        },
+        "flagProposals": {
+          "title": "Đề xuất bật cờ",
+          "body": "Đề xuất của operator đang chờ duyệt."
+        }
+      }
+    },
+    "search": {
+      "label": "Tìm trong admin",
+      "placeholder": "Workspace, email, act_…, mã xóa dữ liệu",
+      "title": "Tìm kiếm",
+      "for": "Kết quả cho \"{q}\"",
+      "hint": "Tìm theo tên workspace, email thành viên, mã tài khoản QC (act_…) hoặc tên tài khoản, mã yêu cầu xóa dữ liệu.",
+      "none": "Không tìm thấy",
+      "workspaces": "Workspace ({count})",
+      "accounts": "Tài khoản quảng cáo ({count})",
+      "deletions": "Yêu cầu xóa dữ liệu ({count})"
+    }
+  },
+  "notifications": {
+    "title": "Thông báo",
+    "markAll": "Đánh dấu đã đọc tất cả",
+    "emptyTitle": "Chưa có thông báo",
+    "emptyBody": "Thông báo về đồng bộ, số liệu, token và báo cáo sẽ hiện ở đây.",
+    "unread": "Chưa đọc",
+    "kinds": {
+      "sync_done": {
+        "label": "Đồng bộ xong",
+        "title": "Đồng bộ xong {account}",
+        "body": "Dữ liệu 90 ngày của {account} đã sẵn sàng."
+      },
+      "reconciliation_warning": {
+        "label": "Số liệu lệch so với Ads Manager",
+        "title": "Số liệu {account} lệch hơn 1% so với Ads Manager",
+        "body": "Ngày lệch: {dates}. Báo cáo liên quan tạm khóa chia sẻ; hệ thống tự đồng bộ và đối chiếu lại sau 24 giờ."
+      },
+      "token_expiring": {
+        "label": "Kết nối Meta sắp hết hạn",
+        "title": "Kết nối Meta hết hạn sau {days} ngày",
+        "body": "Kết nối lại Meta (chỉ đọc) để đồng bộ không bị gián đoạn."
+      },
+      "token_expired": {
+        "label": "Kết nối Meta đã hết hạn",
+        "title": "Kết nối Meta đã hết hạn",
+        "body": "Đồng bộ đã dừng. Kết nối lại để báo cáo tiếp tục khớp Ads Manager."
+      },
+      "report_viewed": {
+        "label": "Khách mở báo cáo",
+        "title": "{client} đã mở báo cáo",
+        "body": "Khách đã mở báo cáo \"{report}\"."
+      },
+      "report_sent": {
+        "label": "Báo cáo đã gửi theo lịch",
+        "title": "Đã gửi báo cáo cho {client}",
+        "body": "Báo cáo \"{report}\" đã được gửi theo lịch."
+      },
+      "report_postponed": {
+        "label": "Báo cáo theo lịch bị hoãn",
+        "title": "Hoãn gửi báo cáo cho {client}",
+        "body": "Lý do: {reason, select, unconfirmed {có tài khoản chưa xác nhận gán Client} reconciliation {số liệu lệch hơn 1% so với Ads Manager} connection_revoked {kết nối Meta đã bị ngắt} demo {Client dùng dữ liệu mẫu} other {không dựng được báo cáo}}. Xử lý xong, báo cáo sẽ gửi ở lần chạy tiếp theo."
+      },
+      "billing_failed": {
+        "label": "Thanh toán không thành công",
+        "title": "Thanh toán không thành công",
+        "body": "Cập nhật phương thức thanh toán để tránh gián đoạn dịch vụ."
+      },
+      "billing_renewal": {
+        "label": "Nhắc gia hạn gói",
+        "title": "Gói {plan} hết hạn ngày {date}",
+        "body": "Thanh toán kỳ tiếp theo để không bị gián đoạn."
+      },
+      "action_failed": {
+        "label": "Hành động trên Meta thất bại",
+        "title": "Hành động trên Meta thất bại",
+        "body": "{action}: {reason}. Không có thay đổi nào được giữ lại."
+      },
+      "report_needs_approval": {
+        "label": "Báo cáo theo lịch chờ duyệt",
+        "title": "Báo cáo cho {client} chờ duyệt",
+        "body": "Báo cáo \"{report}\" đã dựng xong theo lịch và chờ bạn duyệt trước khi gửi khách."
+      },
+      "weekly_digest": {
+        "label": "Tổng kết tuần",
+        "title": "Tổng kết tuần {week}",
+        "body": "{summary}"
+      },
+      "weekly_actions": {
+        "label": "Việc tuần này",
+        "title": "Việc tuần này: {count} gợi ý",
+        "body": "Danh sách việc tuần {week} đã sẵn sàng, xếp theo tác động."
+      },
+      "action_assigned": {
+        "label": "Được giao việc",
+        "title": "Bạn được giao việc: {item}",
+        "body": "Tài khoản {account}."
+      },
+      "action_executed": {
+        "label": "Hành động đã thực hiện",
+        "title": "Đã thực hiện: {item}",
+        "body": "Thay đổi đã được áp dụng và xác minh trên Meta."
+      },
+      "budget_pacing": {
+        "label": "Ngân sách tháng lệch tiến độ",
+        "title": "{client}: ngân sách tháng {month} {status, select, over {dự kiến vượt} other {dự kiến thiếu}} {pct}%",
+        "body": "Xem tiến độ chi và mức chi mỗi ngày cần điều chỉnh."
+      },
+      "anomaly": {
+        "label": "Biến động bất thường hằng ngày",
+        "title": "{account}: {anomaly, select, spend_spike {chi tiêu tăng {pct}%} spend_stop {chi tiêu về 0} cpa_spike {CPA tăng {pct}%} other {không có kết quả dù vẫn chi tiêu}}",
+        "body": "Ngày {date}, so với 7 ngày trước. Kiểm tra trước khi khách hỏi."
+      }
+    },
+    "settings": {
+      "title": "Nhận thông báo",
+      "intro": "Chọn nhận gì trong app và qua email. Thông báo về sự cố số liệu, kết nối Meta và thanh toán luôn bật.",
+      "kind": "Loại",
+      "inApp": "Trong app",
+      "email": "Email",
+      "always": "Luôn bật",
+      "save": "Lưu",
+      "saved": "Đã lưu cài đặt thông báo"
+    }
+  },
+  "schedules": {
+    "title": "Lịch gửi báo cáo",
+    "link": "Lịch gửi",
+    "add": "+ Thêm lịch",
+    "emptyTitle": "Chưa có lịch gửi",
+    "emptyBody": "Tự động gửi báo cáo cho khách hằng tuần hoặc hằng tháng. Báo cáo chỉ gửi khi số liệu khớp Ads Manager và mọi tài khoản đã xác nhận gán.",
+    "weekly": "Hằng tuần, {weekday} lúc {hour}:00 ({timezone})",
+    "monthly": "Hằng tháng, ngày {day} lúc {hour}:00 ({timezone})",
+    "weekdays": {
+      "1": "thứ Hai",
+      "2": "thứ Ba",
+      "3": "thứ Tư",
+      "4": "thứ Năm",
+      "5": "thứ Sáu",
+      "6": "thứ Bảy",
+      "7": "Chủ nhật"
+    },
+    "modes": {
+      "auto": "Gửi tự động",
+      "approval": "Cần duyệt trước khi gửi"
+    },
+    "deliveries": {
+      "link": "Link báo cáo",
+      "pdf": "Link + PDF đính kèm"
+    },
+    "recipients": "Người nhận",
+    "enabled": "Đang bật",
+    "disabled": "Đã tắt",
+    "edit": "Sửa",
+    "delete": "Xóa lịch",
+    "deleteConfirm": "Xóa lịch gửi này? Báo cáo đã gửi vẫn giữ nguyên.",
+    "history": "Lần gửi gần đây",
+    "noHistory": "Chưa chạy lần nào.",
+    "approve": "Duyệt & gửi",
+    "approved": "Đã duyệt, đang gửi",
+    "status": {
+      "pending_approval": "Chờ duyệt",
+      "approved": "Đã duyệt",
+      "sent": "Đã gửi",
+      "postponed": "Đã hoãn",
+      "failed": "Lỗi"
+    },
+    "reasons": {
+      "unconfirmed": "Có tài khoản chưa xác nhận gán",
+      "reconciliation": "Số liệu lệch > 1%",
+      "connection_revoked": "Kết nối Meta đã ngắt",
+      "build_failed": "Không dựng được báo cáo",
+      "demo": "Client dùng dữ liệu mẫu"
+    },
+    "form": {
+      "titleNew": "Thêm lịch gửi",
+      "titleEdit": "Sửa lịch gửi",
+      "client": "Client",
+      "cadence": "Tần suất",
+      "cadences": {
+        "weekly": "Hằng tuần",
+        "monthly": "Hằng tháng"
+      },
+      "weekday": "Thứ",
+      "monthDay": "Ngày trong tháng (1–28)",
+      "hour": "Giờ gửi",
+      "timezone": "Múi giờ",
+      "mode": "Cách gửi",
+      "delivery": "Nội dung email",
+      "locale": "Ngôn ngữ báo cáo",
+      "localeClient": "Theo Client",
+      "recipients": "Email người nhận (cách nhau bằng dấu phẩy, tối đa 10)",
+      "save": "Lưu lịch",
+      "periodNote": "Mỗi lần gửi là báo cáo của kỳ vừa kết thúc (tuần trước hoặc tháng trước)."
+    }
+  },
+  "demo": {
+    "banner": "Bạn đang xem dữ liệu mẫu. Số liệu là minh họa; báo cáo mẫu không chia sẻ được cho khách.",
+    "remove": "Xóa dữ liệu mẫu",
+    "connectReal": "Kết nối tài khoản thật",
+    "title": "Xem AdxLens với tài khoản mẫu",
+    "body": "Tạo 2 Client mẫu với 90 ngày dữ liệu quảng cáo giả: đối chiếu số liệu, phát hiện, báo cáo. Mọi màn hình ghi rõ \"dữ liệu mẫu\". Bạn có thể xóa bất cứ lúc nào.",
+    "points": {
+      "match": "Một tài khoản khớp Ads Manager, một tài khoản có ngày lệch để thấy luồng đối chiếu.",
+      "findings": "Phát hiện mẫu: creative mệt, ngân sách, học hạn chế…",
+      "safe": "Không cần đăng nhập Meta, không tốn phí, không gửi gì cho khách."
+    },
+    "start": "Dùng tài khoản mẫu",
+    "starting": "Đang tạo dữ liệu mẫu…",
+    "already": "Workspace đã có dữ liệu mẫu.",
+    "goOverview": "Mở tổng quan",
+    "back": "Quay lại"
+  },
+  "billing": {
+    "currentPlan": "Gói hiện tại",
+    "comparePlans": "So sánh các gói",
+    "plan": "Gói",
+    "price": "Giá",
+    "activeAccounts": "Tài khoản đang hoạt động",
+    "usage": "{active}/{limit}",
+    "renewsOn": "Gia hạn ngày",
+    "endsOn": "Kết thúc ngày",
+    "activeHint": "Tài khoản đang hoạt động là tài khoản có chi tiêu trong 30 ngày qua. Tài khoản mẫu không được tính.",
+    "pastDue": "Chưa thanh toán kỳ hiện tại. Gói sẽ chuyển về Free sau {date} nếu chưa thanh toán.",
+    "overLimit": "Đang có {active} tài khoản hoạt động, vượt hạn mức {limit}. Nâng gói trước {date} để tiếp tục cập nhật mọi tài khoản.",
+    "overLimitExpired": "Đã hết thời gian ân hạn: chỉ {limit} tài khoản trong hạn mức còn được cập nhật.",
+    "changePlan": "Đổi gói",
+    "period": "Kỳ thanh toán",
+    "monthly": "Theo tháng",
+    "annual": "Theo năm (giảm 20%)",
+    "currentBadge": "Gói hiện tại",
+    "choose": "Chọn gói",
+    "unavailable": "Thanh toán chưa sẵn sàng. Vui lòng thử lại sau.",
+    "managePayment": "Quản lý thanh toán",
+    "cancel": "Hủy gói",
+    "resume": "Tiếp tục gói",
+    "cancelConfirm": "Hủy gói vào cuối kỳ hiện tại? Bạn vẫn dùng đầy đủ tới hết kỳ, sau đó workspace chuyển về Free.",
+    "canceled": "Gói sẽ kết thúc vào cuối kỳ",
+    "resumed": "Gói sẽ tiếp tục gia hạn",
+    "invoiceInfo": "Thông tin xuất hóa đơn",
+    "companyName": "Tên công ty",
+    "taxCode": "Mã số thuế",
+    "address": "Địa chỉ",
+    "invoiceEmail": "Email nhận hóa đơn",
+    "invalid": "Giá trị không hợp lệ",
+    "checkoutSuccess": "Thanh toán thành công. Workspace đang dùng gói {plan}.",
+    "checkoutProcessing": "Thanh toán đã hoàn tất, đang xác nhận với cổng thanh toán. Gói sẽ cập nhật trong ít phút.",
+    "checkoutCanceled": "Bạn đã hủy thanh toán. Gói hiện tại không thay đổi.",
+    "backToBilling": "Về Gói & thanh toán",
+    "method": "Phương thức thanh toán",
+    "methodPayos": "QR / chuyển khoản (VND)",
+    "methodStripe": "Thẻ quốc tế",
+    "renew": "Gia hạn",
+    "payosPaid": "Đã nhận thanh toán. Workspace đang dùng gói {plan} tới ngày {date}.",
+    "payosPending": "Chưa nhận được thanh toán. Nếu bạn đã chuyển khoản, gói sẽ cập nhật trong ít phút."
+  },
+  "creatives": {
+    "title": "Creative",
+    "account": "Tài khoản quảng cáo",
+    "apply": "Xem",
+    "all": "Tất cả",
+    "viewTable": "Bảng",
+    "viewGrid": "Lưới",
+    "classes": {
+      "winner": "Winner",
+      "watch": "Cần theo dõi",
+      "fatigued": "Đang mệt",
+      "loser": "Thua",
+      "insufficient": "Chưa đủ dữ liệu"
+    },
+    "reasons": {
+      "insufficient": "Cần ≥ {impressions} hiển thị và ≥ {days} ngày có chi tiêu trong kỳ để xếp loại.",
+      "fatigued": "Tuần này CTR giảm {ctrDrop}% so với tuần trước, tần suất {freq}.",
+      "noPeers": "Cần ≥ {peers} creative cùng loại kết quả để so sánh.",
+      "winner": "CPA thấp hơn {pct}% so với trung vị các creative cùng loại kết quả.",
+      "loser": "CPA bằng {ratio}× trung vị các creative cùng loại kết quả.",
+      "loserNoResult": "Chưa có kết quả dù chi tiêu ≥ {ratio}× CPA trung vị.",
+      "watch": "CPA quanh trung vị các creative cùng loại kết quả."
+    },
+    "forecast": "Dự báo: có thể mệt trong khoảng {days} ngày tới",
+    "formats": {
+      "VIDEO": "Video",
+      "PHOTO": "Ảnh",
+      "SHARE": "Liên kết",
+      "STATUS": "Bài viết"
+    },
+    "ads": "{count} quảng cáo",
+    "select": "Chọn",
+    "selectOne": "Chọn {name} để so sánh",
+    "creative": "Creative",
+    "class": "Phân loại",
+    "spend": "Chi tiêu",
+    "results": "Kết quả",
+    "cpa": "Chi phí / kết quả",
+    "ctr": "CTR",
+    "roas": "ROAS",
+    "frequency": "Tần suất",
+    "impressions": "Hiển thị",
+    "runTime": "Thời gian chạy",
+    "compare": "So sánh",
+    "compareHint": "Chọn 2–4 creative trong cùng tài khoản để so sánh.",
+    "compareTitle": "So sánh creative",
+    "compareNeedTwo": "Chưa chọn đủ 2 creative",
+    "metric": "Chỉ số",
+    "empty": "Chưa có creative nào trong kỳ này",
+    "emptyBody": "Creative xuất hiện khi tài khoản có chi tiêu trong kỳ đã chọn.",
+    "noAccounts": "Chưa có tài khoản quảng cáo",
+    "noAccountsBody": "Kết nối Meta và nhập tài khoản để xem creative.",
+    "footnote": "Nguồn: Meta Marketing API, {from} → {to}, theo múi giờ tài khoản. Phân loại theo quy tắc công khai; \"dự báo\" là ước tính từ xu hướng CTR, không phải kết luận."
+  },
+  "weekly": {
+    "title": "Việc tuần này",
+    "weekOf": "Tuần {date}",
+    "all": "Tất cả",
+    "mine": "Việc của tôi",
+    "status": {
+      "proposed": "Đề xuất",
+      "in_progress": "Đang làm",
+      "done": "Đã làm",
+      "skipped": "Bỏ qua"
+    },
+    "skip": {
+      "not_relevant": "Không phù hợp với khách này",
+      "wrong": "Gợi ý sai",
+      "later": "Để tuần sau",
+      "other": "Lý do khác"
+    },
+    "cols": {
+      "action": "Việc cần làm",
+      "account": "Tài khoản",
+      "impact": "Tác động ước tính",
+      "confidence": "Độ tin cậy",
+      "effort": "Thời gian làm",
+      "status": "Trạng thái",
+      "assignee": "Người làm"
+    },
+    "minutes": "{n} phút",
+    "hours": "{n} giờ",
+    "detail": "Chi tiết gợi ý",
+    "why": "Vì sao",
+    "noImpact": "Không ước tính được bằng tiền",
+    "scoreNote": "Xếp hạng = tác động ước tính (so với chi tiêu 7 ngày của tài khoản) × độ tin cậy ÷ thời gian làm. Loại gợi ý hay bị đánh dấu \"sai\" sẽ xếp thấp hơn.",
+    "unassigned": "Chưa gán",
+    "skippedBecause": "Đã bỏ qua: {reason}",
+    "openAdsManager": "Mở trong Ads Manager",
+    "skipTitle": "Bỏ qua gợi ý",
+    "skipBody": "Lý do giúp AdxLens xếp hạng gợi ý tốt hơn ở các tuần sau.",
+    "skipConfirm": "Bỏ qua",
+    "emptyTitle": "Chưa có danh sách việc",
+    "emptyBody": "Danh sách được tạo mỗi thứ Hai lúc 07:00 từ các phát hiện và creative của tuần trước.",
+    "noneFiltered": "Không có việc nào khớp bộ lọc",
+    "noneFilteredBody": "Đổi trạng thái hoặc bỏ lọc \"Việc của tôi\".",
+    "footnote": "Gợi ý chỉ để tham khảo, AdxLens không thay đổi gì trên tài khoản. Số liệu theo múi giờ của từng tài khoản.",
+    "actions": {
+      "creative_loser": "Tắt hoặc giảm phân bổ cho creative thua ({ads} quảng cáo)",
+      "creative_winner": "Tăng phân bổ cho creative đang thắng"
+    },
+    "results": "Kết quả trước / sau →",
+    "bulk": {
+      "selected": "Đã chọn {count}",
+      "clear": "Bỏ chọn",
+      "all": "Chọn tất cả (tối đa 20)",
+      "select": "Chọn: {action}"
+    }
+  },
+  "outcomes": {
+    "title": "Kết quả trước / sau",
+    "causality": "So sánh 7 ngày trước và 7 ngày sau ngày đánh dấu \"Đã làm\" (không tính chính ngày đó). Đây không phải bằng chứng nhân quả: mùa vụ, ngân sách và các thay đổi khác cũng ảnh hưởng tới số liệu.",
+    "cols": {
+      "item": "Việc đã làm",
+      "doneOn": "Ngày làm",
+      "metric": "Chỉ số đo",
+      "before": "7 ngày trước",
+      "after": "7 ngày sau",
+      "change": "Thay đổi"
+    },
+    "metric": {
+      "cpa": "Chi phí / kết quả",
+      "ctr": "CTR",
+      "results": "Kết quả",
+      "spend": "Chi tiêu"
+    },
+    "scope": {
+      "entity": "đối tượng",
+      "account": "cả tài khoản"
+    },
+    "waiting": "Chưa đủ 7 ngày sau, có kết quả từ {date}",
+    "notMeasured": "Không đo",
+    "notMeasuredBody": "Loại việc này không có chỉ số đo trước / sau.",
+    "emptyTitle": "Chưa có việc nào được đánh dấu \"Đã làm\"",
+    "emptyBody": "Đánh dấu \"Đã làm\" ở Việc tuần này để theo dõi kết quả."
+  },
+  "welcome": {
+    "title": "Chào {name}, bắt đầu với AdxLens",
+    "intro": "Bạn không cần cấu hình gì. AdxLens đã đọc dữ liệu các tài khoản quảng cáo bạn phụ trách và chuẩn bị việc cần làm mỗi tuần.",
+    "clientsTitle": "Client bạn phụ trách",
+    "client": "{name} · {count} tài khoản",
+    "noClients": "Chưa được giao Client nào. Hãy nhờ Owner gán Client cho bạn.",
+    "howTitle": "Mỗi tuần làm gì",
+    "step1": "Mở \"Việc tuần này\": {count} việc đang chờ, xếp theo tác động.",
+    "step2": "Việc được gán cho bạn: {count}. Đổi trạng thái khi làm xong.",
+    "step3": "Xem \"Creative\" để biết creative nào thắng, thua hay sắp mệt.",
+    "start": "Bắt đầu với việc tuần này",
+    "creatives": "Xem creative"
+  },
+  "writeAccess": {
+    "title": "Quyền ghi trên Meta",
+    "done": "Đã cấp quyền ghi. Mọi thay đổi vẫn cần bạn hoặc người được giao duyệt từng lần.",
+    "missingScope": "Meta chưa cấp quyền \"quản lý quảng cáo\". Thử lại và chọn cho phép quyền này.",
+    "planRequired": "Duyệt hành động trên Meta có ở gói Growth trở lên.",
+    "upgrade": "Xem gói",
+    "whatTitle": "Khi có quyền ghi, AdxLens sẽ:",
+    "what": {
+      "approve": "Chỉ thực hiện thay đổi sau khi người có quyền bấm duyệt, và cho xem trước chính xác trước / sau.",
+      "actions": "Chỉ các thao tác: tạm dừng / bật lại ad hoặc ad set, chỉnh ngân sách ngày ad set (tối đa ±15% mỗi lần), nhân bản ad set (bản sao ở trạng thái tạm dừng).",
+      "guardrails": "Luôn kiểm tra giới hạn an toàn, đọc lại trạng thái trên Meta sau mỗi thay đổi và ghi nhật ký đầy đủ.",
+      "revoke": "Bạn thu hồi được quyền ghi bất cứ lúc nào; có hiệu lực ngay."
+    },
+    "connections": "Kết nối Meta",
+    "noConnections": "Chưa có kết nối Meta",
+    "noConnectionsBody": "Kết nối Meta trước khi cấp quyền ghi.",
+    "cols": {
+      "connection": "Kết nối",
+      "status": "Quyền",
+      "actions": "Thao tác"
+    },
+    "state": {
+      "enabled": "Được ghi",
+      "revoked": "Đã thu hồi",
+      "readOnly": "Chỉ đọc",
+      "demo": "Dữ liệu mẫu"
+    },
+    "grant": "Cấp quyền ghi",
+    "revoke": "Thu hồi quyền ghi",
+    "reenable": "Bật lại quyền ghi",
+    "revokeConfirm": "Thu hồi quyền ghi của kết nối này? Các hành động đang chờ sẽ không được thực hiện.",
+    "enabledToast": "Đã bật quyền ghi",
+    "revokedToast": "Đã thu hồi quyền ghi"
+  },
+  "guardrails": {
+    "title": "Guardrails",
+    "intro": "Giới hạn an toàn cho mọi thay đổi AdxLens thực hiện trên Meta. Giá trị cố định là mức tối đa; bạn chỉ có thể siết chặt hơn.",
+    "maxBudgetChangePct": "Thay đổi ngân sách tối đa mỗi lần (%)",
+    "maxActionsPerDay": "Số hành động tối đa mỗi ngày trên một tài khoản",
+    "minDataDays": "Số ngày dữ liệu tối thiểu trước khi thay đổi",
+    "quietStartHour": "Không tự chạy từ (giờ)",
+    "quietEndHour": "Đến (giờ)",
+    "breakerFailures": "Tạm khóa tài khoản sau số lỗi liên tiếp",
+    "excludeMetaIds": "Không bao giờ thay đổi (ID campaign / ad set / ad)",
+    "excludeHint": "Mỗi dòng một ID trên Meta.",
+    "fixed": "Cố định: {value}",
+    "looser": "Chỉ được đặt chặt hơn giá trị cố định.",
+    "looserField": "Lỏng hơn giá trị cố định"
+  },
+  "actionLog": {
+    "title": "Nhật ký hành động",
+    "detailTitle": "Chi tiết hành động",
+    "all": "Tất cả",
+    "status": {
+      "pending": "Đang chờ",
+      "executing": "Đang thực hiện",
+      "success": "Thành công",
+      "failed": "Thất bại",
+      "undone": "Đã hoàn tác",
+      "canceled": "Đã hủy"
+    },
+    "cols": {
+      "when": "Thời điểm",
+      "action": "Hành động",
+      "change": "Thay đổi",
+      "by": "Người duyệt",
+      "status": "Trạng thái",
+      "target": "Đối tượng",
+      "account": "Tài khoản",
+      "executed": "Thực hiện lúc",
+      "verified": "Xác minh lúc"
+    },
+    "types": {
+      "pause_ad": "Tạm dừng quảng cáo",
+      "resume_ad": "Bật lại quảng cáo",
+      "pause_adset": "Tạm dừng nhóm quảng cáo",
+      "resume_adset": "Bật lại nhóm quảng cáo",
+      "set_adset_budget": "Đổi ngân sách ngày nhóm quảng cáo",
+      "duplicate_adset": "Nhân bản nhóm quảng cáo"
+    },
+    "state": {
+      "ACTIVE": "Đang chạy",
+      "PAUSED": "Tạm dừng",
+      "ARCHIVED": "Lưu trữ",
+      "DELETED": "Đã xóa"
+    },
+    "copyPaused": "Bản sao ở trạng thái tạm dừng",
+    "system": "Hệ thống",
+    "isUndo": "· hoàn tác",
+    "emptyTitle": "Chưa có hành động nào",
+    "emptyBody": "Thay đổi được duyệt từ \"Việc tuần này\" sẽ hiện ở đây.",
+    "failedBody": "Hành động thất bại: {reason}. Không có thay đổi nào được giữ lại trên Meta.",
+    "checkManually": "Không xác định được bản sao có được tạo hay không. Hãy kiểm tra trên Ads Manager.",
+    "summary": "Tóm tắt",
+    "timeline": "Dòng thời gian",
+    "undoOf": "Hoàn tác của",
+    "viewOriginal": "Xem hành động gốc",
+    "undoneBy": "Hoàn tác",
+    "noUndoDuplicate": "Nhân bản không hoàn tác tự động được; tạm dừng hoặc xóa bản sao trên Ads Manager nếu cần.",
+    "undo": "Hoàn tác",
+    "undoTitle": "Hoàn tác hành động này?",
+    "undoBody": "AdxLens sẽ đưa đối tượng về trạng thái trước đó, qua cùng các bước kiểm tra an toàn.",
+    "undoConfirm": "Hoàn tác",
+    "undoQueued": "Đã gửi yêu cầu hoàn tác",
+    "events": {
+      "approved": "Được duyệt",
+      "before_live": "Đọc trạng thái hiện tại trên Meta",
+      "meta_call": "Gửi thay đổi tới Meta",
+      "verify": "Đọc lại để xác minh",
+      "success": "Thành công",
+      "failed": "Thất bại",
+      "canceled": "Đã hủy",
+      "undone": "Đã hoàn tác",
+      "circuit_breaker_opened": "Tạm khóa tài khoản do lỗi liên tiếp"
+    },
+    "errors": {
+      "GUARDRAIL_VIOLATION": "Vượt giới hạn an toàn (guardrails).",
+      "KILL_SWITCH_ACTIVE": "Đang tạm dừng mọi thay đổi (kill switch hoặc tài khoản bị khóa do lỗi liên tiếp).",
+      "PLAN_REQUIRED": "Cần gói Growth trở lên.",
+      "FORBIDDEN": "Bạn không có quyền duyệt hành động này, hoặc kết nối chưa có quyền ghi.",
+      "CONFLICT": "Hành động đang được thực hiện hoặc không còn áp dụng được.",
+      "NOT_FOUND": "Không tìm thấy đối tượng."
+    }
+  },
+  "killSwitch": {
+    "title": "Kill switch",
+    "on": "Đang bật",
+    "off": "Đang tắt",
+    "body": "Bật kill switch sẽ dừng ngay mọi thay đổi AdxLens làm trên Meta cho workspace này và hủy các hành động đang chờ.",
+    "reason": "Lý do: {reason}",
+    "turnOn": "Bật kill switch",
+    "turnOff": "Tắt kill switch",
+    "globalOn": "Kill switch toàn hệ thống đang bật: mọi thay đổi trên Meta đang tạm dừng.",
+    "confirmTitle": "Bật kill switch?",
+    "confirmBody": "Mọi hành động đang chờ sẽ bị hủy và không hành động mới nào được thực hiện cho tới khi bạn tắt.",
+    "reasonLabel": "Lý do (bắt buộc, ≥ 5 ký tự)",
+    "onToast": "Đã bật kill switch, hủy {count} hành động đang chờ",
+    "offToast": "Đã tắt kill switch",
+    "breakers": "Tài khoản bị tạm khóa do lỗi liên tiếp",
+    "locked": "Tạm khóa",
+    "failures": "{count} lỗi liên tiếp",
+    "unlock": "Mở khóa",
+    "breakerClosed": "Đã mở khóa tài khoản"
+  },
+  "approve": {
+    "open": "Duyệt thực hiện trên Meta",
+    "title": "Duyệt hành động",
+    "confirm": "Duyệt và thực hiện",
+    "manualOnly": "Gợi ý này cần làm thủ công trên Ads Manager.",
+    "viewResult": "Xem kết quả trong nhật ký",
+    "queued": "Đã duyệt. AdxLens đang thực hiện và xác minh trên Meta.",
+    "beforeNote": "\"Trước\" theo lần đồng bộ gần nhất. Nếu đối tượng đã bị đổi trên Meta, AdxLens sẽ dừng và không ghi đè.",
+    "safety": "AdxLens kiểm tra giới hạn an toàn, thực hiện một lần, rồi đọc lại trạng thái trên Meta để xác minh.",
+    "noPermission": "Bạn chưa được cấp quyền duyệt hành động cho Client này. Owner cấp ở Cài đặt › Thành viên.",
+    "warnings": {
+      "not_undoable": "Hành động này không hoàn tác tự động được.",
+      "learning_reset": "Đổi ngân sách có thể đưa nhóm quảng cáo về giai đoạn học.",
+      "last_active_ad": "Đây là quảng cáo cuối cùng đang chạy của nhóm quảng cáo: nhóm sẽ ngừng phân phối."
+    },
+    "violations": {
+      "excluded": "Đối tượng nằm trong danh sách không bao giờ thay đổi.",
+      "too_many_actions": "Đã đạt tối đa {max} hành động hôm nay cho tài khoản này.",
+      "not_enough_data": "Chưa đủ {min} ngày dữ liệu.",
+      "budget_change_too_large": "Thay đổi ngân sách vượt {max}%.",
+      "no_daily_budget": "Nhóm quảng cáo không dùng ngân sách ngày.",
+      "invalid_budget": "Ngân sách mới không hợp lệ.",
+      "quiet_hours": "Ngoài giờ cho phép.",
+      "no_auto_resume": "Không tự bật lại.",
+      "no_auto_duplicate": "Không tự nhân bản."
+    },
+    "bulkButton": "Xem trước & duyệt ({count})",
+    "bulkTitle": "Duyệt {count} gợi ý",
+    "bulkConfirm": "Duyệt {count} hành động",
+    "bulkNote": "Chỉ gửi gợi ý thực hiện được và không vi phạm guardrails. Mỗi hành động vẫn được kiểm lại, thực hiện rồi xác minh như duyệt từng cái; xem kết quả ở Nhật ký hành động.",
+    "bulkQueued": "Đã gửi {count} hành động",
+    "bulkOk": "Đã gửi"
+  },
+  "automation": {
+    "title": "Rule tự động",
+    "new": "Tạo rule",
+    "detail": "Chi tiết rule",
+    "effectiveness": "Hiệu quả tự động hóa",
+    "emptyTitle": "Chưa có rule tự động",
+    "emptyBody": "Tạo rule từ mẫu dựng sẵn. Rule mới luôn chạy thử (shadow) ít nhất 14 ngày trước khi được thực hiện thật.",
+    "cols": {
+      "name": "Tên",
+      "account": "Tài khoản",
+      "action": "Hành động",
+      "mode": "Chế độ",
+      "since": "Từ ngày",
+      "date": "Ngày dữ liệu",
+      "item": "Đối tượng",
+      "matched": "Khớp",
+      "wouldDo": "Sẽ làm"
+    },
+    "modes": {
+      "shadow": "Chạy thử",
+      "live": "Đang chạy",
+      "paused": "Tạm dừng"
+    },
+    "templates": {
+      "pause_fatigued_ad": "Tạm dừng quảng cáo mệt",
+      "pause_adset_no_results": "Tạm dừng nhóm chi tiêu không ra kết quả",
+      "reduce_budget_high_cpa": "Giảm ngân sách nhóm có CPA tăng mạnh",
+      "increase_budget_winner": "Tăng ngân sách nhóm thắng (CPA giảm mạnh)"
+    },
+    "template": "Mẫu",
+    "doneCount": "{count} lần đã làm",
+    "fields": {
+      "name": "Tên rule",
+      "account": "Tài khoản quảng cáo",
+      "when": "Khi một {level} đang chạy có (7 ngày gần nhất):",
+      "metric": "Chỉ số",
+      "op": "So sánh",
+      "value": "Giá trị",
+      "then": "thì",
+      "changePct": "Thay đổi ngân sách (%)",
+      "maxDailyBudget": "Trần ngân sách ngày (đơn vị nhỏ nhất của tiền tệ)",
+      "maxPerDay": "Tối đa hành động mỗi ngày (không bắt buộc)",
+      "match": "Kiểu khớp điều kiện"
+    },
+    "levels": {
+      "ad": "quảng cáo",
+      "adset": "nhóm quảng cáo"
+    },
+    "metrics": {
+      "spend": "Chi tiêu",
+      "results": "Kết quả",
+      "cpa": "Chi phí / kết quả",
+      "ctr": "CTR (tỷ lệ)",
+      "frequency": "Tần suất",
+      "ctr_change_pct": "CTR thay đổi so tuần trước (%)",
+      "cpa_change_pct": "CPA thay đổi so tuần trước (%)"
+    },
+    "remove": "Bỏ",
+    "addCondition": "+ Thêm điều kiện",
+    "pctHint": "Từ −15 đến +15. Tăng cần đặt trần.",
+    "maxHint": "Bắt buộc khi tăng ngân sách.",
+    "maxPerDayHint": "Chỉ được ít hơn giới hạn của workspace.",
+    "runBacktest": "Chạy backtest 30 ngày",
+    "saveShadow": "Lưu và chạy thử",
+    "saved": "Đã lưu rule ở chế độ chạy thử",
+    "shadowNote": "Rule mới chỉ ghi lại việc lẽ ra sẽ làm (chạy thử). Sau ít nhất 14 ngày, bạn có thể bật chạy thật; mọi thay đổi vẫn qua giới hạn an toàn và kill switch.",
+    "backtestTitle": "Backtest 30 ngày: {count} lần sẽ thực hiện",
+    "backtestEmpty": "Không có ngày nào khớp điều kiện.",
+    "backtestNote": "Backtest dùng số liệu đã lưu, không gọi Meta; kết quả thật có thể khác.",
+    "summary": "Khi một {level} đang chạy có {conditions} thì {action}.",
+    "shadowProgress": "Đã chạy thử {days}/{min} ngày.",
+    "liveBlockers": {
+      "feature_disabled": "Tính năng chạy tự động chưa được bật cho workspace.",
+      "plan_required": "Cần gói Growth trở lên.",
+      "shadow_too_short": "Cần chạy thử đủ 14 ngày trước khi chạy thật."
+    },
+    "evaluations": "Kết quả đánh giá",
+    "noEvaluations": "Chưa có lần đánh giá nào",
+    "noEvaluationsBody": "Rule được đánh giá mỗi 30 phút trên số liệu đã đồng bộ.",
+    "blocked": "bị chặn: {reason}",
+    "actionsCreated": "{count} hành động đã tạo",
+    "evaluatedNote": "Lần đánh giá gần nhất: {at}.",
+    "goLive": "Bật chạy thật",
+    "toShadow": "Về chạy thử",
+    "pause": "Tạm dừng rule",
+    "delete": "Xóa",
+    "liveConfirm": "Bật chạy thật? AdxLens sẽ tự thực hiện thay đổi trên Meta khi rule khớp, trong giới hạn an toàn.",
+    "deleteConfirm": "Xóa rule này?",
+    "modeSet": {
+      "shadow": "Đã chuyển về chạy thử",
+      "live": "Rule đang chạy thật",
+      "paused": "Đã tạm dừng rule"
+    },
+    "errors": {
+      "GUARDRAIL_VIOLATION": "Vượt giới hạn an toàn: thay đổi ngân sách tối đa ±15%, giới hạn chỉ được chặt hơn workspace.",
+      "VALIDATION_FAILED": "Kiểm tra lại điều kiện / hành động (tăng ngân sách cần trần; cấp phải khớp hành động).",
+      "NOT_FOUND": "Không tìm thấy tài khoản."
+    },
+    "results": {
+      "note": "30 ngày gần nhất. \"Chi tiêu 7 ngày trước khi tạm dừng\" là chi tiêu của đối tượng trong 7 ngày trước khi rule tạm dừng nó — chỉ để tham khảo, không chứng minh khoản tiết kiệm thật. Mục tiêu tỷ lệ hoàn tác ≤ 5%.",
+      "emptyTitle": "Chưa có hành động tự động nào",
+      "emptyBody": "Rule đang chạy thật sẽ hiện kết quả ở đây.",
+      "cols": {
+        "rule": "Rule",
+        "mode": "Chế độ",
+        "total": "Hành động",
+        "success": "Thành công",
+        "failed": "Thất bại",
+        "undoRate": "Tỷ lệ hoàn tác",
+        "pausedSpend": "Chi tiêu 7 ngày trước khi tạm dừng"
+      }
+    },
+    "match": {
+      "all": "Khi TẤT CẢ điều kiện đúng (VÀ)",
+      "any": "Khi BẤT KỲ điều kiện nào đúng (HOẶC)"
+    },
+    "maxRequired": "Bắt buộc với rule tăng ngân sách: ngân sách mới không bao giờ vượt mức này.",
+    "copy": {
+      "button": "Sao chép sang tài khoản khác",
+      "title": "Sao chép rule \"{name}\"",
+      "note": "Mỗi bản sao là rule riêng của từng tài khoản, bắt đầu chạy thử 14 ngày. Danh sách loại trừ không được sao chép.",
+      "accounts": "Tài khoản QC",
+      "confirm": "Sao chép",
+      "done": "Đã tạo {created} rule (bỏ qua {skipped})"
+    },
+    "log": {
+      "title": "Nhật ký kích hoạt",
+      "matched": "Đối tượng khớp",
+      "none": "Không có đối tượng khớp.",
+      "blockedBy": "bị chặn: {reason}",
+      "newBudget": "ngân sách mới {budget}"
+    },
+    "and": "VÀ",
+    "or": "HOẶC"
+  },
+  "entity": {
+    "title": "Chi tiết đối tượng",
+    "crumbs": {
+      "clients": "Clients"
+    },
+    "openAdsManager": "Mở trong Ads Manager",
+    "dailyBudget": "Ngân sách ngày {budget}",
+    "learning": "Giai đoạn học: {stage}",
+    "tabs": {
+      "overview": "Tổng quan",
+      "children": "Con",
+      "findings": "Vấn đề",
+      "history": "Lịch sử thay đổi"
+    },
+    "trend": "Chi tiêu và kết quả theo ngày",
+    "noData": "Không có chi tiêu trong kỳ.",
+    "adsetScope": "Dữ liệu theo nhóm lấy ở cấp nhóm QC chứa quảng cáo này.",
+    "noFindings": "Không có vấn đề đang mở ở đối tượng này.",
+    "noHistory": "Chưa có thay đổi nào qua AdxLens.",
+    "noHistoryBody": "Thay đổi duyệt từ Việc tuần này hoặc do rule tự động sẽ hiện ở đây.",
+    "auto": "tự động (rule)",
+    "cols": {
+      "at": "Lúc",
+      "action": "Hành động",
+      "change": "Thay đổi",
+      "status": "Trạng thái"
+    }
+  },
+  "gridActions": {
+    "header": "Thao tác",
+    "pause": "Tạm dừng",
+    "resume": "Bật lại",
+    "budget": "Ngân sách",
+    "selected": "Đã chọn {count}",
+    "clear": "Bỏ chọn",
+    "selectAll": "Chọn tất cả (tối đa 20)",
+    "select": "Chọn {name}",
+    "title": {
+      "pause_ad": "Tạm dừng {count} quảng cáo",
+      "resume_ad": "Bật lại {count} quảng cáo",
+      "pause_adset": "Tạm dừng {count} nhóm QC",
+      "resume_adset": "Bật lại {count} nhóm QC",
+      "set_adset_budget": "Đổi ngân sách ngày"
+    },
+    "confirm": "Thực hiện {count} hành động",
+    "note": "Mỗi hành động được kiểm guardrails, thực hiện qua Meta rồi xác minh lại; chỉ gửi đối tượng không vi phạm. Theo dõi kết quả ở",
+    "log": "Nhật ký hành động",
+    "newBudget": "Ngân sách ngày mới",
+    "preview": "Xem trước",
+    "ok": "Sẵn sàng",
+    "queued": "Đã gửi {count} hành động",
+    "partial": "Đã gửi {ok}, {failed} không thực hiện được",
+    "parentPaused": {
+      "campaign": "Bật chiến dịch trước (Ads Manager)",
+      "adset": "Bật nhóm QC trước"
+    },
+    "failed": "{count} hành động không thực hiện được — xem lý do từng đối tượng.",
+    "sent": "Đã gửi"
+  }
+}

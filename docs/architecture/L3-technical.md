@@ -124,6 +124,8 @@ adxlens/
     └── workflows/
 ```
 
+**Bổ sung mốc L (ADR-0003, 22/10/2026):** trong `apps/web/src/app` có ba route group: `(marketing)` cho trang công khai M01–M06 (`/`, `/pricing`, `/privacy`, `/terms`, `/data-deletion`, `/break-even`), `(auth)` cho A01–A06 (`/signup`, `/verify-email`, `/login`, `/forgot-password`, `/reset-password`, `/invite/[token]`, `/auth/callback`), `(app)` cho mọi màn cần đăng nhập. Xác thực bằng Supabase Auth (email + mật khẩu, bắt buộc xác minh email), phiên cookie qua `@supabase/ssr`; mọi thao tác auth chạy phía server và không tiết lộ email đã tồn tại.
+
 **Quy tắc:** `apps/*` chỉ gọi `packages/core`; `core` không import từ `apps`. Mỗi module trong `core` có `index.ts` xuất interface công khai và test riêng. Mọi quyết định kiến trúc đáng kể (đổi nhà cung cấp, đổi schema lớn, thêm hành động ghi lên Meta) ghi thành một ADR trước khi merge. Mỗi phiên Claude Code chỉ làm trong một module hoặc một tính năng, để PR nhỏ và review được.
 
 ---
@@ -479,7 +481,7 @@ Các bảng còn lại (`recommendations`, `report_schedules`, `automation_rules
 | Mục | Giá trị / Việc cần làm |
 |---|---|
 | Loại app | Business |
-| Quyền P0–P1 | `ads_read`, `business_management` (để liệt kê ad account), `email` |
+| Quyền P0–P1 | `ads_read`, `business_management` (để liệt kê ad account). Không xin `email`: không dùng, và Facebook Login for Business báo "Invalid Scopes: email" |
 | Quyền P2 | thêm `ads_management` qua luồng OAuth riêng (re-authorize) |
 | App Review | Bắt đầu từ V0; cần video demo, chính sách quyền riêng tư, Business Verification |
 | Phiên bản API | Dùng phiên bản mới nhất tại thời điểm E4; ghi vào `META_API_VERSION` |
@@ -539,7 +541,7 @@ status = 'ok' nếu spend_delta_pct ≤ 1 và results_delta_pct ≤ 1, ngược 
 
 ### 7.3 Chuỗi job P0
 ```
-confirm_assignment → sync:backfill_account (7 ngày/lô)
+import_accounts (S04, ADR-0005) → sync:backfill_account (7 ngày/lô)
   → reconcile:account(range)
       → ok: audit:run(account) → report:build(nếu có yêu cầu/lịch) → pdf:render (nếu cần) → notify:*
       → warning: notify:internal_alert

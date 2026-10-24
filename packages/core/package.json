@@ -1,0 +1,25 @@
+{
+  "name": "@adxlens/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@adxlens/config": "workspace:*",
+    "@adxlens/db": "workspace:*",
+    "@adxlens/jobs": "workspace:*",
+    "@adxlens/meta-client": "workspace:*",
+    "drizzle-orm": "^0.45.4",
+    "nodemailer": "^10.2.1",
+    "pino": "^9.14.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^8.0.2"
+  }
+}

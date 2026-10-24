@@ -1,0 +1,8 @@
+# L3 mục 1.1 và 13.1: PM duyệt bắt buộc các vùng dưới đây.
+/packages/core/   @trinhcongtan192vn
+/packages/db/     @trinhcongtan192vn
+/packages/meta-client/ @trinhcongtan192vn
+/apps/worker/     @trinhcongtan192vn
+/infra/           @trinhcongtan192vn
+/CLAUDE.md        @trinhcongtan192vn
+/.specify/memory/ @trinhcongtan192vn

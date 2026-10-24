@@ -1,0 +1,172 @@
+import { renderToStaticMarkup } from 'react-dom/server';
+import { describe, expect, it } from 'vitest';
+import type { ReportContent } from '@adxlens/core/reporting';
+import { ReportView } from './report-view';
+
+const k = (spend: string, results: number) => ({
+  spend,
+  impressions: 10000,
+  reach: 8000,
+  clicks: 300,
+  linkClicks: 200,
+  results,
+  conversionValue: '0',
+  ctr: 0.02,
+  cpa: results ? (Number(spend) / results).toFixed(4) : null,
+  roas: null,
+  cpm: null,
+  resultTypes: ['lead'],
+});
+
+const content: ReportContent = {
+  version: 1,
+  client: { id: 'c', name: 'Thời trang Linh' },
+  brand: { displayName: 'Agency Sao Mai', logoPath: null, primaryColor: '#123456' },
+  locale: 'vi',
+  kind: 'periodic',
+  period: { from: '2026-10-16', to: '2026-10-22' },
+  compare: { from: '2026-10-09', to: '2026-10-15' },
+  generatedAt: '2026-10-23T03:00:00Z',
+  source: {
+    matchedAt: '2026-10-23T01:12:00Z',
+    attribution: '7d_click_1d_view',
+    currencies: ['VND'],
+    timezones: ['Asia/Ho_Chi_Minh'],
+  },
+  accounts: [
+    {
+      id: 'a',
+      name: 'Linh 01',
+      metaAccountId: 'act_1',
+      currency: 'VND',
+      timezone: 'Asia/Ho_Chi_Minh',
+      kpis: k('1500000', 30),
+      prevKpis: k('1000000', 30),
+      daily: [{ date: '2026-10-16', spend: '200000', results: 4 }],
+      health: 85,
+      reconciliation: { status: 'ok', maxSpendDeltaPct: '0.1' },
+      topCampaigns: [{ name: 'Bán hàng', spend: '900000', results: 20, cpa: '45000', roas: '3.2' }],
+    },
+  ],
+  findings: [
+    {
+      accountId: 'a',
+      ruleId: 'creative_fatigue',
+      severity: 'high',
+      entityName: 'Video A',
+      why: { key: 'rules.creative_fatigue.why', params: { freqRise: 62, ctrDrop: 50, freq: 3.4 } },
+      whatToDo: { key: 'rules.creative_fatigue.what' },
+      impact: { amount: '2850000.0000', currency: 'VND' },
+    },
+  ],
+};
+
+const html = (c: ReportContent, edits = {}, showBadge = true) =>
+  renderToStaticMarkup(<ReportView content={c} edits={edits} summary={null} logoUrl={null} showBadge={showBadge} />);
+
+describe('mẫu báo cáo', () => {
+  it('nhãn theo ngôn ngữ báo cáo; số định dạng vi; nguồn số liệu P0-13; nhãn Powered by', () => {
+    const h = html(content);
+    expect(h).toContain('Báo cáo định kỳ');
+    expect(h).toContain('Báo cáo cho Thời trang Linh');
+    expect(h).toContain('1.500.000 VND');
+    expect(h).toContain('▲ +50%');
+    expect(h).toContain('Tần suất tăng 62% (lên 3,4)');
+    expect(h).toContain('Tác động ước tính: 2.850.000 VND');
+    expect(h).toContain('Khớp Meta tính đến');
+    expect(h).toContain('attribution 7 ngày click / 1 ngày xem');
+    expect(h).toContain('Powered by AdxLens');
+    expect(h).toContain('16/10/2026');
+  });
+
+  it('báo cáo tiếng Anh dùng nhãn tiếng Anh', () => {
+    const h = html({ ...content, locale: 'en' });
+    expect(h).toContain('Performance report');
+    expect(h).toContain('1,500,000 VND');
+    expect(h).toContain('Issues to address');
+  });
+
+  it('ẩn mục, phần agency viết, không nhãn khi gói gỡ nhãn', () => {
+    const h = html(
+      content,
+      { hiddenSections: ['findings'], workDone: 'Tắt 2 ad mệt', title: 'Báo cáo tuần 42' },
+      false,
+    );
+    expect(h).not.toContain('Vấn đề cần xử lý');
+    expect(h).toContain('Tắt 2 ad mệt');
+    expect(h).toContain('Báo cáo tuần 42');
+    expect(h).not.toContain('Powered by');
+  });
+
+  it('audit: kết quả kiểm tra (health theo nhóm, tổng tác động) đứng trước, phát hiện trước số liệu; ẩn phần định kỳ', () => {
+    const audit: ReportContent = {
+      ...content,
+      kind: 'audit',
+      accounts: [
+        { ...content.accounts[0]!, health: 85, healthComponents: [{ group: 'creative', penalty: 15, findings: 1 }] },
+      ],
+      findings: [{ ...content.findings[0]!, ruleGroup: 'creative' }],
+      audit: { counts: { high: 1, medium: 0, low: 0 }, impact: [{ currency: 'VND', amount: '2850000.0000' }] },
+    };
+    const h = html(audit);
+    expect(h).toContain('Báo cáo audit');
+    expect(h).toContain('Kết quả kiểm tra');
+    expect(h).toContain('85/100');
+    expect(h).toContain('Creative: −15 điểm · 1 vấn đề');
+    expect(h).toContain('1 vấn đề mức cao · 0 mức trung bình · 0 mức thấp · tác động ước tính 2.850.000 VND');
+    expect(h).toContain('Bối cảnh số liệu trong kỳ');
+    expect(h.indexOf('Vấn đề cần xử lý')).toBeLessThan(h.indexOf('Bối cảnh số liệu trong kỳ'));
+    expect(h).not.toContain('Chi tiêu theo ngày');
+
+    const p = html(content);
+    expect(p).not.toContain('Kết quả kiểm tra');
+    expect(p).toContain('Chi tiêu theo ngày');
+    expect(p.indexOf('Số liệu chính')).toBeLessThan(p.indexOf('Vấn đề cần xử lý'));
+  });
+
+  it('vì sao CPA tăng: câu kết luận nguyên nhân chính, CPA trước → nay, yếu tố tô đỏ / xanh, gợi ý kiểm tra, chiến dịch', () => {
+    const c: ReportContent = {
+      ...content,
+      accounts: [
+        {
+          ...content.accounts[0]!,
+          cpaChange: {
+            current: '58500',
+            previous: '45000',
+            changePct: 30,
+            factors: [
+              { key: 'cvr', changePct: -24, sharePct: 104 },
+              { key: 'cpm', changePct: -1, sharePct: -4 },
+              { key: 'ctr', changePct: 0, sharePct: 0 },
+            ],
+            drivers: [
+              { metaId: '1', name: 'Bán hàng', sharePct: 70, cpa: '90000', previousCpa: '50000', spend: '900000' },
+            ],
+          },
+        },
+      ],
+    };
+    const h = html(c);
+    expect(h).toContain('Vì sao CPA tăng?');
+    expect(h).toMatch(/Chủ yếu do <strong[^>]*text-delta-neg[^>]*>tỷ lệ chuyển đổi giảm 24%<\/strong>/);
+    expect(h).toContain('45.000 VND');
+    expect(h).toContain('58.500 VND');
+    expect(h).toContain('▲ +30% so với kỳ trước');
+    // Yếu tố < 5% bị bỏ; yếu tố chính làm CPA xấu đi → thanh đỏ, dài tối đa 100%.
+    expect(h).toContain('data-testid="cpa-factor-cvr"');
+    expect(h).not.toContain('data-testid="cpa-factor-ctr"');
+    expect(h).toContain('width:100%');
+    expect(h).toContain('Nên kiểm tra:');
+    expect(h).toContain('trang đích, ưu đãi');
+    expect(h).toContain('Bán hàng');
+  });
+
+  it('chưa đối chiếu → ghi rõ', () => {
+    expect(html({ ...content, source: { ...content.source, matchedAt: null } })).toContain('Chưa đối chiếu với Meta');
+  });
+
+  it('dữ liệu mẫu → ghi rõ "Báo cáo mẫu"', () => {
+    expect(html({ ...content, demo: true })).toContain('Báo cáo mẫu — số liệu minh họa');
+    expect(html(content)).not.toContain('Báo cáo mẫu');
+  });
+});

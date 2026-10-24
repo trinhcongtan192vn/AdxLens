@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+    env:
+      APP_ENV: test
+      DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+      TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/adxlens_test
+      REDIS_URL: redis://127.0.0.1:6379
+      META_MOCK: '1'
+    steps:
+      - name: Sinh khóa ngẫu nhiên chỉ cho lần chạy này
+        run: |
+          echo "TOKEN_ENC_KEY_V1=$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          echo "INTERNAL_SIGNING_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint (ESLint + ranh giới module)
+        run: pnpm lint
+      - name: Format
+        run: pnpm format:check
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Build web
+        run: pnpm --filter @adxlens/web build
+      - name: Test (unit, fixture, đối chiếu, cách ly workspace)
+        run: pnpm test -- --coverage
+      - name: Migration chưa sinh
+        run: pnpm db:check
+        if: hashFiles('packages/db/package.json') != ''
+      - name: Quét bí mật
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Audit phụ thuộc
+        run: pnpm audit --prod --audit-level high
+        continue-on-error: true
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    needs: check
+    services:
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Supabase local (Postgres, Auth, Storage, Mailpit)
+        run: node scripts/supabase-env.mjs && pnpm exec supabase start --workdir infra && pnpm exec supabase seed buckets --workdir infra
+      - name: Sinh .env.local (khóa ngẫu nhiên, key Supabase local)
+        run: pnpm env:init --force
+      - name: Chromium cho Playwright
+        run: pnpm --filter @adxlens/web exec playwright install --with-deps chromium
+      - name: Build web (E2E chạy trên bản build, không biên dịch theo yêu cầu như next dev)
+        run: pnpm --filter @adxlens/web build
+      - name: E2E
+        run: pnpm test:e2e
+        env:
+          E2E_WEB_COMMAND: pnpm start
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+          retention-days: 7

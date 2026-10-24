@@ -1,0 +1,20 @@
+import { z } from 'zod';
+import { updateProfile } from '@adxlens/core/tenancy';
+import { LOCALE_COOKIE, LOCALES } from '@/i18n/locale';
+import { PERIOD_COOKIE, PERIODS } from '@/lib/period';
+import { json, route } from '@/server/route';
+
+/** Ngôn ngữ giao diện (lưu vào hồ sơ + cookie) và kỳ thời gian toàn cục (cookie, Gate 1 #2). */
+export const POST = route({
+  auth: 'user',
+  body: z.object({ locale: z.enum(LOCALES).optional(), period: z.enum(PERIODS).optional() }),
+  handler: async ({ db, user }, { body }) => {
+    if (body.locale) await updateProfile(db, user.id, { locale: body.locale });
+    const res = json({ ok: true });
+    const cookie = (name: string, value: string) =>
+      res.headers.append('set-cookie', `${name}=${value}; Path=/; SameSite=Lax; Max-Age=31536000`);
+    if (body.locale) cookie(LOCALE_COOKIE, body.locale);
+    if (body.period) cookie(PERIOD_COOKIE, body.period);
+    return res;
+  },
+});

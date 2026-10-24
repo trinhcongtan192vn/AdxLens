@@ -1,0 +1,26 @@
+{
+  "name": "@adxlens/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./testing": "./src/testing.ts",
+    "./migrate": "./src/migrate.ts"
+  },
+  "scripts": {
+    "generate": "drizzle-kit generate",
+    "migrate": "tsx src/migrate-cli.ts",
+    "check": "tsx src/check-cli.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@adxlens/config": "workspace:*",
+    "drizzle-orm": "^0.45.4",
+    "postgres": "^3.4.9"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.11"
+  }
+}

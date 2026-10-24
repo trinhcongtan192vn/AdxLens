@@ -1,0 +1,177 @@
+import { eq } from 'drizzle-orm';
+import { z } from 'zod';
+import { schema } from '@adxlens/db';
+import { AppError, compareDecimal, deltaPct, type ActorCtx, type WorkspaceCtx } from '@adxlens/core/shared';
+import { assertCan } from '@adxlens/core/tenancy';
+
+const { guardrailSettings } = schema;
+
+/**
+ * Guardrails mặc định (ADR-0001 A7 — "Thận trọng"). KHÓA BẰNG TEST (`guardrails.test.ts`); không đổi khi
+ * không có task + ADR (CLAUDE.md quy tắc 6). Workspace chỉ được đặt chặt hơn.
+ */
+export const GUARDRAIL_DEFAULTS = Object.freeze({
+  /** |thay đổi ngân sách| tối đa mỗi hành động, % (chuỗi thập phân). */
+  maxBudgetChangePct: '15.00',
+  /** Số hành động tối đa mỗi ngày trên một tài khoản QC (theo ngày của tài khoản). */
+  maxActionsPerDay: 5,
+  /** Số ngày có dữ liệu tối thiểu của đối tượng trước khi được thao tác. */
+  minDataDays: 3,
+  /** Không tự chạy (tier `auto`) từ 22:00 tới 06:00 giờ tài khoản. */
+  quietStartHour: 22,
+  quietEndHour: 6,
+  /** Mở circuit breaker sau số lỗi liên tiếp trên một tài khoản. */
+  breakerFailures: 3,
+  excludeMetaIds: Object.freeze([] as string[]),
+});
+
+export type Guardrails = {
+  maxBudgetChangePct: string;
+  maxActionsPerDay: number;
+  minDataDays: number;
+  quietStartHour: number;
+  quietEndHour: number;
+  breakerFailures: number;
+  excludeMetaIds: string[];
+};
+
+export const guardrailsInput = z.object({
+  maxBudgetChangePct: z.string().regex(/^\d{1,3}(\.\d{1,2})?$/),
+  maxActionsPerDay: z.number().int(),
+  minDataDays: z.number().int(),
+  quietStartHour: z.number().int().min(0).max(23),
+  quietEndHour: z.number().int().min(0).max(23),
+  breakerFailures: z.number().int(),
+  excludeMetaIds: z.array(z.string().regex(/^\d{1,30}$/)).max(500),
+});
+
+/**
+ * Chỉ cho phép chặt hơn mặc định: ngân sách ≤ 15% (> 0), số hành động 1–5, dữ liệu 3–30 ngày, khung giờ
+ * yên lặng bắt đầu 12:00–22:00 và kết thúc 06:00–12:00 (luôn bao trùm 22:00–06:00), breaker 1–3 lỗi.
+ */
+export function tighterViolations(g: Guardrails): string[] {
+  const d = GUARDRAIL_DEFAULTS;
+  const out: string[] = [];
+  if (
+    compareDecimal(g.maxBudgetChangePct, '0') <= 0 ||
+    compareDecimal(g.maxBudgetChangePct, d.maxBudgetChangePct) > 0
+  ) {
+    out.push('maxBudgetChangePct');
+  }
+  if (g.maxActionsPerDay < 1 || g.maxActionsPerDay > d.maxActionsPerDay) out.push('maxActionsPerDay');
+  if (g.minDataDays < d.minDataDays || g.minDataDays > 30) out.push('minDataDays');
+  if (g.quietStartHour < 12 || g.quietStartHour > d.quietStartHour) out.push('quietStartHour');
+  if (g.quietEndHour < d.quietEndHour || g.quietEndHour > 12) out.push('quietEndHour');
+  if (g.breakerFailures < 1 || g.breakerFailures > d.breakerFailures) out.push('breakerFailures');
+  return out;
+}
+
+/** Guardrails hiệu lực của workspace (mặc định nếu chưa cấu hình). */
+export async function effectiveGuardrails(ctx: WorkspaceCtx): Promise<Guardrails & { configured: boolean }> {
+  const [r] = await ctx.db.select().from(guardrailSettings).where(eq(guardrailSettings.workspaceId, ctx.workspaceId));
+  if (!r) return { ...GUARDRAIL_DEFAULTS, excludeMetaIds: [], configured: false };
+  const g: Guardrails = {
+    maxBudgetChangePct: r.maxBudgetChangePct,
+    maxActionsPerDay: r.maxActionsPerDay,
+    minDataDays: r.minDataDays,
+    quietStartHour: r.quietStartHour,
+    quietEndHour: r.quietEndHour,
+    breakerFailures: r.breakerFailures,
+    excludeMetaIds: r.excludeMetaIds,
+  };
+  // Phòng thủ: dòng DB bị sửa tay thành lỏng hơn → dùng mặc định cho trường đó.
+  const bad = new Set(tighterViolations(g));
+  const d = GUARDRAIL_DEFAULTS;
+  return {
+    maxBudgetChangePct: bad.has('maxBudgetChangePct') ? d.maxBudgetChangePct : g.maxBudgetChangePct,
+    maxActionsPerDay: bad.has('maxActionsPerDay') ? d.maxActionsPerDay : g.maxActionsPerDay,
+    minDataDays: bad.has('minDataDays') ? d.minDataDays : g.minDataDays,
+    quietStartHour: bad.has('quietStartHour') ? d.quietStartHour : g.quietStartHour,
+    quietEndHour: bad.has('quietEndHour') ? d.quietEndHour : g.quietEndHour,
+    breakerFailures: bad.has('breakerFailures') ? d.breakerFailures : g.breakerFailures,
+    excludeMetaIds: g.excludeMetaIds,
+    configured: true,
+  };
+}
+
+/** P205: lưu guardrails (Owner). Giá trị lỏng hơn mặc định bị từ chối, không có đường tắt. */
+export async function saveGuardrails(ctx: ActorCtx, input: z.input<typeof guardrailsInput>): Promise<Guardrails> {
+  assertCan(ctx.actor, 'guardrails.manage');
+  const g = guardrailsInput.parse(input);
+  const bad = tighterViolations(g);
+  if (bad.length) throw new AppError('GUARDRAIL_VIOLATION', 'Chỉ được đặt chặt hơn mặc định', { fields: bad });
+  const values = {
+    ...g,
+    excludeMetaIds: [...new Set(g.excludeMetaIds)],
+    updatedBy: ctx.actor.userId,
+    updatedAt: new Date(),
+  };
+  await ctx.db
+    .insert(guardrailSettings)
+    .values({ workspaceId: ctx.workspaceId, ...values })
+    .onConflictDoUpdate({ target: guardrailSettings.workspaceId, set: values });
+  return { ...g, excludeMetaIds: values.excludeMetaIds };
+}
+
+export const ACTION_TYPES = [
+  'pause_ad',
+  'resume_ad',
+  'pause_adset',
+  'resume_adset',
+  'set_adset_budget',
+  'duplicate_adset',
+] as const;
+export type ActionType = (typeof ACTION_TYPES)[number];
+
+export type GuardrailViolation = { code: string; params?: Record<string, string | number> };
+
+function localHour(now: Date, timeZone: string): number {
+  return Number(new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', hourCycle: 'h23' }).format(now));
+}
+
+export function inQuietHours(hour: number, start: number, end: number): boolean {
+  return start > end ? hour >= start || hour < end : hour >= start && hour < end;
+}
+
+/**
+ * Kiểm guardrails cho một hành động (ADR-0008 bước 5). Trả danh sách vi phạm; rỗng = được phép. Thuần hàm,
+ * gateway nạp dữ liệu (số hành động hôm nay, số ngày dữ liệu, ngân sách hiện tại trên Meta).
+ */
+export function checkGuardrails(input: {
+  guardrails: Guardrails;
+  actionType: ActionType;
+  tier: 'approve' | 'auto';
+  /** Đối tượng và các cấp cha (ad set, campaign) để so danh sách loại trừ. */
+  targetIds: string[];
+  accountTimezone: string;
+  now: Date;
+  actionsToday: number;
+  dataDays: number;
+  currentDailyBudget?: string | null;
+  newDailyBudget?: string | null;
+}): GuardrailViolation[] {
+  const g = input.guardrails;
+  const v: GuardrailViolation[] = [];
+  if (input.targetIds.some((id) => g.excludeMetaIds.includes(id))) v.push({ code: 'excluded' });
+  if (input.actionsToday >= g.maxActionsPerDay)
+    v.push({ code: 'too_many_actions', params: { max: g.maxActionsPerDay } });
+  if (input.dataDays < g.minDataDays) v.push({ code: 'not_enough_data', params: { min: g.minDataDays } });
+  if (input.tier === 'auto') {
+    if (inQuietHours(localHour(input.now, input.accountTimezone), g.quietStartHour, g.quietEndHour)) {
+      v.push({ code: 'quiet_hours', params: { start: g.quietStartHour, end: g.quietEndHour } });
+    }
+    // PRD 11.2.6 / ADR-0009, ADR-0011: không tự bật lại, không tự nhân bản.
+    if (input.actionType === 'resume_ad' || input.actionType === 'resume_adset') v.push({ code: 'no_auto_resume' });
+    if (input.actionType === 'duplicate_adset') v.push({ code: 'no_auto_duplicate' });
+  }
+  if (input.actionType === 'set_adset_budget') {
+    const cur = input.currentDailyBudget;
+    const next = input.newDailyBudget;
+    if (!cur || compareDecimal(cur, '0') <= 0) v.push({ code: 'no_daily_budget' });
+    else if (!next || compareDecimal(next, '0') <= 0) v.push({ code: 'invalid_budget' });
+    else if (compareDecimal(deltaPct(next, cur), g.maxBudgetChangePct) > 0) {
+      v.push({ code: 'budget_change_too_large', params: { max: g.maxBudgetChangePct } });
+    }
+  }
+  return v;
+}
