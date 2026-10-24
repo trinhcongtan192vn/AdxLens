@@ -2,6 +2,24 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [073] "Vì sao CPA tăng / giảm?" đọc nhanh hơn — 2026-10-24
+
+**Thay đổi** (trang tài khoản, trang chiến dịch / nhóm QC / quảng cáo, báo cáo web + PDF — cùng một khối):
+- **Câu kết luận đầu khối:** "Chủ yếu do **tỷ lệ chuyển đổi giảm 24%** (104% mức tăng)" khi một yếu tố giải thích ≥ 50%; không có thì ghi "do nhiều yếu tố cùng lúc".
+- **CPA trước → nay** bên phải, nhãn ▲/▼ % (đỏ khi tăng, xanh khi giảm).
+- **Mỗi yếu tố** (giá hiển thị CPM, tỷ lệ click CTR, tỷ lệ chuyển đổi):
+  - tên dễ hiểu + một dòng giải thích, mức thay đổi;
+  - **thanh "phần giải thích"** tô **đỏ** khi làm CPA xấu đi, **xanh** khi bù lại / làm tốt lên;
+  - bỏ yếu tố < 5%.
+- **"Nên kiểm tra"** theo yếu tố làm CPA tăng nhiều nhất (chỉ khi CPA tăng; nội dung cố định, không có số).
+- **Chiến dịch đóng góp nhiều nhất** thành bảng: CPA trước → nay, thanh đóng góp.
+- Không đổi cách tính (core `explainCpaChange`), không dùng LLM.
+- Logic gắn nhãn ở `lib/cpa-insight.ts`.
+
+**Test tự động:**
+- `lib/cpa-insight.test.ts`: nguyên nhân chính ≥ 50%; yếu tố bù ngược = tốt; CPA giảm; nhiều yếu tố.
+- `report-view.test.tsx`: câu kết luận, CPA trước → nay, bỏ yếu tố nhỏ, thanh tối đa 100%, gợi ý, bảng chiến dịch.
+
 ## [072] Không bắt chờ đồng bộ 90 ngày: vào trang chủ ngay, số liệu hiện dần — 2026-10-24
 
 **Thay đổi**

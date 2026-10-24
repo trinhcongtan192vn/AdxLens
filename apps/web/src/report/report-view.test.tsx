@@ -124,6 +124,43 @@ describe('mẫu báo cáo', () => {
     expect(p.indexOf('Số liệu chính')).toBeLessThan(p.indexOf('Vấn đề cần xử lý'));
   });
 
+  it('vì sao CPA tăng: câu kết luận nguyên nhân chính, CPA trước → nay, yếu tố tô đỏ / xanh, gợi ý kiểm tra, chiến dịch', () => {
+    const c: ReportContent = {
+      ...content,
+      accounts: [
+        {
+          ...content.accounts[0]!,
+          cpaChange: {
+            current: '58500',
+            previous: '45000',
+            changePct: 30,
+            factors: [
+              { key: 'cvr', changePct: -24, sharePct: 104 },
+              { key: 'cpm', changePct: -1, sharePct: -4 },
+              { key: 'ctr', changePct: 0, sharePct: 0 },
+            ],
+            drivers: [
+              { metaId: '1', name: 'Bán hàng', sharePct: 70, cpa: '90000', previousCpa: '50000', spend: '900000' },
+            ],
+          },
+        },
+      ],
+    };
+    const h = html(c);
+    expect(h).toContain('Vì sao CPA tăng?');
+    expect(h).toMatch(/Chủ yếu do <strong[^>]*text-delta-neg[^>]*>tỷ lệ chuyển đổi giảm 24%<\/strong>/);
+    expect(h).toContain('45.000 VND');
+    expect(h).toContain('58.500 VND');
+    expect(h).toContain('▲ +30% so với kỳ trước');
+    // Yếu tố < 5% bị bỏ; yếu tố chính làm CPA xấu đi → thanh đỏ, dài tối đa 100%.
+    expect(h).toContain('data-testid="cpa-factor-cvr"');
+    expect(h).not.toContain('data-testid="cpa-factor-ctr"');
+    expect(h).toContain('width:100%');
+    expect(h).toContain('Nên kiểm tra:');
+    expect(h).toContain('trang đích, ưu đãi');
+    expect(h).toContain('Bán hàng');
+  });
+
   it('chưa đối chiếu → ghi rõ', () => {
     expect(html({ ...content, source: { ...content.source, matchedAt: null } })).toContain('Chưa đối chiếu với Meta');
   });
