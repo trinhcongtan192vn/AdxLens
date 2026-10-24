@@ -2,6 +2,33 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [065] Bộ chọn workspace + "Tạo workspace mới"; giới hạn 1 workspace Free mỗi user — 2026-10-24
+
+**Thay đổi**
+- **Bộ chọn workspace** trên thanh trên đổi từ ô chọn thường sang menu (như Slack / Notion):
+  - danh sách workspace kèm vai trò (Owner / Manager / Media buyer), dấu ✓ ở workspace đang mở;
+  - cuối menu có **"+ Tạo workspace mới"**, mở màn tạo workspace (A07).
+  - Menu tài khoản giữ nguyên, chỉ dành cho việc cá nhân.
+- **Màn tạo workspace khi đã có workspace:**
+  - nhắc "Mỗi workspace là một agency riêng: thanh toán, kết nối Meta và thành viên riêng. Thêm khách mới? Hãy tạo Client", có link tới Client;
+  - có nút Quay lại.
+- **Giới hạn workspace Free** (quyết định PM 24/10):
+  - mỗi user **sở hữu** tối đa `MAX_OWNED_FREE_WORKSPACES = 1` workspace ở gói Free. Workspace tính là Free khi chưa có subscription, gói `free`, hoặc đã hủy;
+  - tạo thêm → 402 `PLAN_REQUIRED` (`reason: free_workspace_limit`), màn tạo báo cần nâng cấp gói của workspace hiện có hoặc dùng Client;
+  - là thành viên (không phải owner) workspace của người khác thì không tính;
+  - staff AdxLens không bị giới hạn.
+  - Cấu hình ở `packages/core/billing/plans.ts`.
+
+**Test tự động:**
+- `billing/service.test.ts`: đếm workspace Free theo owner; nâng cấp → tạo thêm được; hủy gói → lại tính Free; manager không tính; staff không giới hạn.
+- `settings.test.ts`: tạo workspace thứ 2 khi đã có 1 Free → 402, không đặt cookie, không tạo workspace.
+- E2E `auth-workspace.spec.ts`: menu workspace hiện vai trò Owner → "Tạo workspace mới" → nhắc dùng Client → bị chặn vì giới hạn Free → Quay lại.
+
+**PM kiểm tra:**
+- Bấm ô workspace trên thanh trên → thấy vai trò → "Tạo workspace mới".
+- Tài khoản `pm@adxlens.local` là staff nên **không bị giới hạn**. Muốn thấy giới hạn Free, đăng ký một user thường (email xác minh ở http://127.0.0.1:54324) → tạo workspace đầu → tạo workspace thứ hai → bị báo giới hạn.
+- Ở `/admin` đổi gói workspace hiện có sang Starter → tạo lại được.
+
 ## [064] Báo cáo Audit có nội dung riêng; hộp thoại thao tác báo lý do lỗi — 2026-10-24
 
 **Thay đổi**

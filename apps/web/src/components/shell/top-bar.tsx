@@ -1,6 +1,6 @@
 'use client';
 
-import { TrendingUp } from 'lucide-react';
+import { Check, ChevronDown, Plus, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -11,7 +11,7 @@ import { breadcrumbFor } from '@/lib/breadcrumb';
 import { PERIODS, type Period } from '@/lib/period';
 import { clientScopeOf } from '@/lib/scope';
 
-type Ws = { id: string; name: string };
+type Ws = { id: string; name: string; role?: 'owner' | 'manager' | 'buyer' };
 
 function initials(fullName: string | null, email: string): string {
   const parts = (fullName ?? '').trim().split(/\s+/).filter(Boolean);
@@ -62,6 +62,7 @@ export function TopBar({
     });
 
   const otherLocale = locale === 'vi' ? 'en' : 'vi';
+  const current = workspaces.find((w) => w.id === currentWorkspaceId);
 
   return (
     <header
@@ -117,18 +118,34 @@ export function TopBar({
         ))}
       </Select>
 
-      <Select
-        className="w-50"
-        value={currentWorkspaceId}
-        onChange={(e) => switchWorkspace(e.target.value)}
-        aria-label={t('shell.switchWorkspace')}
-      >
-        {workspaces.map((w) => (
-          <option key={w.id} value={w.id}>
-            {w.name}
-          </option>
-        ))}
-      </Select>
+      {/* Bộ chọn workspace (như Slack / Notion): danh sách kèm vai trò, cuối là "+ Tạo workspace mới". */}
+      <Menu.Root>
+        <Menu.Trigger
+          aria-label={t('shell.switchWorkspace')}
+          data-testid="workspace-switcher"
+          className="flex h-8 w-50 items-center gap-1 rounded-md border border-line bg-surface px-2 text-body text-fg hover:bg-subtle"
+        >
+          <span className="flex-1 truncate text-left">{current?.name ?? ''}</span>
+          <ChevronDown className="size-4 text-fg-tertiary" aria-hidden />
+        </Menu.Trigger>
+        <Menu.Content className="w-64">
+          <Menu.Label>{t('shell.workspaces')}</Menu.Label>
+          <div className="max-h-72 overflow-y-auto">
+            {workspaces.map((w) => (
+              <Menu.Item key={w.id} onSelect={() => w.id !== currentWorkspaceId && switchWorkspace(w.id)}>
+                <span className="w-4">{w.id === currentWorkspaceId ? <Check aria-hidden /> : null}</span>
+                <span className="flex-1 truncate">{w.name}</span>
+                {w.role ? <span className="text-caption text-fg-tertiary">{t(`shell.roles.${w.role}`)}</span> : null}
+              </Menu.Item>
+            ))}
+          </div>
+          <Menu.Separator />
+          <Menu.Item onSelect={() => router.push('/onboarding/workspace')}>
+            <Plus aria-hidden />
+            {t('shell.newWorkspace')}
+          </Menu.Item>
+        </Menu.Content>
+      </Menu.Root>
 
       <Menu.Root>
         <Menu.Trigger

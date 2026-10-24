@@ -1,10 +1,21 @@
 import { eq } from 'drizzle-orm';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { schema } from '@adxlens/db';
-import { closeTestDb, seedAdAccount, seedConnection, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
-import { resolveActor } from '@adxlens/core/tenancy';
+import {
+  closeTestDb,
+  seedAdAccount,
+  seedConnection,
+  seedMember,
+  seedStaff,
+  seedWorkspace,
+  testDb,
+  truncateAll,
+} from '@adxlens/db/testing';
+import { createWorkspace, resolveActor } from '@adxlens/core/tenancy';
 import {
   activeAccountCount,
+  assertCanCreateWorkspace,
+  ownedFreeWorkspaceCount,
   billingStatus,
   currentPlanKey,
   getPlans,
@@ -162,5 +173,34 @@ describe('vượt hạn mức + ân hạn 7 ngày (ADR-0001 A8)', () => {
       .where(eq(schema.subscriptions.workspaceId, ctx.workspaceId));
     expect(sub?.overLimitSince).toBeNull();
     expect(await syncableAccountIds(ctx, at(10))).toBeNull();
+  });
+
+  it('mỗi user sở hữu tối đa 1 workspace Free; nâng cấp hoặc chỉ là thành viên thì không tính; staff không giới hạn', async () => {
+    const { ctx, workspaceId } = await setup();
+    const owner = ctx.actor.userId;
+    expect(await ownedFreeWorkspaceCount(db, owner)).toBe(1);
+    await expect(assertCanCreateWorkspace(db, owner)).rejects.toMatchObject({
+      code: 'PLAN_REQUIRED',
+      details: { reason: 'free_workspace_limit' },
+    });
+    // Nâng cấp workspace hiện có → được tạo thêm 1 workspace Free.
+    await setSubscription(ctx, { planKey: 'starter' });
+    expect(await ownedFreeWorkspaceCount(db, owner)).toBe(0);
+    await assertCanCreateWorkspace(db, owner);
+    await createWorkspace(db, { name: 'Agency 2', ownerUserId: owner });
+    await expect(assertCanCreateWorkspace(db, owner)).rejects.toMatchObject({ code: 'PLAN_REQUIRED' });
+    // Hủy gói → workspace đó lại tính là Free.
+    await db
+      .update(schema.subscriptions)
+      .set({ status: 'canceled' })
+      .where(eq(schema.subscriptions.workspaceId, workspaceId));
+    expect(await ownedFreeWorkspaceCount(db, owner)).toBe(2);
+    // Chỉ là manager ở workspace Free của người khác → không tính; user mới tạo được workspace đầu tiên.
+    const manager = await seedMember(db, workspaceId, 'manager');
+    expect(await ownedFreeWorkspaceCount(db, manager.id)).toBe(0);
+    await assertCanCreateWorkspace(db, manager.id);
+    const staff = await seedStaff(db, false);
+    await createWorkspace(db, { name: 'Staff WS', ownerUserId: staff.id });
+    await assertCanCreateWorkspace(db, staff.id);
   });
 });
