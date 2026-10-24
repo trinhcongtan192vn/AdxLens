@@ -212,6 +212,21 @@ describe('AI agent (ADR-0019)', () => {
     expect(a).toMatchObject({ status: 'done', data: { source: 'unconfigured' } });
   });
 
+  it('trả lời theo ngôn ngữ người hỏi', async () => {
+    const { ctx } = await setup();
+    const enqueue = recordingEnqueue();
+    const { messageId } = await askAgent(ctx, { threadId: null, question: 'hello', locale: 'en' }, { enqueue, clock });
+    let system = '';
+    const llm: AgentLlm = {
+      async chat(i) {
+        system = i.system;
+        return { content: [{ type: 'text', text: 'Hi.' }], stopReason: 'end_turn' };
+      },
+    };
+    await runAgentReply(ctx, messageId, { llm, clock });
+    expect(system).toContain('Answer in English');
+  });
+
   it('tập số được phép: mọi số trong kết quả công cụ + số đếm nhỏ', () => {
     const f = factsFrom([{ a: '150000.0000', b: [12.5, { c: 3 }], name: 'x 99' }]);
     const values = f.map((x) => x.value);

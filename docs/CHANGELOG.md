@@ -2,6 +2,14 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [090] AI Agents trả lời theo ngôn ngữ người hỏi; ADR-0021 đề xuất tactic tự động; tài liệu onboarding — 2026-10-25
+
+- AI Agents: câu hỏi mang ngôn ngữ giao diện (vi / en); system prompt và bộ kiểm số dùng đúng ngôn ngữ đó (số "1,5" vs "1.5").
+- `docs/adr/0021-automation-tactics.md` (**Đề xuất**, cần PM duyệt): Stop-loss trong ngày (bật lại 00:00), Surf, Sunsetting, Revive — cần "hành động hẹn giờ" trong Execution Gateway.
+- `docs/onboarding.md` mục 16: Workspace, AI Agents (`ANTHROPIC_API_KEY` cho worker), MCP (curl, `claude mcp add`), quyền Meta rộng.
+
+**Test tự động:** `agent.test.ts` (trả lời theo ngôn ngữ người hỏi).
+
 ## [089] Mục tiêu Client trong báo cáo và danh sách Client — 2026-10-25
 
 **Thay đổi** (ADR-0017 phần "nơi dùng mục tiêu"; theo Madgicx One-Click Report "goal tracker"):
