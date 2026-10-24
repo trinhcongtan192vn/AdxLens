@@ -2,6 +2,20 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [082] W8 — Phễu, Địa lý, Mở rộng ("Quảng cáo có mệt không?") của Workspace — 2026-10-24
+
+**Thay đổi** (như Madgicx Funnels / Geography / Scale):
+- **Phễu** `/w/funnels`: Nhận biết (lượt hiển thị) → Cân nhắc (click liên kết, thêm vào giỏ) → Chuyển đổi (lượt mua / lead / kết quả, tự chọn theo dữ liệu); tỷ lệ chuyển giữa các bước; bảng theo chiến dịch hoặc nhóm QC (CTR, click → chuyển đổi, đỏ khi có click mà không chuyển đổi). Bỏ bước "thêm giỏ" khi không có sự kiện. Phễu theo landing page ghi chú "cần URL đích" (chưa đọc).
+- **Địa lý** `/w/geography`: theo khu vực (breakdown `region` sẵn có), thanh tỷ trọng chi tiêu, kết quả, CPA, CTR; **"wasted spend"**: khu vực có chi mà không có kết quả được đánh dấu + banner tổng tiền.
+- **Mở rộng** `/w/scale`:
+  - biểu đồ bong bóng **tần suất × CPC** (kích thước = chi tiêu), 4 góc theo trung vị: Mới và rẻ → tăng ngân sách; Đang cạn → làm mới creative; Đắt từ đầu → sửa creative / tệp; Vẫn ổn → theo dõi; danh sách quảng cáo cần làm mới;
+  - **theo định dạng**: số QC, chi tiêu, tỷ trọng, chi phí / kết quả, ROAS;
+  - **tuổi × giới tính** dạng heatmap chi tiêu;
+  - **chi tiêu theo ngày**.
+- Core `reporting/analysis.ts` (`funnelAnalysis`, `geographyAnalysis`, `classifyFatigue`, `scaleAnalysis`, `entityNames`); mọi số do code tính.
+
+**Test tự động:** `analysis.test.ts` (phễu = tổng insight + tỷ lệ, phễu 3 bước khi không có thêm giỏ; 4 góc theo trung vị; tỷ trọng địa lý ~100% + wasted; format mix ~100%, tuổi × giới tính, xu hướng 7 ngày; cách ly workspace); E2E 3 trang.
+
 ## [081] W7 — Ads Manager của Workspace: cây 3 cấp, cột chọn được, sparkline + % trong từng ô, dòng tổng — 2026-10-24
 
 **Thay đổi** (như Madgicx "Ads Manager"):

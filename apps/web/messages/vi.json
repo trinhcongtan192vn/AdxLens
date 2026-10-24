@@ -2984,5 +2984,105 @@
     "resume": "Bật lại",
     "emptyTitle": "Không có đối tượng",
     "emptyBody": "Đổi kỳ, bộ lọc hoặc bỏ \"Ẩn đối tượng không chi tiêu\"."
+  },
+  "wsFunnels": {
+    "subtitle": "Nhận biết → Cân nhắc → Chuyển đổi, tỷ lệ chuyển giữa các bước",
+    "group": {
+      "awareness": "Nhận biết",
+      "consideration": "Cân nhắc",
+      "conversion": "Chuyển đổi"
+    },
+    "stages": {
+      "impressions": "Lượt hiển thị",
+      "link_clicks": "Click liên kết",
+      "add_to_cart": "Thêm vào giỏ",
+      "conversions": "Chuyển đổi"
+    },
+    "conv": {
+      "purchases": "Lượt mua",
+      "leads": "Lead",
+      "results": "Kết quả"
+    },
+    "rate": "Chuyển {pct} từ bước trước",
+    "by": {
+      "campaign": "Chiến dịch",
+      "adset": "Nhóm QC"
+    },
+    "spend": "Chi tiêu",
+    "ctr": "CTR",
+    "clickToConv": "Click → chuyển đổi",
+    "landingNote": "Phễu theo trang đích cần URL đích của quảng cáo — sẽ có khi AdxLens đọc thêm URL từ creative.",
+    "emptyTitle": "Chưa có dữ liệu phễu",
+    "emptyBody": "Chưa có lượt hiển thị trong kỳ này."
+  },
+  "wsGeo": {
+    "subtitle": "Chi tiêu và kết quả theo khu vực (Meta breakdown \"region\")",
+    "region": "Khu vực",
+    "share": "Tỷ trọng chi tiêu",
+    "spend": "Chi tiêu",
+    "results": "Kết quả",
+    "cpa": "Chi phí / kết quả",
+    "ctr": "CTR",
+    "unknown": "Không xác định",
+    "noResults": "Chưa có kết quả",
+    "wasted": "{amount} chi ở {n} khu vực chưa có kết quả nào trong kỳ — cân nhắc loại trừ hoặc giảm ngân sách.",
+    "note": "Tổng theo khu vực có thể lệch nhẹ tổng tài khoản (Meta ẩn / làm tròn nhóm nhỏ).",
+    "emptyTitle": "Chưa có dữ liệu khu vực",
+    "emptyBody": "Dữ liệu theo khu vực có sau lần đồng bộ ngày tiếp theo."
+  },
+  "wsScale": {
+    "subtitle": "Quảng cáo nào nên mở rộng, làm mới hay sửa",
+    "emptyTitle": "Chưa có quảng cáo có chi tiêu",
+    "emptyBody": "Chọn kỳ dài hơn hoặc tài khoản khác.",
+    "fatigue": {
+      "title": "Quảng cáo có mệt không?",
+      "intro": "Mỗi chấm là một quảng cáo: tần suất (ngang) × CPC (dọc), chấm to = chi nhiều. Đường đứt là trung vị.",
+      "xAxis": "Tần suất",
+      "yAxis": "CPC",
+      "actions": "Nên làm gì",
+      "tip": "tần suất {f}, CPC {cpc}, chi {spend}",
+      "mid": "Trung vị: tần suất {f}, CPC {cpc}",
+      "refreshList": "Cần làm mới creative:",
+      "q": {
+        "fresh_cheap": {
+          "title": "Mới và rẻ",
+          "action": "Tần suất thấp, CPC thấp → tăng ngân sách dần."
+        },
+        "burning_out": {
+          "title": "Đang cạn",
+          "action": "Tần suất cao, CPC cao → làm mới creative hoặc mở rộng tệp."
+        },
+        "expensive_early": {
+          "title": "Đắt từ đầu",
+          "action": "Tần suất thấp nhưng CPC cao → sửa creative / thông điệp / tệp."
+        },
+        "still_holding": {
+          "title": "Vẫn ổn",
+          "action": "Tần suất cao, CPC vẫn thấp → theo dõi, chuẩn bị creative thay thế."
+        }
+      }
+    },
+    "format": {
+      "title": "Theo định dạng",
+      "format": "Định dạng",
+      "ads": "Số QC",
+      "spend": "Chi tiêu",
+      "share": "Tỷ trọng",
+      "cpa": "Chi phí / KQ"
+    },
+    "ageGender": {
+      "title": "Tuổi × giới tính (chi tiêu)",
+      "none": "Chưa có dữ liệu tuổi / giới tính.",
+      "age": "Tuổi",
+      "g": {
+        "female": "Nữ",
+        "male": "Nam",
+        "unknown": "Khác"
+      }
+    },
+    "trend": {
+      "title": "Chi tiêu theo ngày",
+      "results": "kết quả"
+    }
   }
 }
