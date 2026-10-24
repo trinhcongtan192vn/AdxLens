@@ -2491,7 +2491,23 @@
       "newBudget": "ngân sách mới {budget}"
     },
     "and": "VÀ",
-    "or": "HOẶC"
+    "or": "HOẶC",
+    "overview": {
+      "title": "Đã kích hoạt 7 ngày qua",
+      "chart": "Hành động tự động theo ngày",
+      "kinds": {
+        "start": "Bật lại",
+        "pause": "Tạm dừng",
+        "increase_budget": "Tăng ngân sách",
+        "decrease_budget": "Giảm ngân sách",
+        "other": "Khác"
+      },
+      "cols": {
+        "last48h": "48 giờ",
+        "last7d": "7 ngày",
+        "lastAt": "Kích hoạt cuối"
+      }
+    }
   },
   "entity": {
     "title": "Chi tiết đối tượng",
@@ -3177,5 +3193,45 @@
     "proposeLabel": "Cho phép đề xuất thay đổi (tạm dừng / bật lại / ngân sách)",
     "proposeHint": "Đề xuất hiện trong AI Agents dưới dạng thẻ chờ bạn xem trước và duyệt; MCP không bao giờ tự thay đổi quảng cáo.",
     "proposeOff": "Cần gói có tính năng duyệt hành động."
+  },
+  "creativeInsights": {
+    "formatsTitle": "Theo định dạng",
+    "cols": {
+      "format": "Định dạng",
+      "creatives": "Creative",
+      "spendShare": "% chi tiêu",
+      "revenueShare": "% doanh thu",
+      "resultsShare": "% kết quả"
+    },
+    "formats": {
+      "image": "Ảnh",
+      "video": "Video",
+      "carousel": "Băng chuyền",
+      "dynamic": "Động (DPA)",
+      "text": "Văn bản",
+      "other": "Khác"
+    },
+    "missing": "Chưa có định dạng: {formats}. Thử thêm để Meta có nhiều lựa chọn phân phối hơn.",
+    "matrixTitle": "Ma trận creative",
+    "matrixIntro": "Chi tiêu × doanh thu, ngưỡng là trung vị của các creative trong kỳ.",
+    "matrixIntroResults": "Chi tiêu × kết quả (tài khoản chưa có doanh thu), ngưỡng là trung vị.",
+    "quadrants": {
+      "scalable": {
+        "title": "Có thể mở rộng",
+        "action": "Chi ít mà doanh thu cao: tăng chi tiêu."
+      },
+      "core": {
+        "title": "Chủ lực",
+        "action": "Chi nhiều, doanh thu cao: giữ và theo dõi độ mệt."
+      },
+      "getting_started": {
+        "title": "Mới bắt đầu",
+        "action": "Chi ít, doanh thu thấp: chờ thêm dữ liệu."
+      },
+      "overspend": {
+        "title": "Chi quá tay",
+        "action": "Chi nhiều mà doanh thu thấp: giảm hoặc thay creative."
+      }
+    }
   }
 }

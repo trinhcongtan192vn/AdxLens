@@ -18,7 +18,13 @@ describe('MCP endpoint (ADR-0020)', () => {
     const { workspace, owner } = await seedWorkspace(db);
     const pm = await seedStaff(db, true);
     for (const key of ['p0_reports', 'p1_recommendations'] as const) {
-      await enableFlag(db, { workspaceId: workspace.id, key, staffUserId: pm.id, reason: 'test mcp route', override: true });
+      await enableFlag(db, {
+        workspaceId: workspace.id,
+        key,
+        staffUserId: pm.id,
+        reason: 'test mcp route',
+        override: true,
+      });
     }
     const body = { jsonrpc: '2.0', id: 1, method: 'initialize', params: {} };
     expect((await call(mcp.POST, { body })).status).toBe(401);

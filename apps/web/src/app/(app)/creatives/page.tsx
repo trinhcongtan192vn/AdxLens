@@ -3,6 +3,7 @@ import { getFormatter, getTranslations } from 'next-intl/server';
 import { ClientFilter, clientParam } from '@/components/client-filter';
 import { listAdAccounts } from '@adxlens/core/connections';
 import { CREATIVE_CLASSES, creativeLibrary, type CreativeClass } from '@adxlens/core/recommendation';
+import { creativeInsights } from '@adxlens/core/reporting';
 import {
   Badge,
   Button,
@@ -72,6 +73,20 @@ export default async function CreativesPage({
   const all = await creativeLibrary(pc.ctx, account.id, cur);
   const rows = filter ? all.filter((r) => r.class === filter) : all;
   const counts = Object.fromEntries(CREATIVE_CLASSES.map((c) => [c, all.filter((r) => r.class === c).length]));
+  // Creative Insights (Madgicx 360° Audit): theo định dạng + ma trận 4 góc, số do code tính.
+  const insights = creativeInsights(
+    all.map((r) => ({
+      key: r.key,
+      name: r.name,
+      format: r.format,
+      spend: r.metrics.spend,
+      conversionValue: r.metrics.conversionValue,
+      results: r.metrics.results,
+      impressions: r.metrics.impressions,
+      linkClicks: r.metrics.linkClicks,
+    })),
+  );
+  const ti = await getTranslations('creativeInsights');
   const money = (v: string | null) =>
     v === null ? '—' : format.number(Number(v), { maximumFractionDigits: account.currency === 'VND' ? 0 : 2 });
   const pct = (v: number | null) =>
@@ -119,6 +134,77 @@ export default async function CreativesPage({
         }
       />
       <ClientFilter ctx={pc.ctx} clientId={clientId} clearHref="/creatives" />
+      {insights.formats.length ? (
+        <div className="mb-4 grid gap-4 xl:grid-cols-[1.4fr_1fr]" data-testid="creative-insights">
+          <Card>
+            <h2 className="text-h4 font-semibold text-fg">{ti('formatsTitle')}</h2>
+            <Table className="mt-2">
+              <THead>
+                <TR>
+                  <TH>{ti('cols.format')}</TH>
+                  <TH numeric>{ti('cols.creatives')}</TH>
+                  <TH numeric>{ti('cols.spendShare')}</TH>
+                  <TH numeric>{ti(insights.valueBasis === 'revenue' ? 'cols.revenueShare' : 'cols.resultsShare')}</TH>
+                  <TH numeric>ROAS</TH>
+                  <TH numeric>CTR</TH>
+                  <TH numeric>CVR</TH>
+                </TR>
+              </THead>
+              <TBody>
+                {insights.formats.map((f) => (
+                  <TR key={f.format}>
+                    <TD>{ti(`formats.${f.format}`)}</TD>
+                    <TD numeric>{f.creatives}</TD>
+                    <TD numeric>{f.spendShare}%</TD>
+                    <TD
+                      numeric
+                      className={
+                        f.valueShare > f.spendShare ? 'text-success' : f.valueShare < f.spendShare ? 'text-danger' : ''
+                      }
+                    >
+                      {f.valueShare}%
+                    </TD>
+                    <TD numeric>{f.roas ?? '—'}</TD>
+                    <TD numeric>{f.ctr == null ? '—' : `${f.ctr}%`}</TD>
+                    <TD numeric>{f.cvr == null ? '—' : `${f.cvr}%`}</TD>
+                  </TR>
+                ))}
+              </TBody>
+            </Table>
+            {insights.missing.length ? (
+              <p className="mt-2 text-small text-warning">
+                {ti('missing', { formats: insights.missing.map((f) => ti(`formats.${f}`)).join(', ') })}
+              </p>
+            ) : null}
+          </Card>
+          <Card>
+            <h2 className="text-h4 font-semibold text-fg">{ti('matrixTitle')}</h2>
+            <p className="text-caption text-fg-tertiary">
+              {ti(insights.valueBasis === 'revenue' ? 'matrixIntro' : 'matrixIntroResults')}
+            </p>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {(['scalable', 'core', 'getting_started', 'overspend'] as const).map((q) => {
+                const list = insights.matrix.filter((m) => m.quadrant === q);
+                return (
+                  <div key={q} className="rounded-lg border border-line p-2" data-testid={`matrix-${q}`}>
+                    <p className="text-small font-semibold text-fg">
+                      {ti(`quadrants.${q}.title`)} <span className="num text-fg-tertiary">({list.length})</span>
+                    </p>
+                    <p className="text-caption text-fg-secondary">{ti(`quadrants.${q}.action`)}</p>
+                    <ul className="mt-1 space-y-0.5">
+                      {list.slice(0, 3).map((m) => (
+                        <li key={m.key} className="truncate text-caption text-fg">
+                          {m.name ?? m.key}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </div>
+      ) : null}
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <Link href={href({ class: null })} className={chip(!filter)}>
           {t('all')} · {all.length}

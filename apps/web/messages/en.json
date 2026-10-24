@@ -2491,7 +2491,23 @@
       "newBudget": "new budget {budget}"
     },
     "and": "AND",
-    "or": "OR"
+    "or": "OR",
+    "overview": {
+      "title": "Triggered in the last 7 days",
+      "chart": "Automated actions per day",
+      "kinds": {
+        "start": "Start",
+        "pause": "Pause",
+        "increase_budget": "Increase budget",
+        "decrease_budget": "Decrease budget",
+        "other": "Other"
+      },
+      "cols": {
+        "last48h": "48h",
+        "last7d": "7d",
+        "lastAt": "Last triggered"
+      }
+    }
   },
   "entity": {
     "title": "Object detail",
@@ -3177,5 +3193,45 @@
     "proposeLabel": "Allow change proposals (pause / resume / budget)",
     "proposeHint": "Proposals appear in AI Agents as cards for you to preview and approve; MCP never changes ads by itself.",
     "proposeOff": "Requires a plan with action approval."
+  },
+  "creativeInsights": {
+    "formatsTitle": "By format",
+    "cols": {
+      "format": "Format",
+      "creatives": "Creatives",
+      "spendShare": "% spend",
+      "revenueShare": "% revenue",
+      "resultsShare": "% results"
+    },
+    "formats": {
+      "image": "Image",
+      "video": "Video",
+      "carousel": "Carousel",
+      "dynamic": "Dynamic (DPA)",
+      "text": "Text",
+      "other": "Other"
+    },
+    "missing": "Missing formats: {formats}. Add them to give Meta more delivery options.",
+    "matrixTitle": "Creative matrix",
+    "matrixIntro": "Spend × revenue, thresholds are the medians of creatives in the period.",
+    "matrixIntroResults": "Spend × results (no revenue in this account), thresholds are medians.",
+    "quadrants": {
+      "scalable": {
+        "title": "Scalable",
+        "action": "Low spend, high revenue: spend more."
+      },
+      "core": {
+        "title": "Core performers",
+        "action": "High spend, high revenue: keep, watch fatigue."
+      },
+      "getting_started": {
+        "title": "Getting started",
+        "action": "Low spend, low revenue: wait for more data."
+      },
+      "overspend": {
+        "title": "Overspend",
+        "action": "High spend, low revenue: cut or replace creative."
+      }
+    }
   }
 }

@@ -21,3 +21,5 @@ export * from './alerts';
 export * from './ads-grid';
 export * from './ads-manager';
 export * from './analysis';
+export * from './automation-overview';
+export * from './creative-insights';
