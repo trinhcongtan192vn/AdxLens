@@ -52,7 +52,7 @@ export const GET = route({
       const cfg = metaConfig();
       const exchanged = await exchangeOAuthCode(cfg, {
         code: query.code,
-        redirectUri: oauthRedirectUri(),
+        redirectUri: oauthRedirectUri(ctx.req),
         scope: saved.scope,
       });
       const meta = metaRead();

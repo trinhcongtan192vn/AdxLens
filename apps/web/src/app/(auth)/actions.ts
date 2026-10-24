@@ -10,8 +10,10 @@ import {
   type FormState,
 } from '@/server/auth-flows';
 import { dbLoginThrottle, supabaseAuthProvider } from '@/server/supabase-auth';
+import { appBaseUrl, currentRequest } from '@/server/public-base';
 
-const appUrl = () => process.env.APP_URL ?? 'http://localhost:3000';
+// Link trong email xác minh / đặt lại mật khẩu theo origin công khai (APP_URL → header proxy → request).
+const appUrl = async () => appBaseUrl(await currentRequest());
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? '');
 
 export async function signUpAction(_: FormState, fd: FormData): Promise<FormState> {
@@ -24,7 +26,7 @@ export async function signUpAction(_: FormState, fd: FormData): Promise<FormStat
       password: str(fd, 'password'),
       acceptTerms: fd.get('acceptTerms') === 'on',
     },
-    appUrl(),
+    await appUrl(),
   );
   if (r.status === 'ok') redirect(`/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
   return r;
@@ -42,11 +44,11 @@ export async function signInAction(_: FormState, fd: FormData): Promise<FormStat
 }
 
 export async function resendVerificationAction(_: FormState, fd: FormData): Promise<FormState> {
-  return resendVerificationFlow(await supabaseAuthProvider(), { email: str(fd, 'email') }, appUrl());
+  return resendVerificationFlow(await supabaseAuthProvider(), { email: str(fd, 'email') }, await appUrl());
 }
 
 export async function forgotPasswordAction(_: FormState, fd: FormData): Promise<FormState> {
-  return forgotPasswordFlow(await supabaseAuthProvider(), { email: str(fd, 'email') }, appUrl());
+  return forgotPasswordFlow(await supabaseAuthProvider(), { email: str(fd, 'email') }, await appUrl());
 }
 
 export async function resetPasswordAction(_: FormState, fd: FormData): Promise<FormState> {

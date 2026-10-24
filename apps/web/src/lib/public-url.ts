@@ -1,6 +1,6 @@
 // Địa chỉ công khai của app cho redirect tuyệt đối (không phụ thuộc Next.js để dùng được cả ở middleware và test).
 
-type RequestLike = { url: string; headers: { get(name: string): string | null } };
+export type RequestLike = { url: string; headers: { get(name: string): string | null } };
 
 const first = (v: string | null) => v?.split(',')[0]?.trim() || null;
 
@@ -30,4 +30,18 @@ export function publicOrigin(req: RequestLike, appUrl: string | undefined = proc
 /** URL tuyệt đối cho `path` nội bộ (vd. `/login?next=...`) theo origin công khai. */
 export function publicUrl(path: string, req: RequestLike, appUrl: string | undefined = process.env.APP_URL): URL {
   return new URL(path, publicOrigin(req, appUrl));
+}
+
+/**
+ * Gốc link báo cáo công khai (`/r/<token>`): `PUBLIC_REPORT_URL` nếu được đặt (vd. tên miền riêng cho báo cáo), không thì
+ * origin công khai của app + `/r`.
+ */
+export function publicReportBase(
+  req: RequestLike,
+  reportUrl: string | undefined = process.env.PUBLIC_REPORT_URL,
+  appUrl: string | undefined = process.env.APP_URL,
+): string {
+  const explicit = reportUrl?.trim();
+  if (explicit) return explicit.replace(/\/+$/, '');
+  return `${publicOrigin(req, appUrl)}/r`;
 }

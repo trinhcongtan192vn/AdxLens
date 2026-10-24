@@ -2,6 +2,54 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [071] Mọi URL tuyệt đối do web tạo theo origin công khai (Meta OAuth, email, thanh toán, link báo cáo) — 2026-10-24
+
+**Lỗi tiềm ẩn:** các chỗ dưới đây lấy `getEnv().APP_URL` / `PUBLIC_REPORT_URL`. Hai biến này **tự điền `http://localhost:3000`** khi thiếu, nên chạy sau Cloudflare Tunnel mà thiếu biến sẽ ra link localhost:
+- `redirect_uri` Meta OAuth (bắt đầu + callback);
+- link mời thành viên;
+- link xác minh / đặt lại mật khẩu (`redirectTo`);
+- ngắt kết nối;
+- URL trả về sau thanh toán Stripe / PayOS / portal;
+- URL data deletion trả cho Meta;
+- link báo cáo `/r/...` (API chia sẻ + trang chia sẻ).
+
+**Sửa:**
+- `server/public-base.ts`:
+  - `appBaseUrl(req)` = `publicOrigin`: `APP_URL` → `x-forwarded-host` / `-proto` → origin request;
+  - `reportBaseUrl(req)`: `PUBLIC_REPORT_URL` nếu đặt, không thì origin công khai + `/r`;
+  - `currentRequest()` cho Server Action / Server Component.
+- Áp cho mọi chỗ trên. `redirect_uri` ở bước bắt đầu và callback dùng cùng một hàm nên luôn khớp.
+- Worker (email báo cáo, digest) và cảnh báo đội vận hành không có request → vẫn dùng env; script dev công khai đặt `APP_URL`, `PUBLIC_REPORT_URL`.
+
+**Test tự động:**
+- `connections.test.ts`: `redirect_uri` theo `APP_URL`; không có `APP_URL` → theo `x-forwarded-host`; không có gì → localhost.
+- `settings.test.ts`: link mời theo domain công khai.
+- `public-url.test.ts`: gốc link báo cáo.
+
+## [070] Bản team test tách thư mục + nút "Cập nhật bản test" (gián đoạn vài giây) — 2026-10-24
+
+**Thay đổi**
+- **`Cap-nhat-AdxLens.cmd` / `pnpm team:update`** (`scripts/team.mjs`):
+  - bản team chạy ở git worktree `<thư mục dev>-team` (vd. `E:\VideCode\AdxLens-team`), *detached* ở `origin/develop` (chỉ code đã push);
+  - lần đầu tự tạo worktree và copy `.env.local`, không đọc / in nội dung.
+- **Thứ tự cập nhật:**
+  1. checkout bản mới;
+  2. `pnpm install` nếu lockfile đổi;
+  3. **build vào `apps/web/.next-next` trong lúc app cũ vẫn chạy**;
+  4. Chromium, Redis / Supabase (tự khởi động lại nếu cấu hình Auth đổi), migration, tài khoản PM;
+  5. dừng app cũ (mọi tiến trình `start-local`) → đổi tên `.next-next` → `.next` → bật `start-local --fast` trong cửa sổ "AdxLens (ban team)".
+  - In thời gian gián đoạn và danh sách thay đổi.
+  - Đã mới nhất và đang chạy → không làm gì.
+  - Thư mục team có file sửa tay → từ chối.
+- **`next.config`:** `distDir` đọc `NEXT_DIST_DIR` (mặc định `.next`).
+- **`start-local`:**
+  - `--fast` chỉ bật web + worker từ bản build có sẵn;
+  - ghi `.adxlens-app.json` (pid) khi app chạy;
+  - không tự mở trình duyệt ở `--fast`.
+- **Runbook** `dev-public.md` mục 7: hai thư mục, cách cập nhật, lưu ý (không chạy app / E2E / migration chưa merge ở thư mục dev khi bản team đang chạy).
+
+**Test tự động:** `scripts/lib/team.test.ts` (thư mục team, PID theo cổng từ netstat, khi nào cài lại phụ thuộc, định dạng thời gian). Kiểm thực tế trên máy: xem báo cáo cập nhật trong PR / chat.
+
 ## [069] Redirect sau đăng nhập / OAuth theo địa chỉ công khai (sau Cloudflare Tunnel) — 2026-10-24
 
 **Lỗi:** sau Cloudflare Tunnel, `request.url` là `http://localhost:3000`. Các redirect tuyệt đối tạo từ nó đưa người dùng ngoài về `localhost`:

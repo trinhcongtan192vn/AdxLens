@@ -17,6 +17,8 @@ const securityHeaders = [
 ];
 
 const config: NextConfig = {
+  // Bản team (scripts/team.mjs): build vào thư mục tạm trong lúc app cũ vẫn chạy, rồi đổi tên thành .next.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   transpilePackages: [
     '@adxlens/ui',
     '@adxlens/core',

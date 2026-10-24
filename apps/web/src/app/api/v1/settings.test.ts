@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { listWorkspacesForUser, resolveActor } from '@adxlens/core/tenancy';
 import { closeTestDb, seedMember, seedUser, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
 import { asUser, call, installTestServer, uninstallTestServer } from '../../../test-utils';
@@ -41,6 +41,17 @@ describe('mời thành viên (ST02)', () => {
     expect(token).toBeTruthy();
     const rows = await db.execute(sql`select * from app.invitations`);
     expect(JSON.stringify(rows)).not.toContain(token!);
+  });
+
+  it('link mời theo origin công khai (sau Cloudflare Tunnel), không theo localhost', async () => {
+    const { ws, owner } = await setup();
+    vi.stubEnv('APP_URL', 'https://adxlens-dev.sctech.io.vn');
+    try {
+      await call(inviteRoute.POST, { user: owner, workspaceId: ws, body: { email: 'a@b.vn', role: 'buyer' } });
+      expect(server.email.sent[0]!.text).toMatch(/https:\/\/adxlens-dev\.sctech\.io\.vn\/invite\/[\w-]+/);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('manager không mời được', async () => {

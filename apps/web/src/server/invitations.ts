@@ -12,11 +12,12 @@ export async function sendInvitationEmail(
     to: string;
     role: 'manager' | 'buyer';
     token: string;
+    /** Gốc URL công khai (`appBaseUrl(ctx.req)`). */
+    appUrl: string;
   },
 ): Promise<void> {
   const ws = await getWorkspace({ db: deps.db, workspaceId: input.workspaceId });
   const inviter = await getUser(deps.db, input.inviterUserId);
-  const appUrl = process.env.APP_URL ?? 'http://localhost:3000';
   await deps.email.send(
     invitationEmail({
       locale: ws.defaultLocale === 'en' ? 'en' : 'vi',
@@ -24,7 +25,7 @@ export async function sendInvitationEmail(
       workspaceName: ws.name,
       inviterName: inviter?.fullName ?? inviter?.email ?? ws.name,
       role: input.role,
-      link: `${appUrl}/invite/${encodeURIComponent(input.token)}`,
+      link: `${input.appUrl}/invite/${encodeURIComponent(input.token)}`,
       days: INVITATION_TTL_DAYS,
     }),
   );
