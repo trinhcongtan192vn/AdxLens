@@ -621,7 +621,8 @@
       "adsets": "Nhóm QC",
       "ads": "Quảng cáo",
       "reports": "Báo cáo",
-      "settings": "Cài đặt"
+      "settings": "Cài đặt",
+      "goals": "Mục tiêu"
     },
     "c02NoData": "Số liệu chiến dịch sẽ hiển thị sau khi đồng bộ xong.",
     "c02Accounts": "Tài khoản QC của Client",
@@ -2544,5 +2545,220 @@
     },
     "failed": "{count} hành động không thực hiện được — xem lý do từng đối tượng.",
     "sent": "Đã gửi"
+  },
+  "goals": {
+    "title": "Mục tiêu và onboarding",
+    "clients": "Khách hàng",
+    "stepsLabel": "Các bước",
+    "step1": "Mục tiêu chính",
+    "step2": "Chỉ số phụ",
+    "step3": "Ngành và tài sản",
+    "primaryTitle": "Chỉ số tối ưu chính",
+    "primaryIntro": "Chọn chỉ số quan trọng nhất với {client} và mục tiêu cần đạt. Số thực tế bên cạnh giúp đặt mục tiêu sát thực tế.",
+    "mixedCurrency": "Khách có tài khoản khác tiền tệ; số gợi ý chỉ tính các tài khoản {currency}.",
+    "last30Short": "30 ngày",
+    "actualTitle": "{metric} thực tế",
+    "period": {
+      "yesterday": "Hôm qua",
+      "last7": "7 ngày",
+      "last30": "30 ngày"
+    },
+    "targetLabel": "Mục tiêu",
+    "useLast7": "Dùng giá trị 7 ngày ({value})",
+    "secondaryTitle": "Chỉ số thứ 2 và thứ 3",
+    "secondaryIntro": "Hiện cạnh chỉ số chính trên trang chủ, bảng và báo cáo của khách này.",
+    "range30": "30 ngày: {value}",
+    "secondaryCount": "Đã chọn {n}/2",
+    "assetsTitle": "Ngành và tài sản mặc định",
+    "assetsIntro": "Ngành dùng cho mẫu báo cáo theo ngành. Page, Instagram, Pixel mặc định dùng khi phân tích và tạo quảng cáo sau này.",
+    "industry": "Ngành",
+    "subIndustry": "Ngành con",
+    "choose": "Chọn…",
+    "page": "Page mặc định",
+    "instagram": "Instagram mặc định",
+    "pixel": "Pixel mặc định",
+    "noAsset": "Không chọn",
+    "later": "Để sau",
+    "back": "Quay lại",
+    "next": "Tiếp tục",
+    "finish": "Hoàn tất",
+    "saved": "Đã lưu mục tiêu",
+    "saveError": "Không lưu được, thử lại",
+    "banner": "Đặt mục tiêu KPI cho khách này để AdxLens so số liệu với mục tiêu và gợi ý ngưỡng cảnh báo.",
+    "bannerCta": "Đặt mục tiêu",
+    "tab": {
+      "primary": "Mục tiêu chính",
+      "target": "Mục tiêu",
+      "actual7": "7 ngày qua",
+      "vs": "So với mục tiêu",
+      "better": "tốt hơn {pct}",
+      "worse": "kém hơn {pct}",
+      "secondary": "Chỉ số phụ",
+      "industry": "Ngành",
+      "assets": "Tài sản mặc định",
+      "edit": "Sửa mục tiêu",
+      "empty": "Chưa đặt mục tiêu",
+      "none": "—"
+    },
+    "noGoal": "Chưa có mục tiêu"
+  },
+  "metrics": {
+    "spend": {
+      "name": "Chi tiêu",
+      "hint": "Tổng chi tiêu quảng cáo."
+    },
+    "impressions": {
+      "name": "Lượt hiển thị",
+      "hint": "Số lần quảng cáo hiển thị."
+    },
+    "reach": {
+      "name": "Người tiếp cận",
+      "hint": "Số người thấy quảng cáo."
+    },
+    "frequency": {
+      "name": "Tần suất",
+      "hint": "Trung bình mỗi người thấy bao nhiêu lần."
+    },
+    "link_clicks": {
+      "name": "Lượt click liên kết",
+      "hint": "Click vào liên kết của quảng cáo."
+    },
+    "ctr": {
+      "name": "CTR (liên kết)",
+      "hint": "Tỷ lệ click liên kết trên lượt hiển thị."
+    },
+    "cpc": {
+      "name": "CPC (liên kết)",
+      "hint": "Chi phí cho mỗi click liên kết."
+    },
+    "cpm": {
+      "name": "CPM",
+      "hint": "Chi phí cho 1.000 lượt hiển thị."
+    },
+    "results": {
+      "name": "Kết quả",
+      "hint": "Kết quả theo mục tiêu tối ưu của nhóm QC."
+    },
+    "cpa": {
+      "name": "Chi phí / kết quả",
+      "hint": "Chi tiêu chia số kết quả theo mục tiêu tối ưu."
+    },
+    "purchases": {
+      "name": "Lượt mua",
+      "hint": "Sự kiện mua hàng (Pixel / Meta)."
+    },
+    "cost_per_purchase": {
+      "name": "Chi phí / lượt mua",
+      "hint": "Chi tiêu chia số lượt mua."
+    },
+    "purchase_value": {
+      "name": "Giá trị chuyển đổi",
+      "hint": "Doanh thu Meta ghi nhận từ chuyển đổi."
+    },
+    "roas": {
+      "name": "ROAS",
+      "hint": "Giá trị chuyển đổi chia chi tiêu."
+    },
+    "leads": {
+      "name": "Lead",
+      "hint": "Khách tiềm năng từ form hoặc Pixel."
+    },
+    "cpl": {
+      "name": "Chi phí / lead",
+      "hint": "Chi tiêu chia số lead."
+    },
+    "add_to_cart": {
+      "name": "Thêm vào giỏ",
+      "hint": "Sự kiện thêm vào giỏ hàng."
+    },
+    "cost_per_add_to_cart": {
+      "name": "Chi phí / thêm giỏ",
+      "hint": "Chi tiêu chia số lần thêm vào giỏ."
+    }
+  },
+  "industries": {
+    "ecommerce": {
+      "name": "Thương mại điện tử",
+      "fashion": "Thời trang",
+      "beauty": "Mỹ phẩm, làm đẹp",
+      "home_living": "Nhà cửa, đời sống",
+      "electronics": "Điện tử",
+      "food_beverage": "Thực phẩm, đồ uống",
+      "mother_baby": "Mẹ và bé",
+      "sports": "Thể thao",
+      "other": "Khác"
+    },
+    "hospitality": {
+      "name": "Du lịch, lưu trú",
+      "hotel_resort": "Khách sạn, resort",
+      "restaurant_cafe": "Nhà hàng, cà phê",
+      "travel_agency": "Lữ hành",
+      "homestay_glamping": "Homestay, glamping",
+      "other": "Khác"
+    },
+    "real_estate": {
+      "name": "Bất động sản",
+      "residential": "Nhà ở",
+      "commercial": "Thương mại",
+      "rental": "Cho thuê",
+      "other": "Khác"
+    },
+    "education": {
+      "name": "Giáo dục",
+      "language": "Ngoại ngữ",
+      "k12": "Phổ thông",
+      "higher_ed": "Đại học",
+      "online_course": "Khóa học online",
+      "other": "Khác"
+    },
+    "health": {
+      "name": "Sức khỏe, làm đẹp",
+      "clinic": "Phòng khám",
+      "dental": "Nha khoa",
+      "spa_aesthetic": "Spa, thẩm mỹ",
+      "pharmacy": "Nhà thuốc",
+      "fitness": "Gym, fitness",
+      "other": "Khác"
+    },
+    "finance": {
+      "name": "Tài chính",
+      "banking": "Ngân hàng",
+      "insurance": "Bảo hiểm",
+      "investment": "Đầu tư",
+      "lending": "Cho vay",
+      "other": "Khác"
+    },
+    "automotive": {
+      "name": "Ô tô, xe máy",
+      "dealer": "Đại lý",
+      "service": "Dịch vụ, sửa chữa",
+      "rental": "Cho thuê",
+      "other": "Khác"
+    },
+    "services": {
+      "name": "Dịch vụ",
+      "agency_marketing": "Agency, marketing",
+      "legal_consulting": "Luật, tư vấn",
+      "home_services": "Dịch vụ tại nhà",
+      "events": "Sự kiện",
+      "other": "Khác"
+    },
+    "saas_tech": {
+      "name": "Phần mềm, công nghệ",
+      "b2b_software": "Phần mềm B2B",
+      "consumer_app": "Ứng dụng",
+      "gaming": "Game",
+      "other": "Khác"
+    },
+    "local_business": {
+      "name": "Cửa hàng địa phương",
+      "retail_store": "Cửa hàng bán lẻ",
+      "franchise": "Nhượng quyền",
+      "other": "Khác"
+    },
+    "other": {
+      "name": "Khác",
+      "other": "Khác"
+    }
   }
 }

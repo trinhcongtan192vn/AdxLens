@@ -13,3 +13,6 @@ export * from './pacing';
 export * from './report-extras';
 export * from './entity-detail';
 export * from './attention';
+export * from './metric-catalog';
+export * from './industries';
+export * from './goals';

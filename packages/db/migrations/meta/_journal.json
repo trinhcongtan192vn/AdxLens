@@ -442,6 +442,20 @@
       "when": 1792859797298,
       "tag": "0062_meta_assets_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1792860411580,
+      "tag": "0063_client_goals",
+      "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1792860412732,
+      "tag": "0064_client_goals_rls",
+      "breakpoints": true
     }
   ]
 }

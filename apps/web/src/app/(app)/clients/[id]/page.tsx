@@ -1,15 +1,25 @@
 import Link from 'next/link';
-import { clientPacing } from '@adxlens/core/reporting';
+import { clientPacing, getClientGoal, goalSuggestions } from '@adxlens/core/reporting';
 import { localDate } from '@adxlens/core/shared';
 import { BudgetCard } from './budget-card';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { z } from 'zod';
-import { listAdAccounts } from '@adxlens/core/connections';
+import { listAdAccounts, listAssets } from '@adxlens/core/connections';
 import { accountReconciliation } from '@adxlens/core/reconciliation';
 import { can, canApproveActions, getClient } from '@adxlens/core/tenancy';
 import { entityTable } from '@adxlens/core/reporting';
-import { Card, EmptyState, PageHeader, SourceFootnote, TabBar, tabItemClass } from '@adxlens/ui';
+import {
+  Banner,
+  buttonVariants,
+  Card,
+  EmptyState,
+  PageHeader,
+  SourceFootnote,
+  TabBar,
+  tabItemClass,
+} from '@adxlens/ui';
+import { GoalCard } from './goal-card';
 import { EntityGrid } from '@/components/entity-grid';
 import { toGridRows } from '@/server/grid';
 import { ClientReports } from './client-reports';
@@ -19,7 +29,7 @@ import { worstRecon } from '@/lib/recon';
 import { getPageContext } from '@/server/page-context';
 import { ClientAccounts, ClientActions } from './client-detail';
 
-const TABS = ['campaigns', 'adsets', 'ads', 'reports', 'settings'] as const;
+const TABS = ['campaigns', 'adsets', 'ads', 'goals', 'reports', 'settings'] as const;
 const LEVEL = { campaigns: 'campaign', adsets: 'adset', ads: 'ad' } as const;
 type Tab = (typeof TABS)[number];
 
@@ -61,6 +71,8 @@ export default async function ClientPage({
   // A3: ngân sách tháng hiện tại (theo múi giờ tài khoản đầu tiên).
   const pacing = accounts.length ? await clientPacing(pc.ctx, client.id) : null;
   const budgetMonth = localDate(new Date(), accounts[0]?.timezone ?? 'Asia/Ho_Chi_Minh').slice(0, 7);
+  const goal = await getClientGoal(pc.ctx, client.id);
+  const tg = await getTranslations('goals');
 
   return (
     <>
@@ -84,6 +96,16 @@ export default async function ClientPage({
         }
         actions={canManage ? <ClientActions id={client.id} name={client.name} /> : null}
       />
+      {accounts.length && canManage && !goal?.onboardedAt ? (
+        <Banner tone="info" className="mb-3">
+          <span className="flex flex-wrap items-center justify-between gap-2">
+            {tg('banner')}
+            <Link href={`/clients/${client.id}/onboarding`} className={buttonVariants({ kind: 'primary', size: 's' })}>
+              {tg('bannerCta')}
+            </Link>
+          </span>
+        </Banner>
+      ) : null}
       {accounts.length ? (
         <BudgetCard
           clientId={client.id}
@@ -126,6 +148,14 @@ export default async function ClientPage({
           />
           <SourceFootnote className="mt-2">{te('footnote', ranges.cur)}</SourceFootnote>
         </>
+      ) : tab === 'goals' ? (
+        <GoalCard
+          clientId={client.id}
+          goal={goal}
+          actual={await goalSuggestions(pc.ctx, client.id)}
+          assets={await listAssets(pc.ctx)}
+          canManage={canManage}
+        />
       ) : tab === 'reports' && pc.flags.p0_reports ? (
         <ClientReports clientId={client.id} canCreate={can(pc.ctx.actor.role, 'reports.manage')} />
       ) : (

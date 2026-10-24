@@ -7,6 +7,8 @@ export type ClientRow = {
   spend30?: Record<string, string>;
   health?: number | null;
   highIssues?: number;
+  /** ADR-0017: chỉ số mục tiêu chính (null = chưa đặt). */
+  goalMetric?: string | null;
 };
 
 const norm = (s: string) =>

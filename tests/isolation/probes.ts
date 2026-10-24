@@ -542,6 +542,17 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     crossParams: (w) => ({ id: w.b.client.id }),
     query: () => ({ month: '2026-10' }),
   },
+  'GET /api/v1/clients/[id]/goal': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.client.id }),
+    crossParams: (w) => ({ id: w.b.client.id }),
+  },
+  'PUT /api/v1/clients/[id]/goal': {
+    kind: 'workspace',
+    params: (w) => ({ id: w.a.client.id }),
+    crossParams: (w) => ({ id: w.b.client.id }),
+    body: () => ({ primaryMetric: 'cpa', primaryTarget: '150000', complete: true }),
+  },
   'PATCH /api/v1/clients/[id]': {
     kind: 'workspace',
     params: (w) => ({ id: w.a.client.id }),
