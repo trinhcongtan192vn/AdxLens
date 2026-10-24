@@ -35,6 +35,18 @@ function openBrowser(url) {
   if (isWin) spawn('cmd', ['/c', 'start', '', url], { detached: true, stdio: 'ignore' }).unref();
   else spawn(process.platform === 'darwin' ? 'open' : 'xdg-open', [url], { detached: true, stdio: 'ignore' }).unref();
 }
+function mockLine() {
+  let env = '';
+  try {
+    env = readFileSync('.env.local', 'utf8');
+  } catch {
+    // chưa có .env.local → coi như bản giả
+  }
+  const metaReal = /^META_MOCK=0\s*$/m.test(env);
+  return metaReal
+    ? 'Meta: THẬT (META_MOCK=0) — đọc dữ liệu từ tài khoản quảng cáo đã kết nối. Stripe, PayOS: bản giả.'
+    : 'Meta, Stripe, PayOS đang chạy bản GIẢ — không đụng dữ liệu thật.';
+}
 function printInfo() {
   console.log(`
 ==================================================================
@@ -42,7 +54,7 @@ function printInfo() {
   Tài khoản PM (staff, bật cờ ở /admin):  ${PM_EMAIL}  /  ${PM_PASSWORD}
   Email local (xác minh, mời, báo cáo):   http://127.0.0.1:54324
   Database (Supabase Studio):            http://127.0.0.1:54323
-  Meta, Stripe, PayOS đang chạy bản GIẢ — không đụng dữ liệu thật.
+  ${mockLine()}
   Hướng dẫn test: docs/implementation-guide.md Phần 4, docs/CHANGELOG.md
   Tắt app: đóng cửa sổ này (hoặc Ctrl+C).
 ==================================================================

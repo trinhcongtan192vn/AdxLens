@@ -2,6 +2,10 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [fix] Thông báo khởi động báo đúng Meta thật / giả — 2026-10-24
+
+`scripts/start-local.mjs`: dòng "Meta… bản GIẢ" trước đây viết cứng; giờ đọc `META_MOCK` trong `.env.local` (`META_MOCK=0` → "Meta: THẬT"). Chỉ đổi chữ hiển thị, không đổi cách chạy. **PM kiểm tra:** mở `Mo-AdxLens.cmd` với `META_MOCK=0` → bảng thông tin ghi "Meta: THẬT".
+
 ## [063] Thao tác ngay trên bảng chiến dịch + bộ cột (G4) — 2026-10-24
 
 **Thay đổi**
