@@ -186,3 +186,25 @@ Mỗi bước in ĐẠT / LỖI; sự cố hiện ở `/admin/incidents` (kèm c
 | `/admin/emails` | Xem trước mẫu email | Chỉ xem |
 
 Mọi thao tác ghi đều bắt buộc lý do và ghi vào `/admin/audit`. Tạo staff local: `pnpm seed:staff -- --email … --password … [--can-enable-flags]` (có cờ = superadmin) hoặc superadmin thêm ở `/admin/staff`.
+
+## 16. Giao diện Workspace, AI Agents, MCP (lộ trình W1–W10, `docs/roadmap-workspace.md`)
+- **Kết nối Meta xin bộ quyền rộng** (ADR-0016): app Meta cần thêm use case tương ứng (runbook `dev-public.md` mục
+  2.6). Meta báo "Invalid Scopes" thì đặt `META_CONNECT_SCOPES` trong `.env.local`. Quyền ghi vẫn tắt tới khi Owner
+  bật ở trang Quyền ghi.
+- **Onboarding theo Client** (ADR-0017): `/clients/<id>/onboarding`. Mục tiêu dùng ở tab Mục tiêu, trang chủ
+  Workspace, danh sách Client, khối "Mục tiêu của kỳ" trong báo cáo.
+- **Giao diện Workspace** `/w` (song song giao diện cổ điển; nút "Giao diện mới" / "Giao diện cổ điển"):
+  - các trang Trang chủ, Quảng cáo, Ads Manager, Phễu, Địa lý, Mở rộng, Cảnh báo;
+  - phạm vi Agency hoặc một tài khoản (cookie `w_scope`);
+  - kỳ 7 / 14 / 30 ngày.
+- **Cảnh báo tự đặt** (ADR-0018) đánh giá trong job `audit:run` sau đồng bộ hằng ngày.
+- **AI Agents** (ADR-0019, cờ `p1_recommendations`):
+  - cần `ANTHROPIC_API_KEY` (và `ANTHROPIC_MODEL`) cho **worker**; web chỉ hiện banner khi thiếu;
+  - trả lời chạy ở job `recommend:agent_reply`;
+  - test dùng LLM giả (`packages/core/src/agent/agent.test.ts`), không gọi mạng.
+- **MCP server** (ADR-0020): Cài đặt → Tích hợp tạo khóa; endpoint `POST /api/v1/mcp`. Thử nhanh:
+  ```
+  curl -s -X POST http://localhost:3000/api/v1/mcp -H "Authorization: Bearer adx_..." \
+    -H "content-type: application/json" -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+  ```
+  Claude Code: `claude mcp add --transport http adxlens http://localhost:3000/api/v1/mcp --header "Authorization: Bearer adx_..."`.
