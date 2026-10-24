@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ChevronDown, Plus, TrendingUp } from 'lucide-react';
+import { Check, ChevronDown, Plus, Sparkles, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -87,6 +87,16 @@ export function TopBar({
       ) : null}
 
       <div className="flex-1" />
+
+      {/* W3: chuyển sang giao diện Workspace (song song, như "Switch product" của Madgicx). */}
+      <Link
+        href="/w"
+        data-testid="switch-workspace-ui"
+        className="flex h-8 items-center gap-1 rounded-md px-2 text-body text-brand hover:bg-brand-subtle"
+      >
+        <Sparkles className="size-4" aria-hidden />
+        {t('ws.switchNew')}
+      </Link>
 
       {clients.length ? (
         <Select
