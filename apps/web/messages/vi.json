@@ -2924,5 +2924,65 @@
     "avg7": "Trung bình 7 ngày qua: {value}",
     "fromData": "Gợi ý từ dữ liệu 30 ngày:",
     "save": "Tạo cảnh báo"
+  },
+  "wsAds": {
+    "subtitle": "Từng quảng cáo, {from} → {to}, so với kỳ trước",
+    "search": "Tìm quảng cáo, chiến dịch",
+    "allFormats": "Mọi loại",
+    "formats": {
+      "image": "Ảnh",
+      "video": "Video",
+      "carousel": "Băng chuyền",
+      "dynamic": "Động",
+      "text": "Văn bản",
+      "other": "Khác"
+    },
+    "objective": "Mục tiêu",
+    "allObjectives": "Mọi mục tiêu",
+    "objectives": {
+      "OUTCOME_SALES": "Doanh số",
+      "OUTCOME_LEADS": "Khách tiềm năng",
+      "OUTCOME_TRAFFIC": "Lưu lượng truy cập",
+      "OUTCOME_AWARENESS": "Nhận biết",
+      "OUTCOME_ENGAGEMENT": "Tương tác",
+      "OUTCOME_APP_PROMOTION": "Quảng bá ứng dụng"
+    },
+    "status": "Trạng thái",
+    "statusAll": "Mọi trạng thái",
+    "statusActive": "Đang chạy",
+    "statusPaused": "Tạm dừng",
+    "sort": "Sắp xếp",
+    "sortBy": "Sắp theo {metric}",
+    "metrics": "Chỉ số hiển thị:",
+    "metricN": "Chỉ số {n}",
+    "count": "{n} quảng cáo",
+    "emptyTitle": "Không có quảng cáo phù hợp",
+    "emptyBody": "Đổi bộ lọc hoặc kỳ thời gian."
+  },
+  "wsAm": {
+    "subtitle": "Chiến dịch, nhóm QC, quảng cáo · {from} → {to} · % so kỳ trước, sparkline theo ngày",
+    "views": {
+      "tree": "Chiến dịch",
+      "adset": "Nhóm QC",
+      "ad": "Quảng cáo"
+    },
+    "levels": {
+      "campaign": "CD",
+      "adset": "Nhóm",
+      "ad": "QC"
+    },
+    "search": "Tìm theo tên",
+    "hideZero": "Ẩn đối tượng không chi tiêu",
+    "columns": "Cột",
+    "columnsHint": "Chọn tối đa 10 cột. Lựa chọn được nhớ trên trình duyệt này.",
+    "total": "Tổng",
+    "expand": "Mở",
+    "collapse": "Thu gọn",
+    "select": "Chọn {name}",
+    "selected": "Đã chọn {n}",
+    "pause": "Tạm dừng",
+    "resume": "Bật lại",
+    "emptyTitle": "Không có đối tượng",
+    "emptyBody": "Đổi kỳ, bộ lọc hoặc bỏ \"Ẩn đối tượng không chi tiêu\"."
   }
 }

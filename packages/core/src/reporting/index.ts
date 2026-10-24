@@ -18,3 +18,5 @@ export * from './industries';
 export * from './goals';
 export * from './home';
 export * from './alerts';
+export * from './ads-grid';
+export * from './ads-manager';
