@@ -2,6 +2,13 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [085] Sửa E2E sau W1 / W3 — 2026-10-24
+
+- Trang Quyền ghi: kết nối mới (ADR-0016) đã có `ads_management` nhưng **lần bật đầu vẫn là "Cấp quyền ghi"** (OAuth xác nhận lại với Meta, như trước); "Bật lại quyền ghi" chỉ hiện sau khi đã từng bật rồi thu hồi. Giữ đúng luồng E2E P2a / P2b (không đổi test).
+- Sidebar Workspace: nhãn "Điều hướng Workspace" đặt trên `<nav>` (trước đặt nhầm trên `<aside>`, trình đọc màn hình và E2E không thấy).
+
+**Test tự động:** E2E `p2a.spec.ts`, `p2b.spec.ts`, `workspace-home.spec.ts` (CI).
+
 ## [084] W10 — MCP server cho AdxLens (khóa API theo workspace) — 2026-10-24
 
 **Thay đổi** (ADR-0020; vùng bảo vệ `db`: `app.api_keys` + RLS):
