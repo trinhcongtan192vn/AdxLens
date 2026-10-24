@@ -3032,7 +3032,8 @@
     "pause": "Pause",
     "resume": "Resume",
     "emptyTitle": "Nothing to show",
-    "emptyBody": "Change the period, filters, or untick \"Hide items with no spend\"."
+    "emptyBody": "Change the period, filters, or untick \"Hide items with no spend\".",
+    "askAi": "Ask AI about selected"
   },
   "wsFunnels": {
     "subtitle": "Awareness → Consideration → Conversion, with step-to-step rates",
@@ -3200,7 +3201,8 @@
       "ad_fatigue": "Ad fatigue",
       "propose_action": "Proposal",
       "funnel_stages": "Funnel stages",
-      "landing_pages": "Landing pages"
+      "landing_pages": "Landing pages",
+      "entity_details": "Selected items"
     },
     "proposal": "Proposal — needs your approval",
     "review": "Preview and approve",
@@ -3220,7 +3222,16 @@
     "limit": "Daily question limit reached, try again tomorrow.",
     "error": "Could not send the question",
     "ownKey": "Answered with the workspace's AI key · {model}",
-    "ownKeyFailed": "The workspace's AI key was rejected (see Settings → Integrations). Here are the numbers AdxLens computed:"
+    "ownKeyFailed": "The workspace's AI key was rejected (see Settings → Integrations). Here are the numbers AdxLens computed:",
+    "stop": "Stop",
+    "stopped": "Answer stopped.",
+    "selectedContext": "Context:",
+    "removeContext": "Remove from context",
+    "levels": {
+      "campaign": "Campaign",
+      "adset": "Ad set",
+      "ad": "Ad"
+    }
   },
   "integrations": {
     "title": "MCP server — connect AdxLens to Claude and other AI tools",

@@ -1,12 +1,13 @@
 'use client';
 
-import { ChevronDown, ChevronRight, Columns3, Search } from 'lucide-react';
+import { ChevronDown, ChevronRight, Columns3, Search, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   Badge,
   Button,
+  buttonVariants,
   Card,
   Checkbox,
   cn,
@@ -63,6 +64,7 @@ export function AdsManagerView({
   currency,
   metricOptions,
   canAct,
+  canAsk = false,
 }: {
   rows: AmRowDto[];
   total: Values;
@@ -70,6 +72,8 @@ export function AdsManagerView({
   currency: string | null;
   metricOptions: readonly string[];
   canAct: boolean;
+  /** Cờ P1: chọn đối tượng làm ngữ cảnh hỏi AI Agents (Madgicx roadmap chat). */
+  canAsk?: boolean;
 }) {
   const t = useTranslations('wsAm');
   const tm = useTranslations('metrics');
@@ -131,6 +135,15 @@ export function AdsManagerView({
       return n;
     });
   const sel = [...selected.values()];
+  // Hỏi AI về các mục đã chọn: cùng một cấp (cấp của mục chọn đầu), tối đa 20.
+  const askHref = () => {
+    const lvl = sel[0]?.level ?? 'campaign';
+    const ids = sel
+      .filter((r) => r.level === lvl)
+      .slice(0, 20)
+      .map((r) => r.metaId);
+    return `/w/agents?level=${lvl}&ids=${ids.join(',')}`;
+  };
   const act = (type: 'pause' | 'resume') => {
     const list = sel.filter(
       (r) => r.level !== 'campaign' && (type === 'pause' ? isActive(r.status) : !isActive(r.status)),
@@ -189,7 +202,7 @@ export function AdsManagerView({
       <Fragment key={k(r)}>
         <TR data-testid={`am-row-${r.level}`}>
           <TD className="w-8">
-            {canAct && r.level !== 'campaign' ? (
+            {(canAct && r.level !== 'campaign') || canAsk ? (
               <Checkbox
                 checked={selected.has(k(r))}
                 onChange={() => toggleSel(r)}
@@ -268,9 +281,15 @@ export function AdsManagerView({
           {t('hideZero')}
         </label>
         <div className="flex-1" />
-        {canAct && sel.length ? (
+        {sel.length ? <span className="text-small text-fg-secondary">{t('selected', { n: sel.length })}</span> : null}
+        {canAsk && sel.length ? (
+          <a href={askHref()} className={buttonVariants({ kind: 'secondary', size: 's' })} data-testid="am-ask-ai">
+            <Sparkles className="size-4" aria-hidden />
+            {t('askAi')}
+          </a>
+        ) : null}
+        {canAct && sel.some((r) => r.level !== 'campaign') ? (
           <>
-            <span className="text-small text-fg-secondary">{t('selected', { n: sel.length })}</span>
             <Button kind="secondary" size="s" onClick={() => act('pause')}>
               {t('pause')}
             </Button>

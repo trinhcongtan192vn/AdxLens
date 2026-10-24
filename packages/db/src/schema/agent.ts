@@ -35,7 +35,7 @@ export type AgentMessageData = {
     reason?: string;
   }[];
   /** llm: qua kiểm tra số; facts: trả bảng số từ công cụ vì LLM không qua kiểm tra / không có key. */
-  source?: 'llm' | 'facts' | 'unconfigured';
+  source?: 'llm' | 'facts' | 'unconfigured' | 'stopped';
   /** Khóa nào trả lời: khóa workspace tự mang (ADR-0022) hay khóa nền tảng. */
   llm?: { via: 'workspace' | 'platform'; provider: string; model: string };
   /** Mã lỗi LLM khi rơi về bảng số (vd. LLM_HTTP_401 = khóa sai). */
@@ -43,7 +43,13 @@ export type AgentMessageData = {
   facts?: { label: string; text: string }[];
   rejected?: number[][];
   /** Ngữ cảnh người dùng chọn (tài khoản / kỳ). */
-  context?: { adAccountId?: string | null; period?: string; locale?: 'vi' | 'en' };
+  context?: {
+    adAccountId?: string | null;
+    period?: string;
+    locale?: 'vi' | 'en';
+    /** Đối tượng người dùng chọn trong bảng làm ngữ cảnh (Madgicx roadmap chat). Tên là dữ liệu từ Meta. */
+    entities?: { level: 'campaign' | 'adset' | 'ad'; metaId: string }[];
+  };
 };
 
 export const agentMessages = app.table(
