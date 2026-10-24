@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { getEnv } from '@adxlens/config/env';
 import { createShareLink, listShareLinks } from '@adxlens/core/reporting';
 import { route, uuidParam } from '@/server/route';
+import { reportBaseUrl } from '@/server/public-base';
 
-const url = (token: string) => `${getEnv().PUBLIC_REPORT_URL.replace(/\/$/, '')}/${token}`;
+const url = (req: Request, token: string) => `${reportBaseUrl(req)}/${token}`;
 
 /** R04: link chia sẻ của báo cáo. */
 export const GET = route({
@@ -13,7 +13,7 @@ export const GET = route({
   handler: async (ctx) => ({
     items: (await listShareLinks(ctx, uuidParam(ctx, 'id'))).map((l) => ({
       id: l.id,
-      url: url(l.token),
+      url: url(ctx.req, l.token),
       has_password: l.passwordHash !== null,
       expires_at: l.expiresAt?.toISOString() ?? null,
       revoked_at: l.revokedAt?.toISOString() ?? null,
@@ -44,7 +44,7 @@ export const POST = route({
     return Response.json(
       {
         id: l.id,
-        url: url(l.token),
+        url: url(ctx.req, l.token),
         expires_at: l.expiresAt?.toISOString() ?? null,
         has_password: l.passwordHash !== null,
       },

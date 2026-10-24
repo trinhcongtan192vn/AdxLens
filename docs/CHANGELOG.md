@@ -2,6 +2,30 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [071] Mọi URL tuyệt đối do web tạo theo origin công khai (Meta OAuth, email, thanh toán, link báo cáo) — 2026-10-24
+
+**Lỗi tiềm ẩn:** các chỗ dưới đây lấy `getEnv().APP_URL` / `PUBLIC_REPORT_URL`. Hai biến này **tự điền `http://localhost:3000`** khi thiếu, nên chạy sau Cloudflare Tunnel mà thiếu biến sẽ ra link localhost:
+- `redirect_uri` Meta OAuth (bắt đầu + callback);
+- link mời thành viên;
+- link xác minh / đặt lại mật khẩu (`redirectTo`);
+- ngắt kết nối;
+- URL trả về sau thanh toán Stripe / PayOS / portal;
+- URL data deletion trả cho Meta;
+- link báo cáo `/r/...` (API chia sẻ + trang chia sẻ).
+
+**Sửa:**
+- `server/public-base.ts`:
+  - `appBaseUrl(req)` = `publicOrigin`: `APP_URL` → `x-forwarded-host` / `-proto` → origin request;
+  - `reportBaseUrl(req)`: `PUBLIC_REPORT_URL` nếu đặt, không thì origin công khai + `/r`;
+  - `currentRequest()` cho Server Action / Server Component.
+- Áp cho mọi chỗ trên. `redirect_uri` ở bước bắt đầu và callback dùng cùng một hàm nên luôn khớp.
+- Worker (email báo cáo, digest) và cảnh báo đội vận hành không có request → vẫn dùng env; script dev công khai đặt `APP_URL`, `PUBLIC_REPORT_URL`.
+
+**Test tự động:**
+- `connections.test.ts`: `redirect_uri` theo `APP_URL`; không có `APP_URL` → theo `x-forwarded-host`; không có gì → localhost.
+- `settings.test.ts`: link mời theo domain công khai.
+- `public-url.test.ts`: gốc link báo cáo.
+
 ## [070] Bản team test tách thư mục + nút "Cập nhật bản test" (gián đoạn vài giây) — 2026-10-24
 
 **Thay đổi**

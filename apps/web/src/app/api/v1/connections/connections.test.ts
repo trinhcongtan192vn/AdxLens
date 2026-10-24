@@ -113,6 +113,27 @@ describe('OAuth Meta (META_MOCK=1)', () => {
     }
   });
 
+  it('redirect_uri Meta theo origin công khai: APP_URL, không có thì header proxy (sau Cloudflare Tunnel)', async () => {
+    const { workspace, owner } = await seedWorkspace(db);
+    const cb = '/api/v1/connections/meta/callback';
+    try {
+      vi.stubEnv('APP_URL', 'https://adxlens-dev.sctech.io.vn');
+      const a = await call(authorize.GET, { user: asUser(owner), workspaceId: workspace.id });
+      expect(a.headers.get('location')!.startsWith(`https://adxlens-dev.sctech.io.vn${cb}?`)).toBe(true);
+      vi.stubEnv('APP_URL', '');
+      const b = await call(authorize.GET, {
+        user: asUser(owner),
+        workspaceId: workspace.id,
+        headers: { 'x-forwarded-host': 'adxlens-dev.sctech.io.vn', 'x-forwarded-proto': 'https' },
+      });
+      expect(b.headers.get('location')!.startsWith(`https://adxlens-dev.sctech.io.vn${cb}?`)).toBe(true);
+      const c = await call(authorize.GET, { user: asUser(owner), workspaceId: workspace.id });
+      expect(c.headers.get('location')!.startsWith(`http://localhost${cb}?`)).toBe(true);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it('buyer không bắt đầu kết nối được', async () => {
     const { workspace } = await seedWorkspace(db);
     const buyer = asUser(await seedMember(db, workspace.id, 'buyer'));

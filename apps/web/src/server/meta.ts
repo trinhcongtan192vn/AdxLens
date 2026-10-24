@@ -1,6 +1,8 @@
 import 'server-only';
 import { getEnv } from '@adxlens/config/env';
 import { keysFromEnv, metaReadApi, type MetaConfig } from '@adxlens/core/connections';
+import type { RequestLike } from '@/lib/public-url';
+import { appBaseUrl } from './public-base';
 
 export function metaConfig(): MetaConfig {
   const env = getEnv();
@@ -24,6 +26,10 @@ export function tokenKeys() {
   return keysFromEnv(getEnv());
 }
 
-export function oauthRedirectUri(): string {
-  return `${getEnv().APP_URL}/api/v1/connections/meta/callback`;
+/**
+ * redirect_uri của Meta OAuth: theo origin công khai (APP_URL → header proxy → request), không theo `request.url` (sau
+ * Cloudflare Tunnel là localhost). Bước bắt đầu và bước callback phải ra cùng một giá trị.
+ */
+export function oauthRedirectUri(req: RequestLike): string {
+  return `${appBaseUrl(req)}/api/v1/connections/meta/callback`;
 }

@@ -2,13 +2,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { z } from 'zod';
-import { getEnv } from '@adxlens/config/env';
 import { getReport, listShareLinks, shareBlockReasons, type ReportContent } from '@adxlens/core/reporting';
 import { Banner, buttonVariants, PageHeader } from '@adxlens/ui';
 import { requirePermission } from '@/server/guards';
 import { getPageContext, requireFlag } from '@/server/page-context';
 import { PdfCard } from './pdf-card';
 import { ShareManager } from './share-manager';
+import { currentRequest, reportBaseUrl } from '@/server/public-base';
 
 export async function generateMetadata() {
   const t = await getTranslations('share');
@@ -29,7 +29,7 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
   const content = report.content as ReportContent | null;
   const block = report.status === 'ready' ? await shareBlockReasons(pc.ctx, report) : null;
   const links = await listShareLinks(pc.ctx, id);
-  const base = getEnv().PUBLIC_REPORT_URL.replace(/\/$/, '');
+  const base = reportBaseUrl(await currentRequest());
   const dates = [...new Set((block?.integrity.warningDates ?? []).flatMap((w) => w.dates))];
 
   return (

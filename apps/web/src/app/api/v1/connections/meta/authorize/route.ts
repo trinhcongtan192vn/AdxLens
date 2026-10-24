@@ -25,7 +25,7 @@ export const GET = route({
     const cfg = metaConfig();
     const state = randomToken(16);
     const cookie = sign({ state, workspaceId: ctx.workspaceId, userId: ctx.user.id, scope: query.scope }, 600);
-    const redirectUri = oauthRedirectUri();
+    const redirectUri = oauthRedirectUri(ctx.req);
     const target = cfg.mock
       ? `${redirectUri}?code=mock-code&state=${encodeURIComponent(state)}`
       : authorizeUrl({

@@ -3,6 +3,7 @@ import { parseSignedRequest } from '@adxlens/core/connections';
 import { handleMetaDataDeletion } from '@adxlens/core/ops';
 import { AppError } from '@adxlens/core/shared';
 import { route } from '@/server/route';
+import { appBaseUrl } from '@/server/public-base';
 
 /**
  * L3 10.2 `POST /webhooks/meta`: deauthorize và data deletion callback của Meta (form `signed_request`,
@@ -20,9 +21,9 @@ export const POST = route({
     const r = await handleMetaDataDeletion(ctx.db, userId, {
       enqueue: ctx.enqueue,
       email: ctx.email,
-      appUrl: env.APP_URL,
+      appUrl: appBaseUrl(ctx.req),
     });
     ctx.log.info({ connections: r.connections }, 'meta data deletion callback');
-    return { url: `${env.APP_URL}/data-deletion?code=${r.code}`, confirmation_code: r.code };
+    return { url: `${appBaseUrl(ctx.req)}/data-deletion?code=${r.code}`, confirmation_code: r.code };
   },
 });
