@@ -2984,5 +2984,105 @@
     "resume": "Resume",
     "emptyTitle": "Nothing to show",
     "emptyBody": "Change the period, filters, or untick \"Hide items with no spend\"."
+  },
+  "wsFunnels": {
+    "subtitle": "Awareness → Consideration → Conversion, with step-to-step rates",
+    "group": {
+      "awareness": "Awareness",
+      "consideration": "Consideration",
+      "conversion": "Conversion"
+    },
+    "stages": {
+      "impressions": "Impressions",
+      "link_clicks": "Link clicks",
+      "add_to_cart": "Adds to cart",
+      "conversions": "Conversions"
+    },
+    "conv": {
+      "purchases": "Purchases",
+      "leads": "Leads",
+      "results": "Results"
+    },
+    "rate": "{pct} from previous step",
+    "by": {
+      "campaign": "Campaigns",
+      "adset": "Ad sets"
+    },
+    "spend": "Spend",
+    "ctr": "CTR",
+    "clickToConv": "Click → conversion",
+    "landingNote": "Landing-page funnels need ad destination URLs — coming once AdxLens reads URLs from creatives.",
+    "emptyTitle": "No funnel data yet",
+    "emptyBody": "No impressions in this period."
+  },
+  "wsGeo": {
+    "subtitle": "Spend and results by region (Meta \"region\" breakdown)",
+    "region": "Region",
+    "share": "Share of spend",
+    "spend": "Spend",
+    "results": "Results",
+    "cpa": "Cost per result",
+    "ctr": "CTR",
+    "unknown": "Unknown",
+    "noResults": "No results",
+    "wasted": "{amount} spent in {n} regions with no results this period — consider excluding them or lowering budget.",
+    "note": "Regional totals may differ slightly from account totals (Meta hides / rounds small groups).",
+    "emptyTitle": "No regional data yet",
+    "emptyBody": "Regional data appears after the next daily sync."
+  },
+  "wsScale": {
+    "subtitle": "Which ads to scale, refresh or rework",
+    "emptyTitle": "No ads with spend",
+    "emptyBody": "Pick a longer period or another account.",
+    "fatigue": {
+      "title": "Is my ad getting tired?",
+      "intro": "Each dot is an ad: frequency (x) × CPC (y), bigger = more spend. Dashed lines are medians.",
+      "xAxis": "Frequency",
+      "yAxis": "CPC",
+      "actions": "What to do",
+      "tip": "frequency {f}, CPC {cpc}, spend {spend}",
+      "mid": "Medians: frequency {f}, CPC {cpc}",
+      "refreshList": "Refresh these creatives:",
+      "q": {
+        "fresh_cheap": {
+          "title": "Fresh and cheap",
+          "action": "Low frequency, low CPC → scale budget gradually."
+        },
+        "burning_out": {
+          "title": "Burning out",
+          "action": "High frequency, high CPC → refresh creative or widen the audience."
+        },
+        "expensive_early": {
+          "title": "Expensive early",
+          "action": "Low frequency but high CPC → rework creative / message / audience."
+        },
+        "still_holding": {
+          "title": "Still holding",
+          "action": "High frequency, CPC still low → monitor, prepare a replacement."
+        }
+      }
+    },
+    "format": {
+      "title": "By format",
+      "format": "Format",
+      "ads": "Ads",
+      "spend": "Spend",
+      "share": "Share",
+      "cpa": "Cost / result"
+    },
+    "ageGender": {
+      "title": "Age × gender (spend)",
+      "none": "No age / gender data yet.",
+      "age": "Age",
+      "g": {
+        "female": "Female",
+        "male": "Male",
+        "unknown": "Other"
+      }
+    },
+    "trend": {
+      "title": "Daily spend",
+      "results": "results"
+    }
   }
 }

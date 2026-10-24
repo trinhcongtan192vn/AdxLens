@@ -73,6 +73,17 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await page.getByRole('button', { name: 'Quảng cáo', exact: true }).click();
   await expect(page.getByTestId('am-row-ad').first()).toBeVisible();
 
+  // W8: phễu, địa lý, mở rộng.
+  await page.getByRole('link', { name: 'Phễu', exact: true }).click();
+  await expect(page.getByTestId('funnel-total')).toContainText('Click liên kết');
+  await page.getByRole('tab', { name: 'Nhóm QC' }).click();
+  await expect(page).toHaveURL(/by=adset/);
+  await page.getByRole('link', { name: 'Địa lý', exact: true }).click();
+  await expect(page.getByTestId('geo-table')).toBeVisible();
+  await page.getByRole('link', { name: 'Mở rộng', exact: true }).click();
+  await expect(page.getByTestId('fatigue-chart')).toContainText('Quảng cáo có mệt không?');
+  await expect(page.getByTestId('quadrant-burning_out')).toBeVisible();
+
   await page.getByTestId('switch-classic').click();
   await expect(page).toHaveURL(/\/overview$/);
 });
