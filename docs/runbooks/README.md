@@ -16,6 +16,7 @@ Mỗi runbook: **khi nào dùng → dừng / giảm thiểu → xác định ph�
 | [rotate-token-key.md](rotate-token-key.md) | Xoay khóa mã hóa token Meta | — |
 | [flags-release.md](flags-release.md) | PM bật / tắt cờ cho workspace | — |
 | [agent-diagnose.md](agent-diagnose.md) | Lỗi code mới cần agent phân tích | — |
+| [dev-public.md](dev-public.md) | Mở bản dev trên máy local cho team test qua domain (Cloudflare Tunnel, Meta tester, Resend) | — |
 
 **Không bao giờ tự động (L2 11.3):** sửa Execution Gateway / guardrails / RLS / migration; nới ngưỡng đối chiếu; tắt cảnh báo; xóa dữ liệu ngoài quy trình; bật cờ; thực thi lại hành động ghi thất bại.
 

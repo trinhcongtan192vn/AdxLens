@@ -24,6 +24,8 @@ export const baseEnvSchema = z.object({
   SUPABASE_URL: z.string().url().default('http://127.0.0.1:54321'),
   SUPABASE_ANON_KEY: optionalString,
   SUPABASE_SERVICE_ROLE_KEY: optionalString,
+  /** Địa chỉ công khai của Supabase cho link logo / PDF (dev công khai qua tunnel). Trống = dùng SUPABASE_URL. */
+  STORAGE_PUBLIC_URL: optionalString,
   INTERNAL_SIGNING_SECRET: z.string().min(32),
   SENTRY_DSN: optionalString,
   POSTHOG_KEY: optionalString,

@@ -82,7 +82,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Supabase local (Postgres, Auth, Storage, Mailpit)
-        run: pnpm exec supabase start --workdir infra && pnpm exec supabase seed buckets --workdir infra
+        run: node scripts/supabase-env.mjs && pnpm exec supabase start --workdir infra && pnpm exec supabase seed buckets --workdir infra
       - name: Sinh .env.local (khóa ngẫu nhiên, key Supabase local)
         run: pnpm env:init --force
       - name: Chromium cho Playwright
