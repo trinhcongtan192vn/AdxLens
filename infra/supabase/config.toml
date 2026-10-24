@@ -173,11 +173,12 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://localhost:3000"
+# AdxLens: lấy từ infra/supabase/.env (sinh bởi scripts/supabase-env.mjs) — localhost hoặc domain dev công khai.
+site_url = "env(ADX_AUTH_SITE_URL)"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
-# external_url = ""
+external_url = "env(ADX_AUTH_EXTERNAL_URL)"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["http://localhost:3000/auth/callback", "http://127.0.0.1:3000/auth/callback"]
+additional_redirect_urls = ["env(ADX_AUTH_REDIRECT_URL)", "http://localhost:3000/auth/callback", "http://127.0.0.1:3000/auth/callback"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
@@ -251,14 +252,15 @@ otp_length = 6
 otp_expiry = 86400
 
 # Use a production-ready SMTP server
-# [auth.email.smtp]
-# enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+# AdxLens: chỉ bật ở chế độ dev công khai (Resend, docs/runbooks/dev-public.md); local tắt → email vào Mailpit.
+[auth.email.smtp]
+enabled = "env(ADX_SMTP_ENABLED)"
+host = "env(ADX_SMTP_HOST)"
+port = "env(ADX_SMTP_PORT)"
+user = "env(ADX_SMTP_USER)"
+pass = "env(ADX_SMTP_PASS)"
+admin_email = "env(ADX_SMTP_ADMIN_EMAIL)"
+sender_name = "env(ADX_SMTP_SENDER_NAME)"
 
 # E01 (song ngữ, ux-requirements 6): xác minh email và đặt lại mật khẩu.
 [auth.email.template.confirmation]

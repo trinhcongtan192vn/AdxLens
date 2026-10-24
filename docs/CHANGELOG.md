@@ -2,6 +2,37 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [068] Chế độ "dev công khai": team test bản dev trên máy local qua domain — 2026-10-24
+
+**Thay đổi**
+- **Runbook** [docs/runbooks/dev-public.md](runbooks/dev-public.md): việc PM tự làm cho Cloudflare (domain + Tunnel `adxlens-dev.sctech.io.vn` → `:3000`, `adxlens-dev-sb.sctech.io.vn` → `:54321`, Access cho team), Meta tester + URL domain dev, Resend (`notify.sctech.io.vn`), `.env.local`, kiểm tra và tắt.
+- **`Mo-AdxLens.cmd` / `start-local`:** `PUBLIC_DEV_APP_URL` trong `.env.local` = chế độ dev công khai.
+  - **Từ chối chạy** khi mật khẩu PM mặc định hoặc < 12 ký tự, email PM `.local`, SMTP vẫn là Mailpit, `EMAIL_FROM` không thuộc domain thật, URL không phải `https://`.
+  - **Supabase Auth theo domain dev:** site URL, redirect, link trong email qua hostname Supabase của tunnel, gửi email Auth bằng SMTP thật. Đổi chế độ → tự khởi động lại Supabase (dữ liệu giữ nguyên).
+  - **Web / worker** chạy với `APP_URL`, `PUBLIC_REPORT_URL` = domain dev, `STORAGE_PUBLIC_URL` = hostname Supabase.
+  - **Tài khoản PM** lấy từ `PM_EMAIL` / `PM_PASSWORD`:
+    - mật khẩu truyền qua biến môi trường, không đặt trên dòng lệnh, không in ra màn hình khi đã đặt riêng;
+    - tài khoản mặc định `pm@adxlens.local` bị **khóa** (mật khẩu ngẫu nhiên, bỏ quyền staff) khi mở ra ngoài.
+  - Kiểm tra tunnel trả lời được sau khi app lên.
+- **`seed-staff`:**
+  - mật khẩu qua `SEED_STAFF_PASSWORD`;
+  - user đã có thì **cập nhật mật khẩu** (trước đây giữ mật khẩu cũ);
+  - `--lock` khóa tài khoản.
+- **`infra/supabase/config.toml`** (vùng bảo vệ `infra/**`):
+  - `site_url`, `additional_redirect_urls`, `auth.external_url`, `[auth.email.smtp]` đọc `env(...)` từ `infra/supabase/.env`;
+  - file này do `scripts/supabase-env.mjs` sinh từ `.env.local` (gitignore). Không có `.env.local` (CI) → giá trị local như cũ;
+  - `pnpm dev` và CI chạy bước này trước `supabase start`.
+- **Link logo / PDF cho trình duyệt** đổi từ địa chỉ nội bộ sang `STORAGE_PUBLIC_URL` nếu có (`lib/storage-url.ts`). Server vẫn gọi Supabase qua local.
+
+**Test tự động:**
+- `scripts/lib/start-local.test.ts`: chế độ local / công khai; chặn mật khẩu mặc định, SMTP Mailpit…; nội dung `infra/supabase/.env` (có thoát ngoặc kép, `/auth/v1`).
+- `lib/storage-url.test.ts`: đổi địa chỉ, giữ chữ ký; link nơi khác giữ nguyên.
+- Kiểm thực tế: Supabase local khởi động với config mới, GoTrue nhận `SITE_URL`, `API_EXTERNAL_URL`, SMTP Mailpit; E2E đủ 15/15 (đăng ký → email xác minh → vào app).
+
+**Vùng bảo vệ:** `infra/supabase/config.toml`. Ở local không đổi hành vi: giá trị như cũ, chỉ chuyển sang `env(...)`. **Rủi ro:** thiếu `infra/supabase/.env` thì `supabase start` báo lỗi parse config → luôn chạy qua `Mo-AdxLens.cmd`, `pnpm dev`, hoặc `node scripts/supabase-env.mjs`.
+
+**PM kiểm tra:** làm theo runbook mục 1–5.
+
 ## [067] Admin: tìm kiếm chung, liên kết về workspace, mục lục trang workspace — 2026-10-24
 
 **Thay đổi**

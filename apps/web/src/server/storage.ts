@@ -1,4 +1,5 @@
 import 'server-only';
+import { publicStorageUrl } from '@/lib/storage-url';
 import { supabaseAdmin } from './supabase';
 
 export type Bucket = 'brand' | 'reports' | 'creatives';
@@ -12,7 +13,14 @@ export type ObjectStorage = {
   signedUrl(bucket: Bucket, path: string, seconds: number): Promise<string>;
 };
 
-/** Supabase Storage bằng service role (chỉ phía server). */
+const toPublic = (url: string) =>
+  publicStorageUrl(
+    url,
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL,
+    process.env.STORAGE_PUBLIC_URL,
+  );
+
+/** Supabase Storage bằng service role (chỉ phía server). Link trả cho trình duyệt theo `STORAGE_PUBLIC_URL` nếu có. */
 export function supabaseStorage(): ObjectStorage {
   const sb = () => supabaseAdmin().storage;
   return {
@@ -24,12 +32,12 @@ export function supabaseStorage(): ObjectStorage {
       if (paths.length) await sb().from(bucket).remove(paths);
     },
     publicUrl(bucket, path) {
-      return sb().from(bucket).getPublicUrl(path).data.publicUrl;
+      return toPublic(sb().from(bucket).getPublicUrl(path).data.publicUrl);
     },
     async signedUrl(bucket, path, seconds) {
       const { data, error } = await sb().from(bucket).createSignedUrl(path, seconds);
       if (error || !data) throw new Error('Không tạo được signed URL');
-      return data.signedUrl;
+      return toPublic(data.signedUrl);
     },
   };
 }
