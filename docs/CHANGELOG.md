@@ -2,6 +2,36 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [064] Báo cáo Audit có nội dung riêng; hộp thoại thao tác báo lý do lỗi — 2026-10-24
+
+**Thay đổi**
+- **Báo cáo Audit khác Định kỳ.** Trước đây loại báo cáo chỉ đổi tiêu đề.
+  - **Phần dữ liệu khi dựng** (`core/reporting/report.ts`):
+    - lấy tới 30 vấn đề đang mở mỗi tài khoản (Định kỳ: 10);
+    - kèm điểm health bị trừ theo từng nhóm quy tắc, mỗi vấn đề kèm nhóm;
+    - tổng hợp `audit` gồm số vấn đề theo mức độ và tổng tác động ước tính theo từng tiền tệ (cộng decimal, `auditTotals`);
+    - không kèm "việc agency đã làm".
+  - **Thứ tự hiển thị của Audit:**
+    1. Kết quả kiểm tra: điểm sức khỏe, nhóm bị trừ điểm, số vấn đề, tổng tác động.
+    2. Vấn đề cần xử lý, ghi rõ nhóm của từng vấn đề.
+    3. Bối cảnh số liệu trong kỳ: KPI và chiến dịch nổi bật.
+  - Audit bỏ: lý do CPA đổi, chi tiêu theo ngày, đối tượng / vị trí, creative.
+  - Báo cáo Định kỳ giữ nguyên.
+  - Mô tả hai loại ở màn tạo báo cáo đã viết lại cho rõ.
+- **Hộp thoại thao tác trên bảng báo lý do lỗi.**
+  - Trước đây, khi gửi lỗi (vd. "Kết nối chưa có quyền ghi", kill switch, không có quyền duyệt), hộp thoại chỉ báo "N không thực hiện được" rồi đóng.
+  - Nay hộp thoại giữ mở và ghi lý do dưới từng đối tượng.
+  - Nếu chỉ gửi được một phần: đối tượng đã gửi hiện "Đã gửi" và không gửi lại khi bấm lần nữa.
+
+**Test tự động:**
+- `report.test.ts`: Audit khác Định kỳ — health theo nhóm khớp điểm, số vấn đề theo mức độ khớp danh sách, không có việc agency đã làm; Định kỳ không có các trường này. Tổng tác động cộng decimal theo tiền tệ (0.1 + 0.2 = 0.3000).
+- `report-view.test.tsx`: Audit đặt kết quả kiểm tra và vấn đề trước số liệu, ẩn chi tiêu theo ngày; Định kỳ giữ thứ tự cũ.
+- `gateway.test.ts`: kết nối chưa có quyền ghi → bulk trả `FORBIDDEN` + "Kết nối chưa có quyền ghi" cho từng đối tượng, không tạo hành động. Chỉ thêm test, không đổi code `execution`.
+
+**PM kiểm tra:**
+- Tạo 2 báo cáo cho TRON_GLAMPING cùng kỳ, một Audit và một Định kỳ → nội dung và thứ tự khác nhau.
+- Gỡ quyền ghi → bảng nhóm QC → Tạm dừng → Thực hiện → hộp thoại ghi "Kết nối chưa có quyền ghi" dưới đối tượng.
+
 ## [fix] Bảng chiến dịch: đối tượng bị dừng do cấp trên — 2026-10-24
 
 **Thay đổi**

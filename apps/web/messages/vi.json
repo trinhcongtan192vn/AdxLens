@@ -987,7 +987,9 @@
       "nextSteps": "Kế hoạch tiếp theo",
       "intro": "Nhận xét của agency",
       "audience": "Đối tượng, vị trí và khu vực",
-      "creatives": "Quảng cáo chi nhiều nhất"
+      "creatives": "Quảng cáo chi nhiều nhất",
+      "auditOverview": "Kết quả kiểm tra",
+      "context": "Bối cảnh số liệu trong kỳ"
     },
     "kpi": {
       "spend": "Chi tiêu",
@@ -1048,6 +1050,13 @@
       "male": "Nam",
       "unknown": "Không rõ",
       "note": "Số theo nhóm từ Meta có thể lệch nhẹ tổng tài khoản (Meta ẩn hoặc làm tròn nhóm nhỏ)."
+    },
+    "audit": {
+      "health": "Điểm sức khỏe",
+      "penalty": "{group}: −{points} điểm · {count} vấn đề",
+      "counts": "{high} vấn đề mức cao · {medium} mức trung bình · {low} mức thấp",
+      "impact": "tác động ước tính {amount}",
+      "healthy": "Không nhóm quy tắc nào bị trừ điểm."
     }
   },
   "reports": {
@@ -1089,8 +1098,8 @@
       "submit": "Tạo báo cáo",
       "noClients": "Chưa có Client. Tạo Client và gán tài khoản quảng cáo trước.",
       "kindHelp": {
-        "audit": "Tập trung vào vấn đề và việc cần làm.",
-        "periodic": "Số liệu kỳ này so với kỳ trước, kèm phát hiện."
+        "audit": "Điểm sức khỏe và từng nhóm bị trừ điểm, toàn bộ vấn đề xếp theo mức độ kèm tổng tác động ước tính; số liệu kỳ chỉ để làm bối cảnh. Hợp để kiểm tra tài khoản hoặc pitch khách mới.",
+        "periodic": "Số liệu kỳ này so với kỳ trước, xu hướng theo ngày, đối tượng và creative, việc agency đã làm, kèm các vấn đề chính."
       },
       "locales": {
         "vi": "Tiếng Việt",
@@ -2382,6 +2391,8 @@
     "parentPaused": {
       "campaign": "Bật chiến dịch trước (Ads Manager)",
       "adset": "Bật nhóm QC trước"
-    }
+    },
+    "failed": "{count} hành động không thực hiện được — xem lý do từng đối tượng.",
+    "sent": "Đã gửi"
   }
 }

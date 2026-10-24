@@ -44,6 +44,45 @@ export function ReportView({
     return tr.has(key as never) ? tr(key as never, x.params as never) : x.key;
   };
 
+  const isAudit = content.kind === 'audit';
+  const findingsSection = !hidden.has('findings') ? (
+    <section className="mt-6 break-inside-avoid">
+      <h2 className="text-h3 font-semibold">{t('sections.findings')}</h2>
+      {content.findings.length ? (
+        <ol className="mt-2 space-y-2">
+          {content.findings.map((f, i) => (
+            <li key={i} className="rounded-md border border-line px-3 py-2">
+              <p className="text-body font-medium">
+                <span
+                  className="mr-2 text-small font-semibold uppercase"
+                  style={{
+                    color: f.severity === 'high' ? '#DC2626' : f.severity === 'medium' ? '#D97706' : '#64748B',
+                  }}
+                >
+                  {t(`severity.${f.severity}`)}
+                </span>
+                {tr.has(`${f.ruleId}.name` as never) ? tr(`${f.ruleId}.name` as never) : f.ruleId}
+                {isAudit && f.ruleGroup && tr.has(`groups.${f.ruleGroup}` as never) ? (
+                  <span className="text-fg-tertiary"> · {tr(`groups.${f.ruleGroup}` as never)}</span>
+                ) : null}
+                {f.entityName ? <span className="text-fg-secondary"> · {f.entityName}</span> : null}
+              </p>
+              <p className="mt-0.5 text-small text-fg">{translateText(f.why)}</p>
+              <p className="mt-0.5 text-small text-fg-secondary">{translateText(f.whatToDo)}</p>
+              {f.impact ? (
+                <p className="num mt-0.5 text-small text-fg-secondary">
+                  {t('impact', { amount: money(f.impact.amount, f.impact.currency) })}
+                </p>
+              ) : null}
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="mt-1 text-body text-fg-secondary">{t('noFindings')}</p>
+      )}
+    </section>
+  ) : null;
+
   return (
     <article
       className="report mx-auto max-w-[820px] bg-surface text-fg"
@@ -97,6 +136,45 @@ export function ReportView({
         </section>
       ) : null}
 
+      {isAudit && content.audit ? (
+        <section className="mt-6 break-inside-avoid" data-testid="report-audit-overview">
+          <h2 className="text-h3 font-semibold">{t('sections.auditOverview')}</h2>
+          <p className="mt-1 text-body text-fg-secondary">
+            {t('audit.counts', content.audit.counts)}
+            {content.audit.impact.length
+              ? ` · ${t('audit.impact', { amount: content.audit.impact.map((x) => money(x.amount, x.currency)).join(' + ') })}`
+              : ''}
+          </p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {content.accounts.map((a) => (
+              <div key={a.id} className="rounded-md border border-line px-3 py-2">
+                <p className="text-caption uppercase text-fg-tertiary">
+                  {content.accounts.length > 1 ? `${a.name} · ` : ''}
+                  {t('audit.health')}
+                </p>
+                <p className="num text-h1 font-semibold">{a.health}/100</p>
+                {a.healthComponents?.length ? (
+                  <ul className="mt-1 space-y-0.5 text-small text-fg-secondary">
+                    {a.healthComponents.map((c) => (
+                      <li key={c.group} className="num">
+                        {t('audit.penalty', {
+                          group: tr.has(`groups.${c.group}` as never) ? tr(`groups.${c.group}` as never) : c.group,
+                          points: c.penalty,
+                          count: c.findings,
+                        })}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-1 text-small text-fg-secondary">{t('audit.healthy')}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+      {isAudit ? findingsSection : null}
+
       {content.accounts.map((a) => (
         <section key={a.id} className="mt-6 break-inside-avoid">
           {content.accounts.length > 1 ? (
@@ -104,7 +182,7 @@ export function ReportView({
           ) : null}
           {!hidden.has('kpis') ? (
             <div className="mt-2">
-              <h3 className="text-h3 font-semibold">{t('sections.kpis')}</h3>
+              <h3 className="text-h3 font-semibold">{t(isAudit ? 'sections.context' : 'sections.kpis')}</h3>
               <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {(
                   [
@@ -146,7 +224,7 @@ export function ReportView({
             </div>
           ) : null}
 
-          {!hidden.has('kpis') && a.cpaChange ? (
+          {!isAudit && !hidden.has('kpis') && a.cpaChange ? (
             <CpaChangeBlock
               x={a.cpaChange}
               currency={a.currency}
@@ -156,7 +234,7 @@ export function ReportView({
             />
           ) : null}
 
-          {!hidden.has('trend') ? (
+          {!isAudit && !hidden.has('trend') ? (
             <div className="mt-4 break-inside-avoid">
               <h3 className="text-h3 font-semibold">{t('sections.trend')}</h3>
               {Number(a.kpis.spend) > 0 ? (
@@ -197,7 +275,10 @@ export function ReportView({
             </div>
           ) : null}
 
-          {!hidden.has('audience') && a.breakdowns && Object.values(a.breakdowns).some((rows) => rows.length) ? (
+          {!isAudit &&
+          !hidden.has('audience') &&
+          a.breakdowns &&
+          Object.values(a.breakdowns).some((rows) => rows.length) ? (
             <div className="mt-4 break-inside-avoid" data-testid="report-audience">
               <h3 className="text-h3 font-semibold">{t('sections.audience')}</h3>
               <div className="mt-1 grid gap-4 md:grid-cols-3">
@@ -219,7 +300,7 @@ export function ReportView({
             </div>
           ) : null}
 
-          {!hidden.has('creatives') && a.topAds?.length ? (
+          {!isAudit && !hidden.has('creatives') && a.topAds?.length ? (
             <div className="mt-4 break-inside-avoid" data-testid="report-creatives">
               <h3 className="text-h3 font-semibold">{t('sections.creatives')}</h3>
               <ul className="mt-2 grid gap-3 sm:grid-cols-5">
@@ -251,40 +332,7 @@ export function ReportView({
         </section>
       ))}
 
-      {!hidden.has('findings') ? (
-        <section className="mt-6 break-inside-avoid">
-          <h2 className="text-h3 font-semibold">{t('sections.findings')}</h2>
-          {content.findings.length ? (
-            <ol className="mt-2 space-y-2">
-              {content.findings.map((f, i) => (
-                <li key={i} className="rounded-md border border-line px-3 py-2">
-                  <p className="text-body font-medium">
-                    <span
-                      className="mr-2 text-small font-semibold uppercase"
-                      style={{
-                        color: f.severity === 'high' ? '#DC2626' : f.severity === 'medium' ? '#D97706' : '#64748B',
-                      }}
-                    >
-                      {t(`severity.${f.severity}`)}
-                    </span>
-                    {tr.has(`${f.ruleId}.name` as never) ? tr(`${f.ruleId}.name` as never) : f.ruleId}
-                    {f.entityName ? <span className="text-fg-secondary"> · {f.entityName}</span> : null}
-                  </p>
-                  <p className="mt-0.5 text-small text-fg">{translateText(f.why)}</p>
-                  <p className="mt-0.5 text-small text-fg-secondary">{translateText(f.whatToDo)}</p>
-                  {f.impact ? (
-                    <p className="num mt-0.5 text-small text-fg-secondary">
-                      {t('impact', { amount: money(f.impact.amount, f.impact.currency) })}
-                    </p>
-                  ) : null}
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p className="mt-1 text-body text-fg-secondary">{t('noFindings')}</p>
-          )}
-        </section>
-      ) : null}
+      {isAudit ? null : findingsSection}
 
       {!hidden.has('workDone') && (edits.workDone || content.agencyWork) ? (
         <section className="mt-6 break-inside-avoid" data-testid="report-work-done">

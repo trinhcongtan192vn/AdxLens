@@ -98,6 +98,32 @@ describe('mẫu báo cáo', () => {
     expect(h).not.toContain('Powered by');
   });
 
+  it('audit: kết quả kiểm tra (health theo nhóm, tổng tác động) đứng trước, phát hiện trước số liệu; ẩn phần định kỳ', () => {
+    const audit: ReportContent = {
+      ...content,
+      kind: 'audit',
+      accounts: [
+        { ...content.accounts[0]!, health: 85, healthComponents: [{ group: 'creative', penalty: 15, findings: 1 }] },
+      ],
+      findings: [{ ...content.findings[0]!, ruleGroup: 'creative' }],
+      audit: { counts: { high: 1, medium: 0, low: 0 }, impact: [{ currency: 'VND', amount: '2850000.0000' }] },
+    };
+    const h = html(audit);
+    expect(h).toContain('Báo cáo audit');
+    expect(h).toContain('Kết quả kiểm tra');
+    expect(h).toContain('85/100');
+    expect(h).toContain('Creative: −15 điểm · 1 vấn đề');
+    expect(h).toContain('1 vấn đề mức cao · 0 mức trung bình · 0 mức thấp · tác động ước tính 2.850.000 VND');
+    expect(h).toContain('Bối cảnh số liệu trong kỳ');
+    expect(h.indexOf('Vấn đề cần xử lý')).toBeLessThan(h.indexOf('Bối cảnh số liệu trong kỳ'));
+    expect(h).not.toContain('Chi tiêu theo ngày');
+
+    const p = html(content);
+    expect(p).not.toContain('Kết quả kiểm tra');
+    expect(p).toContain('Chi tiêu theo ngày');
+    expect(p.indexOf('Số liệu chính')).toBeLessThan(p.indexOf('Vấn đề cần xử lý'));
+  });
+
   it('chưa đối chiếu → ghi rõ', () => {
     expect(html({ ...content, source: { ...content.source, matchedAt: null } })).toContain('Chưa đối chiếu với Meta');
   });

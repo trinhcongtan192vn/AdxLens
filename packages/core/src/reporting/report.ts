@@ -5,7 +5,16 @@ import type { Enqueue } from '@adxlens/jobs';
 import { listAdAccounts } from '@adxlens/core/connections';
 import { healthScores, listFindings } from '@adxlens/core/insight';
 import { accountReconciliation } from '@adxlens/core/reconciliation';
-import { addDays, AppError, daysBetween, notFound, systemClock, type ActorCtx, type Clock } from '@adxlens/core/shared';
+import {
+  addDays,
+  AppError,
+  daysBetween,
+  notFound,
+  sumDecimal,
+  systemClock,
+  type ActorCtx,
+  type Clock,
+} from '@adxlens/core/shared';
 import { assertCan, getClient } from '@adxlens/core/tenancy';
 import { agencyWork, type AgencyWork } from './agency-work';
 import { explainCpaChange, type CpaChange } from './cpa-change';
@@ -18,6 +27,8 @@ const { reports, reconciliationResults, workspaces, clients } = schema;
 export const TEMPLATE_VERSION = 'v1';
 export const MAX_REPORT_DAYS = 92;
 export const REPORT_FINDINGS_LIMIT = 10;
+/** Báo cáo audit là nội dung kiểm tra tài khoản: liệt kê đủ phát hiện đang mở hơn báo cáo định kỳ. */
+export const REPORT_AUDIT_FINDINGS_LIMIT = 30;
 export const REPORT_TOP_CAMPAIGNS = 5;
 
 export type ReportContent = {
@@ -43,6 +54,8 @@ export type ReportContent = {
     prevKpis: Kpis;
     daily: { date: string; spend: string; results: number }[];
     health: number;
+    /** Báo cáo audit: điểm trừ theo từng nhóm quy tắc (health không là hộp đen — L2 5.3). */
+    healthComponents?: { group: string; penalty: number; findings: number }[];
     reconciliation: { status: 'ok' | 'warning' | 'pending'; maxSpendDeltaPct: string | null };
     topCampaigns: { name: string | null; spend: string; results: number; cpa: string | null; roas: string | null }[];
     /** A1: vì sao CPA thay đổi so với kỳ trước (null = không đủ dữ liệu / gần như không đổi). */
@@ -54,6 +67,7 @@ export type ReportContent = {
   findings: {
     accountId: string;
     ruleId: string;
+    ruleGroup?: string;
     severity: 'low' | 'medium' | 'high';
     entityName: string | null;
     why: I18nText;
@@ -62,7 +76,26 @@ export type ReportContent = {
   }[];
   /** A2: việc agency đã làm trong kỳ, tổng hợp tự động (báo cáo cũ không có trường này). */
   agencyWork?: AgencyWork | null;
+  /** Báo cáo audit: số phát hiện theo mức độ và tổng tác động ước tính theo tiền tệ (cộng decimal). */
+  audit?: {
+    counts: { high: number; medium: number; low: number };
+    impact: { currency: string; amount: string }[];
+  } | null;
 };
+
+/** Tổng hợp cho báo cáo audit: đếm theo mức độ, cộng tác động ước tính theo từng tiền tệ (không qua số thực). */
+export function auditTotals(items: ReportContent['findings']): NonNullable<ReportContent['audit']> {
+  const counts = { high: 0, medium: 0, low: 0 };
+  const byCur = new Map<string, string[]>();
+  for (const f of items) {
+    counts[f.severity] += 1;
+    if (f.impact) byCur.set(f.impact.currency, [...(byCur.get(f.impact.currency) ?? []), f.impact.amount]);
+  }
+  return {
+    counts,
+    impact: [...byCur].map(([currency, amounts]) => ({ currency, amount: sumDecimal(amounts) })),
+  };
+}
 
 /** Kỳ so sánh liền trước cùng độ dài. */
 export function compareRange(r: DateRange): DateRange {
@@ -158,6 +191,8 @@ export async function buildReport(
     const period = { from: r.dateFrom, to: r.dateTo };
     const compare = compareRange(period);
     const accs = await clientAccounts(ctx, client.id);
+    const isAudit = r.kind === 'audit';
+    const findingsLimit = isAudit ? REPORT_AUDIT_FINDINGS_LIMIT : REPORT_FINDINGS_LIMIT;
     const ids = accs.map((a) => a.id);
     const [kc, kp, health, recon] = await Promise.all([
       accountKpis(ctx, ids, period),
@@ -172,7 +207,7 @@ export async function buildReport(
         dailySeries(ctx, [a.id], period),
         entityTable(ctx, [a.id], 'campaign', period),
         entityTable(ctx, [a.id], 'campaign', compare),
-        listFindings(ctx, a.id, { limit: REPORT_FINDINGS_LIMIT }),
+        listFindings(ctx, a.id, { limit: findingsLimit }),
         breakdownTable(ctx, [a.id], period, 'age_gender'),
         breakdownTable(ctx, [a.id], period, 'placement'),
         breakdownTable(ctx, [a.id], period, 'region'),
@@ -188,6 +223,7 @@ export async function buildReport(
         prevKpis: kp.get(a.id)!,
         daily: daily.map((d) => ({ date: d.date, spend: d.spend, results: d.results })),
         health: health.get(a.id)?.score ?? 100,
+        ...(isAudit ? { healthComponents: health.get(a.id)?.components ?? [] } : {}),
         reconciliation: recon.get(a.id) ?? { status: 'pending', maxSpendDeltaPct: null },
         topCampaigns: camps
           .filter((c) => Number(c.kpis.spend) > 0)
@@ -207,6 +243,7 @@ export async function buildReport(
         findingsOut.push({
           accountId: a.id,
           ruleId: x.ruleId,
+          ruleGroup: x.ruleGroup,
           severity: x.severity,
           entityName: x.entityName,
           why: x.explanation.why,
@@ -251,8 +288,10 @@ export async function buildReport(
         timezones: [...new Set(accs.map((a) => a.timezone))],
       },
       accounts,
-      findings: findingsOut.slice(0, REPORT_FINDINGS_LIMIT),
-      agencyWork: await agencyWork(ctx, ids, period),
+      findings: findingsOut.slice(0, findingsLimit),
+      // Audit là ảnh chụp sức khỏe tài khoản (cả khi pitch khách mới) — không kèm "việc agency đã làm".
+      agencyWork: isAudit ? null : await agencyWork(ctx, ids, period),
+      audit: isAudit ? auditTotals(findingsOut.slice(0, findingsLimit)) : null,
     };
     const integrity = await reportIntegrity(ctx, client.id, period);
     // Tóm tắt (P0-16): LLM chỉ diễn giải số đã tính; không qua kiểm tra số → tóm tắt mẫu.

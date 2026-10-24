@@ -11,6 +11,7 @@ import { reconcileAccount } from '@adxlens/core/reconciliation';
 import { SYSTEM_ACTOR } from '@adxlens/core/shared';
 import { resolveActor } from '@adxlens/core/tenancy';
 import {
+  auditTotals,
   buildReport,
   compareRange,
   createReport,
@@ -93,6 +94,51 @@ describe('báo cáo (R02, R03)', () => {
     // Không có LLM → tóm tắt mẫu (P0-16).
     expect(r.summarySource).toBe('template');
     expect(r.summaryText).toMatch(/^Chi tiêu /); // trước: toContain('chi tiêu') — câu đầu nay viết hoa
+  });
+
+  it('báo cáo audit khác định kỳ: health theo nhóm, tổng hợp phát hiện, không kèm việc agency đã làm', async () => {
+    const { ctx, clientId } = await clientWithData();
+    const sys = { ...ctx, actor: SYSTEM_ACTOR };
+    const build = async (kind: 'audit' | 'periodic') => {
+      const { id } = await createReport(ctx, { clientId, kind, ...period }, { enqueue: recordingEnqueue() });
+      await buildReport(sys, id, clock);
+      return (await getReport(ctx, id)).content as unknown as ReportContent;
+    };
+    const audit = await build('audit');
+    const periodic = await build('periodic');
+
+    expect(audit.kind).toBe('audit');
+    expect(audit.agencyWork).toBeNull();
+    expect(audit.accounts[0]!.healthComponents!.length).toBeGreaterThan(0);
+    const penalty = audit.accounts[0]!.healthComponents!.reduce((t, c) => t + c.penalty, 0);
+    expect(audit.accounts[0]!.health).toBe(Math.max(0, 100 - penalty));
+    expect(audit.findings.every((f) => typeof f.ruleGroup === 'string')).toBe(true);
+    const n = audit.audit!.counts;
+    expect(n.high + n.medium + n.low).toBe(audit.findings.length);
+    expect(audit.findings.length).toBeGreaterThanOrEqual(periodic.findings.length);
+
+    expect(periodic.audit).toBeNull();
+    expect(periodic.accounts[0]!.healthComponents).toBeUndefined();
+  });
+
+  it('tổng tác động audit cộng decimal theo từng tiền tệ, không sai số số thực', () => {
+    const f = (severity: 'high' | 'medium' | 'low', amount: string | null, currency = 'USD') => ({
+      accountId: 'a',
+      ruleId: 'r',
+      severity,
+      entityName: null,
+      why: { key: 'x' },
+      whatToDo: { key: 'y' },
+      impact: amount === null ? null : { amount, currency },
+    });
+    expect(auditTotals([f('high', '0.1'), f('low', '0.2'), f('medium', null), f('high', '1500', 'VND')])).toEqual({
+      counts: { high: 2, medium: 1, low: 1 },
+      impact: [
+        { currency: 'USD', amount: '0.3000' },
+        { currency: 'VND', amount: '1500.0000' },
+      ],
+    });
+    expect(auditTotals([])).toEqual({ counts: { high: 0, medium: 0, low: 0 }, impact: [] });
   });
 
   it('toàn vẹn (ADR-0007): chưa xác nhận gán hoặc ngày lệch trong kỳ → bị khóa chia sẻ, vẫn tạo được', async () => {

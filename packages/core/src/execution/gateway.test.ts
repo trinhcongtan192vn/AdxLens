@@ -683,6 +683,20 @@ describe('duyệt từ gợi ý (P202, P2-03)', () => {
     await expect(requestManualActions(s.ctx, [], s)).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
   });
 
+  it('thao tác từ bảng khi kết nối chưa có quyền ghi → từng đối tượng báo lý do, không tạo hành động', async () => {
+    const s = await setup({ write: false });
+    const a1 = await s.ad(0);
+    const out = await requestManualActions(
+      s.ctx,
+      [{ adAccountId: s.adAccountId, actionType: 'pause_ad', targetMetaId: a1.metaId }],
+      s,
+    );
+    expect(out).toEqual([
+      { id: `${s.adAccountId}:${a1.metaId}`, ok: false, code: 'FORBIDDEN', message: 'Kết nối chưa có quyền ghi' },
+    ]);
+    expect(await db.select().from(schema.actions).where(eq(schema.actions.workspaceId, s.workspaceId))).toEqual([]);
+  });
+
   it('gợi ý của workspace khác → 404', async () => {
     const a = await setup();
     const b = await setup();
