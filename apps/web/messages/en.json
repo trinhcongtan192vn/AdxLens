@@ -1048,13 +1048,43 @@
       "titleDown": "Why did CPA fall?",
       "headline": "CPA {previous} → {current} ({change}) vs the previous period.",
       "factors": {
-        "cpm": "Cost per 1,000 impressions (CPM)",
-        "ctr": "Link click-through rate (CTR)",
-        "cvr": "Conversion rate (results / click)"
+        "cpm": "Impression cost (CPM)",
+        "ctr": "Click-through rate (CTR)",
+        "cvr": "Conversion rate"
       },
       "share": "explains {share}% of the CPA change",
       "drivers": "Campaigns contributing most",
-      "method": "CPA = CPM ÷ CTR ÷ conversion rate. Computed from the reconciled figures of both periods."
+      "method": "CPA = CPM ÷ CTR ÷ conversion rate. Computed from the reconciled figures of both periods.",
+      "label": "CPA",
+      "vsPrevious": "vs previous period",
+      "mainUp": "Mainly because of",
+      "mainDown": "Mainly thanks to",
+      "mixedUp": "Several factors at once, none explains more than half. See each factor below.",
+      "mixedDown": "Several factors at once, none explains more than half. See each factor below.",
+      "short": {
+        "cpm": "impression cost",
+        "ctr": "click-through rate",
+        "cvr": "conversion rate"
+      },
+      "help": {
+        "cpm": "cost per 1,000 impressions",
+        "ctr": "share of viewers who click the ad",
+        "cvr": "share of clickers who convert"
+      },
+      "rise": "up {v}%",
+      "fall": "down {v}%",
+      "shareUp": "{share}% of the increase",
+      "shareDown": "{share}% of the decrease",
+      "offset": "offsets {share}%",
+      "hintTitle": "Worth checking:",
+      "hint": {
+        "cpm": "auction competition, narrow audience, high frequency or peak season.",
+        "ctr": "creative fatigue or audience fit; try new ads.",
+        "cvr": "landing page, offer, page speed and conversion tracking (pixel, CAPI)."
+      },
+      "colCampaign": "Campaign",
+      "colCpa": "CPA before → now",
+      "colShare": "Contribution"
     },
     "audience": {
       "age_gender": "Age · gender",

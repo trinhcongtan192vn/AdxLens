@@ -1048,13 +1048,43 @@
       "titleDown": "Vì sao CPA giảm?",
       "headline": "CPA {previous} → {current} ({change}) so với kỳ trước.",
       "factors": {
-        "cpm": "Chi phí mỗi 1.000 hiển thị (CPM)",
-        "ctr": "Tỷ lệ click liên kết (CTR)",
-        "cvr": "Tỷ lệ chuyển đổi (kết quả / click)"
+        "cpm": "Giá hiển thị (CPM)",
+        "ctr": "Tỷ lệ click (CTR)",
+        "cvr": "Tỷ lệ chuyển đổi"
       },
       "share": "giải thích {share}% thay đổi CPA",
       "drivers": "Chiến dịch đóng góp nhiều nhất",
-      "method": "CPA = CPM ÷ CTR ÷ tỷ lệ chuyển đổi. Phần giải thích tính từ số liệu đã đối chiếu của hai kỳ."
+      "method": "CPA = CPM ÷ CTR ÷ tỷ lệ chuyển đổi. Phần giải thích tính từ số liệu đã đối chiếu của hai kỳ.",
+      "label": "CPA",
+      "vsPrevious": "so với kỳ trước",
+      "mainUp": "Chủ yếu do",
+      "mainDown": "Chủ yếu nhờ",
+      "mixedUp": "Do nhiều yếu tố cùng lúc, không có yếu tố nào chiếm quá nửa. Xem từng yếu tố bên dưới.",
+      "mixedDown": "Nhờ nhiều yếu tố cùng lúc, không có yếu tố nào chiếm quá nửa. Xem từng yếu tố bên dưới.",
+      "short": {
+        "cpm": "giá hiển thị",
+        "ctr": "tỷ lệ click",
+        "cvr": "tỷ lệ chuyển đổi"
+      },
+      "help": {
+        "cpm": "chi phí cho 1.000 lượt hiển thị",
+        "ctr": "tỷ lệ người xem bấm vào quảng cáo",
+        "cvr": "tỷ lệ người bấm tạo ra kết quả"
+      },
+      "rise": "tăng {v}%",
+      "fall": "giảm {v}%",
+      "shareUp": "{share}% mức tăng",
+      "shareDown": "{share}% mức giảm",
+      "offset": "bù lại {share}%",
+      "hintTitle": "Nên kiểm tra:",
+      "hint": {
+        "cpm": "cạnh tranh đấu giá, đối tượng quá hẹp, tần suất cao hoặc mùa cao điểm.",
+        "ctr": "creative đã cũ hoặc chưa hợp đối tượng; thử mẫu quảng cáo mới.",
+        "cvr": "trang đích, ưu đãi, tốc độ tải trang và theo dõi chuyển đổi (pixel, CAPI)."
+      },
+      "colCampaign": "Chiến dịch",
+      "colCpa": "CPA trước → nay",
+      "colShare": "Đóng góp"
     },
     "audience": {
       "age_gender": "Độ tuổi · giới tính",

@@ -4,6 +4,7 @@ import type { ReportContent } from '@adxlens/core/reporting';
 import en from '../../messages/en.json';
 import vi from '../../messages/vi.json';
 import { describeChange } from '@/lib/actions';
+import { cpaInsight } from '@/lib/cpa-insight';
 import { kpiDelta } from '@/lib/kpi';
 
 /**
@@ -474,7 +475,11 @@ function AgencyWorkList({
   );
 }
 
-/** A1: "Vì sao CPA thay đổi?" — yếu tố (CPM / CTR / tỷ lệ chuyển đổi) và chiến dịch đóng góp nhiều nhất. */
+/**
+ * A1: "Vì sao CPA tăng / giảm?" — đọc nhanh: câu kết luận (nguyên nhân chính), CPA trước → nay, từng yếu tố (CPM / CTR /
+ * tỷ lệ chuyển đổi) với thanh "phần giải thích" tô đỏ khi làm CPA xấu đi, xanh khi tốt lên; gợi ý nên kiểm tra gì; chiến
+ * dịch đóng góp nhiều nhất. Chỉ hiển thị số đã tính ở core (không tính lại), render được ở server và khi in PDF.
+ */
 export function CpaChangeBlock({
   x,
   currency,
@@ -488,50 +493,120 @@ export function CpaChangeBlock({
   money: (v: string | null, cur: string) => string;
   nf: (v: number, o?: Intl.NumberFormatOptions) => string;
 }) {
-  const p = (v: number) => `${v > 0 ? '+' : ''}${nf(v, { maximumFractionDigits: 1 })}%`;
+  const ins = cpaInsight(x);
+  const n0 = (v: number) => nf(Math.abs(v), { maximumFractionDigits: 0 });
+  const n1 = (v: number) => nf(Math.abs(v), { maximumFractionDigits: 1 });
+  const move = (v: number) => t(v >= 0 ? 'cpa.rise' : 'cpa.fall', { v: n1(v) });
+  const tone = (e: 'worse' | 'better') => (e === 'worse' ? 'text-delta-neg' : 'text-delta-pos');
+  const fill = (e: 'worse' | 'better') => (e === 'worse' ? 'bg-danger' : 'bg-success');
+  const share = (s: number) =>
+    s >= 0
+      ? t(ins.direction === 'up' ? 'cpa.shareUp' : 'cpa.shareDown', { share: n0(s) })
+      : t('cpa.offset', { share: n0(s) });
+  const main = ins.factors.find((f) => f.key === ins.main);
+  const worstFactor = ins.direction === 'up' ? ins.factors.find((f) => f.effect === 'worse') : undefined;
   return (
-    <div className="mt-4 break-inside-avoid rounded-md border border-line p-3" data-testid="cpa-change">
-      <h3 className="text-h3 font-semibold">{t(x.changePct > 0 ? 'cpa.titleUp' : 'cpa.titleDown')}</h3>
-      <p className="mt-1 text-body">
-        {t('cpa.headline', {
-          previous: money(x.previous, currency),
-          current: money(x.current, currency),
-          change: p(x.changePct),
-        })}
-      </p>
-      <ul className="mt-2 space-y-1 text-body">
-        {x.factors
-          .filter((f) => Math.abs(f.sharePct) >= 5)
-          .map((f) => (
-            <li key={f.key}>
-              {t(`cpa.factors.${f.key}`)} <span className="num">{p(f.changePct)}</span> ·{' '}
-              <span className="text-fg-secondary">
-                {t('cpa.share', { share: nf(f.sharePct, { maximumFractionDigits: 0 }) })}
+    <section className="mt-4 break-inside-avoid rounded-lg border border-line bg-surface p-4" data-testid="cpa-change">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-h3 font-semibold">{t(ins.direction === 'up' ? 'cpa.titleUp' : 'cpa.titleDown')}</h3>
+          <p className="mt-1 text-body" data-testid="cpa-takeaway">
+            {main ? (
+              <>
+                {t(ins.direction === 'up' ? 'cpa.mainUp' : 'cpa.mainDown')}{' '}
+                <strong className={tone(main.effect)}>
+                  {t(`cpa.short.${main.key}`)} {move(main.changePct)}
+                </strong>{' '}
+                <span className="text-fg-secondary">({share(main.sharePct)})</span>
+              </>
+            ) : (
+              t(ins.direction === 'up' ? 'cpa.mixedUp' : 'cpa.mixedDown')
+            )}
+          </p>
+        </div>
+        <div className="shrink-0 text-right">
+          <p className="text-caption uppercase text-fg-tertiary">{t('cpa.label')}</p>
+          <p className="num text-body">
+            <span className="text-fg-tertiary">{money(x.previous, currency)}</span>
+            <span className="px-1 text-fg-tertiary">→</span>
+            <span className="text-h2 font-semibold">{money(x.current, currency)}</span>
+          </p>
+          <span
+            className={`num mt-1 inline-block rounded-full px-2 py-0.5 text-small font-semibold ${ins.good ? 'bg-success-bg text-success' : 'bg-danger-bg text-danger'}`}
+          >
+            {x.changePct > 0 ? '▲ +' : '▼ −'}
+            {n1(x.changePct)}% {t('cpa.vsPrevious')}
+          </span>
+        </div>
+      </div>
+
+      <ul className="mt-4 space-y-3">
+        {ins.factors.map((f) => (
+          <li key={f.key} data-testid={`cpa-factor-${f.key}`}>
+            <div className="flex items-baseline justify-between gap-2 text-body">
+              <span>
+                <span className="font-medium">{t(`cpa.factors.${f.key}`)}</span>{' '}
+                <span className="text-small text-fg-tertiary">· {t(`cpa.help.${f.key}`)}</span>
               </span>
-            </li>
-          ))}
+              <span className={`num shrink-0 text-small font-semibold ${tone(f.effect)}`}>{move(f.changePct)}</span>
+            </div>
+            <div className="mt-1 flex items-center gap-2">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-subtle">
+                <div className={`h-full rounded-full ${fill(f.effect)}`} style={{ width: `${f.bar}%` }} />
+              </div>
+              <span className="num w-32 shrink-0 text-right text-small text-fg-secondary">{share(f.sharePct)}</span>
+            </div>
+          </li>
+        ))}
       </ul>
-      {x.drivers.length ? (
-        <>
-          <p className="mt-2 text-small font-medium text-fg-secondary">{t('cpa.drivers')}</p>
-          <ul className="mt-1 space-y-1 text-body">
-            {x.drivers.map((d) => (
-              <li key={d.metaId}>
-                {d.name ?? '—'} · CPA{' '}
-                <span className="num">
-                  {money(d.previousCpa, currency)} → {money(d.cpa, currency)}
-                </span>{' '}
-                ·{' '}
-                <span className="text-fg-secondary">
-                  {t('cpa.share', { share: nf(d.sharePct, { maximumFractionDigits: 0 }) })}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </>
+
+      {worstFactor ? (
+        <p className="mt-3 rounded-md bg-subtle px-3 py-2 text-small" data-testid="cpa-hint">
+          <span className="font-semibold">{t('cpa.hintTitle')}</span> {t(`cpa.hint.${worstFactor.key}`)}
+        </p>
       ) : null}
-      <p className="mt-2 text-small text-fg-tertiary">{t('cpa.method')}</p>
-    </div>
+
+      {x.drivers.length ? (
+        <div className="mt-4">
+          <p className="text-small font-semibold text-fg-secondary">{t('cpa.drivers')}</p>
+          <table className="mt-1 w-full text-small">
+            <thead className="text-fg-tertiary">
+              <tr>
+                <th className="py-1 text-left font-medium">{t('cpa.colCampaign')}</th>
+                <th className="py-1 text-right font-medium">{t('cpa.colCpa')}</th>
+                <th className="w-40 py-1 text-right font-medium">{t('cpa.colShare')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {x.drivers.map((d, i) => {
+                const di = ins.drivers[i]!;
+                return (
+                  <tr key={d.metaId} className="border-t border-line">
+                    <td className="py-1 pr-2">{d.name ?? '—'}</td>
+                    <td className="num py-1 text-right">
+                      <span className="text-fg-tertiary">{money(d.previousCpa, currency)}</span> →{' '}
+                      {money(d.cpa, currency)}
+                    </td>
+                    <td className="py-1">
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-subtle">
+                          <div className={`h-full rounded-full ${fill(di.effect)}`} style={{ width: `${di.bar}%` }} />
+                        </div>
+                        <span className={`num w-10 text-right ${tone(di.effect)}`}>
+                          {d.sharePct >= 0 ? '' : '−'}
+                          {n0(d.sharePct)}%
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+      <p className="mt-3 text-caption text-fg-tertiary">{t('cpa.method')}</p>
+    </section>
   );
 }
 
