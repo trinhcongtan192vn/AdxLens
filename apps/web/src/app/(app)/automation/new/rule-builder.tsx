@@ -1,14 +1,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { useState, useTransition } from 'react';
+import { useFormatter, useTranslations } from 'next-intl';
+import { useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Banner, Button, Card, CardHeader, Field, Input, Select, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
 import { api, ApiError } from '@/lib/api-client';
 
 type Cond = { metric: string; op: 'gte' | 'lte'; value: string };
 type Action = { type: 'pause_ad' | 'pause_adset' | 'set_adset_budget'; changePct?: string; maxDailyBudget?: string };
+type Savings = { kind: 'saved' | 'extra' | 'none'; amount: string; currency: string; entities: number; days: number };
+type Suggested = { index: number; value: string; reason: { key: string; params: Record<string, string> } };
 type Template = {
   key: string;
   level: 'ad' | 'adset';
@@ -24,17 +26,27 @@ const METRICS = ['spend', 'results', 'cpa', 'ctr', 'frequency', 'ctr_change_pct'
 export function RuleBuilder({
   accounts,
   templates,
+  initialTemplate,
+  initialAccountId,
 }: {
   accounts: { id: string; name: string }[];
   templates: Template[];
+  /** Mở từ "Tạo automation từ gợi ý này" (Việc tuần này). */
+  initialTemplate?: string | null;
+  initialAccountId?: string | null;
 }) {
   const t = useTranslations('automation');
   const ta = useTranslations('actionLog');
   const tc = useTranslations('common');
   const router = useRouter();
-  const first = templates[0]!;
+  const format = useFormatter();
+  const first = templates.find((x) => x.key === initialTemplate) ?? templates[0]!;
   const [templateKey, setTemplateKey] = useState(first.key);
-  const [accountId, setAccountId] = useState(accounts[0]?.id ?? '');
+  const [accountId, setAccountId] = useState(
+    accounts.find((a) => a.id === initialAccountId)?.id ?? accounts[0]?.id ?? '',
+  );
+  const [savings, setSavings] = useState<Savings | null>(null);
+  const [suggested, setSuggested] = useState<Suggested[]>([]);
   const [name, setName] = useState(t(`templates.${first.key}` as never));
   const [level, setLevel] = useState<'ad' | 'adset'>(first.level);
   const [conds, setConds] = useState<Cond[]>(first.condition);
@@ -58,6 +70,27 @@ export function RuleBuilder({
     setAction(tpl.action);
     setBacktest(null);
   };
+  // Ngưỡng theo dữ liệu 30 ngày của tài khoản (Madgicx "Why this value?"); lỗi / thiếu dữ liệu → giữ giá trị mẫu.
+  useEffect(() => {
+    if (!accountId) return;
+    let alive = true;
+    api<{ condition: Cond[]; suggested: Suggested[] }>(
+      `automation-rules/templates/suggest?template=${encodeURIComponent(templateKey)}&adAccountId=${accountId}`,
+    )
+      .then((r) => {
+        if (!alive) return;
+        setConds(r.condition);
+        setSuggested(r.suggested);
+        setBacktest(null);
+        setSavings(null);
+      })
+      .catch(() => alive && setSuggested([]));
+    return () => {
+      alive = false;
+    };
+  }, [templateKey, accountId]);
+  const money = (amount: string, currency: string) =>
+    format.number(Number(amount), { style: 'currency', currency, maximumFractionDigits: currency === 'VND' ? 0 : 2 });
   const body = () => ({
     adAccountId: accountId,
     name,
@@ -76,10 +109,11 @@ export function RuleBuilder({
     start(async () => {
       setError(null);
       try {
-        const r = await api<{
-          items: { date: string; name: string | null; metaId: string; newDailyBudget: string | null }[];
-        }>('automation-rules/backtest', { method: 'POST', body: body() });
+        const r = await api<
+          Savings & { items: { date: string; name: string | null; metaId: string; newDailyBudget: string | null }[] }
+        >('automation-rules/backtest', { method: 'POST', body: body() });
         setBacktest(r.items);
+        setSavings(r);
       } catch (e) {
         showError(e);
       }
@@ -97,7 +131,9 @@ export function RuleBuilder({
     });
   const setCond = (i: number, patch: Partial<Cond>) => {
     setConds(conds.map((c, j) => (j === i ? { ...c, ...patch } : c)));
+    if (patch.value !== undefined || patch.metric !== undefined) setSuggested(suggested.filter((s) => s.index !== i));
     setBacktest(null);
+    setSavings(null);
   };
 
   return (
@@ -181,6 +217,24 @@ export function RuleBuilder({
                       {t('remove')}
                     </Button>
                   ) : null}
+                  {suggested
+                    .filter((s) => s.index === i && s.value === c.value)
+                    .map((s) => (
+                      <p
+                        key={s.index}
+                        className="basis-full text-caption text-fg-tertiary"
+                        data-testid="rule-why-value"
+                      >
+                        <span className="font-medium text-fg-secondary">{t('whyValue')}</span>{' '}
+                        {t(
+                          `suggestReasons.${s.reason.key}` as never,
+                          {
+                            ...s.reason.params,
+                            cpa: s.reason.params.cpa ? money(s.reason.params.cpa, s.reason.params.currency!) : '',
+                          } as never,
+                        )}
+                      </p>
+                    ))}
                 </div>
               ))}
               {conds.length < 6 ? (
@@ -250,6 +304,17 @@ export function RuleBuilder({
       {backtest !== null ? (
         <Card data-testid="backtest-result">
           <CardHeader title={t('backtestTitle', { count: backtest.length })} />
+          {savings && savings.kind !== 'none' ? (
+            <div className="mx-4 mt-3 rounded-lg border border-line bg-subtle px-3 py-2" data-testid="rule-savings">
+              <p className="text-body font-semibold text-fg">
+                {t(savings.kind === 'saved' ? 'savings.saved' : 'savings.extra', {
+                  amount: money(savings.amount, savings.currency),
+                  days: savings.days,
+                })}
+              </p>
+              <p className="text-caption text-fg-tertiary">{t('savings.note', { entities: savings.entities })}</p>
+            </div>
+          ) : null}
           {backtest.length === 0 ? (
             <p className="px-4 py-4 text-body text-fg-secondary">{t('backtestEmpty')}</p>
           ) : (

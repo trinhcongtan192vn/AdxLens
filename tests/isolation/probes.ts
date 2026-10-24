@@ -482,6 +482,10 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     }),
   },
   'GET /api/v1/automation-rules/templates': { kind: 'workspace' },
+  'GET /api/v1/automation-rules/templates/suggest': {
+    kind: 'workspace',
+    query: (w) => ({ template: 'pause_adset_no_results', adAccountId: w.a.adAccount.id }),
+  },
   'GET /api/v1/automation-rules/effectiveness': { kind: 'workspace' },
   'POST /api/v1/automation-rules/backtest': {
     kind: 'workspace',

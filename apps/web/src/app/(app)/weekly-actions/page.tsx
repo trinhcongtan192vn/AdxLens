@@ -1,3 +1,4 @@
+import { templateForSource } from '@adxlens/core/execution';
 import Link from 'next/link';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { ClientFilter, clientParam } from '@/components/client-filter';
@@ -84,6 +85,11 @@ export default async function WeeklyActionsPage({
     assigneeId: i.assigneeId,
     assigneeName: i.assigneeName,
     deepLink: typeof i.evidence.deep_link === 'string' ? i.evidence.deep_link : null,
+    // Madgicx AI Marketer "Create Automation": mở rule builder với mẫu + tài khoản, ngưỡng theo dữ liệu, ước tính 30 ngày.
+    automationHref:
+      pc.flags.p2b_auto && can(pc.actor.role, 'automation.manage') && templateForSource(i.sourceKey)
+        ? `/automation/new?template=${templateForSource(i.sourceKey)}&account=${i.adAccountId}`
+        : null,
   }));
 
   return (

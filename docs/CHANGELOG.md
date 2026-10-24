@@ -2,6 +2,35 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [095] Đề xuất kèm "tiết kiệm được ₫X trong 30 ngày" + ngưỡng từ dữ liệu ("Vì sao giá trị này?") — 2026-10-25
+
+Theo Madgicx AI Marketer (ý tưởng #1 trong `docs/research/madgicx-2026-10.md`). Phần này chỉ đọc, không gọi Meta.
+
+- **Backtest rule** (`POST /api/v1/automation-rules/backtest`) trả thêm ước tính:
+  - với mỗi đối tượng, lấy lần kích hoạt đầu tiên trong 30 ngày;
+  - tạm dừng: chi tiêu sau ngày đó là **chi tiêu tránh được**;
+  - đổi ngân sách: × |%|; tăng ngân sách là **chi thêm**;
+  - giao diện ghi rõ giả định "Meta không dồn ngân sách sang chỗ khác".
+- **Ngưỡng gợi ý từ dữ liệu 30 ngày** (`GET /api/v1/automation-rules/templates/suggest`):
+  - "chi ≥ 2 × chi phí / kết quả của tài khoản mà 0 kết quả";
+  - "tần suất ≥ 1,5 × trung bình (tối thiểu 2)";
+  - mỗi giá trị có dòng **Vì sao giá trị này?**; không đủ dữ liệu thì giữ giá trị mẫu.
+- **Việc tuần này → chi tiết** có nút **Tạo automation từ gợi ý này** khi gợi ý có mẫu rule tương ứng và cờ P2b bật. Nút mở
+  rule builder đúng mẫu + tài khoản.
+
+**Vùng bảo vệ:** `packages/core/execution`, chỉ thêm `rule-insights.ts` (đọc snapshot). Không đổi guardrails, gateway
+hay hành động ghi.
+
+**Test tự động:**
+- `execution/rule-insights.test.ts`: tiết kiệm khi tạm dừng / giảm ngân sách, chi thêm khi tăng, không khớp thì `none`;
+  ngưỡng 2×CPA / 1,5× tần suất; không đủ dữ liệu thì không gợi ý; buyer bị chặn; mẫu lạ trả 404.
+- Cách ly: probe route gợi ý.
+
+**PM kiểm tra:**
+1. Bật cờ P2b.
+2. Vào Việc tuần này → mở gợi ý "chi tiêu không chuyển đổi" → Tạo automation.
+3. Ô ngưỡng chi có dòng "Vì sao giá trị này?". Bấm Backtest để thấy "có thể đã tránh được khoảng …".
+
 ## [094] Dùng AdxLens trong Claude / ChatGPT bằng gói của chính user (connector MCP có OAuth) — 2026-10-25
 
 - **MCP server** (ADR-0020) nay hỗ trợ **OAuth 2.1** theo MCP authorization spec (ADR-0022 phần B):
