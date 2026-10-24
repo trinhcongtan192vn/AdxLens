@@ -1229,19 +1229,20 @@
       "removeTitle": "Remove staff access of {email}"
     },
     "nav": {
-      "flags": "Flag matrix",
+      "flags": "Feature flags",
       "incidents": "Incidents",
       "killSwitch": "Kill switch",
       "staff": "Team",
       "audit": "Admin log",
       "workspaces": "Workspaces",
-      "operations": "Operations",
+      "operations": "Sync & queues",
       "reconciliation": "Reconciliation",
-      "execution": "Execution",
-      "billing": "Billing",
+      "execution": "Execution & breakers",
+      "billing": "Plans & billing",
       "deletions": "Data deletion",
       "system": "System",
-      "emails": "Email templates"
+      "emails": "Email templates",
+      "today": "Today"
     },
     "flags": {
       "title": "Feature flag matrix",
@@ -1344,7 +1345,8 @@
         "skipped": "Skipped",
         "failed": "Failed",
         "escalated": "Escalated (PM notified)"
-      }
+      },
+      "openWorkspace": "Open workspace"
     },
     "roles": {
       "superadmin": "Superadmin",
@@ -1445,6 +1447,17 @@
         "range": "Range",
         "started": "Started",
         "error": "Error"
+      },
+      "toc": {
+        "label": "Sections",
+        "billing": "Plan",
+        "flags": "Flags",
+        "members": "Members ({count})",
+        "connections": "Connections ({count})",
+        "accounts": "Ad accounts ({count})",
+        "syncRuns": "Syncs",
+        "incidents": "Incidents ({count})",
+        "deletions": "Deletions ({count})"
       }
     },
     "operations": {
@@ -1649,6 +1662,81 @@
         "digest": "Weekly digest",
         "scheduled_report": "Scheduled report"
       }
+    },
+    "navLabel": "Admin navigation",
+    "superadminOnly": "Superadmin only",
+    "ksShort": {
+      "on": "ON",
+      "off": "OFF"
+    },
+    "ksBanner": {
+      "title": "Global kill switch is ON",
+      "body": "All Meta changes in every workspace are stopped. Reason: {reason}.",
+      "link": "Open kill switch"
+    },
+    "groups": {
+      "customers": "Customers",
+      "data": "Data operations",
+      "safety": "Execution safety",
+      "release": "Release",
+      "revenue": "Revenue",
+      "compliance": "Compliance",
+      "config": "Configuration"
+    },
+    "today": {
+      "title": "Today",
+      "subtitle": "{count, plural, =0 {Nothing waiting.} other {# items waiting across the system, urgent first.}}",
+      "allClear": "All clear",
+      "allClearBody": "No incidents, failed syncs, discrepancies, breakers, payment issues, overdue deletions or flag proposals waiting.",
+      "handle": "Handle →",
+      "oldest": "Oldest: {when}",
+      "more": "and {count} more",
+      "system": "System-wide",
+      "waitSuperadmin": "Waiting for a superadmin.",
+      "killSwitch": "Global kill switch:",
+      "ksOn": "ON",
+      "ksOff": "off",
+      "items": {
+        "incidents": {
+          "title": "Open incidents",
+          "body": "Incidents not yet resolved (open or mitigated), most severe first."
+        },
+        "syncs": {
+          "title": "Failed or stuck syncs",
+          "body": "Syncs that failed in the last 7 days or have run over 3 hours."
+        },
+        "reconciliation": {
+          "title": "Reconciliation to review",
+          "body": "Accounts with days off by > 1%, unconfirmed client assignment, or stale checks."
+        },
+        "breakers": {
+          "title": "Open breakers",
+          "body": "Accounts with execution paused after repeated failures."
+        },
+        "billing": {
+          "title": "Billing needs attention",
+          "body": "Workspaces past due or over their account limit."
+        },
+        "deletions": {
+          "title": "Overdue data deletions",
+          "body": "Deletion requests more than 1 day past due and not done."
+        },
+        "flagProposals": {
+          "title": "Flag proposals",
+          "body": "Operator proposals waiting for approval."
+        }
+      }
+    },
+    "search": {
+      "label": "Search admin",
+      "placeholder": "Workspace, email, act_…, deletion code",
+      "title": "Search",
+      "for": "Results for \"{q}\"",
+      "hint": "Search by workspace name, member email, ad account id (act_…) or name, or data deletion code.",
+      "none": "Nothing found",
+      "workspaces": "Workspaces ({count})",
+      "accounts": "Ad accounts ({count})",
+      "deletions": "Data deletion requests ({count})"
     }
   },
   "notifications": {
