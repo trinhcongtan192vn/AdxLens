@@ -3084,5 +3084,63 @@
       "title": "Chi tiêu theo ngày",
       "results": "kết quả"
     }
+  },
+  "wsAgents": {
+    "subtitle": "Hỏi về tài khoản hoặc nhờ đề xuất thay đổi. Mọi số lấy từ AdxLens; thay đổi luôn cần bạn duyệt.",
+    "unconfiguredBanner": "AI chưa được cấu hình (thiếu ANTHROPIC_API_KEY). Câu hỏi vẫn được lưu nhưng chưa có câu trả lời.",
+    "newChat": "Hội thoại mới",
+    "history": "Lịch sử",
+    "noHistory": "Chưa có hội thoại.",
+    "favorite": "Đánh dấu yêu thích",
+    "unfavorite": "Bỏ yêu thích",
+    "delete": "Xóa hội thoại",
+    "welcome": "AdxLens có thể giúp gì?",
+    "welcomeBody": "Hỏi về số liệu, xu hướng, vấn đề của tài khoản. AI chỉ diễn giải số AdxLens đã tính.",
+    "askAbout": "Hỏi về tài khoản",
+    "getDone": "Làm việc gì đó",
+    "samples": {
+      "askSpend": "Chi tiêu và chi phí / kết quả 7 ngày qua so với tuần trước?",
+      "askCpa": "Vì sao chi phí / kết quả thay đổi trong 7 ngày qua?",
+      "askBest": "Chiến dịch nào có ROAS tốt nhất 30 ngày qua?",
+      "askFatigue": "Quảng cáo nào đang mệt, cần làm mới creative?",
+      "askFindings": "Tài khoản đang có vấn đề gì cần xử lý trước?",
+      "askRegion": "Khu vực nào chi tiêu nhiều mà ít kết quả?",
+      "doPause": "Đề xuất tạm dừng quảng cáo có chi phí / kết quả kém nhất",
+      "doBudget": "Đề xuất tăng ngân sách nhóm QC hiệu quả nhất",
+      "doRefresh": "Liệt kê quảng cáo cần thay creative tuần này"
+    },
+    "proposeOff": "Đề xuất thay đổi cần gói có tính năng duyệt hành động.",
+    "thinking": "AdxLens đang xem số liệu…",
+    "unconfigured": "AI chưa được cấu hình nên chưa trả lời được.",
+    "disabled": "Tính năng chưa bật cho workspace này.",
+    "factsIntro": "Không viết được câu trả lời khớp số liệu, đây là số AdxLens đã tra:",
+    "usedTools": "Đã xem:",
+    "tools": {
+      "list_accounts": "Tài khoản",
+      "account_kpis": "KPI",
+      "top_entities": "Xếp hạng",
+      "explain_cpa_change": "Vì sao CPA đổi",
+      "open_findings": "Vấn đề",
+      "breakdown": "Nhóm đối tượng",
+      "ad_fatigue": "Độ mệt quảng cáo",
+      "propose_action": "Đề xuất"
+    },
+    "proposal": "Đề xuất — cần bạn duyệt",
+    "review": "Xem trước và duyệt",
+    "actions": {
+      "pause_ad": "Tạm dừng quảng cáo {name}",
+      "resume_ad": "Bật lại quảng cáo {name}",
+      "pause_adset": "Tạm dừng nhóm QC {name}",
+      "resume_adset": "Bật lại nhóm QC {name}",
+      "set_adset_budget": "Đổi ngân sách ngày nhóm QC {name}"
+    },
+    "context": "Ngữ cảnh",
+    "allAccounts": "Mọi tài khoản",
+    "placeholder": "Hỏi về tài khoản của bạn…",
+    "send": "Gửi",
+    "disclaimer": "AI có thể sai. Số liệu lấy từ AdxLens (đối chiếu Ads Manager ≤ 1%); mọi thay đổi cần bạn duyệt.",
+    "floating": "Vì sao chi phí của tôi tăng? Hỏi AdxLens…",
+    "limit": "Đã hết lượt hỏi hôm nay, thử lại ngày mai.",
+    "error": "Không gửi được câu hỏi"
   }
 }

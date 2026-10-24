@@ -84,6 +84,13 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page.getByTestId('fatigue-chart')).toContainText('Quảng cáo có mệt không?');
   await expect(page.getByTestId('quadrant-burning_out')).toBeVisible();
 
+  // W9: AI Agents sau cờ P1 (workspace mới chưa bật) → không có menu, trang chặn ở server, không có ô hỏi nổi.
+  await expect(page.getByRole('link', { name: 'AI Agents' })).toHaveCount(0);
+  await expect(page.getByTestId('ws-ask-bar')).toHaveCount(0);
+  await page.goto('/w/agents');
+  await expect(page).toHaveURL(/\/feature-unavailable/);
+  await page.goto('/w');
+
   await page.getByTestId('switch-classic').click();
   await expect(page).toHaveURL(/\/overview$/);
 });

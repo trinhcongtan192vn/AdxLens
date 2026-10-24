@@ -470,6 +470,20 @@
       "when": 1792861478760,
       "tag": "0066_custom_alerts_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1792863557886,
+      "tag": "0067_agent",
+      "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1792863559056,
+      "tag": "0068_agent_rls",
+      "breakpoints": true
     }
   ]
 }

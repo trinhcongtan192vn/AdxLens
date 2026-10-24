@@ -20,6 +20,7 @@ export function testWorkerServices(db: Db, now?: () => Date) {
     appUrl: 'http://localhost:3000',
     publicReportUrl: 'http://localhost:3000/r',
     llm: null,
+    agentLlm: null,
     renderPdf: async (url) => {
       rendered.push(url);
       return new TextEncoder().encode('%PDF-1.7 test');

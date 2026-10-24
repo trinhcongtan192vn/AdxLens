@@ -1,3 +1,4 @@
+import type { AgentLlm } from '@adxlens/core/agent';
 import type { TokenKeys } from '@adxlens/core/connections';
 import type { MetaWriter } from '@adxlens/core/execution';
 import type { EmailSender } from '@adxlens/core/notification';
@@ -22,6 +23,8 @@ export type WorkerServices = {
   publicReportUrl: string;
   /** LLM cho tóm tắt báo cáo; null khi không cấu hình ANTHROPIC_API_KEY (dùng tóm tắt mẫu). */
   llm: LlmClient | null;
+  /** LLM có tool-use cho AI agent (ADR-0019); null khi không có ANTHROPIC_API_KEY. */
+  agentLlm: AgentLlm | null;
   /** In trang nội bộ thành PDF A4 (Playwright). */
   renderPdf: (url: string) => Promise<Uint8Array>;
   /** Lưu tệp báo cáo (bucket `reports`). */

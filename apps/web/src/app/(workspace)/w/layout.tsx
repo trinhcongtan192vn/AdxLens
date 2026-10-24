@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { WsAskBar } from '@/components/workspace/ws-ask-bar';
 import { WsSidebar, type CreateItem } from '@/components/workspace/ws-sidebar';
 import { visibleWNav, W_NAV, W_NAV_BOTTOM } from '@/lib/workspace-nav';
 import { getPageContext } from '@/server/page-context';
@@ -30,8 +31,9 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       />
       <div className="min-w-0 flex-1">
         {extras.banner}
-        <main className="mx-auto max-w-[1400px] px-6 py-5">{children}</main>
+        <main className="mx-auto max-w-[1400px] px-6 pb-20 pt-5">{children}</main>
       </div>
+      {pc.flags.p1_recommendations ? <WsAskBar /> : null}
     </div>
   );
 }

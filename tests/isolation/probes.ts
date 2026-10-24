@@ -542,6 +542,24 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     crossParams: (w) => ({ id: w.b.client.id }),
     query: () => ({ month: '2026-10' }),
   },
+  'POST /api/v1/agent/ask': { kind: 'workspace', body: () => ({ threadId: null, question: 'Chi tiêu tuần này?' }) },
+  'GET /api/v1/agent/threads': { kind: 'workspace' },
+  'GET /api/v1/agent/threads/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.thread.id }),
+  },
+  'PATCH /api/v1/agent/threads/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.thread.id }),
+    body: () => ({ favorite: true }),
+  },
+  'DELETE /api/v1/agent/threads/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.thread.id }),
+  },
   'GET /api/v1/alerts': { kind: 'workspace' },
   'POST /api/v1/alerts': {
     kind: 'workspace',

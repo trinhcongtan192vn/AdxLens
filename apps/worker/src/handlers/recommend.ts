@@ -1,5 +1,7 @@
+import { agentMessageOwner, runAgentReply } from '@adxlens/core/agent';
 import { isEnabled } from '@adxlens/core/flags';
 import { generateWeeklyActions } from '@adxlens/core/recommendation';
+import { resolveActor } from '@adxlens/core/tenancy';
 import type { HandlerMap } from '../handler';
 
 export const recommendHandlers: HandlerMap = {
@@ -10,5 +12,16 @@ export const recommendHandlers: HandlerMap = {
     const r = await generateWeeklyActions(ctx, p.week, { enqueue });
     log.info({ week: p.week, ...r }, 'weekly actions');
     return { status: 'ok', ...r };
+  },
+
+  // AI agent (ADR-0019): chạy với quyền của người hỏi (buyer chỉ thấy Client được gán). Cờ P1 kiểm trong runAgentReply.
+  'recommend:agent_reply': async (p, { db, agentLlm, log }) => {
+    const userId = await agentMessageOwner({ db, workspaceId: p.workspaceId }, p.messageId);
+    if (!userId) return { status: 'missing' };
+    const actor = await resolveActor(db, p.workspaceId, userId);
+    if (!actor) return { status: 'no_member' };
+    const r = await runAgentReply({ db, workspaceId: p.workspaceId, actor }, p.messageId, { llm: agentLlm });
+    log.info({ source: r.source }, 'agent reply');
+    return r;
   },
 };
