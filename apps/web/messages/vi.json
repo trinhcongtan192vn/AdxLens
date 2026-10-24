@@ -2910,6 +2910,15 @@
       "createdShort": "Đã tạo",
       "created": "Đã tạo cảnh báo",
       "error": "Không tạo được cảnh báo"
+    },
+    "agency": {
+      "title": "Theo khách hàng",
+      "client": "Khách hàng",
+      "spend7": "Chi tiêu 7 ngày",
+      "vsPrev": "So tuần trước",
+      "health": "Sức khỏe",
+      "goal": "Mục tiêu (7 ngày)",
+      "accounts": "{n} tài khoản"
     }
   },
   "wsAlerts": {

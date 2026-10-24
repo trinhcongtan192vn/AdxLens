@@ -2,6 +2,13 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [092] Trang chủ Workspace: bảng "Theo khách hàng" (tab Agency) — 2026-10-25
+
+- Ở phạm vi **Tất cả tài khoản** (≥ 2 khách), trang chủ có bảng theo từng khách: chi tiêu 7 ngày, so tuần trước, sức khỏe thấp nhất, **mục tiêu so với thực tế 7 ngày** (hoặc link "Đặt mục tiêu"). Khách lệch mục tiêu nhiều nhất lên đầu, rồi sức khỏe thấp. Như tab Agency của Madgicx Home (Madgicx khóa khi chỉ có 1 tài khoản; AdxLens hiện khi có từ 2 khách).
+- Dùng lại `agencyOverview` + `clientGoalStatus` (đã có test); thứ tự ở `lib/agency.ts`.
+
+**Test tự động:** `lib/agency.test.ts`.
+
 ## [091] Giai đoạn phễu, trang đích, chữ quảng cáo (Madgicx 360° Audit) — 2026-10-25
 
 **Thay đổi** (chỉ ĐỌC Meta; không quyền mới ngoài `ads_read`):
