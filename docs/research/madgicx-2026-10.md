@@ -4,18 +4,16 @@
 > qua PRD / ADR.
 >
 > **Nguồn và độ tin cậy:**
-> - **[Thấy]**: duyệt trực tiếp trong app (tài khoản dùng thử của PM, ad account TRON_GLAMPING), chỉ xem, không
->   thay đổi gì.
-> - **[Công khai]**: trang công khai madgicx.com (pricing, product pages). Nhiều module trong app bị khóa vì bản
->   dùng thử đã hết ("Your Trial is Over").
-> - **[Khóa]**: có trong menu nhưng không xem được nội dung.
+> - **[Thấy]**: duyệt trực tiếp trong app qua 2 tài khoản dùng thử (lần 2 còn hạn nên mở được các module trả phí), ad
+>   account TRON_GLAMPING, chỉ xem, không lưu / áp dụng / đăng gì.
+> - **[Công khai]**: madgicx.com, roadmap.madgicx.com.
+> - **[Khóa]**: có trong menu nhưng không xem được.
 
 ## 1. Tổng quan
 
 - **Hai "sản phẩm" trong cùng một app**, chuyển qua "Switch product" [Thấy]:
-  - **Workspace (mới)**: giao diện mới, gọn, lấy AI chat / agent làm trung tâm. Phần lớn xem được khi dùng thử.
-  - **Madgicx App (cổ điển)**: bộ công cụ đầy đủ (Optimization, Analytics, Creatives, Advanced). Phần lớn bị paywall
-    sau khi hết dùng thử.
+  - **Workspace (mới)**: giao diện mới, lấy AI chat / agent làm trung tâm.
+  - **Madgicx App (cổ điển)**: bộ công cụ đầy đủ (Optimization, Analytics, Creatives, Advanced).
 - **Kênh:** Meta là chính. Google Ads có ở MCP và báo cáo. Báo cáo kết nối thêm GA4, Shopify, Klaviyo, TikTok
   [Công khai].
 - **Mô hình giá** [Thấy + Công khai]:
@@ -24,104 +22,188 @@
   - Gói theo **chi tiêu quảng cáo hằng tháng**: bậc thấp nhất "tới $1K/tháng", gồm **2 ad account**. Vượt bậc thì
     phụ thu hoặc tự nâng bậc.
   - Các bậc chi tiêu: <$1K, $1–2.5K, $2.5–5K, $5–10K, $10–20K, $20–30K, $30K+.
-  - Add-on **Tracking Pro** (Cloud Tracking / CAPI): **$49/tháng** mỗi tài khoản.
-  - Gói báo cáo riêng (One-Click Report): ưu đãi $29/tháng.
-  - Dùng thử 7 ngày, tự trừ thẻ khi hết hạn. Bản dùng thử giới hạn "3 optimization tasks".
-  - Paywall hiện ngay trong app: bấm vào đề xuất cũng mở hộp thoại thanh toán, thẻ đã lưu sẵn.
+  - Add-on **Cloud Tracking** $49/tháng mỗi tài khoản (làm hộ). One-Click Report có ưu đãi $29/tháng.
+  - Dùng thử 7 ngày ("Limited version"), **tự trừ thẻ** khi hết hạn; bản dùng thử giới hạn "3 optimization tasks".
+  - Paywall hiện ngay trong app khi hết dùng thử, thẻ đã lưu sẵn.
 
 ## 2. Workspace (giao diện mới) [Thấy]
 
 | Trang | Tính năng chi tiết |
 |---|---|
-| **Home** | Hai tab **Account / Agency** (Agency bị khóa với 1 tài khoản). **Meta account health** dạng điểm 0–100 ("90 · Excellent"). Ô **Tracking** ("Coming soon"). **Performance overview**: 4 KPI tùy chỉnh (Spend, Purchase value, ROAS, Cost per purchase) với sparkline kỳ này / kỳ trước, % thay đổi, độ phủ dữ liệu ("2 of 7 days"); chọn kỳ; "Customize". Khung **Madgicx Agents** (ô hỏi, gõ `/` để gợi ý) + **Quick actions**: Launch ads, Create campaigns, Build agents, Create workflows. **Needs attention**: cảnh báo của Madgicx + **đề xuất gốc từ Meta** (vd. "thêm ảnh AI để +10% CTR", "scale ad set chi phí thấp") có mức độ và thời điểm. **Gợi ý tạo alert từ dữ liệu**: "CPM 7 ngày dao động ₫27K–₫49K trong 30 ngày → báo khi vượt ₫48K" (1 click tạo). **Programs** (sắp có): Creative Testing Program, Budget Management Program. |
-| **Create** (nút) | Hộp "What will you create?": Dashboard/report (sắp có), Manage my ads, New ad or creative, **Agent** ("set a goal and let it run"), **Workflow** ("automate repeat tasks"), **Alert**. |
-| **Alert** | Chọn chỉ số + điều kiện ("goes above"…) + ngưỡng theo ngày; hiện **giá trị trung bình 7 ngày** để gợi ý ngưỡng; nhiều chỉ số trong một alert. Quản lý ở Settings → Alerts. |
-| **Ads** | Lưới **theo từng quảng cáo**: thumbnail, loại (Image / Dynamic / Text / Carousel / Video), mục tiêu ("Engagement · Conversations"), 4 chỉ số chọn được; lọc; 7/14/30 ngày. |
-| **Ads Manager** | "Group the account's ads by anything, in any order": các chiều nhóm **kéo-thả** (Campaign › Ad set › Ad › Breakdown); cột chỉ số chọn được; **sparkline + % so kỳ trước trong từng ô**; công tắc bật/tắt; dòng tổng; ẩn đối tượng không chi tiêu; 3 chế độ xem (bảng / sơ đồ / đường đi); bật tắt hiển thị tiền tệ. |
-| **Funnels** | Phễu Awareness → Consideration → Conversion (Impressions → Page engagement → Leads) với tỷ lệ chuyển giữa các bước; xem theo Account / Campaign / Ad set / **Landing page**; độ rộng thang log. |
-| **Geography** | Bản đồ quốc gia theo chi tiêu, bấm vào nước để xem theo vùng; bảng vị trí với chỉ số. |
-| **Scale** | **"Is my ad getting tired?"**: biểu đồ bong bóng tần suất × CPC, kích thước = chi tiêu, chia 4 góc (Fresh & cheap → scale; Burning out → refresh; Expensive early → rework; Still holding → monitor); thanh trượt lọc. **Format mix** (tỷ trọng chi tiêu và ROAS theo định dạng). **Tuổi × giới tính** (ô nhiệt, cao / thấp nhất). **Xu hướng theo ngày** tách Acquisition / Unattributed. |
-| **Agents** (chat) | Chat AI chạy **Claude Sonnet 5** (có chọn model), lịch sử, mục yêu thích, đính kèm file. Câu mẫu: "Ask about your account" (6) và "Get something done" (3: Pause underperforming ads, Increase budget on best campaign, Launch a new ad). Thanh hỏi nổi "Why did my cost…" ở **mọi trang**. Câu cảnh báo "AI can make mistakes. Check important numbers in Ads Manager". |
-| **Settings** | Alerts của tài khoản. |
+| **Home** | Hai tab **Account / Agency** (Agency bị khóa khi chỉ có 1 tài khoản). **Meta account health** dạng điểm 0–100 ("90 · Excellent"). Ô **Tracking** ("Coming soon"). **Performance overview**: 4 KPI tùy chỉnh (Spend, Purchase value, ROAS, Cost per purchase) với sparkline kỳ này / kỳ trước, % thay đổi, độ phủ dữ liệu ("2 of 7 days"); chọn kỳ; "Customize". Khung **Madgicx Agents** (ô hỏi, gõ `/` để gợi ý) + **Quick actions**: Launch ads, Create campaigns, Build agents, Create workflows. **Needs attention**: cảnh báo của Madgicx + **đề xuất gốc từ Meta** (vd. "thêm ảnh AI để +10% CTR", "scale ad set chi phí thấp") có mức độ và thời điểm. **Gợi ý tạo alert từ dữ liệu**: "CPM 7 ngày dao động ₫27K–₫49K trong 30 ngày → báo khi vượt ₫48K" (1 click). **Programs** (sắp có): Creative Testing Program, Budget Management Program. |
+| **Create** (nút) | Dashboard/report (sắp có), Manage my ads, New ad or creative, **Agent** ("set a goal and let it run"), **Workflow** ("automate repeat tasks"), **Alert**. |
+| **Alert** | Chỉ số + điều kiện ("goes above"…) + ngưỡng theo ngày; hiện **trung bình 7 ngày** để gợi ý ngưỡng; nhiều chỉ số trong một alert. Quản lý ở Settings → Alerts. |
+| **Ads** | Lưới **theo từng quảng cáo**: thumbnail, loại (Image / Dynamic / Text / Carousel / Video), mục tiêu, 4 chỉ số chọn được; lọc; 7/14/30 ngày. |
+| **Ads Manager** | Chiều nhóm **kéo-thả** (Campaign › Ad set › Ad › Breakdown); cột chọn được; **sparkline + % so kỳ trước trong từng ô**; bật / tắt; dòng tổng; ẩn đối tượng không chi tiêu; 3 chế độ xem. |
+| **Funnels** | Phễu Awareness → Consideration → Conversion với tỷ lệ chuyển; theo Account / Campaign / Ad set / **Landing page**. |
+| **Geography** | Bản đồ quốc gia → vùng; bảng vị trí. |
+| **Scale** | **"Is my ad getting tired?"**: bong bóng tần suất × CPC, kích thước = chi tiêu, 4 góc hành động (Fresh & cheap → scale; Burning out → refresh; Expensive early → rework; Still holding → monitor). **Format mix** (chi tiêu / ROAS theo định dạng). **Tuổi × giới tính**. **Xu hướng ngày** tách Acquisition / Unattributed. |
+| **Agents** (chat) | Chat AI **Claude Sonnet 5** (chọn model), lịch sử, yêu thích, đính kèm. Câu mẫu "Ask about your account" (6) và "Get something done" (3: pause ad kém, tăng ngân sách campaign tốt nhất, launch ad mới). Thanh hỏi nổi "Why did my cost…" trên **mọi trang**. Ghi chú "AI can make mistakes. Check important numbers in Ads Manager". |
 
 **Năng lực chat AI theo chính nó tự mô tả** [Thấy]:
-- **Phân tích:** chỉ số mọi cấp, mọi khoảng ngày; xu hướng; breakdown tuổi / giới tính / quốc gia / vùng; xếp hạng
-  campaign theo doanh thu / ROAS; phân loại prospecting / retargeting.
-- **Chẩn đoán:** điểm sức khỏe tài khoản + đề xuất; **Event Match Quality** (pixel thiếu định danh nào);
-  **nhật ký thay đổi** tài khoản.
-- **Hành động (ghi lên Meta):**
-  - tạo campaign / ad set / ad (từ ảnh hoặc bài đăng có sẵn);
-  - bật / tắt;
-  - đổi ngân sách ngày;
-  - nhân bản;
-  - đổi tên hàng loạt;
-  - target / loại trừ custom audience, đặt vùng địa lý.
-- **Kiến thức:** trả lời câu hỏi best practice từ knowledge base.
-- **Hạn chế quan sát được:** yêu cầu "build an agent" thì AI **từ chối** và chuyển hướng. Tính năng Agent / Program
-  còn chưa chín.
+- **Phân tích:** chỉ số mọi cấp / mọi kỳ, xu hướng, breakdown, xếp hạng, phân loại prospecting / retargeting.
+- **Chẩn đoán:** điểm sức khỏe + đề xuất; **Event Match Quality**; **nhật ký thay đổi**.
+- **Hành động (ghi lên Meta, không thấy lớp duyệt):** tạo campaign / ad set / ad, bật / tắt, đổi ngân sách, nhân bản,
+  đổi tên hàng loạt, custom audience, vùng địa lý.
+- **Kiến thức:** câu hỏi best practice.
+- **Hạn chế quan sát được:** "build an agent" thì AI **từ chối**, nên Agent / Program còn chưa chín.
 
-## 3. Madgicx App (cổ điển)
+## 3. Madgicx App (cổ điển) [Thấy, trừ chỗ ghi khác]
 
-| Nhóm | Module | Chi tiết |
-|---|---|---|
-| — | **AI Chat** (Beta) [Thấy] | Cùng chat với Workspace. |
-| — | **MCP Hub** [Thấy] | Cho Claude / ChatGPT / Gemini / Cursor truy cập dữ liệu Madgicx qua MCP: tạo Client ID / Secret; MCP Facebook Ads + Google Ads; workflow demo. **Skill tải về cho Claude:** Account Structure Audit, Activity Performance Analyzer (nối thay đổi với biến động hiệu suất), Ad Performance Report, Budget Optimizer, Audience Segment Personas. Nguồn dữ liệu: Meta, Google Ads (sẵn), Shopify (sắp), TikTok (dự kiến). |
-| — | **AI Ad Generator** [Thấy + Công khai] | AI Ad Hub: **Ad Library** (quảng cáo của các brand theo ngành, follow brand để có feed cá nhân hóa), AI Generations của tôi / của cộng đồng, My Creatives, Recent Edits, Saved Inspirations, **Prompt Templates**. Tạo quảng cáo ảnh từ prompt, ảnh, hoặc một ad trong Meta Ad Library; chọn "vibe"; xuất Story / Feed / Reel; gợi ý copy + CTA theo dữ liệu; đẩy thẳng lên Ads Manager. |
-| Optimization | **AI Marketer** [Thấy, chi tiết bị Khóa] | "AI media buyer" audit hằng ngày, thẻ đề xuất **Open / Completed / Dismissed**, nhãn theo loại (Onboarding, Automation Tactic). Ví dụ đề xuất: special ad category, AI ad gen, **stop-loss cho ad acquisition không có click**, **automation tăng ngân sách ad set ACQ đang thắng**, sửa tracking / attribution. Chỉ số "Save work for N people", "% hành động tự động so với trung bình Madgicx", "Machine optimized / total actions". Áp dụng đề xuất bằng 1 click. |
-| Optimization | **Ads Manager 2.0** [Khóa / Công khai] | Tăng / giảm ngân sách hàng loạt; sửa targeting không reset learning phase; theo dõi thay đổi gần nhất của ad set. |
-| Optimization | **Madgicx Cloud Tracking** [Công khai] | CAPI Gateway + server-side tracking, Facebook Click ID, attribution theo lợi nhuận / LTV, dashboard real-time; tích hợp 1 click Meta + Shopify; add-on $49/tháng. |
-| Analytics | **Business Dashboard** [Khóa] | Dashboard kinh doanh nhiều kênh: net profit, blended ROAS, MER, mục tiêu doanh thu. |
-| Analytics | **360° Meta Audit** [Thấy cấu trúc] | 6 tab: Meta Dashboard, Targeting Insights, **Auction Insights**, Geo & Demo Insights, Creative Insights, **Ad Copy Insights**. |
-| Analytics | **Top Audiences** [Khóa] | Xếp hạng đối tượng hiệu quả nhất. |
-| Analytics | **One-Click Report / Custom Reports** [Công khai] | Kéo-thả widget (biểu đồ, bảng, theo dõi mục tiêu), mỗi widget một nguồn và khung thời gian riêng; template sẵn; gộp nhiều ad account / store; link công khai hoặc PDF; **gửi tự động** ngày / tuần / tháng tới khách; **white-label** logo agency. |
-| Creatives | **Creative Insights** [Công khai] | **AI nhận diện hình ảnh gắn nhãn yếu tố creative** (cả video); creative nào có dư địa scale / nên giảm; xu hướng chống mệt. |
-| Creatives | **Ad Copy Insights** [Khóa] | Phân tích hiệu quả theo nội dung chữ quảng cáo. |
-| Creatives | **Create New Ad** [Khóa] | Tạo quảng cáo. |
-| Advanced | **Ad Launcher** [Công khai] | Ghép creative + copy tốt nhất thành ad mới hàng loạt; dùng bài đăng FB / IG; thêm theo ad ID / post ID; gộp số liệu một ad dùng ở nhiều ad set; lưu "ad cluster". |
-| Advanced | **Audience Launcher** [Công khai] | 100+ đối tượng dựng sẵn theo phễu; 27 đối tượng eRFM; "Super Lookalike" gộp nhiều lookalike (tới 20%); tự loại trừ; hẹn giờ launch. |
-| Advanced | **Automation Overview / Tactics** [Khóa / Công khai] | 4 "tactic" dựng sẵn (chỉ nhập tham số), rule chạy real-time (đối thủ 15–30 phút), stop-loss / scale; "AI Bidding". |
-| Advanced | **Audience Studio** [Khóa] | Tìm interest / đối tượng. |
-| Agency | **White-label** [Công khai] | Tạo campaign dưới tên agency theo quy ước đặt tên; báo cáo PDF logo agency; tab Agency đa tài khoản. **Không thấy:** cổng cho khách, phân quyền theo khách. |
+### 3.1 Optimization
+- **AI Marketer:**
+  - Thẻ đề xuất **Open / Completed / Dismissed**, có nhãn loại (Onboarding, Automation Tactic).
+  - Chỉ số "Save work for N people", "% hành động tự động so với trung bình Madgicx", "Machine optimized / Total
+    actions".
+  - **Chi tiết đề xuất mở ngay trong trang**: giải thích (emoji + 3 câu), **"You could have saved ₫7,7M in the last 30
+    days"**, tham số rule với **giá trị lấy từ dữ liệu tài khoản kèm "Why this value?"**, link "Discover which ads burned
+    your budget on each of the last 30 days", nút **Create Automation**.
+  - Ví dụ đã thấy:
+    - **Stop-loss ad acquisition không click:** tạm dừng trong ngày nếu chi > ₫36.218, 0 outbound click, ad > 120
+      giờ, ad set còn ≥ 2 ad; bật lại lúc nửa đêm.
+    - **Scale ad set ACQ thắng +20%:** ROAS 7 ngày > 1,2 ("cao hơn 10% trung bình acquisition"), ROAS hôm nay +
+      hôm qua > 1,3, ad set > 72 giờ, tối đa 1 lần / 2 ngày.
+    - **Sửa tracking** → bán Cloud Tracking làm hộ.
+  - Nút "Ask AI Marketer to Do More" giờ chuyển thẳng sang chat (roadmap 01/2026).
+- **Ads Manager 2.0:**
+  - Tab Campaigns / Ad sets / Ads / All assets; bộ lọc + **preset lọc lưu được**; tìm kiếm.
+  - Cột **Latest actions** (thay đổi gần nhất) và **Performance overtime**; ngân sách sửa trực tiếp; cột chỉ số tùy chỉnh.
+  - "Active optimization", "Manage assets", "Analyze creatives".
+- **Cloud Tracking:** dựa trên Meta **Conversions API Gateway** / **Signals Gateway** (không cần code); quy trình mua →
+  điền form quyền → đội Madgicx cài trong 1–2 ngày làm việc.
+
+### 3.2 Automation
+- **Automation Overview:**
+  - Đếm hành động đã kích hoạt 7 ngày theo loại (Start / Pause / Increase budget / Decrease budget) + biểu đồ ngày.
+  - Bảng tactic: trạng thái, tác giả, tài sản tự động, tần suất hành động 48h / 7d, lần kích hoạt cuối.
+- **Tactic dựng sẵn:**
+  - **SURF** (ad set / campaign): tăng ngân sách vượt giới hạn khi đà tốt, tự trả về lúc giờ chọn.
+  - **STOP LOSS** (ad set / ad): dừng khi đà xấu, bật lại lúc giờ chọn.
+  - **SUNSETTING** (ad set): giảm dần nhiều bước.
+  - **REVIVE** (ad set / ad): bật lại khi có dấu hiệu sinh lời trở lại.
+- **Strategies** (lọc theo E-commerce…):
+  - Scale winning campaigns / ad sets; Downscale losing campaigns / ad sets;
+  - Stop loss cho ad đắt không click; Pause losing ads for today (bật lại 00:00 hoặc sớm hơn nếu kết quả cải thiện do
+    attribution trễ); Pause losing ads permanently.
+- **Custom automation:**
+  - Cấp Campaign / Ad set / Ad; **300+ chỉ số**.
+  - Tác vụ: đổi trạng thái, ngân sách, tên ad set, bid test, nhân bản…
+  - Điều kiện AND theo phạm vi thời gian (Today…), so sánh (Equals / Greater than…), chỉ số cấp cha (số ad đang chạy
+    trong ad set), "Hours since creation".
+  - Lịch: chạy liên tục / khoảng ngày; **theo ngày / giờ trong tuần**; múi giờ tài khoản.
+  - Chạy "real-time" (họ so với 15–30 phút của đối thủ). Trang chủ có "Dynamic rules" theo trường động.
+
+### 3.3 Analytics
+- **Business Dashboard:**
+  - Blended summary (Spend, Revenue, ROAS, Purchases, CTR, CPC + % thay đổi).
+  - Các ô **Net Ad Profit / LTV / MER / AOV / CAC / LTV:CAC** cần **kết nối Shopify**.
+  - Khối theo từng ad account; Share.
+- **360° Meta Audit:** 6 tab, bộ lọc, Smart Filter, **preset lọc lưu được**, **Export PDF**, **Automated Reporting**.
+  - **Meta Dashboard:** bảng **theo giai đoạn phễu tự phân loại**: Acquisition Prospecting / Acquisition
+    Re-Engagement / Retargeting / Retention; Strategy Status Overview (biểu đồ ROAS × chi tiêu từng giai đoạn); Strategy
+    Status Drilldown; Total Revenue theo giai đoạn.
+  - **Targeting Insights:** Top landing pages, Interest & Lookalike expansion, Audience size & potential reach, **WiFi**
+    (loại kết nối), Lookalike & recency, targeting toàn phễu.
+  - **Auction Insights** (chưa tải được nội dung).
+  - **Geo & Demo:**
+    - **Wasted spend**: chi ở quốc gia chưa có ROAS / quốc gia kém vs tốt, "potential uplift for ROAS";
+    - Trending countries; bản đồ → vùng;
+    - **International scaling theo Tier 1–4**; tuổi & giới tính.
+  - **Creative Insights:**
+    - Theo định dạng (Image, Short / Medium / Long video, Carousel, DPA): chi tiêu, ROAS, outbound CTR, CVR, % doanh
+      thu vs % chi tiêu; cảnh báo **"Missing format"** + gợi ý cảm hứng;
+    - **Creative Matrix 4 góc** (Getting started / Overspend / Scalable / Core performers) theo chi tiêu × doanh thu;
+    - chọn nhiều → "Open selected in Ads Launcher";
+    - xu hướng theo tuần.
+  - **Ad Copy Insights:**
+    - từng đoạn chữ quảng cáo xếp **ma trận 4 góc** như trên;
+    - **độ dài chữ** (ngắn / vừa / dài);
+    - **có / không emoji**, top emoji;
+    - **có / không link**.
+- **Top Audiences / Audience Studio:** xếp hạng audience (interest, lookalike) theo chi tiêu / ROAS / CPA / quy mô;
+  **Audience mixer** (giao AND nhiều nhóm, ước tính reach, lưu preset); **144 interest gợi ý** dựa trên audience hiện có
+  (kèm quy mô, nhóm, đường dẫn).
+- **One-Click Report:** quota báo cáo, nguồn dữ liệu; **template** (E-commerce Meta, Shopify + Meta, Lead gen) + báo cáo
+  trống; danh sách báo cáo. Builder kéo-thả, link công khai, PDF, gửi tự động, white-label [Công khai].
+
+### 3.4 Creatives & Advanced
+- **AI Ad Hub / AI Ad Generator:**
+  - Ad Library (brand theo ngành, follow để có feed); AI Generations (của tôi / cộng đồng); My Creatives; Saved
+    Inspirations.
+  - **Template**: Single reference image swap, Multi-product swap, Multi-reference style fusion, Product placement,
+    Dynamic Instagram product ad, Messaging apps.
+  - Prompt box ở mọi trang, chọn kích thước / số output.
+- **Ad Launcher:**
+  - Chọn ad set có sẵn; nguồn: Ads / New ads / **Creative Clusters** / bài Instagram / bài Facebook;
+  - sắp xếp theo ROAS, lọc chi tiêu tối thiểu; chỉ số **Thumb-Stop Ratio**; preset; "Find inspiration".
+- **Create New Ad:**
+  - Identity (Page / IG), định dạng, **tới 5 biến thể** copy / headline / mô tả, URL / CTA, tracking (pixel, UTM);
+  - bảng **"Meta ads Elements Performance"** (hiệu suất từng creative / copy / headline / URL / CTA / UTM đã dùng);
+    thư viện ảnh.
+- **Audience Launcher:**
+  - Đối tượng dựng sẵn theo giai đoạn (Prospecting / Re-engagement / Retargeting / Retention), mỗi cái đếm created /
+    live;
+  - ví dụ: Video casuals, **Super lookalike**, Broad, **Deep browsers lookalike** (≥ 8 phút trên web), Top-event
+    lookalike, All visitors 30 ngày, Medium-length browsers;
+  - **nhóm khách theo tần suất × giá trị đơn** (Infrequent / Occasional × Silver / Gold / Platinum, gắn nhãn AI).
+
+### 3.5 AI ngoài app
+- **MCP Hub:**
+  - Client ID / Secret; MCP Facebook Ads + Google Ads; skill tải về cho Claude (Account Structure Audit, Activity
+    Performance Analyzer, Ad Performance Report, Budget Optimizer, Audience Segment Personas).
+  - Roadmap 04/2026: **49 công cụ** đọc / phân tích / điều khiển; dùng được với Claude, ChatGPT, n8n, OpenAI Agents,
+    LangGraph, CrewAI.
+  - **Lý do họ nêu: Meta đang gắn cờ / khóa tài khoản dùng AI điều khiển trình duyệt chạy Ads Manager; MCP qua API là
+    cách hợp lệ.**
+- **Roadmap chat (01/2026):**
+  - **chọn campaign / ad set / ad + khoảng ngày từ bảng làm ngữ cảnh cho chat**; hướng đi là đưa AI vào thẳng từng trang;
+  - chat dùng được trên mobile; nút dừng sinh câu trả lời.
+
+### 3.6 Agency
+- Tab Agency trong Workspace (khóa khi chỉ 1 tài khoản).
+- White-label: tạo campaign theo quy ước đặt tên của agency, PDF logo agency [Công khai].
+- **Không thấy:** cổng cho khách, phân quyền theo khách.
 
 ## 4. Đối chiếu với AdxLens và cơ hội
 
-**AdxLens đang mạnh hơn hoặc khác biệt** (nên giữ làm lợi thế):
-- **Số khớp Ads Manager ≤ 1% có kiểm chứng.** Madgicx tự ghi "AI can make mistakes. Check important numbers in Ads
-  Manager". Ta có đối chiếu, chặn chia sẻ khi lệch, nút "Báo số liệu lệch".
+**AdxLens đang mạnh hơn hoặc khác biệt** (giữ làm lợi thế):
+- **Số khớp Ads Manager ≤ 1% có kiểm chứng.** Madgicx tự ghi "Check important numbers in Ads Manager".
 - **AI không tạo số:** mọi số qua bộ kiểm.
-- **Thao tác ghi có duyệt + guardrails + kill switch + hoàn tác.** Chat của Madgicx tự pause / đổi ngân sách / tạo ad,
-  không thấy lớp guardrail nào.
-- **Quản lý nhiều khách theo vai trò:** buyer chỉ thấy Client được giao, quyền duyệt theo Client, link báo cáo công
-  khai có kiểm toàn vẹn. Madgicx không có cổng khách hay phân quyền theo khách.
-- **Giá bằng VND, PayOS, tiếng Việt.**
+- **Thao tác ghi có duyệt + guardrails + kill switch + hoàn tác.** Chat / rule của Madgicx ghi thẳng lên Meta.
+- **Quản lý nhiều khách theo vai trò** + link báo cáo công khai có kiểm toàn vẹn. Madgicx không có cổng khách / phân
+  quyền theo khách.
+- **VND, PayOS, tiếng Việt, không tự trừ thẻ khi hết dùng thử.**
 
-**Khoảng trống đáng cân nhắc** (xếp theo giá trị / công sức với agency VN; cần PM chọn và viết PRD / ADR):
+**Cơ hội** (xếp theo giá trị / công sức với agency VN; cần PM chọn và viết PRD / ADR):
 
 | # | Ý tưởng | Lấy cảm hứng từ | Ghi chú cho AdxLens |
 |---|---|---|---|
-| 1 | **Alert do người dùng tự đặt** + **gợi ý ngưỡng từ dữ liệu 30 ngày** ("CPM dao động X–Y → báo khi vượt Z", tạo 1 click) | Workspace Alerts | Dựng trên notification + anomaly (A5) có sẵn; công sức thấp, giá trị cao. |
-| 2 | **Biểu đồ "quảng cáo có mệt không"** (tần suất × CPC / CPA, 4 góc hành động) | Scale | Số đã có (frequency, CPC); bổ sung cho finding `creative_fatigue`. |
-| 3 | **Sparkline + % so kỳ trước trong từng ô bảng**; chọn chiều nhóm linh hoạt (Campaign / Ad set / Ad / breakdown) | Ads Manager mới | Nâng cấp bảng G1; chỉ là UI. |
-| 4 | **Phễu** Hiển thị → Tương tác → Kết quả, theo **landing page** | Funnels | Cần lấy URL đích từ creative. |
-| 5 | **Lưới quảng cáo có thumbnail** + **Format mix** (chi tiêu / ROAS theo định dạng) | Ads, Scale | Creative library P1 đã có thumbnail; thêm nhóm theo định dạng. |
-| 6 | **Điểm sức khỏe Meta / Event Match Quality**, cảnh báo tracking | Account health, chat | Đọc EMQ qua API (chỉ đọc); finding nhóm `tracking` đã có. |
-| 7 | **Đề xuất gốc của Meta** (Opportunity score / recommendations API) hiện cạnh vấn đề của ta | Needs attention | Chỉ đọc; ghi rõ nguồn "Từ Meta". |
-| 8 | **"Hỏi AdxLens"**: chat trên dữ liệu (chỉ đọc) + câu mẫu; mọi số qua bộ kiểm | Agents / AI Chat | Tương ứng đề xuất AI "C"; thao tác ghi vẫn qua duyệt + guardrails. |
-| 9 | **MCP server cho AdxLens** (agency dùng Claude / ChatGPT hỏi dữ liệu khách, chỉ đọc, theo quyền workspace) | MCP Hub | Lợi thế phân phối; phải giữ cách ly workspace, không lộ token. |
-| 10 | **Gắn nhãn creative bằng AI + insight chữ quảng cáo** | Creative / Ad Copy Insights | Tương ứng đề xuất AI "D". |
-| 11 | **Nhật ký thay đổi tài khoản → nối với biến động hiệu suất** ("Activity Performance Analyzer") | MCP skill | Rất hợp "Vì sao CPA tăng?": thêm "trong kỳ đã đổi gì". |
-| 12 | **Báo cáo kéo-thả widget + mục tiêu (goal tracker)**, gộp nhiều tài khoản | One-Click Report | Đã có báo cáo + lịch gửi + thương hiệu; thiếu builder và goal. |
-| 13 | **Thư viện mẫu tactic tự động** (stop-loss khi không click, scale ad set thắng) | Automation tactics | P2b đã có rule + mẫu; thêm mẫu "stop-loss không click" là nhỏ. |
-| 14 | **Tạo quảng cáo / AI ad generator / audience launcher** | AI Ad Generator, Launchers | Ngoài phạm vi hiện tại (hành động ghi mới → ADR); để sau. |
+| 1 | **Đề xuất kèm "nếu đã làm thì tiết kiệm được bao nhiêu trong 30 ngày"** + ngưỡng lấy từ dữ liệu, có "Vì sao giá trị này?" | AI Marketer | Ta đã có backtest cho rule P2b → đưa con số này vào Việc tuần này / rule mẫu; số do code tính. |
+| 2 | **Alert người dùng tự đặt** + **gợi ý ngưỡng từ dữ liệu 30 ngày**, tạo 1 click | Workspace Alerts | Dựng trên notification + anomaly (A5); công sức thấp. |
+| 3 | **Phân loại chi tiêu theo giai đoạn phễu** (Prospecting / Re-engagement / Retargeting / Retention) ở dashboard và báo cáo | 360° Meta Dashboard | Suy từ targeting (custom audience / lookalike / broad); khách agency rất hay hỏi. |
+| 4 | **Ma trận 4 góc cho creative và chữ quảng cáo** (Getting started / Overspend / Scalable / Core) + phân tích **emoji / độ dài / link** | Creative & Ad Copy Insights | Nâng creative library P1; số liệu đã có. |
+| 5 | **"Wasted spend"** (chi ở vùng / nhóm chưa có kết quả) + "potential uplift" | Geo & Demo | Thêm vào finding nhóm `waste`; breakdown A4 đã có vùng / tuổi / giới tính. |
+| 6 | **Biểu đồ "quảng cáo có mệt không"** (tần suất × CPC / CPA, 4 góc) | Scale | Bổ sung finding `creative_fatigue`. |
+| 7 | **Sparkline + % trong từng ô**, cột **"Thay đổi gần nhất"** cạnh mỗi đối tượng, **preset bộ lọc lưu được** | Ads Manager mới / 2.0 | Nâng bảng G1; nhật ký hành động đã có. |
+| 8 | **Thư viện tactic tự động đầy đủ hơn**: stop-loss không click, pause trong ngày + bật lại 00:00, **Revive**, **Sunsetting** nhiều bước, lịch theo giờ trong tuần | Automation | P2b đã có rule + guardrails; thêm mẫu là nhỏ, giữ nguyên lớp duyệt / kill switch. |
+| 9 | **Phễu** theo **landing page** | Funnels, Top landing pages | Cần URL đích từ creative. |
+| 10 | **Điểm sức khỏe Meta / Event Match Quality**, cảnh báo tracking | Account health | Chỉ đọc. |
+| 11 | **Đề xuất gốc của Meta** hiện cạnh vấn đề của ta | Needs attention | Chỉ đọc, ghi rõ "Từ Meta". |
+| 12 | **"Hỏi AdxLens"** + **chọn đối tượng / kỳ trong bảng làm ngữ cảnh** | Agents, roadmap chat | Đề xuất AI "C"; thao tác ghi vẫn qua duyệt. |
+| 13 | **MCP server chỉ đọc cho AdxLens**, theo quyền workspace | MCP Hub | Hợp xu hướng và chính sách Meta (không tự điều khiển trình duyệt). |
+| 14 | **Nhật ký thay đổi → nối với biến động hiệu suất** ("trong kỳ đã đổi gì") | Activity Performance Analyzer | Hợp "Vì sao CPA tăng?". |
+| 15 | **Báo cáo theo template ngành** (E-commerce / Lead gen), builder widget + goal tracker | One-Click Report | Đã có báo cáo + lịch + thương hiệu. |
+| 16 | **Business metrics khi nối Shopify / web** (MER, CAC, AOV, LTV) | Business Dashboard | Cần nguồn ngoài Meta → ADR. |
+| 17 | **Tạo quảng cáo / AI ad generator / audience launcher / audience mixer** | Creatives, Launchers | Hành động ghi mới → ADR; để sau. |
 
 **Bài học về trải nghiệm:**
-- Một ô hỏi AI nổi trên mọi trang, kèm câu mẫu theo ngữ cảnh.
-- Gợi ý "1 click tạo alert" dựa trên dữ liệu thật.
-- Hiện độ phủ dữ liệu ngay trên KPI ("2 of 7 days").
-- **Tránh:** paywall bật lên khi bấm vào đề xuất; trừ thẻ tự động khi hết dùng thử. Không hợp thị trường VN và hình
-  ảnh "tin cậy" của AdxLens.
+- Ô hỏi AI nổi trên mọi trang.
+- Đề xuất có **con số tiền tiết kiệm** và **lý do cho từng ngưỡng**.
+- Độ phủ dữ liệu ngay trên KPI.
+- Preset bộ lọc lưu được.
+- **Tránh:** paywall bật lên khi bấm đề xuất; trừ thẻ tự động.
 
 ## 5. Ảnh chụp
 
-39 ảnh chụp giao diện được lưu tạm trong thư mục scratchpad của phiên làm việc ngày 24/10/2026 (không commit vì chứa dữ
-liệu tài khoản quảng cáo thật). Cần ảnh nào cho PRD thì chụp lại từ tài khoản dùng thử.
+Khoảng 70 ảnh chụp giao diện lưu tạm trong thư mục scratchpad của phiên ngày 24/10/2026 (không commit vì chứa dữ liệu tài
+khoản quảng cáo thật). Cần ảnh nào cho PRD thì chụp lại.
