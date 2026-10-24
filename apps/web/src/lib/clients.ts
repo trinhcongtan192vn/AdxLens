@@ -9,6 +9,8 @@ export type ClientRow = {
   highIssues?: number;
   /** ADR-0017: chỉ số mục tiêu chính (null = chưa đặt). */
   goalMetric?: string | null;
+  /** % so với mục tiêu 7 ngày qua (dương = tốt hơn). */
+  goalVsPct?: number | null;
 };
 
 const norm = (s: string) =>

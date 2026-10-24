@@ -80,6 +80,8 @@ describe('báo cáo (R02, R03)', () => {
     expect(c.accounts[0]!.id).toBe(adAccountId);
     expect(Number(c.accounts[0]!.kpis.spend)).toBeGreaterThan(0);
     expect(c.accounts[0]!.daily).toHaveLength(7);
+    // Client chưa đặt mục tiêu → báo cáo không có khối mục tiêu (ADR-0017).
+    expect(c.goal).toBeNull();
     expect(c.accounts[0]!.topCampaigns.length).toBeGreaterThan(0);
     expect(c.findings.length).toBeGreaterThan(0);
     expect(c.findings[0]!.severity).toBe('high');

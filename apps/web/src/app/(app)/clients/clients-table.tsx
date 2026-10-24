@@ -141,6 +141,17 @@ export function ClientsTable({
                         {c.goalMetric ? (
                           <span className="block text-caption text-fg-tertiary">
                             {tg('tab.primary')}: {tm(`${c.goalMetric}.name`)}
+                            {c.goalVsPct != null ? (
+                              <span
+                                className={c.goalVsPct >= 0 ? 'text-success' : 'text-danger'}
+                                data-testid="client-goal-vs"
+                              >
+                                {' · '}
+                                {tg(c.goalVsPct >= 0 ? 'tab.better' : 'tab.worse', {
+                                  pct: `${Math.abs(c.goalVsPct)}%`,
+                                })}
+                              </span>
+                            ) : null}
                           </span>
                         ) : canManage && c.accounts.length ? (
                           <Link

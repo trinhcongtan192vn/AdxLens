@@ -1125,6 +1125,13 @@
       "counts": "{high} vấn đề mức cao · {medium} mức trung bình · {low} mức thấp",
       "impact": "tác động ước tính {amount}",
       "healthy": "Không nhóm quy tắc nào bị trừ điểm."
+    },
+    "goal": {
+      "title": "Mục tiêu của kỳ",
+      "target": "Mục tiêu: {value}",
+      "better": "Tốt hơn mục tiêu {pct}",
+      "worse": "Kém mục tiêu {pct}",
+      "previous": "Kỳ trước: {value}"
     }
   },
   "reports": {

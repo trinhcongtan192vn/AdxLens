@@ -6,6 +6,7 @@ import vi from '../../messages/vi.json';
 import { describeChange } from '@/lib/actions';
 import { cpaInsight } from '@/lib/cpa-insight';
 import { kpiDelta } from '@/lib/kpi';
+import { formatMetric } from '@/lib/metric-format';
 
 /**
  * Mẫu báo cáo (L3 9, L2 6): MỘT mẫu cho xem trước (R03), trang công khai (R06) và PDF A4 (R07). Nhãn theo
@@ -29,6 +30,7 @@ export function ReportView({
   const t = createTranslator({ locale, messages, namespace: 'report' });
   const tr = createTranslator({ locale, messages, namespace: 'rules' });
   const ta = createTranslator({ locale, messages, namespace: 'actionLog' });
+  const tm = createTranslator({ locale, messages, namespace: 'metrics' });
   const tAll = createTranslator({ locale, messages, onError: () => {}, getMessageFallback: ({ key }) => key });
   const nf = (v: number, o: Intl.NumberFormatOptions = {}) =>
     new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'vi-VN', o).format(v);
@@ -134,6 +136,46 @@ export function ReportView({
         >
           <h2 className="text-h3 font-semibold">{t('sections.intro')}</h2>
           <p className="mt-1 whitespace-pre-line text-body">{edits.intro}</p>
+        </section>
+      ) : null}
+
+      {content.goal ? (
+        <section className="mt-5 break-inside-avoid rounded-md border border-line px-4 py-3" data-testid="report-goal">
+          <h2 className="text-h3 font-semibold">{t('goal.title')}</h2>
+          <div className="mt-2 flex flex-wrap items-end gap-6">
+            <div>
+              <p className="text-caption uppercase text-fg-tertiary">{tm(`${content.goal.metric}.name` as never)}</p>
+              <p className="num text-h1 font-semibold">
+                {formatMetric(content.goal.metric, content.goal.actual, content.goal.currency, locale)}
+              </p>
+              <p className="text-small text-fg-secondary">
+                {t('goal.target', {
+                  value: formatMetric(content.goal.metric, content.goal.target, content.goal.currency, locale),
+                })}
+              </p>
+            </div>
+            {content.goal.vsTargetPct != null ? (
+              <p
+                className="num text-h3 font-semibold"
+                style={{ color: content.goal.vsTargetPct >= 0 ? 'var(--color-success)' : 'var(--color-danger)' }}
+              >
+                {t(content.goal.vsTargetPct >= 0 ? 'goal.better' : 'goal.worse', {
+                  pct: `${nf(Math.abs(content.goal.vsTargetPct), { maximumFractionDigits: 1 })}%`,
+                })}
+              </p>
+            ) : null}
+            {content.goal.secondary.map((m) => (
+              <div key={m.metric}>
+                <p className="text-caption uppercase text-fg-tertiary">{tm(`${m.metric}.name` as never)}</p>
+                <p className="num text-h3 font-semibold">
+                  {formatMetric(m.metric, m.actual, content.goal!.currency, locale)}
+                </p>
+                <p className="text-caption text-fg-tertiary">
+                  {t('goal.previous', { value: formatMetric(m.metric, m.previous, content.goal!.currency, locale) })}
+                </p>
+              </div>
+            ))}
+          </div>
         </section>
       ) : null}
 

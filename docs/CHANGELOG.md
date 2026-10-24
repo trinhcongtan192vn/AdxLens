@@ -2,6 +2,15 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [089] Mục tiêu Client trong báo cáo và danh sách Client — 2026-10-25
+
+**Thay đổi** (ADR-0017 phần "nơi dùng mục tiêu"; theo Madgicx One-Click Report "goal tracker"):
+- **Báo cáo** (xem trước, trang công khai, PDF): khối **"Mục tiêu của kỳ"** khi Client đã đặt mục tiêu: giá trị thực tế của chỉ số chính, mục tiêu, **tốt hơn / kém mục tiêu X%** (xanh / đỏ), chỉ số phụ kỳ này + kỳ trước. Số tính trên tài khoản cùng tiền tệ mục tiêu; Client chưa có mục tiêu thì báo cáo không đổi. Không đưa vào tóm tắt LLM.
+- **Danh sách Client**: dòng "Mục tiêu chính: …" thêm **"· tốt hơn / kém hơn X%"** theo 7 ngày qua.
+- Core: `reportGoal` trong `buildReport`, `clientGoalStatus` trong `reporting/goals.ts`.
+
+**Test tự động:** `report-view.test.tsx` (có / không có khối mục tiêu, định dạng tiền, tốt hơn, chỉ số phụ); `report.test.ts` (Client chưa có mục tiêu → `goal = null`); `goals.test.ts` (trạng thái 7 ngày = gợi ý 7 ngày, % đúng hướng).
+
 ## [088] Cổ điển — Bảng chiến dịch: cột "Thay đổi gần nhất" + bộ lọc lưu được — 2026-10-25
 
 **Thay đổi** (bảng chiến dịch / nhóm QC / quảng cáo ở trang Tài khoản, Client, chi tiết; theo Madgicx Ads Manager 2.0):

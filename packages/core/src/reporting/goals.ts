@@ -219,3 +219,38 @@ export function vsTarget(metric: GoalMetric, actual: string | null, target: stri
   const signed = METRIC_DEFS[metric].better === 'down' ? -diff : diff;
   return Math.round(signed * 1000) / 10;
 }
+
+/**
+ * "Khách cần chú ý khi lệch mục tiêu" (ADR-0017): mỗi Client có mục tiêu → giá trị 7 ngày qua (tài khoản cùng tiền tệ
+ * mục tiêu) và % so với mục tiêu theo hướng tốt. Số do code tính.
+ */
+export async function clientGoalStatus(
+  ctx: ActorCtx,
+  clock: Clock = systemClock,
+): Promise<Map<string, { metric: GoalMetric; actual: string | null; target: string; vsTargetPct: number | null }>> {
+  const goals = await listClientGoals(ctx);
+  const accounts = await listAdAccounts(ctx);
+  const out = new Map<
+    string,
+    { metric: GoalMetric; actual: string | null; target: string; vsTargetPct: number | null }
+  >();
+  for (const [clientId, g] of goals) {
+    if (!g.primaryMetric || !g.primaryTarget) continue;
+    const accs = accounts.filter((a) => a.clientId === clientId && (!g.currency || a.currency === g.currency));
+    if (!accs.length) continue;
+    const y = addDays(localDate(clock.now(), accs[0]!.timezone), -1);
+    const v = await metricValues(
+      ctx,
+      accs.map((a) => a.id),
+      { from: addDays(y, -6), to: y },
+    );
+    const actual = v[g.primaryMetric];
+    out.set(clientId, {
+      metric: g.primaryMetric,
+      actual,
+      target: g.primaryTarget,
+      vsTargetPct: vsTarget(g.primaryMetric, actual, g.primaryTarget),
+    });
+  }
+  return out;
+}
