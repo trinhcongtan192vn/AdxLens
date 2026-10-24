@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { listAdAccounts } from '@adxlens/core/connections';
-import { divDecimal, type ActorCtx } from '@adxlens/core/shared';
+import { divDecimal, sumDecimal, type ActorCtx, type WorkspaceCtx } from '@adxlens/core/shared';
 import type { DateRange } from './metrics';
 
 /**
@@ -81,7 +81,7 @@ const ACTION_GROUPS = {
 
 export type MetricValues = Record<MetricKey, string | null>;
 
-type Raw = {
+export type MetricRaw = {
   spend: string | null;
   impressions: string | null;
   reach: string | null;
@@ -121,7 +121,7 @@ const SUMS = sql`coalesce(sum(i.spend), 0)::text as spend, coalesce(sum(i.impres
 const int = (v: string | null | undefined) => String(Math.round(Number(v ?? 0)));
 
 /** Tính mọi chỉ số từ tổng (đã cộng). Thuần, dùng chung cho tổng và từng ngày. */
-export function computeMetrics(r: Partial<Raw> | undefined): MetricValues {
+export function computeMetrics(r: Partial<MetricRaw> | undefined): MetricValues {
   const spend = r?.spend ?? '0';
   const impressions = int(r?.impressions);
   const reach = int(r?.reach);
@@ -162,13 +162,40 @@ async function visible(ctx: ActorCtx, ids: string[]) {
 
 /** Tổng chỉ số của các tài khoản (cùng tiền tệ — nơi gọi lọc) trong khoảng ngày. */
 export async function metricValues(ctx: ActorCtx, adAccountIds: string[], range: DateRange): Promise<MetricValues> {
-  const ids = await visible(ctx, adAccountIds);
+  return metricValuesForAccounts(ctx, await visible(ctx, adAccountIds), range);
+}
+
+/**
+ * Như `metricValues` nhưng KHÔNG lọc theo quyền xem của actor — chỉ dùng trong worker (đánh giá cảnh báo) với id tài
+ * khoản đã lấy theo `workspace_id`. Truy vấn vẫn có điều kiện workspace (quy tắc 1).
+ */
+export async function metricValuesForAccounts(
+  ctx: WorkspaceCtx,
+  ids: string[],
+  range: DateRange,
+): Promise<MetricValues> {
   if (!ids.length) return computeMetrics(undefined);
-  const [r] = await ctx.db.execute<Raw>(sql`
+  const [r] = await ctx.db.execute<MetricRaw>(sql`
     select ${SUMS} from analytics.insights_daily i
     where i.workspace_id = ${ctx.workspaceId} and i.ad_account_id in ${ids}
       and i.date between ${range.from} and ${range.to}`);
   return computeMetrics(r);
+}
+
+/** Cộng các dòng tổng thành phần (tiền cộng thập phân, số đếm cộng nguyên) — để tính chỉ số của nhiều ngày. */
+export function sumRaw(rows: Partial<MetricRaw>[]): MetricRaw {
+  const n = (k: keyof MetricRaw) => String(rows.reduce((t, r) => t + Math.round(Number(r[k] ?? 0)), 0));
+  return {
+    spend: sumDecimal(rows.map((r) => r.spend ?? '0')),
+    conversion_value: sumDecimal(rows.map((r) => r.conversion_value ?? '0')),
+    impressions: n('impressions'),
+    reach: n('reach'),
+    link_clicks: n('link_clicks'),
+    results: n('results'),
+    purchases: n('purchases'),
+    leads: n('leads'),
+    add_to_cart: n('add_to_cart'),
+  };
 }
 
 /** Chỉ số theo ngày (sparkline, gợi ý ngưỡng alert). Ngày không có dữ liệu → giá trị rỗng (spend 0). */
@@ -176,16 +203,16 @@ export async function metricSeries(
   ctx: ActorCtx,
   adAccountIds: string[],
   range: DateRange,
-): Promise<{ date: string; values: MetricValues; hasData: boolean }[]> {
+): Promise<{ date: string; values: MetricValues; hasData: boolean; raw: MetricRaw }[]> {
   const ids = await visible(ctx, adAccountIds);
   if (!ids.length) return [];
-  const rows = await ctx.db.execute<Raw & { date: string; n: string }>(sql`
+  const rows = await ctx.db.execute<MetricRaw & { date: string; n: string }>(sql`
     select d::date::text as date, count(i.meta_id)::text as n, ${SUMS}
     from generate_series(${range.from}::date, ${range.to}::date, interval '1 day') d
     left join analytics.insights_daily i
       on i.date = d::date and i.workspace_id = ${ctx.workspaceId} and i.ad_account_id in ${ids}
     group by d order by d`);
-  return rows.map((r) => ({ date: r.date, values: computeMetrics(r), hasData: Number(r.n) > 0 }));
+  return rows.map((r) => ({ date: r.date, values: computeMetrics(r), hasData: Number(r.n) > 0, raw: r }));
 }
 
 /** Chỉ số theo từng đối tượng (ad / ad set / campaign) — lưới Ads, Ads Manager. */
@@ -199,7 +226,7 @@ export async function entityMetricValues(
   const out = new Map<string, MetricValues>();
   if (!ids.length) return out;
   const key = sql.raw(level === 'ad' ? 'i.meta_id' : level === 'adset' ? 'i.adset_id' : 'i.campaign_id');
-  const rows = await ctx.db.execute<Raw & { key: string }>(sql`
+  const rows = await ctx.db.execute<MetricRaw & { key: string }>(sql`
     select ${key} as key, ${SUMS} from analytics.insights_daily i
     where i.workspace_id = ${ctx.workspaceId} and i.ad_account_id in ${ids}
       and i.date between ${range.from} and ${range.to}

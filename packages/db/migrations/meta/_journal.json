@@ -456,6 +456,20 @@
       "when": 1792860412732,
       "tag": "0064_client_goals_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1792861477570,
+      "tag": "0065_custom_alerts",
+      "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1792861478760,
+      "tag": "0066_custom_alerts_rls",
+      "breakpoints": true
     }
   ]
 }

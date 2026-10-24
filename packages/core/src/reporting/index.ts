@@ -16,3 +16,5 @@ export * from './attention';
 export * from './metric-catalog';
 export * from './industries';
 export * from './goals';
+export * from './home';
+export * from './alerts';

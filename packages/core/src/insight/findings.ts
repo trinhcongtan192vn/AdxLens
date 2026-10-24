@@ -119,3 +119,33 @@ export async function wrongRateByRule(ctx: ActorCtx) {
     .groupBy(findings.ruleId);
   return rows.map((r) => ({ ...r, rate: r.total ? r.wrong / r.total : 0 }));
 }
+
+/**
+ * Trang chủ Workspace "Cần chú ý": phát hiện đang mở của nhiều tài khoản, mức cao trước, tác động lớn trước. Chỉ trả
+ * tài khoản actor được xem (buyer theo Client được gán).
+ */
+export async function topFindings(ctx: ActorCtx, adAccountIds: string[], limit = 6) {
+  const allowed: string[] = [];
+  for (const id of adAccountIds) {
+    if (
+      await assertAccountAccess(ctx, id).then(
+        () => true,
+        () => false,
+      )
+    )
+      allowed.push(id);
+  }
+  if (!allowed.length) return [];
+  return ctx.db
+    .select()
+    .from(findings)
+    .where(
+      and(
+        eq(findings.workspaceId, ctx.workspaceId),
+        inArray(findings.adAccountId, allowed),
+        inArray(findings.status, ['new', 'seen']),
+      ),
+    )
+    .orderBy(desc(SEVERITY_RANK), sql`${findings.impactEstimate} desc nulls last`, desc(findings.lastSeenAt))
+    .limit(Math.min(Math.max(limit, 1), 50));
+}

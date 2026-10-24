@@ -2,6 +2,31 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [079] W5 — Cảnh báo tự đặt + gợi ý ngưỡng từ dữ liệu 30 ngày — 2026-10-24
+
+**Thay đổi** (ADR-0018, vùng bảo vệ `db`: bảng `app.custom_alerts` + RLS):
+- Trang **Cảnh báo** `/w/alerts` (như Madgicx Alert): tài khoản (hoặc "Mọi tài khoản" cùng tiền tệ, chỉ owner / manager), chỉ số (11), điều kiện vượt / dưới, ngưỡng, theo ngày hôm qua hoặc 7 ngày qua. Khi tạo hiện **trung bình 7 ngày** của chỉ số và chip gợi ý từ dữ liệu. Danh sách: lần báo gần nhất + giá trị, bật / tắt, xóa. Tối đa 50 / workspace.
+- **Gợi ý cảnh báo** trên trang chủ: "CPM 7 ngày dao động X - Y trong 30 ngày qua → Báo khi vượt Z", tạo 1 click. Giá trị 7 ngày tính trên tổng thành phần (không trung bình tỷ lệ); ngưỡng = phân vị 90 (chỉ số chi phí) / 10 (CTR, ROAS); cần ≥ 14 cửa sổ có số.
+- Worker: sau audit hằng ngày (`audit:run`) đánh giá cảnh báo của tài khoản + cảnh báo "mọi tài khoản"; mỗi cảnh báo bắn tối đa 1 lần cho mỗi ngày dữ liệu; thông báo loại mới `custom_alert` (trong app + email, tắt được ở cài đặt).
+- API `GET/POST /api/v1/alerts`, `PATCH/DELETE /api/v1/alerts/[id]` (bộ test cách ly có dữ liệu B).
+
+**Test tự động:**
+- `alerts.test.ts`: tạo / bật tắt / xóa, từ chối chỉ số / ngưỡng sai, buyer không đặt "mọi tài khoản"; cách ly workspace; worker bắn đúng 1 lần với giá trị = tổng insight; gợi ý ngưỡng nằm trong khoảng, thiếu dữ liệu thì không gợi ý.
+- `tests/isolation`: dữ liệu B cho `meta_assets`, `client_goals`, `custom_alerts` + probe 4 route cảnh báo.
+- E2E `workspace-home.spec.ts` (chung với W4).
+
+## [078] W4 — Trang chủ Workspace (sức khỏe, tracking, 4 KPI tùy chỉnh có sparkline, cần chú ý) — 2026-10-24
+
+**Thay đổi** (bố cục theo Madgicx Home):
+- **Sức khỏe tài khoản** 0–100 kèm nhãn (Xuất sắc / Tốt / Trung bình / Kém); phạm vi agency hiện điểm thấp nhất + trung bình + 3 tài khoản thấp nhất.
+- **Tracking**: Pixel của các tài khoản trong phạm vi với trạng thái theo lần bắn gần nhất (từ tài sản Meta W1; Madgicx để "Coming soon").
+- **Hiệu suất**: 4 KPI có giá trị, % so kỳ trước (xanh / đỏ theo hướng tốt của chỉ số), sparkline kỳ này + kỳ trước (nét đứt), **độ phủ dữ liệu "Dữ liệu 5/7 ngày"**; **Tùy chỉnh** chọn đúng 4 chỉ số (cookie theo người xem); mặc định theo mục tiêu Client (W2) hoặc bộ Madgicx (chi tiêu, giá trị chuyển đổi, ROAS, chi phí / lượt mua).
+- **Hỏi AdxLens** + thao tác nhanh (Vì sao CPA đổi, tạo báo cáo, tạo cảnh báo, tạo rule — theo cờ và vai trò).
+- **Cần chú ý**: 6 phát hiện đang mở mức cao trước, link tới phát hiện.
+- Core `reporting/home.ts` (`workspaceHome`, `healthLabel`, `defaultHomeMetrics`), `insight.topFindings`; mọi số do code tính.
+
+**Test tự động:** `alerts.test.ts` phần trang chủ (KPI = tổng insight, sparkline 7 điểm, độ phủ, sức khỏe, Pixel; nhãn; KPI mặc định theo mục tiêu); E2E `workspace-home.spec.ts` (chuyển giao diện, các khối, đổi kỳ, tùy chỉnh KPI, tạo + tắt cảnh báo, quay về cổ điển).
+
 ## [077] W3 — Khung giao diện Workspace `/w` song song giao diện cổ điển — 2026-10-24
 
 **Thay đổi:**

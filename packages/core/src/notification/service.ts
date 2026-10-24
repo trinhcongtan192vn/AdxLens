@@ -29,6 +29,8 @@ export const NOTIFICATION_KINDS = {
   action_executed: { mandatory: false, inApp: true, email: false },
   budget_pacing: { mandatory: false, inApp: true, email: true },
   anomaly: { mandatory: false, inApp: true, email: true },
+  /** ADR-0018: cảnh báo người dùng tự đặt. */
+  custom_alert: { mandatory: false, inApp: true, email: true },
 } as const;
 
 export type NotificationKind = keyof typeof NOTIFICATION_KINDS;

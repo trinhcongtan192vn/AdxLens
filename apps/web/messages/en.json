@@ -1882,6 +1882,11 @@
         "label": "Daily unusual changes",
         "title": "{account}: {anomaly, select, spend_spike {spend up {pct}%} spend_stop {spend dropped to zero} cpa_spike {CPA up {pct}%} other {no results despite spending}}",
         "body": "On {date}, vs the previous 7 days. Check it before the client asks."
+      },
+      "custom_alert": {
+        "label": "Custom alerts",
+        "title": "{scopeAll, select, yes {All accounts} other {{scope}}}: {metric, select, spend {Ad spend} cpa {Cost per result} cpm {CPM cost} cpc {CPC cost} ctr {CTR rate} roas {ROAS ratio} cost_per_purchase {Cost per purchase} cpl {Cost per lead} cost_per_add_to_cart {Cost per add to cart} frequency {Ad frequency} other {Ad results}} {cond, select, above {went above threshold} other {went below threshold}}",
+        "body": "On {date}: {value} {currency} vs threshold {threshold} {currency}."
       }
     },
     "settings": {
@@ -2810,5 +2815,114 @@
     },
     "coming": "Being built in this release.",
     "switchNew": "New interface"
+  },
+  "wsHome": {
+    "greeting": "Hi {name}",
+    "emptyTitle": "No ad accounts yet",
+    "emptyBody": "Connect Meta to see account health, KPIs and alerts.",
+    "connect": "Connect Meta",
+    "otherCurrency": "{n} accounts in other currencies are not included in this scope ({currency}).",
+    "customize": "Customize",
+    "customizeTitle": "Pick 4 metrics",
+    "customizeHint": "Pick exactly 4 metrics ({n}/4).",
+    "save": "Save",
+    "close": "Close",
+    "health": {
+      "title": "Account health",
+      "none": "No audit data yet.",
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Poor",
+      "single": "Points deducted for open issues, max 30 per group.",
+      "agency": "Lowest across accounts · average {avg}",
+      "details": "View details"
+    },
+    "tracking": {
+      "title": "Tracking",
+      "none": "No pixels found for these accounts (pixel read access is needed when connecting).",
+      "active": "Receiving events",
+      "stale": "No events for {days} days",
+      "never": "No events yet"
+    },
+    "ask": {
+      "title": "Ask AdxLens",
+      "placeholder": "Why did my cost per result rise this week?",
+      "locked": "The AI agent unlocks when your plan includes recommendations.",
+      "whyCpaQ": "Why did cost per result change over the last 7 days?"
+    },
+    "quick": {
+      "whyCpa": "Why did CPA change?",
+      "report": "Create report",
+      "alert": "Create alert",
+      "rule": "Create rule"
+    },
+    "perf": {
+      "title": "Performance",
+      "coverage": "Data for {days} of {total} days",
+      "vsPrev": "vs {value} previous period"
+    },
+    "attention": {
+      "title": "Needs attention",
+      "none": "No open issues. Nice!",
+      "sev": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      }
+    },
+    "suggest": {
+      "title": "Alert suggestions from your data",
+      "none": "At least 3 weeks of data are needed to suggest thresholds.",
+      "range": "{metric} (7-day) ranged {min} – {max} over the last 30 days",
+      "notifyAbove": "Notify above {value}",
+      "notifyBelow": "Notify below {value}",
+      "now": "now {value}",
+      "create": "Create alert",
+      "createdShort": "Created",
+      "created": "Alert created",
+      "error": "Could not create the alert"
+    }
+  },
+  "wsAlerts": {
+    "title": "Alerts",
+    "subtitle": "Get notified when a metric crosses your threshold. Checked daily after sync.",
+    "new": "Create alert",
+    "newIntro": "Pick a metric, condition and threshold. The 7-day average helps set a sensible threshold.",
+    "emptyTitle": "No alerts yet",
+    "emptyBody": "Create an alert or use the data-driven suggestions on Home.",
+    "cols": {
+      "alert": "Alert",
+      "scope": "Account",
+      "window": "Based on",
+      "last": "Last triggered",
+      "status": "Status"
+    },
+    "rule": "{metric} {cond, select, above {goes above} other {goes below}} {value}",
+    "allAccounts": "All accounts",
+    "windows": {
+      "1d": "Yesterday",
+      "7d": "Last 7 days"
+    },
+    "fired": "{date}: {value}",
+    "never": "Never",
+    "on": "On",
+    "off": "Off",
+    "pause": "Turn off alert",
+    "resume": "Turn on alert",
+    "paused": "Alert turned off",
+    "resumed": "Alert turned on",
+    "delete": "Delete alert",
+    "deleted": "Alert deleted",
+    "created": "Alert created",
+    "error": "Something went wrong, try again",
+    "metric": "Metric",
+    "condition": "Condition",
+    "above": "Goes above",
+    "below": "Goes below",
+    "threshold": "Threshold",
+    "avg7": "7-day average: {value}",
+    "fromData": "Suggestions from 30 days of data:",
+    "save": "Create alert"
   }
 }

@@ -196,6 +196,26 @@ const TEXT: Record<string, Record<Locale, (p: P) => { subject: string; body: str
       };
     },
   },
+  custom_alert: {
+    vi: (p) => {
+      const scope = p.scopeAll === 'yes' ? 'Mọi tài khoản' : String(p.scope);
+      const cond = p.cond === 'above' ? 'vượt' : 'dưới';
+      return {
+        subject: `${scope}: ${p.metricVi} ${cond} ngưỡng (${p.date})`,
+        body: `Ngày ${p.date}, ${p.metricVi} của ${scope} là ${p.value} ${p.currency}, ${cond} ngưỡng ${p.threshold} ${p.currency} bạn đã đặt.`,
+        cta: 'Xem cảnh báo',
+      };
+    },
+    en: (p) => {
+      const scope = p.scopeAll === 'yes' ? 'All accounts' : String(p.scope);
+      const cond = p.cond === 'above' ? 'above' : 'below';
+      return {
+        subject: `${scope}: ${p.metricEn} ${cond} threshold (${p.date})`,
+        body: `On ${p.date}, ${p.metricEn} for ${scope} was ${p.value} ${p.currency}, ${cond} your threshold of ${p.threshold} ${p.currency}.`,
+        cta: 'View alerts',
+      };
+    },
+  },
   weekly_actions: {
     vi: (p) => ({
       subject: `Việc tuần này: ${p.count} gợi ý`,
