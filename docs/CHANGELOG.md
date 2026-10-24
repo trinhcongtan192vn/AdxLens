@@ -2,6 +2,14 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [074] Lộ trình Workspace + ADR 0016–0020 (tài liệu) — 2026-10-24
+
+- `docs/roadmap-workspace.md`: 11 đợt W0–W10 (quyền rộng, onboarding theo Client, giao diện Workspace song song, Home, alert, Ads, Ads Manager, Funnels / Geography / Scale, AI agents, MCP).
+- ADR-0016 quyền Meta rộng khi kết nối (đổi PRD P0-03), ADR-0017 mục tiêu theo Client, ADR-0018 alert tự đặt, ADR-0019 AI agents, ADR-0020 MCP server.
+- PRD P0-03 ghi chú thay đổi theo ADR-0016.
+
+**Test tự động:** không có (chỉ tài liệu).
+
 ## [073] "Vì sao CPA tăng / giảm?" đọc nhanh hơn — 2026-10-24
 
 **Thay đổi** (trang tài khoản, trang chiến dịch / nhóm QC / quảng cáo, báo cáo web + PDF — cùng một khối):
