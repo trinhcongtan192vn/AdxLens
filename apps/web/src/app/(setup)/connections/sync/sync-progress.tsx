@@ -124,9 +124,10 @@ export function SyncProgress({ accounts }: { accounts: Row[] }) {
             {tc('next')}
           </Link>
         ) : (
-          <Button kind="secondary" size="m" disabled>
-            {tc('next')}
-          </Button>
+          // Không bắt chờ: vào trang chủ ngay, đồng bộ tiếp ở nền và số liệu hiện dần.
+          <Link href="/overview" className={buttonVariants({ kind: 'primary', size: 'm' })}>
+            {t('continueBackground')}
+          </Link>
         )}
         {s.failedCount > 0 && s.error !== 'META_TOKEN_INVALID' ? (
           <Button kind="primary" size="m" disabled={pending} onClick={retry}>
