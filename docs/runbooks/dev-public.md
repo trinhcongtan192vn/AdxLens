@@ -171,6 +171,36 @@ Xóa giá trị `PUBLIC_DEV_APP_URL` trong `.env.local` → mở lại `Mo-AdxLe
 Mailpit. Muốn chặn hẳn từ ngoài: Cloudflare → Tunnels → `adxlens-dev` → xóa 2 public hostname (hoặc dừng service
 `cloudflared` trong *services.msc*).
 
+## 7. Bản team tách riêng và nút "Cập nhật bản test"
+
+Bản team chạy ở **thư mục riêng** `E:\VideCode\AdxLens-team` (git worktree), luôn ở bản `develop` **đã push** lên GitHub.
+Code đang làm dở ở `E:\VideCode\AdxLens` không ảnh hưởng team.
+
+| | Thư mục dev `E:\VideCode\AdxLens` | Thư mục team `E:\VideCode\AdxLens-team` |
+|---|---|---|
+| Ai dùng | Dev / Claude Code sửa code, chạy unit test | Team test qua `adxlens-dev.sctech.io.vn` |
+| Code | Nhánh đang làm | `origin/develop` (chỉ code đã merge + push) |
+| Dùng chung | Supabase (DB, tài khoản), Redis, `.env.local` (bản team copy lần đầu) | ← |
+
+**Cập nhật bản team:** double-click **`Cap-nhat-AdxLens.cmd`** (ở thư mục dev hay team đều được). Script làm theo thứ tự:
+1. lấy `origin/develop` mới nhất; lần đầu tự tạo thư mục team và copy `.env.local`;
+2. **build bản mới trong lúc app cũ vẫn chạy** (2–4 phút, team vẫn dùng bình thường);
+3. migration DB, tài khoản PM;
+4. dừng app cũ → chuyển sang bản build mới → bật app trong cửa sổ **"AdxLens (ban team)"**. Team gián đoạn **vài
+   giây**; script in thời gian gián đoạn thực tế và danh sách thay đổi mới.
+
+Đã là bản mới nhất và đang chạy thì script báo "không cần cập nhật".
+
+**Lưu ý:**
+- **Sau khi khởi động lại máy:** mở `E:\VideCode\AdxLens-team\Mo-AdxLens.cmd` (hoặc chạy lại `Cap-nhat-AdxLens.cmd`).
+  Không mở `Mo-AdxLens.cmd` ở thư mục dev cho team, vì sẽ chạy code đang làm dở.
+- **Đổi `.env.local`:** sửa ở **thư mục team** (`E:\VideCode\AdxLens-team\.env.local`) → đóng cửa sổ "AdxLens (ban team)"
+  → mở `Mo-AdxLens.cmd` của thư mục team.
+- **Không sửa file trong thư mục team.** Script từ chối cập nhật nếu thấy file bị sửa tay.
+- **Khi bản team đang chạy, thư mục dev không chạy app hay E2E được** (cùng cổng 3000, cùng DB). Unit test vẫn chạy được
+  vì dùng database riêng `adxlens_test`; E2E chạy trên CI. Không chạy `pnpm db:migrate` ở thư mục dev với migration chưa
+  merge (DB dùng chung).
+
 ## Sự cố thường gặp
 
 | Hiện tượng | Nguyên nhân thường gặp | Cách xử lý |

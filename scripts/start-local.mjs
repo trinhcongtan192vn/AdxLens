@@ -4,7 +4,7 @@
 // Chỉ dùng ở local. `PUBLIC_DEV_APP_URL` trong .env.local = chế độ dev công khai cho team test qua domain
 // (docs/runbooks/dev-public.md): bắt buộc mật khẩu PM riêng + SMTP thật, Supabase Auth theo domain dev.
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import {
   buildStamp,
   DEFAULT_PM,
@@ -22,6 +22,9 @@ const readCfg = () => devPublicConfig(existsSync('.env.local') ? readFileSync('.
 let cfg = readCfg();
 // `--dev`: chạy `pnpm dev` (hot reload cho dev sửa code). Mặc định chạy bản build để PM test nhanh.
 const DEV_MODE = process.argv.includes('--dev');
+// `--fast`: chỉ bật web + worker từ bản build có sẵn (scripts/team.mjs gọi sau khi đã build, migrate) — bỏ qua cài đặt,
+// Supabase, migration, tài khoản PM, build để thời gian gián đoạn chỉ vài giây.
+const FAST = process.argv.includes('--fast');
 
 const step = (msg) => console.log(`\n» ${msg}`);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -90,85 +93,89 @@ if (await healthy()) {
   process.exit(0);
 }
 
-step('Kiểm tra Docker…');
-if (!ok('docker', ['info'])) {
-  const exe = 'C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe';
-  if (isWin && existsSync(exe)) {
-    console.log('Docker chưa chạy — đang mở Docker Desktop (có thể mất 1–2 phút)…');
-    spawn(exe, [], { detached: true, stdio: 'ignore' }).unref();
-  } else {
-    fail('Docker chưa chạy. Mở Docker Desktop rồi chạy lại.');
+if (FAST && !existsSync('apps/web/.next/BUILD_ID')) fail('Chưa có bản build web — chạy Mo-AdxLens.cmd (không --fast).');
+if (!FAST) {
+  step('Kiểm tra Docker…');
+  if (!ok('docker', ['info'])) {
+    const exe = 'C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe';
+    if (isWin && existsSync(exe)) {
+      console.log('Docker chưa chạy — đang mở Docker Desktop (có thể mất 1–2 phút)…');
+      spawn(exe, [], { detached: true, stdio: 'ignore' }).unref();
+    } else {
+      fail('Docker chưa chạy. Mở Docker Desktop rồi chạy lại.');
+    }
+    const until = Date.now() + 180_000;
+    while (!ok('docker', ['info'])) {
+      if (Date.now() > until)
+        fail('Docker Desktop chưa sẵn sàng sau 3 phút. Mở Docker Desktop, đợi xong rồi chạy lại.');
+      await sleep(5000);
+    }
   }
-  const until = Date.now() + 180_000;
-  while (!ok('docker', ['info'])) {
-    if (Date.now() > until) fail('Docker Desktop chưa sẵn sàng sau 3 phút. Mở Docker Desktop, đợi xong rồi chạy lại.');
-    await sleep(5000);
+
+  const modules = 'node_modules/.modules.yaml';
+  if (!existsSync(modules) || statSync('pnpm-lock.yaml').mtimeMs > statSync(modules).mtimeMs) {
+    step('Cài phụ thuộc (pnpm install)…');
+    run('pnpm', ['install']);
   }
-}
 
-const modules = 'node_modules/.modules.yaml';
-if (!existsSync(modules) || statSync('pnpm-lock.yaml').mtimeMs > statSync(modules).mtimeMs) {
-  step('Cài phụ thuộc (pnpm install)…');
-  run('pnpm', ['install']);
-}
-
-step('Cấu hình .env.local…');
-if (!existsSync('.env.local')) run('pnpm', ['env:init']);
-cfg = readCfg();
-if (cfg.isPublic) {
-  console.log(`Chế độ dev công khai: ${cfg.appUrl}`);
-  if (cfg.problems.length) {
-    fail(
-      `Chưa mở ra ngoài được — sửa trong .env.local (docs/runbooks/dev-public.md mục 3–4):\n  - ${cfg.problems.join('\n  - ')}`,
-    );
+  step('Cấu hình .env.local…');
+  if (!existsSync('.env.local')) run('pnpm', ['env:init']);
+  cfg = readCfg();
+  if (cfg.isPublic) {
+    console.log(`Chế độ dev công khai: ${cfg.appUrl}`);
+    if (cfg.problems.length) {
+      fail(
+        `Chưa mở ra ngoài được — sửa trong .env.local (docs/runbooks/dev-public.md mục 3–4):\n  - ${cfg.problems.join('\n  - ')}`,
+      );
+    }
   }
-}
 
-step('Redis + Supabase local…');
-run('docker', ['compose', '-f', 'infra/docker/compose.yml', 'up', '-d', '--wait']);
-// Supabase Auth theo chế độ (localhost / domain dev) qua infra/supabase/.env; đổi chế độ → khởi động lại Supabase.
-const sbEnv = syncSupabaseEnv();
-const sbRunning = ok('pnpm', ['exec', 'supabase', 'status', '--workdir', 'infra']);
-if (sbRunning && sbEnv.changed) {
-  console.log('Cấu hình Supabase Auth đổi — khởi động lại Supabase (dữ liệu giữ nguyên)…');
-  run('pnpm', ['exec', 'supabase', 'stop', '--workdir', 'infra']);
-}
-if (!sbRunning || sbEnv.changed) {
-  // Container (thường là Studio) đôi khi khởi động chậm quá thời gian chờ của CLI → thử lại một lần.
-  if (!ok('pnpm', ['exec', 'supabase', 'start', '--workdir', 'infra'])) {
-    console.log('Supabase khởi động chậm — thử lại…');
-    run('pnpm', ['exec', 'supabase', 'start', '--workdir', 'infra']);
+  step('Redis + Supabase local…');
+  run('docker', ['compose', '-f', 'infra/docker/compose.yml', 'up', '-d', '--wait']);
+  // Supabase Auth theo chế độ (localhost / domain dev) qua infra/supabase/.env; đổi chế độ → khởi động lại Supabase.
+  const sbEnv = syncSupabaseEnv();
+  const sbRunning = ok('pnpm', ['exec', 'supabase', 'status', '--workdir', 'infra']);
+  if (sbRunning && sbEnv.changed) {
+    console.log('Cấu hình Supabase Auth đổi — khởi động lại Supabase (dữ liệu giữ nguyên)…');
+    run('pnpm', ['exec', 'supabase', 'stop', '--workdir', 'infra']);
   }
-}
-run('pnpm', ['exec', 'supabase', 'seed', 'buckets', '--workdir', 'infra']);
+  if (!sbRunning || sbEnv.changed) {
+    // Container (thường là Studio) đôi khi khởi động chậm quá thời gian chờ của CLI → thử lại một lần.
+    if (!ok('pnpm', ['exec', 'supabase', 'start', '--workdir', 'infra'])) {
+      console.log('Supabase khởi động chậm — thử lại…');
+      run('pnpm', ['exec', 'supabase', 'start', '--workdir', 'infra']);
+    }
+  }
+  run('pnpm', ['exec', 'supabase', 'seed', 'buckets', '--workdir', 'infra']);
 
-const envText = readFileSync('.env.local', 'utf8');
-if (missingSupabaseKeys(envText).length) {
-  const status = spawnSync('pnpm', ['exec', 'supabase', 'status', '--workdir', 'infra', '-o', 'env'], {
-    shell: isWin,
-    encoding: 'utf8',
+  const envText = readFileSync('.env.local', 'utf8');
+  if (missingSupabaseKeys(envText).length) {
+    const status = spawnSync('pnpm', ['exec', 'supabase', 'status', '--workdir', 'infra', '-o', 'env'], {
+      shell: isWin,
+      encoding: 'utf8',
+    });
+    writeFileSync('.env.local', fillSupabaseKeys(envText, parseStatusEnv(status.stdout ?? '')));
+    if (missingSupabaseKeys(readFileSync('.env.local', 'utf8')).length) fail('Không lấy được key Supabase local.');
+    console.log('Đã điền key Supabase local.');
+  }
+
+  step('Migration database…');
+  run('pnpm', ['db:migrate']);
+
+  step(`Tài khoản PM ${cfg.pmEmail}…`);
+  // Mật khẩu qua biến môi trường, không đặt trên dòng lệnh.
+  run('pnpm', ['seed:staff', '--', '--email', cfg.pmEmail, '--can-enable-flags'], {
+    SEED_STAFF_PASSWORD: cfg.pmPassword,
   });
-  writeFileSync('.env.local', fillSupabaseKeys(envText, parseStatusEnv(status.stdout ?? '')));
-  if (missingSupabaseKeys(readFileSync('.env.local', 'utf8')).length) fail('Không lấy được key Supabase local.');
-  console.log('Đã điền key Supabase local.');
-}
+  if (cfg.isPublic && cfg.pmEmail !== DEFAULT_PM.email) {
+    // Mật khẩu PM mặc định ai cũng biết (nằm trong tài liệu) → khóa trước khi mở ra ngoài.
+    run('pnpm', ['seed:staff', '--', '--email', DEFAULT_PM.email, '--lock']);
+  }
 
-step('Migration database…');
-run('pnpm', ['db:migrate']);
-
-step(`Tài khoản PM ${cfg.pmEmail}…`);
-// Mật khẩu qua biến môi trường, không đặt trên dòng lệnh.
-run('pnpm', ['seed:staff', '--', '--email', cfg.pmEmail, '--can-enable-flags'], {
-  SEED_STAFF_PASSWORD: cfg.pmPassword,
-});
-if (cfg.isPublic && cfg.pmEmail !== DEFAULT_PM.email) {
-  // Mật khẩu PM mặc định ai cũng biết (nằm trong tài liệu) → khóa trước khi mở ra ngoài.
-  run('pnpm', ['seed:staff', '--', '--email', DEFAULT_PM.email, '--lock']);
-}
-
-step('Chromium cho PDF báo cáo (chỉ tải lần đầu)…');
-if (!ok('pnpm', ['--filter', '@adxlens/worker', 'exec', 'playwright', 'install', 'chromium'])) {
-  console.log('Không cài được Chromium — xuất PDF có thể lỗi, phần còn lại vẫn chạy.');
+  step('Chromium cho PDF báo cáo (chỉ tải lần đầu)…');
+  if (!ok('pnpm', ['--filter', '@adxlens/worker', 'exec', 'playwright', 'install', 'chromium'])) {
+    console.log('Không cài được Chromium — xuất PDF có thể lỗi, phần còn lại vẫn chạy.');
+  }
 }
 
 const children = [];
@@ -204,7 +211,7 @@ if (DEV_MODE) {
   );
   const stampFile = 'apps/web/.next/adxlens-build-stamp';
   const built = existsSync('apps/web/.next/BUILD_ID') && existsSync(stampFile);
-  if (!stamp || !built || readFileSync(stampFile, 'utf8') !== stamp) {
+  if (!FAST && (!stamp || !built || readFileSync(stampFile, 'utf8') !== stamp)) {
     step('Build web (chỉ khi code đổi, khoảng 2–4 phút)…');
     run('pnpm', ['--filter', '@adxlens/web', 'build']);
     if (stamp) writeFileSync(stampFile, stamp);
@@ -236,4 +243,7 @@ if (cfg.isPublic) {
   );
 }
 printInfo();
-openBrowser(`${cfg.appUrl}/login`);
+// Đánh dấu app đang chạy từ thư mục này (scripts/team.mjs dùng để biết bản team có đang chạy không).
+writeFileSync('.adxlens-app.json', JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() }));
+process.on('exit', () => rmSync('.adxlens-app.json', { force: true }));
+if (!FAST) openBrowser(`${cfg.appUrl}/login`);
