@@ -1,6 +1,7 @@
 export * from './assignment';
 export * from './assets';
 export { keysFromEnv, type TokenKeys } from './crypto';
+export { decryptSecret, encryptSecret } from './secrets';
 export * from './meta';
 export * from './refresh';
 export * from './service';

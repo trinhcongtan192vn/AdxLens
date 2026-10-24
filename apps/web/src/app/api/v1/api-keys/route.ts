@@ -5,6 +5,7 @@ import { route } from '@/server/route';
 /** Khóa API cho MCP (ADR-0020): danh sách không bao giờ có hash / khóa rõ. */
 export const GET = route({
   auth: 'workspace',
+  flag: 'p1_recommendations',
   handler: async (ctx) => ({
     items: (await listApiKeys(ctx)).map((k) => ({
       id: k.id,
@@ -21,6 +22,7 @@ export const GET = route({
 /** Tạo khóa — khóa rõ chỉ trả ở phản hồi này. */
 export const POST = route({
   auth: 'workspace',
+  flag: 'p1_recommendations',
   body: z.object({
     name: z.string().trim().min(1).max(60),
     scopes: z.array(z.enum(API_KEY_SCOPES)).max(2).default(['read']),

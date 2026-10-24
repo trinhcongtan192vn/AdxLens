@@ -19,6 +19,8 @@ export const GET = route({
         proposals: m.data.proposals ?? [],
         source: m.data.source ?? null,
         facts: m.data.facts ?? [],
+        llm: m.data.llm ?? null,
+        llmError: m.data.llmError ?? null,
         created_at: m.createdAt.toISOString(),
       })),
     };

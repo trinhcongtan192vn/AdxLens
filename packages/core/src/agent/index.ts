@@ -3,3 +3,4 @@ export { AGENT_PERIODS, TOOLS, runTool, toolsFor, type ProposalOut, type ToolCon
 export * from './service';
 export * from './api-keys';
 export * from './mcp';
+export * from './llm-keys';

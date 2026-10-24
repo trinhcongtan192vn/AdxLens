@@ -549,6 +549,16 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
     crossParams: (w) => ({ id: w.b.apiKey.id }),
   },
+  'GET /api/v1/llm-key': { kind: 'workspace' },
+  'PUT /api/v1/llm-key': {
+    kind: 'workspace',
+    body: () => ({
+      provider: 'anthropic',
+      model: 'claude-sonnet-5-5',
+      api_key: 'sk-ant-api03-isolationAAAAAAAAAAAAAAAA',
+    }),
+  },
+  'DELETE /api/v1/llm-key': { kind: 'workspace' },
   'POST /api/v1/mcp': {
     kind: 'exempt',
     reason: 'Xác thực bằng khóa API (workspace lấy từ khóa, không từ request); cách ly kiểm ở core/agent/mcp.test.ts',
