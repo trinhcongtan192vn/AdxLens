@@ -621,7 +621,8 @@
       "adsets": "Ad sets",
       "ads": "Ads",
       "reports": "Reports",
-      "settings": "Settings"
+      "settings": "Settings",
+      "goals": "Goals"
     },
     "c02NoData": "Campaign figures appear once syncing finishes.",
     "c02Accounts": "Client ad accounts",
@@ -2544,5 +2545,220 @@
     },
     "failed": "{count} actions could not be submitted — see the reason on each item.",
     "sent": "Submitted"
+  },
+  "goals": {
+    "title": "Goals and onboarding",
+    "clients": "Clients",
+    "stepsLabel": "Steps",
+    "step1": "Main goal",
+    "step2": "Secondary metrics",
+    "step3": "Industry and assets",
+    "primaryTitle": "Main optimization metric",
+    "primaryIntro": "Pick the metric that matters most for {client} and the target to hit. Actual values help you set a realistic target.",
+    "mixedCurrency": "This client has accounts in other currencies; suggestions only use {currency} accounts.",
+    "last30Short": "30 days",
+    "actualTitle": "Actual {metric}",
+    "period": {
+      "yesterday": "Yesterday",
+      "last7": "7 days",
+      "last30": "30 days"
+    },
+    "targetLabel": "Target",
+    "useLast7": "Use the 7-day value ({value})",
+    "secondaryTitle": "2nd and 3rd metrics",
+    "secondaryIntro": "Shown next to the main metric on home, tables and reports for this client.",
+    "range30": "30 days: {value}",
+    "secondaryCount": "{n}/2 selected",
+    "assetsTitle": "Industry and default assets",
+    "assetsIntro": "Industry drives industry report templates. Default Page, Instagram and pixel are used for analysis and ad creation later.",
+    "industry": "Industry",
+    "subIndustry": "Sub-industry",
+    "choose": "Choose…",
+    "page": "Default Page",
+    "instagram": "Default Instagram",
+    "pixel": "Default pixel",
+    "noAsset": "None",
+    "later": "Later",
+    "back": "Back",
+    "next": "Continue",
+    "finish": "Finish",
+    "saved": "Goal saved",
+    "saveError": "Could not save, try again",
+    "banner": "Set a KPI goal for this client so AdxLens compares results with the goal and suggests alert thresholds.",
+    "bannerCta": "Set goal",
+    "tab": {
+      "primary": "Main goal",
+      "target": "Target",
+      "actual7": "Last 7 days",
+      "vs": "Vs target",
+      "better": "{pct} better",
+      "worse": "{pct} worse",
+      "secondary": "Secondary metrics",
+      "industry": "Industry",
+      "assets": "Default assets",
+      "edit": "Edit goal",
+      "empty": "No goal yet",
+      "none": "—"
+    },
+    "noGoal": "No goal"
+  },
+  "metrics": {
+    "spend": {
+      "name": "Spend",
+      "hint": "Total ad spend."
+    },
+    "impressions": {
+      "name": "Impressions",
+      "hint": "Times ads were shown."
+    },
+    "reach": {
+      "name": "Reach",
+      "hint": "People who saw the ads."
+    },
+    "frequency": {
+      "name": "Frequency",
+      "hint": "Average times each person saw the ads."
+    },
+    "link_clicks": {
+      "name": "Link clicks",
+      "hint": "Clicks on the ad link."
+    },
+    "ctr": {
+      "name": "CTR (link)",
+      "hint": "Link clicks per impression."
+    },
+    "cpc": {
+      "name": "CPC (link)",
+      "hint": "Cost per link click."
+    },
+    "cpm": {
+      "name": "CPM",
+      "hint": "Cost per 1,000 impressions."
+    },
+    "results": {
+      "name": "Results",
+      "hint": "Results for the ad set optimization goal."
+    },
+    "cpa": {
+      "name": "Cost per result",
+      "hint": "Spend divided by results."
+    },
+    "purchases": {
+      "name": "Purchases",
+      "hint": "Purchase events (pixel / Meta)."
+    },
+    "cost_per_purchase": {
+      "name": "Cost per purchase",
+      "hint": "Spend divided by purchases."
+    },
+    "purchase_value": {
+      "name": "Conversion value",
+      "hint": "Revenue Meta attributes to conversions."
+    },
+    "roas": {
+      "name": "ROAS",
+      "hint": "Conversion value divided by spend."
+    },
+    "leads": {
+      "name": "Leads",
+      "hint": "Leads from forms or pixel."
+    },
+    "cpl": {
+      "name": "Cost per lead",
+      "hint": "Spend divided by leads."
+    },
+    "add_to_cart": {
+      "name": "Adds to cart",
+      "hint": "Add-to-cart events."
+    },
+    "cost_per_add_to_cart": {
+      "name": "Cost per add to cart",
+      "hint": "Spend divided by adds to cart."
+    }
+  },
+  "industries": {
+    "ecommerce": {
+      "name": "E-commerce",
+      "fashion": "Fashion",
+      "beauty": "Beauty",
+      "home_living": "Home & living",
+      "electronics": "Electronics",
+      "food_beverage": "Food & beverage",
+      "mother_baby": "Mother & baby",
+      "sports": "Sports",
+      "other": "Other"
+    },
+    "hospitality": {
+      "name": "Hospitality & travel",
+      "hotel_resort": "Hotels & resorts",
+      "restaurant_cafe": "Restaurants & cafés",
+      "travel_agency": "Travel agencies",
+      "homestay_glamping": "Homestay & glamping",
+      "other": "Other"
+    },
+    "real_estate": {
+      "name": "Real estate",
+      "residential": "Residential",
+      "commercial": "Commercial",
+      "rental": "Rental",
+      "other": "Other"
+    },
+    "education": {
+      "name": "Education",
+      "language": "Languages",
+      "k12": "K-12",
+      "higher_ed": "Higher education",
+      "online_course": "Online courses",
+      "other": "Other"
+    },
+    "health": {
+      "name": "Health & beauty",
+      "clinic": "Clinics",
+      "dental": "Dental",
+      "spa_aesthetic": "Spa & aesthetics",
+      "pharmacy": "Pharmacy",
+      "fitness": "Fitness",
+      "other": "Other"
+    },
+    "finance": {
+      "name": "Finance",
+      "banking": "Banking",
+      "insurance": "Insurance",
+      "investment": "Investment",
+      "lending": "Lending",
+      "other": "Other"
+    },
+    "automotive": {
+      "name": "Automotive",
+      "dealer": "Dealers",
+      "service": "Service & repair",
+      "rental": "Rental",
+      "other": "Other"
+    },
+    "services": {
+      "name": "Services",
+      "agency_marketing": "Agencies & marketing",
+      "legal_consulting": "Legal & consulting",
+      "home_services": "Home services",
+      "events": "Events",
+      "other": "Other"
+    },
+    "saas_tech": {
+      "name": "Software & tech",
+      "b2b_software": "B2B software",
+      "consumer_app": "Consumer apps",
+      "gaming": "Gaming",
+      "other": "Other"
+    },
+    "local_business": {
+      "name": "Local business",
+      "retail_store": "Retail stores",
+      "franchise": "Franchise",
+      "other": "Other"
+    },
+    "other": {
+      "name": "Other",
+      "other": "Other"
+    }
   }
 }

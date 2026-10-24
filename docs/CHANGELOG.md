@@ -2,6 +2,25 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [076] W2 — Onboarding theo Client: mục tiêu KPI có số thực tế, chỉ số phụ, ngành, tài sản mặc định — 2026-10-24
+
+**Thay đổi** (ADR-0017, vùng bảo vệ `db`: bảng `app.client_goals` + RLS):
+- **Danh mục chỉ số dùng chung** `core/reporting/metric-catalog.ts`: 18 chỉ số (chi tiêu, CTR, CPC, CPM, chi phí / kết quả, lượt mua, chi phí / lượt mua, giá trị chuyển đổi, ROAS, lead, CPL, thêm giỏ, chi phí / thêm giỏ…). CPA / ROAS / CPM / CTR giữ đúng định nghĩa cũ; chỉ số mới tính từ `actions` đã lưu, mỗi dòng lấy action type ưu tiên đầu tiên (không đếm trùng purchase / omni_purchase). Chia thập phân, không float trên tiền.
+- **Onboarding 3 bước** `/clients/[id]/onboarding` (như Madgicx):
+  1. chọn chỉ số tối ưu chính, bên cạnh là **giá trị thực tế hôm qua / 7 / 30 ngày**, nhập mục tiêu hoặc bấm "Dùng giá trị 7 ngày";
+  2. chọn tối đa 2 chỉ số phụ (kèm giá trị 30 ngày);
+  3. ngành + ngành con (11 ngành, danh mục cố định), Page / Instagram / Pixel mặc định từ tài sản Meta (W1).
+  - "Để sau" đánh dấu đã qua onboarding.
+- Trang Client: banner "Đặt mục tiêu" khi chưa onboarding; tab **Mục tiêu** (mục tiêu so với 7 ngày qua theo hướng tốt của chỉ số, chỉ số phụ, ngành, tài sản).
+- Danh sách Client: dòng phụ "Mục tiêu chính: …" hoặc link "Đặt mục tiêu".
+- API `GET/PUT /api/v1/clients/[id]/goal` (`clients.manage`), có trong bộ test cách ly workspace.
+- Meta giả: chiến dịch bán hàng có thêm sự kiện "thêm vào giỏ".
+
+**Test tự động:**
+- `goals.test.ts`: gợi ý = tổng insight; lưu từng bước + tiền tệ; từ chối chỉ số / mục tiêu / ngành / tài sản sai; cách ly workspace + buyer không sửa; so mục tiêu theo hướng; danh mục chỉ số chia thập phân.
+- `tests/isolation/probes.ts`: thêm GET / PUT goal.
+- E2E `client-onboarding.spec.ts`: kết nối → đồng bộ → 3 bước → tab Mục tiêu.
+
 ## [075] W1 — Xin quyền Meta rộng khi kết nối + đọc Page / Instagram / Pixel / Catalog — 2026-10-24
 
 **Thay đổi** (ADR-0016, vùng bảo vệ `connections` + `meta-client` + `db`, PM chọn 24/10):

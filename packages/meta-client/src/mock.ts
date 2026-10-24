@@ -218,6 +218,8 @@ function adDay(
     const conv = Math.round(linkClicks * cvr);
     actions.push({ action_type: GOAL[objective].action, value: String(conv) });
     if (objective === 'OUTCOME_SALES') {
+      // ADR-0017: thêm giỏ (chỉ số phụ kiểu Madgicx "Cost per add to cart").
+      actions.push({ action_type: 'offsite_conversion.fb_pixel_add_to_cart', value: String(conv * 4) });
       valueActions.push({
         action_type: GOAL[objective].action,
         value: round(conv * (420000 + r('aov') * 200000) * scale, acc.currency),

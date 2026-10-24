@@ -43,6 +43,8 @@ export function ClientsTable({
   const t = useTranslations('clients');
   const format = useFormatter();
   const tc = useTranslations('common');
+  const tg = useTranslations('goals');
+  const tm = useTranslations('metrics');
   const router = useRouter();
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
@@ -136,6 +138,18 @@ export function ClientsTable({
                         <Link href={`/clients/${c.id}`} className="font-medium text-fg hover:text-brand">
                           {c.name}
                         </Link>
+                        {c.goalMetric ? (
+                          <span className="block text-caption text-fg-tertiary">
+                            {tg('tab.primary')}: {tm(`${c.goalMetric}.name`)}
+                          </span>
+                        ) : canManage && c.accounts.length ? (
+                          <Link
+                            href={`/clients/${c.id}/onboarding`}
+                            className="block text-caption text-link hover:underline"
+                          >
+                            {tg('bannerCta')}
+                          </Link>
+                        ) : null}
                       </TD>
                       <TD>
                         <span title={c.accounts.map((a) => a.name).join(', ')}>

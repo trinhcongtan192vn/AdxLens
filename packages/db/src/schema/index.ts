@@ -12,3 +12,4 @@ export * from './notification';
 export * from './billing';
 export * from './recommendation';
 export * from './execution';
+export * from './goals';
