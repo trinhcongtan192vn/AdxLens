@@ -2,6 +2,23 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [091] Giai đoạn phễu, trang đích, chữ quảng cáo (Madgicx 360° Audit) — 2026-10-25
+
+**Thay đổi** (chỉ ĐỌC Meta; không quyền mới ngoài `ads_read`):
+- **Đồng bộ thêm** (meta-client + ingestion):
+  - creative: chữ quảng cáo, tiêu đề, URL đích, CTA (cả trong `object_story_spec`);
+  - nhóm QC: custom audience trong targeting;
+  - danh sách custom audience kèm loại.
+  - Giai đoạn phễu của nhóm QC lưu ở `entities.attrs.funnel_stage`: danh sách khách → Giữ chân; web / app → Bám đuổi; tương tác → Tương tác lại; rộng / sở thích / lookalike → Tìm khách mới. Không đọc được audience thì để trống (không đoán, không chặn đồng bộ).
+- **Workspace › Phễu** thêm 2 tab:
+  - **Giai đoạn phễu** (Madgicx Meta Dashboard): tỷ trọng chi tiêu, số nhóm QC, kết quả, chi phí / kết quả, ROAS;
+  - **Trang đích** (Madgicx "Top landing pages"): gộp theo host + đường dẫn, bỏ UTM; click → chuyển đổi.
+- **Creative (cổ điển)**: khối **Chữ quảng cáo** (Madgicx Ad Copy Insights): theo độ dài (ngắn / vừa / dài), có / không emoji, có / không link trong chữ (tỷ trọng chi tiêu, CTR, ROAS), emoji dùng nhiều, ma trận 4 góc cho từng đoạn chữ.
+- AI Agents / MCP: thêm công cụ `funnel_stages`, `landing_pages` (URL bọc «» như dữ liệu).
+- Meta giả: creative có chữ / URL / CTA; nhóm QC có audience LAL / web / danh sách khách.
+
+**Test tự động:** `copy-stage.test.ts` (phân loại giai đoạn, đồng bộ lưu giai đoạn + chữ, tổng theo giai đoạn = tổng tài khoản, trang đích bỏ UTM + URL không hợp lệ, chữ quảng cáo theo nhóm + 4 góc, `object_story_spec`, cách ly workspace); `agent.test.ts` (2 công cụ mới); E2E tab Giai đoạn phễu / Trang đích.
+
 ## [090] AI Agents trả lời theo ngôn ngữ người hỏi; ADR-0021 đề xuất tactic tự động; tài liệu onboarding — 2026-10-25
 
 - AI Agents: câu hỏi mang ngôn ngữ giao diện (vi / en); system prompt và bộ kiểm số dùng đúng ngôn ngữ đó (số "1,5" vs "1.5").

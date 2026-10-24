@@ -7,6 +7,7 @@ import {
   businessSchema,
   campaignSchema,
   creativeSchema,
+  customAudienceSchema,
   DEFAULT_ATTRIBUTION,
   insightSchema,
   meSchema,
@@ -18,6 +19,7 @@ import {
   type MetaBusiness,
   type MetaCampaign,
   type MetaCreative,
+  type MetaCustomAudience,
   type MetaInsight,
   type MetaPage,
   type MetaPixel,
@@ -55,14 +57,17 @@ export interface MetaReadApi {
   listPixels(token: string, act: string): Promise<MetaPixel[]>;
   /** Business + catalog sở hữu. */
   listBusinesses(token: string): Promise<MetaBusiness[]>;
+  /** Custom audience (id, tên, loại) — phân loại giai đoạn phễu của nhóm QC. */
+  listCustomAudiences(token: string, act: string): Promise<MetaCustomAudience[]>;
 }
 
 export const AD_ACCOUNT_FIELDS = 'id,name,currency,timezone_name,account_status';
 const CAMPAIGN_FIELDS = 'id,name,status,effective_status,objective,daily_budget,lifetime_budget';
 const ADSET_FIELDS =
-  'id,name,campaign_id,status,effective_status,optimization_goal,daily_budget,lifetime_budget,learning_stage_info,promoted_object';
+  'id,name,campaign_id,status,effective_status,optimization_goal,daily_budget,lifetime_budget,learning_stage_info,promoted_object,targeting{custom_audiences,excluded_custom_audiences}';
 const AD_FIELDS = 'id,name,adset_id,campaign_id,status,effective_status,creative{id}';
-const CREATIVE_FIELDS = 'id,name,thumbnail_url,image_url,object_type,video_id';
+const CREATIVE_FIELDS =
+  'id,name,thumbnail_url,image_url,object_type,video_id,body,title,link_url,call_to_action_type,object_story_spec{link_data{link,message,name},video_data{message,title,call_to_action}}';
 const INSIGHT_FIELDS =
   'account_id,campaign_id,adset_id,ad_id,spend,impressions,reach,frequency,clicks,inline_link_clicks,actions,action_values';
 
@@ -123,6 +128,18 @@ export class HttpMetaRead implements MetaReadApi {
       token,
       { fields: 'id,name,last_fired_time', limit: 100 },
       pixelSchema,
+      {
+        account: act,
+      },
+    );
+  }
+
+  listCustomAudiences(token: string, act: string) {
+    return this.http.paginate(
+      `${act}/customaudiences`,
+      token,
+      { fields: 'id,name,subtype', limit: 200 },
+      customAudienceSchema,
       {
         account: act,
       },

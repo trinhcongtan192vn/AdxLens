@@ -82,6 +82,10 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page.getByTestId('funnel-total')).toContainText('Click liên kết');
   await page.getByRole('tab', { name: 'Nhóm QC' }).click();
   await expect(page).toHaveURL(/by=adset/);
+  await page.getByRole('tab', { name: 'Giai đoạn phễu' }).click();
+  await expect(page.getByTestId('funnel-stages')).toContainText('Tìm khách mới');
+  await page.getByRole('tab', { name: 'Trang đích' }).click();
+  await expect(page.getByTestId('funnel-landing')).toContainText('shop.example.vn');
   await page.getByRole('link', { name: 'Địa lý', exact: true }).click();
   await expect(page.getByTestId('geo-table')).toBeVisible();
   await page.getByRole('link', { name: 'Mở rộng', exact: true }).click();

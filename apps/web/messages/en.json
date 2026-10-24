@@ -3034,14 +3034,40 @@
     "rate": "{pct} from previous step",
     "by": {
       "campaign": "Campaigns",
-      "adset": "Ad sets"
+      "adset": "Ad sets",
+      "stage": "Funnel stage",
+      "landing": "Landing pages"
     },
     "spend": "Spend",
     "ctr": "CTR",
     "clickToConv": "Click → conversion",
-    "landingNote": "Landing-page funnels need ad destination URLs — coming once AdxLens reads URLs from creatives.",
     "emptyTitle": "No funnel data yet",
-    "emptyBody": "No impressions in this period."
+    "emptyBody": "No impressions in this period.",
+    "share": "Share of spend",
+    "stage": {
+      "adsets": "Ad sets",
+      "cpa": "Cost per result",
+      "names": {
+        "prospecting": "Prospecting",
+        "re_engagement": "Re-engagement",
+        "retargeting": "Retargeting",
+        "retention": "Retention",
+        "unknown": "Unclassified"
+      },
+      "hints": {
+        "prospecting": "Broad, interests, lookalikes",
+        "re_engagement": "People who engaged with Page / video / IG",
+        "retargeting": "Website / app visitors",
+        "retention": "Customer lists",
+        "unknown": "Audience type not readable"
+      },
+      "note": "Classified by the custom audiences in each ad set targeting (read from Meta on sync)."
+    },
+    "landing": {
+      "ads": "Ads",
+      "emptyTitle": "No destination URLs yet",
+      "emptyBody": "Destination URLs are read from creatives on the next sync."
+    }
   },
   "wsGeo": {
     "subtitle": "Spend and results by region (Meta \"region\" breakdown)",
@@ -3151,7 +3177,9 @@
       "open_findings": "Issues",
       "breakdown": "Breakdowns",
       "ad_fatigue": "Ad fatigue",
-      "propose_action": "Proposal"
+      "propose_action": "Proposal",
+      "funnel_stages": "Funnel stages",
+      "landing_pages": "Landing pages"
     },
     "proposal": "Proposal — needs your approval",
     "review": "Preview and approve",
@@ -3244,5 +3272,34 @@
         "action": "High spend, low revenue: cut or replace creative."
       }
     }
+  },
+  "adCopy": {
+    "title": "Ad copy",
+    "intro": "Which ad copy works: by length, emoji, links in text and a 4-quadrant matrix (spend × revenue).",
+    "by": {
+      "length": "By length",
+      "emoji": "Emoji",
+      "link": "Links in text"
+    },
+    "cols": {
+      "group": "Group",
+      "share": "% spend"
+    },
+    "groups": {
+      "length": {
+        "short": "Short (≤ 80 chars)",
+        "medium": "Medium (≤ 200)",
+        "long": "Long (> 200)"
+      },
+      "emoji": {
+        "with": "With emoji",
+        "without": "No emoji"
+      },
+      "link": {
+        "with": "With link",
+        "without": "No link"
+      }
+    },
+    "topEmojis": "Most used emoji:"
   }
 }

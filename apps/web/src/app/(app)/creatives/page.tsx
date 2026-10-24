@@ -3,7 +3,7 @@ import { getFormatter, getTranslations } from 'next-intl/server';
 import { ClientFilter, clientParam } from '@/components/client-filter';
 import { listAdAccounts } from '@adxlens/core/connections';
 import { CREATIVE_CLASSES, creativeLibrary, type CreativeClass } from '@adxlens/core/recommendation';
-import { creativeInsights } from '@adxlens/core/reporting';
+import { adCopyInsights, creativeInsights } from '@adxlens/core/reporting';
 import {
   Badge,
   Button,
@@ -87,6 +87,8 @@ export default async function CreativesPage({
     })),
   );
   const ti = await getTranslations('creativeInsights');
+  const copy = await adCopyInsights(pc.ctx, [account.id], cur);
+  const tc = await getTranslations('adCopy');
   const money = (v: string | null) =>
     v === null ? '—' : format.number(Number(v), { maximumFractionDigits: account.currency === 'VND' ? 0 : 2 });
   const pct = (v: number | null) =>
@@ -204,6 +206,76 @@ export default async function CreativesPage({
             </div>
           </Card>
         </div>
+      ) : null}
+      {copy.copies.length ? (
+        <Card className="mb-4" data-testid="ad-copy-insights">
+          <h2 className="text-h4 font-semibold text-fg">{tc('title')}</h2>
+          <p className="text-caption text-fg-tertiary">{tc('intro')}</p>
+          <div className="mt-3 grid gap-4 lg:grid-cols-3">
+            {(
+              [
+                ['length', copy.byLength],
+                ['emoji', copy.byEmoji],
+                ['link', copy.byLink],
+              ] as const
+            ).map(([k, groups]) => (
+              <div key={k}>
+                <p className="text-small font-semibold text-fg">{tc(`by.${k}`)}</p>
+                <table className="mt-1 w-full text-caption">
+                  <thead>
+                    <tr className="text-fg-tertiary">
+                      <th className="text-left font-normal">{tc('cols.group')}</th>
+                      <th className="text-right font-normal">{tc('cols.share')}</th>
+                      <th className="text-right font-normal">CTR</th>
+                      <th className="text-right font-normal">ROAS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groups.map((g) => (
+                      <tr key={g.key}>
+                        <td className="py-0.5 text-fg">
+                          {tc(`groups.${k}.${g.key}`)} <span className="text-fg-tertiary">({g.ads})</span>
+                        </td>
+                        <td className="num text-right">{g.spendShare}%</td>
+                        <td className="num text-right">{g.ctr == null ? '—' : `${g.ctr}%`}</td>
+                        <td className="num text-right">{g.roas ?? '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
+          {copy.topEmojis.length ? (
+            <p className="mt-3 text-small text-fg-secondary">
+              {tc('topEmojis')}{' '}
+              {copy.topEmojis.map((e) => (
+                <span key={e.emoji} className="mr-2">
+                  {e.emoji} <span className="num text-caption text-fg-tertiary">×{e.ads}</span>
+                </span>
+              ))}
+            </p>
+          ) : null}
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            {(['scalable', 'core', 'getting_started', 'overspend'] as const).map((q) => {
+              const list = copy.copies.filter((c) => c.quadrant === q);
+              return (
+                <div key={q} className="rounded-lg border border-line p-2">
+                  <p className="text-small font-semibold text-fg">
+                    {ti(`quadrants.${q}.title`)} <span className="num text-fg-tertiary">({list.length})</span>
+                  </p>
+                  <ul className="mt-1 space-y-1">
+                    {list.slice(0, 3).map((c) => (
+                      <li key={c.body} className="line-clamp-2 text-caption text-fg-secondary" title={c.body}>
+                        “{c.body}”
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
       ) : null}
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <Link href={href({ class: null })} className={chip(!filter)}>

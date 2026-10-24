@@ -3034,14 +3034,40 @@
     "rate": "Chuyển {pct} từ bước trước",
     "by": {
       "campaign": "Chiến dịch",
-      "adset": "Nhóm QC"
+      "adset": "Nhóm QC",
+      "stage": "Giai đoạn phễu",
+      "landing": "Trang đích"
     },
     "spend": "Chi tiêu",
     "ctr": "CTR",
     "clickToConv": "Click → chuyển đổi",
-    "landingNote": "Phễu theo trang đích cần URL đích của quảng cáo — sẽ có khi AdxLens đọc thêm URL từ creative.",
     "emptyTitle": "Chưa có dữ liệu phễu",
-    "emptyBody": "Chưa có lượt hiển thị trong kỳ này."
+    "emptyBody": "Chưa có lượt hiển thị trong kỳ này.",
+    "share": "Tỷ trọng chi tiêu",
+    "stage": {
+      "adsets": "Nhóm QC",
+      "cpa": "Chi phí / kết quả",
+      "names": {
+        "prospecting": "Tìm khách mới",
+        "re_engagement": "Tương tác lại",
+        "retargeting": "Bám đuổi",
+        "retention": "Giữ chân",
+        "unknown": "Chưa phân loại"
+      },
+      "hints": {
+        "prospecting": "Rộng, sở thích, lookalike",
+        "re_engagement": "Người đã tương tác Page / video / IG",
+        "retargeting": "Người đã ghé web / app",
+        "retention": "Danh sách khách hàng",
+        "unknown": "Chưa đọc được loại audience"
+      },
+      "note": "Phân loại theo custom audience trong targeting của nhóm QC (đọc từ Meta khi đồng bộ)."
+    },
+    "landing": {
+      "ads": "Quảng cáo",
+      "emptyTitle": "Chưa có URL đích",
+      "emptyBody": "URL đích đọc từ creative ở lần đồng bộ tiếp theo."
+    }
   },
   "wsGeo": {
     "subtitle": "Chi tiêu và kết quả theo khu vực (Meta breakdown \"region\")",
@@ -3151,7 +3177,9 @@
       "open_findings": "Vấn đề",
       "breakdown": "Nhóm đối tượng",
       "ad_fatigue": "Độ mệt quảng cáo",
-      "propose_action": "Đề xuất"
+      "propose_action": "Đề xuất",
+      "funnel_stages": "Giai đoạn phễu",
+      "landing_pages": "Trang đích"
     },
     "proposal": "Đề xuất — cần bạn duyệt",
     "review": "Xem trước và duyệt",
@@ -3244,5 +3272,34 @@
         "action": "Chi nhiều mà doanh thu thấp: giảm hoặc thay creative."
       }
     }
+  },
+  "adCopy": {
+    "title": "Chữ quảng cáo",
+    "intro": "Chữ quảng cáo nào hiệu quả: theo độ dài, emoji, link trong chữ và ma trận 4 góc (chi tiêu × doanh thu).",
+    "by": {
+      "length": "Theo độ dài",
+      "emoji": "Emoji",
+      "link": "Link trong chữ"
+    },
+    "cols": {
+      "group": "Nhóm",
+      "share": "% chi tiêu"
+    },
+    "groups": {
+      "length": {
+        "short": "Ngắn (≤ 80 ký tự)",
+        "medium": "Vừa (≤ 200)",
+        "long": "Dài (> 200)"
+      },
+      "emoji": {
+        "with": "Có emoji",
+        "without": "Không emoji"
+      },
+      "link": {
+        "with": "Có link",
+        "without": "Không link"
+      }
+    },
+    "topEmojis": "Emoji dùng nhiều:"
   }
 }

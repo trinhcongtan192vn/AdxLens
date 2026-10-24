@@ -14,6 +14,7 @@ import {
   getThread,
   listThreads,
   runAgentReply,
+  runTool,
   toolsFor,
   type AgentContentBlock,
   type AgentLlm,
@@ -225,6 +226,17 @@ describe('AI agent (ADR-0019)', () => {
     };
     await runAgentReply(ctx, messageId, { llm, clock });
     expect(system).toContain('Answer in English');
+  });
+
+  it('công cụ giai đoạn phễu / trang đích trả số đã tính', async () => {
+    const { ctx, id } = await setup();
+    const t = { ctx, defaultAccountId: id, now: now() };
+    const st = (await runTool('funnel_stages', { period: 'last7' }, t, { p2a_approve: false })).data as {
+      stages: { stage: string }[];
+    };
+    expect(st.stages.map((s) => s.stage)).toEqual(expect.arrayContaining(['prospecting', 'retargeting']));
+    const lp = (await runTool('landing_pages', {}, t, { p2a_approve: false })).data as { pages: { page: string }[] };
+    expect(lp.pages[0]!.page).toMatch(/^«shop\.example\.vn\//);
   });
 
   it('tập số được phép: mọi số trong kết quả công cụ + số đếm nhỏ', () => {
