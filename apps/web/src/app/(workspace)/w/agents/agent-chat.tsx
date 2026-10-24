@@ -2,7 +2,7 @@
 
 import { Bot, Loader2, MessageSquarePlus, Send, Sparkles, Star, Trash2, Wrench } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge, Button, Card, cn, Select } from '@adxlens/ui';
@@ -40,6 +40,7 @@ export function AgentChat({
   canPropose: boolean;
 }) {
   const t = useTranslations('wsAgents');
+  const locale = useLocale();
   const router = useRouter();
   const sp = useSearchParams();
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -91,7 +92,12 @@ export function AgentChat({
       try {
         const r = await api<{ threadId: string }>('agent/ask', {
           method: 'POST',
-          body: { threadId: active, question: text, adAccountId: account || null },
+          body: {
+            threadId: active,
+            question: text,
+            adAccountId: account || null,
+            locale: locale === 'en' ? 'en' : 'vi',
+          },
         });
         setActive(r.threadId);
         await poll(r.threadId);
@@ -100,7 +106,7 @@ export function AgentChat({
         toast.error(e instanceof ApiError && e.code === 'RATE_LIMITED' ? t('limit') : t('error'));
       }
     },
-    [active, account, busy, poll, t],
+    [active, account, busy, poll, t, locale],
   );
 
   // Câu hỏi từ ô hỏi nổi / trang chủ (?q=…): hỏi một lần.

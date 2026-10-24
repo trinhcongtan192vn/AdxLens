@@ -39,7 +39,7 @@ export type AgentMessageData = {
   facts?: { label: string; text: string }[];
   rejected?: number[][];
   /** Ngữ cảnh người dùng chọn (tài khoản / kỳ). */
-  context?: { adAccountId?: string | null; period?: string };
+  context?: { adAccountId?: string | null; period?: string; locale?: 'vi' | 'en' };
 };
 
 export const agentMessages = app.table(

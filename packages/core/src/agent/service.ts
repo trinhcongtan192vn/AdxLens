@@ -102,7 +102,13 @@ async function usedToday(ctx: ActorCtx, clock: Clock): Promise<number> {
  */
 export async function askAgent(
   ctx: ActorCtx,
-  input: { threadId: string | null; question: string; adAccountId?: string | null; period?: string },
+  input: {
+    threadId: string | null;
+    question: string;
+    adAccountId?: string | null;
+    period?: string;
+    locale?: 'vi' | 'en';
+  },
   deps: { enqueue: Enqueue; clock?: Clock },
 ): Promise<{ threadId: string; messageId: string }> {
   await assertAgentEnabled(ctx);
@@ -120,7 +126,7 @@ export async function askAgent(
       .returning({ id: agentThreads.id });
     threadId = t!.id;
   }
-  const context = { adAccountId: input.adAccountId ?? null, period: input.period };
+  const context = { adAccountId: input.adAccountId ?? null, period: input.period, locale: input.locale };
   await ctx.db.insert(agentMessages).values({
     workspaceId: ctx.workspaceId,
     threadId,
@@ -217,7 +223,7 @@ export async function runAgentReply(
     .slice(-12)
     .map((m) => ({ role: m.role, content: m.content }));
   const now = (deps.clock ?? systemClock).now();
-  const locale: 'vi' | 'en' = 'vi';
+  const locale: 'vi' | 'en' = msg.data.context?.locale === 'en' ? 'en' : 'vi';
   const tctx = { ctx, defaultAccountId: msg.data.context?.adAccountId ?? null, now };
   const results: unknown[] = [];
   const tools: { name: string; input: Record<string, unknown> }[] = [];

@@ -10,6 +10,7 @@ export const POST = route({
     question: z.string().trim().min(1).max(2000),
     adAccountId: z.string().uuid().nullable().optional(),
     period: z.enum(['last7', 'last14', 'last30']).optional(),
+    locale: z.enum(['vi', 'en']).optional(),
   }),
   handler: async (ctx, { body }) => askAgent(ctx, body, { enqueue: ctx.enqueue }),
 });
