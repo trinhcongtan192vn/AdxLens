@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { publicUrl } from '@/lib/public-url';
 import { supabaseServer } from '@/server/supabase';
 import { WORKSPACE_COOKIE } from '@/server/route';
 
@@ -6,7 +7,7 @@ import { WORKSPACE_COOKIE } from '@/server/route';
 export async function POST(req: Request) {
   const supabase = await supabaseServer();
   await supabase.auth.signOut();
-  const res = NextResponse.redirect(new URL('/login', req.url), 303);
+  const res = NextResponse.redirect(publicUrl('/login', req), 303);
   res.cookies.delete(WORKSPACE_COOKIE);
   return res;
 }

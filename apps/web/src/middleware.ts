@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { publicUrl } from '@/lib/public-url';
 
 /** Đường dẫn công khai: trang marketing, xác thực, báo cáo công khai, API (API tự kiểm phiên). */
 const PUBLIC_PREFIXES = [
@@ -47,10 +48,8 @@ export async function middleware(request: NextRequest) {
 
   const { pathname, search } = request.nextUrl;
   if (!user && !isPublic(pathname)) {
-    const login = request.nextUrl.clone();
-    login.pathname = '/login';
-    login.search = `?next=${encodeURIComponent(pathname + search)}`;
-    return NextResponse.redirect(login);
+    // Origin công khai, không theo request.url (sau Cloudflare Tunnel là localhost).
+    return NextResponse.redirect(publicUrl(`/login?next=${encodeURIComponent(pathname + search)}`, request));
   }
   return response;
 }

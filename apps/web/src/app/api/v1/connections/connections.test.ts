@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { closeTestDb, seedMember, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
 import { asUser, call, installTestServer, uninstallTestServer } from '../../../../test-utils';
 import * as authorize from './meta/authorize/route';
@@ -96,6 +96,21 @@ describe('OAuth Meta (META_MOCK=1)', () => {
       path: '/api/v1/connections/meta/callback?error=access_denied',
     });
     expect(r.headers.get('location')).toMatch(/\/connections\?error=denied$/);
+  });
+
+  it('sau Cloudflare Tunnel (request.url là localhost) → chuyển hướng theo APP_URL công khai', async () => {
+    const { workspace, owner } = await seedWorkspace(db);
+    vi.stubEnv('APP_URL', 'https://adxlens-dev.sctech.io.vn');
+    try {
+      const r = await call(callback.GET, {
+        user: asUser(owner),
+        workspaceId: workspace.id,
+        path: '/api/v1/connections/meta/callback?error=access_denied',
+      });
+      expect(r.headers.get('location')).toBe('https://adxlens-dev.sctech.io.vn/connections?error=denied');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('buyer không bắt đầu kết nối được', async () => {
