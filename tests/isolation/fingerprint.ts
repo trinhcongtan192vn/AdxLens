@@ -14,7 +14,11 @@ export async function workspaceFingerprint(db: Db, workspaceId: string): Promise
   const ws = await db.execute(sql`select * from app.workspaces where id = ${workspaceId}`);
   h.update(JSON.stringify(ws));
   for (const t of tables) {
-    const rows = await db.execute(sql.raw(`select * from ${t.fq} where workspace_id = '${workspaceId}' order by 1`));
+    // Sắp theo toàn bộ hàng (không theo cột 1): nhiều bảng có cột 1 là workspace_id, thứ tự hàng trùng khóa đổi theo kế
+    // hoạch truy vấn (index / seq scan sau autoanalyze) → băm khác dù dữ liệu không đổi (test chập chờn trên CI).
+    const rows = await db.execute(
+      sql.raw(`select * from ${t.fq} t where workspace_id = '${workspaceId}' order by t::text`),
+    );
     h.update(t.fq + JSON.stringify(rows));
   }
   return h.digest('hex');

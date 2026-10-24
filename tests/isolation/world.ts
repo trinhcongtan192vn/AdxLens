@@ -321,6 +321,22 @@ export async function seedWorld(db: Db) {
     updatedBy: b.owner.id,
   });
 
+  // ADR-0022 B: ứng dụng OAuth B đã cấp quyền (client dùng chung, grant thuộc B).
+  await db
+    .insert(schema.oauthClients)
+    .values({ id: 'adxcl_isolationclient01', name: 'Beta App Secret', redirectUris: ['https://claude.ai/cb'] });
+  const [bGrant] = await db
+    .insert(schema.oauthGrants)
+    .values({
+      workspaceId: b.workspace.id,
+      userId: b.owner.id,
+      clientId: 'adxcl_isolationclient01',
+      redirectUri: 'https://claude.ai/cb',
+      codeChallenge: 'c'.repeat(43),
+      refreshHash: 'e'.repeat(64),
+    })
+    .returning();
+
   const world = {
     a: {
       workspace: a.workspace,
@@ -350,6 +366,7 @@ export async function seedWorld(db: Db) {
       alert: bAlert!,
       thread: bThread!,
       apiKey: bKey!,
+      oauthGrant: bGrant!,
     },
     /** Chuỗi của B tuyệt đối không được xuất hiện trong phản hồi cho ngữ cảnh A. */
     bFingerprints: [
@@ -373,6 +390,7 @@ export async function seedWorld(db: Db) {
       'Beta Key Secret',
       'betasecr',
       'beta-model-secret',
+      'Beta App Secret',
       'Beta Answer Secret',
       bThread!.id,
       bAlert!.id,

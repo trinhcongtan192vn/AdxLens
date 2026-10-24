@@ -21,3 +21,4 @@ export * from './settings';
 export * from './system-health';
 export * from './admin-inbox';
 export * from './api-keys';
+export * from './oauth';

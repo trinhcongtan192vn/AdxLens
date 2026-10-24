@@ -1,9 +1,10 @@
 import { getTranslations } from 'next-intl/server';
 import { getEnv } from '@adxlens/config/env';
-import { getLlmKey, listApiKeys, LLM_MODELS } from '@adxlens/core/agent';
+import { getLlmKey, listApiKeys, listOAuthGrants, LLM_MODELS } from '@adxlens/core/agent';
 import { appBaseUrl, currentRequest } from '@/server/public-base';
 import { getPageContext, requireFlag } from '@/server/page-context';
 import { requirePermission } from '@/server/guards';
+import { ConnectorCard } from './connector-card';
 import { IntegrationsView } from './integrations-view';
 import { LlmKeyCard } from './llm-key-card';
 
@@ -17,7 +18,7 @@ export default async function IntegrationsPage() {
   const pc = await getPageContext();
   await requireFlag(pc, 'p1_recommendations');
   requirePermission(pc, 'clients.manage');
-  const [keys, llm] = await Promise.all([listApiKeys(pc.ctx), getLlmKey(pc.ctx)]);
+  const [keys, llm, grants] = await Promise.all([listApiKeys(pc.ctx), getLlmKey(pc.ctx), listOAuthGrants(pc.ctx)]);
   const endpoint = `${appBaseUrl(await currentRequest())}/api/v1/mcp`;
   return (
     <>
@@ -35,6 +36,18 @@ export default async function IntegrationsPage() {
               }
             : null
         }
+      />
+      <div className="mt-4" />
+      <ConnectorCard
+        endpoint={endpoint}
+        grants={grants.map((g) => ({
+          id: g.id,
+          clientName: g.clientName,
+          scopes: g.scopes,
+          mine: g.mine,
+          lastUsedAt: g.lastUsedAt?.toISOString() ?? null,
+          createdAt: g.createdAt.toISOString(),
+        }))}
       />
       <div className="mt-4" />
       <IntegrationsView
