@@ -28,11 +28,16 @@ export type GridRow = {
   prev: GridKpis | null;
   /** G4: đối tượng để tạm dừng / bật lại / đổi ngân sách (chỉ nhóm QC, quảng cáo). */
   target?: ActionTarget;
+  /** "Thay đổi gần nhất" qua AdxLens (Madgicx Ads Manager 2.0); undefined = không hiện cột. */
+  lastChange?: { actionType: string; status: string; at: string; targetName: string | null } | null;
 };
 
 type SortKey = 'name' | MetricKey;
 type Show = 'active' | 'spend' | 'all';
 const PRESET_KEY = 'adxlens.grid.columns';
+/** Bộ lọc lưu được (Madgicx "saved filter presets"): tiện ích riêng người xem, lưu ở trình duyệt. */
+const FILTERS_KEY = 'adxlens.grid.filters';
+type SavedFilter = { name: string; q: string; show: Show; sort: { key: SortKey; dir: 1 | -1 }; preset: ColumnSet };
 
 const isActive = (s: string | null) => (s ?? '').toUpperCase() === 'ACTIVE';
 
@@ -56,6 +61,7 @@ export function EntityGrid({
 }) {
   const t = useTranslations('entities');
   const tg = useTranslations('gridActions');
+  const tl = useTranslations('actionLog');
   const format = useFormatter();
   const [q, setQ] = useState('');
   const [show, setShow] = useState<Show>('active');
@@ -64,6 +70,8 @@ export function EntityGrid({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [dialog, setDialog] = useState<{ type: GridActionType; targets: ActionTarget[] } | null>(null);
   const actable = canAct && level !== 'campaign';
+  const showChanges = rows.some((r) => r.lastChange !== undefined);
+  const [saved, setSaved] = useState<SavedFilter[]>([]);
   const multi = new Set(rows.map((r) => r.currency)).size > 1;
 
   // Bộ cột là tiện ích riêng từng người xem: nhớ ở trình duyệt, lỗi bộ nhớ thì dùng mặc định.
@@ -75,6 +83,37 @@ export function EntityGrid({
       /* bỏ qua */
     }
   }, []);
+  useEffect(() => {
+    try {
+      const v = JSON.parse(window.localStorage.getItem(FILTERS_KEY) ?? '[]') as SavedFilter[];
+      if (Array.isArray(v)) setSaved(v.filter((f) => f && typeof f.name === 'string').slice(0, 20));
+    } catch {
+      /* bỏ qua */
+    }
+  }, []);
+  const storeFilters = (list: SavedFilter[]) => {
+    setSaved(list);
+    try {
+      window.localStorage.setItem(FILTERS_KEY, JSON.stringify(list));
+    } catch {
+      /* bỏ qua */
+    }
+  };
+  const saveFilter = () => {
+    const name = window.prompt(t('grid.saveFilterPrompt'))?.trim();
+    if (!name) return;
+    storeFilters(
+      [{ name: name.slice(0, 40), q, show, sort, preset }, ...saved.filter((f) => f.name !== name)].slice(0, 20),
+    );
+  };
+  const applyFilter = (name: string) => {
+    const f = saved.find((x) => x.name === name);
+    if (!f) return;
+    setQ(f.q);
+    setShow(f.show);
+    setSort(f.sort);
+    if (f.preset in COLUMN_SETS) choosePreset(f.preset);
+  };
   const choosePreset = (v: ColumnSet) => {
     setPreset(v);
     try {
@@ -256,6 +295,23 @@ export function EntityGrid({
             </option>
           ))}
         </Select>
+        <Select
+          className="w-44"
+          aria-label={t('grid.savedFilters')}
+          value=""
+          onChange={(e) => applyFilter(e.target.value)}
+          data-testid="grid-saved-filters"
+        >
+          <option value="">{t('grid.savedFilters')}</option>
+          {saved.map((f) => (
+            <option key={f.name} value={f.name}>
+              {f.name}
+            </option>
+          ))}
+        </Select>
+        <Button kind="ghost" size="s" onClick={saveFilter} data-testid="grid-save-filter">
+          {t('grid.saveFilter')}
+        </Button>
         {hidden > 0 ? <span className="text-small text-fg-tertiary">{t('grid.hidden', { count: hidden })}</span> : null}
         {actable && selectedRows.length ? (
           <span className="ml-auto flex items-center gap-2" data-testid="grid-bulk">
@@ -308,6 +364,7 @@ export function EntityGrid({
                 ) : null}
                 {header('name', t(`level.${level}`), false)}
                 <TH>{t('cols.status')}</TH>
+                {showChanges ? <TH>{t('cols.lastChange')}</TH> : null}
                 {columns.map((k) => header(k, t(`cols.${k}`)))}
                 {actable ? <TH>{tg('header')}</TH> : null}
               </tr>
@@ -348,6 +405,30 @@ export function EntityGrid({
                         : (r.status ?? '—')}
                     </Badge>
                   </TD>
+                  {showChanges ? (
+                    <TD className="max-w-[220px]" data-testid="grid-last-change">
+                      {r.lastChange ? (
+                        <>
+                          <span className="block truncate text-small text-fg">
+                            {tl.has(`types.${r.lastChange.actionType}`)
+                              ? tl(`types.${r.lastChange.actionType}` as never)
+                              : r.lastChange.actionType}
+                          </span>
+                          <span className="block truncate text-caption text-fg-tertiary">
+                            {format.dateTime(new Date(r.lastChange.at), {
+                              day: '2-digit',
+                              month: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                            {level === 'campaign' && r.lastChange.targetName ? ` · ${r.lastChange.targetName}` : ''}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-fg-tertiary">—</span>
+                      )}
+                    </TD>
+                  ) : null}
                   {columns.map((k) => (
                     <TD numeric key={k}>
                       {cell(r, k)}
@@ -387,6 +468,7 @@ export function EntityGrid({
                   {actable ? <TD /> : null}
                   <TD>{t('grid.total', { count: visible.length })}</TD>
                   <TD />
+                  {showChanges ? <TD /> : null}
                   {columns.map((k) => (
                     <TD numeric key={k}>
                       {totalCell(k)}

@@ -13,6 +13,7 @@ import {
   entityInfo,
   entityKpis,
   type EntityLevel,
+  latestEntityChanges,
 } from '@adxlens/core/reporting';
 import { isAppError } from '@adxlens/core/shared';
 import { canApproveActions } from '@adxlens/core/tenancy';
@@ -174,6 +175,8 @@ export default async function EntityPage({
             await childRows(pc.ctx, acc.id, level, metaId, ranges.cur),
             await childRows(pc.ctx, acc.id, level, metaId, ranges.prev),
             { [acc.id]: acc.currency },
+            undefined,
+            await latestEntityChanges(pc.ctx, [acc.id], child),
           )}
         />
       ) : tab === 'findings' ? (

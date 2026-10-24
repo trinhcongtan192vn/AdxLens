@@ -1,5 +1,5 @@
 import 'server-only';
-import type { EntityRow, Kpis } from '@adxlens/core/reporting';
+import type { EntityRow, Kpis, LatestChange } from '@adxlens/core/reporting';
 import type { GridKpis, GridRow } from '@/components/entity-grid';
 
 const pick = (k: Kpis): GridKpis => ({
@@ -25,6 +25,8 @@ export function toGridRows(
   prev: EntityRow[],
   currencyOf: Record<string, string>,
   parentNames: Map<string, string | null> = new Map(),
+  /** Có truyền → hiện cột "Thay đổi gần nhất". */
+  changes?: Map<string, LatestChange>,
 ): GridRow[] {
   const before = new Map(prev.map((r) => [`${r.adAccountId}:${r.metaId}`, r.kpis]));
   return cur.map((r) => {
@@ -39,6 +41,11 @@ export function toGridRows(
       currency: currencyOf[r.adAccountId] ?? '',
       cur: pick(r.kpis),
       prev: p ? pick(p) : null,
+      ...(changes
+        ? {
+            lastChange: changes.has(key) ? { ...changes.get(key)!, at: changes.get(key)!.at.toISOString() } : null,
+          }
+        : {}),
       // G4: chỉ nhóm QC / quảng cáo có hành động ghi (ADR-0009, 0010).
       ...(level !== 'campaign'
         ? {

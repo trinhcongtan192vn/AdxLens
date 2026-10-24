@@ -2,6 +2,15 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [088] Cổ điển — Bảng chiến dịch: cột "Thay đổi gần nhất" + bộ lọc lưu được — 2026-10-25
+
+**Thay đổi** (bảng chiến dịch / nhóm QC / quảng cáo ở trang Tài khoản, Client, chi tiết; theo Madgicx Ads Manager 2.0):
+- Cột **Thay đổi gần nhất**: hành động gần nhất qua AdxLens trên đối tượng hoặc đối tượng con (chiến dịch ← nhóm QC / quảng cáo, ghi tên đối tượng con), kèm thời điểm; bỏ hành động đã hủy. Chưa gồm thay đổi làm trực tiếp trong Ads Manager.
+- **Bộ lọc lưu được**: "Lưu bộ lọc" giữ tìm kiếm + hiển thị + sắp xếp + bộ cột với một tên; chọn lại từ "Bộ lọc đã lưu" (tối đa 20, lưu ở trình duyệt).
+- Core `reporting/latest-changes.ts` (chỉ đọc `actions` + `entities`).
+
+**Test tự động:** `latest-changes.test.ts` (3 cấp, con → cha, bỏ hủy, cách ly workspace).
+
 ## [087] Cổ điển — Creative Insights: theo định dạng + ma trận creative 4 góc — 2026-10-25
 
 **Thay đổi** (trang Creative P103, theo Madgicx 360° Audit "Creative Insights"):

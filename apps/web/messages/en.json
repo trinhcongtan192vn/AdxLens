@@ -962,7 +962,8 @@
       "roas": "ROAS",
       "conversionValue": "Conversion value",
       "cpm": "CPM",
-      "linkClicks": "Clicks"
+      "linkClicks": "Clicks",
+      "lastChange": "Latest change"
     },
     "status": {
       "ACTIVE": "Active",
@@ -994,7 +995,10 @@
         "performance": "Performance",
         "conversion": "Conversions",
         "delivery": "Delivery"
-      }
+      },
+      "savedFilters": "Saved filters",
+      "saveFilter": "Save filter",
+      "saveFilterPrompt": "Filter name (current search, show, sort, columns):"
     },
     "levelPlural": {
       "campaign": "Campaigns",

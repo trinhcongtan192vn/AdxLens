@@ -23,3 +23,4 @@ export * from './ads-manager';
 export * from './analysis';
 export * from './automation-overview';
 export * from './creative-insights';
+export * from './latest-changes';
