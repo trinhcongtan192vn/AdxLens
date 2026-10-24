@@ -468,6 +468,72 @@ export const TOOLS: Record<string, Tool> = {
     },
   },
 
+  entity_details: {
+    spec: {
+      name: 'entity_details',
+      description:
+        'Chỉ số kỳ này và kỳ trước của các chiến dịch / nhóm QC / quảng cáo cụ thể (theo meta_id), kèm % thay đổi. Dùng khi người dùng đã chọn đối tượng làm ngữ cảnh.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          level: { type: 'string', enum: ['campaign', 'adset', 'ad'] },
+          ids: { type: 'array', items: { type: 'string' }, maxItems: 20 },
+          period: { type: 'string', enum: [...AGENT_PERIODS] },
+          account_id: { type: 'string' },
+        },
+        required: ['level', 'ids'],
+      },
+    },
+    input: z.object({
+      level: z.enum(['campaign', 'adset', 'ad']),
+      ids: z
+        .array(z.string().regex(/^\d{1,30}$/))
+        .min(1)
+        .max(20),
+      period,
+      account_id: accountId,
+    }),
+    run: async (t, i: { level: 'campaign' | 'adset' | 'ad'; ids: string[]; period: Period; account_id?: string }) => {
+      const s = await scope(t, i.account_id);
+      const { cur, prev } = ranges(i.period, s.timezone, t.now);
+      const acc = s.accounts.map((a) => a.id);
+      const [now, before, names] = await Promise.all([
+        entityMetricValues(t.ctx, acc, i.level, cur),
+        entityMetricValues(t.ctx, acc, i.level, prev),
+        entityNames(t.ctx, acc, i.level),
+      ]);
+      const pick = ['spend', 'results', 'cpa', 'roas', 'ctr', 'cpm', 'frequency'] as const;
+      return {
+        data: {
+          currency: s.currency,
+          period: cur,
+          previous_period: prev,
+          // Chỉ đối tượng thuộc tài khoản người dùng được xem (entityNames lọc theo quyền).
+          entities: i.ids
+            .filter((id) => names.has(id))
+            .map((id) => {
+              const c = now.get(id);
+              const p = before.get(id);
+              return {
+                meta_id: id,
+                name: data(names.get(id)),
+                metrics: Object.fromEntries(
+                  pick.map((k) => [
+                    k,
+                    {
+                      current: c?.[k] ?? null,
+                      previous: p?.[k] ?? null,
+                      change_pct: pctChange(c?.[k] ?? null, p?.[k] ?? null),
+                    },
+                  ]),
+                ),
+              };
+            }),
+        },
+      };
+    },
+  },
+
   propose_action: {
     write: true,
     spec: {

@@ -15,6 +15,7 @@ import {
   listThreads,
   runAgentReply,
   runTool,
+  stopAgentReply,
   toolsFor,
   type AgentContentBlock,
   type AgentLlm,
@@ -265,6 +266,74 @@ describe('AI agent (ADR-0019)', () => {
     expect(st.stages.map((s) => s.stage)).toEqual(expect.arrayContaining(['prospecting', 'retargeting']));
     const lp = (await runTool('landing_pages', {}, t, { p2a_approve: false })).data as { pages: { page: string }[] };
     expect(lp.pages[0]!.page).toMatch(/^«shop\.example\.vn\//);
+  });
+
+  it('ngữ cảnh chọn từ bảng: prompt có cấp + id (không có tên); entity_details chỉ trả đối tượng được xem', async () => {
+    const { ctx, id } = await setup();
+    const [adset] = await ctx.db.execute<{ meta_id: string }>(
+      sql`select meta_id from analytics.entities where workspace_id = ${ctx.workspaceId} and entity_type = 'adset' limit 1`,
+    );
+    const enqueue = recordingEnqueue();
+    const { threadId, messageId } = await askAgent(
+      ctx,
+      {
+        threadId: null,
+        question: 'Nhóm này sao rồi?',
+        adAccountId: id,
+        entities: [
+          { level: 'adset', metaId: adset!.meta_id },
+          { level: 'adset', metaId: 'abc' },
+        ],
+      },
+      { enqueue, clock },
+    );
+    const systems: string[] = [];
+    const llm: AgentLlm = {
+      async chat({ system }) {
+        systems.push(system);
+        return { content: [{ type: 'text', text: 'Đã xem.' }], stopReason: 'end_turn' };
+      },
+    };
+    await runAgentReply(ctx, messageId, { llm, clock });
+    expect(systems[0]).toContain(`adset:${adset!.meta_id}`);
+    expect(systems[0]).not.toContain('abc');
+    const u = (await getThread(ctx, threadId)).messages.find((m) => m.role === 'user')!;
+    expect(u.data.context?.entities).toEqual([{ level: 'adset', metaId: adset!.meta_id }]);
+
+    const t = { ctx, defaultAccountId: id, now: now() };
+    const r = (
+      await runTool('entity_details', { level: 'adset', ids: [adset!.meta_id, '999999999'] }, t, { p2a_approve: false })
+    ).data as { entities: { meta_id: string; name: string; metrics: { spend: { current: string | null } } }[] };
+    expect(r.entities.map((e) => e.meta_id)).toEqual([adset!.meta_id]);
+    expect(r.entities[0]!.name).toMatch(/^«.*»$/);
+    expect(r.entities[0]!.metrics.spend.current).not.toBeNull();
+  });
+
+  it('nút Dừng: tin đang chờ → "stopped", worker không ghi đè; người khác không dừng được', async () => {
+    const { ctx } = await setup();
+    const { threadId, messageId } = await ask(ctx, 'xin chào');
+    const other = await seedMember(db, ctx.workspaceId, 'manager');
+    const octx = { ...ctx, actor: (await resolveActor(db, ctx.workspaceId, other.id))! };
+    await expect(stopAgentReply(octx, threadId, messageId)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await stopAgentReply(ctx, threadId, messageId);
+    const llm = scripted([() => [{ type: 'text', text: 'Muộn rồi' }]]);
+    expect(await runAgentReply(ctx, messageId, { llm, clock })).toEqual({ source: 'skip' });
+    const a = (await getThread(ctx, threadId)).messages.find((m) => m.role === 'assistant')!;
+    expect(a).toMatchObject({ status: 'done', content: '', data: { source: 'stopped' } });
+  });
+
+  it('dừng giữa chừng: worker kiểm trước mỗi vòng, bỏ kết quả', async () => {
+    const { ctx } = await setup();
+    const { threadId, messageId } = await ask(ctx, 'xin chào');
+    const llm: AgentLlm = {
+      async chat() {
+        await stopAgentReply(ctx, threadId, messageId);
+        return { content: [{ type: 'tool_use', id: 't1', name: 'list_accounts', input: {} }], stopReason: 'tool_use' };
+      },
+    };
+    expect(await runAgentReply(ctx, messageId, { llm, clock })).toEqual({ source: 'stopped' });
+    const a = (await getThread(ctx, threadId)).messages.find((m) => m.role === 'assistant')!;
+    expect(a.data.source).toBe('stopped');
   });
 
   it('tập số được phép: mọi số trong kết quả công cụ + số đếm nhỏ', () => {

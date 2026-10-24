@@ -595,6 +595,12 @@ export const ROUTE_PROBES: Record<string, Probe> = {
   'GET /api/v1/mcp': { kind: 'exempt', reason: 'Trả 405, không đọc dữ liệu' },
   'POST /api/v1/agent/ask': { kind: 'workspace', body: () => ({ threadId: null, question: 'Chi tiêu tuần này?' }) },
   'GET /api/v1/agent/threads': { kind: 'workspace' },
+  'POST /api/v1/agent/threads/[id]/stop': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.thread.id }),
+    body: () => ({ messageId: '00000000-0000-4000-8000-000000000000' }),
+  },
   'GET /api/v1/agent/threads/[id]': {
     kind: 'workspace',
     params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),

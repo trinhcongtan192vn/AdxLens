@@ -40,6 +40,7 @@ export default async function AdsManagerPage() {
       />
       <AdsManagerView
         canAct={canAct}
+        canAsk={pc.flags.p1_recommendations}
         currency={scope.currency}
         metricOptions={METRIC_KEYS}
         total={data.total}

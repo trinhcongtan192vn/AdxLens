@@ -1,6 +1,6 @@
 'use client';
 
-import { Bot, Loader2, MessageSquarePlus, Send, Sparkles, Star, Trash2, Wrench } from 'lucide-react';
+import { Bot, Loader2, MessageSquarePlus, Send, Sparkles, Square, Star, Trash2, Wrench, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -9,6 +9,7 @@ import { Badge, Button, Card, cn, Select } from '@adxlens/ui';
 import { ActionDialog, type GridActionType } from '@/components/entity-actions';
 import { api, ApiError } from '@/lib/api-client';
 
+export type ContextEntity = { level: 'campaign' | 'adset' | 'ad'; metaId: string; name: string | null };
 type Thread = { id: string; title: string; favorite: boolean; updated_at: string };
 type Proposal = {
   actionType: GridActionType;
@@ -25,7 +26,7 @@ type Message = {
   content: string;
   tools: { name: string }[];
   proposals: Proposal[];
-  source: 'llm' | 'facts' | 'unconfigured' | null;
+  source: 'llm' | 'facts' | 'unconfigured' | 'stopped' | null;
   facts: { label: string; text: string }[];
   llm?: { via: 'workspace' | 'platform'; provider: string; model: string } | null;
   llmError?: string | null;
@@ -36,10 +37,13 @@ export function AgentChat({
   accounts,
   defaultAccountId,
   canPropose,
+  initialContext,
 }: {
   accounts: { id: string; name: string }[];
   defaultAccountId: string | null;
   canPropose: boolean;
+  /** Đối tượng chọn trong bảng (Ads Manager) làm ngữ cảnh. */
+  initialContext?: ContextEntity[];
 }) {
   const t = useTranslations('wsAgents');
   const locale = useLocale();
@@ -52,6 +56,7 @@ export function AgentChat({
   const [account, setAccount] = useState(defaultAccountId ?? '');
   const [busy, setBusy] = useState(false);
   const [dialog, setDialog] = useState<Proposal | null>(null);
+  const [ctxEntities, setCtxEntities] = useState<ContextEntity[]>(initialContext ?? []);
   const asked = useRef(false);
   const bottom = useRef<HTMLDivElement>(null);
 
@@ -99,6 +104,7 @@ export function AgentChat({
             question: text,
             adAccountId: account || null,
             locale: locale === 'en' ? 'en' : 'vi',
+            ...(ctxEntities.length ? { entities: ctxEntities.map((e) => ({ level: e.level, metaId: e.metaId })) } : {}),
           },
         });
         setActive(r.threadId);
@@ -108,7 +114,7 @@ export function AgentChat({
         toast.error(e instanceof ApiError && e.code === 'RATE_LIMITED' ? t('limit') : t('error'));
       }
     },
-    [active, account, busy, poll, t, locale],
+    [active, account, busy, poll, t, locale, ctxEntities],
   );
 
   // Câu hỏi từ ô hỏi nổi / trang chủ (?q=…): hỏi một lần.
@@ -120,6 +126,14 @@ export function AgentChat({
       router.replace('/w/agents');
     }
   }, [sp, send, router]);
+
+  const stop = async () => {
+    const pending = messages.find((m) => m.role === 'assistant' && m.status === 'pending');
+    if (!active || !pending) return;
+    await api(`agent/threads/${active}/stop`, { method: 'POST', body: { messageId: pending.id } }).catch(
+      () => undefined,
+    );
+  };
 
   const open = async (id: string) => {
     setActive(id);
@@ -261,6 +275,8 @@ export function AgentChat({
                           <Loader2 className="size-4 animate-spin" aria-hidden />
                           {t('thinking')}
                         </span>
+                      ) : m.source === 'stopped' ? (
+                        <span className="text-fg-tertiary">{t('stopped')}</span>
                       ) : m.source === 'unconfigured' ? (
                         <span className="text-fg-secondary">
                           {m.status === 'error' ? t('disabled') : t('unconfigured')}
@@ -338,6 +354,27 @@ export function AgentChat({
             void send(q);
           }}
         >
+          {ctxEntities.length ? (
+            <div className="mb-2 flex flex-wrap items-center gap-1" data-testid="agent-context">
+              <span className="text-caption text-fg-tertiary">{t('selectedContext')}</span>
+              {ctxEntities.map((e) => (
+                <span
+                  key={e.metaId}
+                  className="inline-flex items-center gap-1 rounded-full bg-brand-subtle px-2 py-0.5 text-caption text-fg"
+                >
+                  {t(`levels.${e.level}`)}: {e.name ?? e.metaId}
+                  <button
+                    type="button"
+                    aria-label={t('removeContext')}
+                    onClick={() => setCtxEntities(ctxEntities.filter((x) => x.metaId !== e.metaId))}
+                    className="text-fg-tertiary hover:text-fg"
+                  >
+                    <X className="size-3" aria-hidden />
+                  </button>
+                </span>
+              ))}
+            </div>
+          ) : null}
           <div className="flex items-center gap-2">
             <Select
               value={account}
@@ -360,9 +397,16 @@ export function AgentChat({
               disabled={busy}
               className="h-9 flex-1 rounded-lg border border-line-control bg-surface px-3 text-body text-fg placeholder:text-fg-tertiary focus:border-line-focus focus:outline-none"
             />
-            <Button kind="primary" size="m" type="submit" disabled={busy || !q.trim()} aria-label={t('send')}>
-              {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Send className="size-4" aria-hidden />}
-            </Button>
+            {busy ? (
+              <Button kind="secondary" size="m" type="button" onClick={() => void stop()} aria-label={t('stop')}>
+                <Square className="size-4" aria-hidden />
+                {t('stop')}
+              </Button>
+            ) : (
+              <Button kind="primary" size="m" type="submit" disabled={!q.trim()} aria-label={t('send')}>
+                <Send className="size-4" aria-hidden />
+              </Button>
+            )}
           </div>
           <p className="mt-1 text-caption text-fg-tertiary">{t('disclaimer')}</p>
         </form>

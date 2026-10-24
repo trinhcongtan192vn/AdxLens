@@ -129,6 +129,12 @@ export async function deleteLlmKey(ctx: ActorCtx): Promise<void> {
   });
 }
 
+/** Workspace đã có khóa riêng chưa (mọi vai trò; không lộ gì về khóa) — để ẩn banner "chưa cấu hình". */
+export async function hasWorkspaceLlmKey(ctx: WorkspaceCtx): Promise<boolean> {
+  const [row] = await ctx.db.select({ id: llmKeys.id }).from(llmKeys).where(eq(llmKeys.workspaceId, ctx.workspaceId));
+  return Boolean(row);
+}
+
 /**
  * CHỈ worker: dựng client LLM từ khóa của workspace (giải mã tại đây). Ghi lần dùng / mã lỗi gần nhất để trang cài đặt
  * báo "khóa sai / hết hạn mức". Không có khóa → null (worker dùng khóa nền tảng nếu có).

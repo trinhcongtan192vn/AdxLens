@@ -3032,7 +3032,8 @@
     "pause": "Tạm dừng",
     "resume": "Bật lại",
     "emptyTitle": "Không có đối tượng",
-    "emptyBody": "Đổi kỳ, bộ lọc hoặc bỏ \"Ẩn đối tượng không chi tiêu\"."
+    "emptyBody": "Đổi kỳ, bộ lọc hoặc bỏ \"Ẩn đối tượng không chi tiêu\".",
+    "askAi": "Hỏi AI về mục đã chọn"
   },
   "wsFunnels": {
     "subtitle": "Nhận biết → Cân nhắc → Chuyển đổi, tỷ lệ chuyển giữa các bước",
@@ -3200,7 +3201,8 @@
       "ad_fatigue": "Độ mệt quảng cáo",
       "propose_action": "Đề xuất",
       "funnel_stages": "Giai đoạn phễu",
-      "landing_pages": "Trang đích"
+      "landing_pages": "Trang đích",
+      "entity_details": "Đối tượng đã chọn"
     },
     "proposal": "Đề xuất — cần bạn duyệt",
     "review": "Xem trước và duyệt",
@@ -3220,7 +3222,16 @@
     "limit": "Đã hết lượt hỏi hôm nay, thử lại ngày mai.",
     "error": "Không gửi được câu hỏi",
     "ownKey": "Trả lời bằng khóa AI của workspace · {model}",
-    "ownKeyFailed": "Khóa AI của workspace bị từ chối (xem Cài đặt → Tích hợp). Đây là số AdxLens đã tính:"
+    "ownKeyFailed": "Khóa AI của workspace bị từ chối (xem Cài đặt → Tích hợp). Đây là số AdxLens đã tính:",
+    "stop": "Dừng",
+    "stopped": "Đã dừng câu trả lời.",
+    "selectedContext": "Ngữ cảnh:",
+    "removeContext": "Bỏ khỏi ngữ cảnh",
+    "levels": {
+      "campaign": "Chiến dịch",
+      "adset": "Nhóm QC",
+      "ad": "Quảng cáo"
+    }
   },
   "integrations": {
     "title": "MCP server — kết nối AdxLens với Claude và công cụ AI khác",

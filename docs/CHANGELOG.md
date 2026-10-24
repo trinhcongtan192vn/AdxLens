@@ -2,6 +2,35 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [096] Chọn đối tượng trong bảng làm ngữ cảnh cho AI + nút Dừng — 2026-10-25
+
+Theo Madgicx roadmap chat, mục 3.5 trong tài liệu nghiên cứu.
+
+- **Workspace › Ads Manager:**
+  - khi cờ P1 bật, mọi dòng (cả chiến dịch) có ô chọn;
+  - nút **Hỏi AI về mục đã chọn** mở AI Agents với các mục đó (cùng cấp, tối đa 20).
+- **AI Agents:**
+  - **chip ngữ cảnh** hiện tên đối tượng, bỏ được từng cái;
+  - tên lấy từ DB theo quyền người xem; id lạ hoặc không được xem thì bỏ;
+  - câu hỏi gửi kèm cấp + meta_id;
+  - prompt chỉ ghi cấp + id, không đưa tên vào: tên là dữ liệu Meta, lấy qua công cụ, bọc «» (quy tắc 10).
+- **Công cụ mới `entity_details`** (AI Agents + MCP): chỉ số kỳ này / kỳ trước / % thay đổi của các đối tượng cụ thể.
+  Chỉ trả đối tượng thuộc tài khoản người dùng được xem.
+- **Nút Dừng** khi đang trả lời:
+  - tin chuyển "Đã dừng";
+  - worker kiểm trước mỗi vòng gọi công cụ và không ghi đè tin đã dừng;
+  - chỉ người hỏi dừng được.
+- Banner "chưa cấu hình AI" không hiện khi workspace đã có khóa riêng (ADR-0022).
+- `/api/v1/agent/ask` khai báo thêm cờ P1 ở route; core vẫn kiểm như cũ.
+
+**Test tự động:** `agent.test.ts`:
+- prompt có cấp + id, bỏ id sai;
+- `entity_details` chỉ trả đối tượng được xem, tên bọc «»;
+- dừng trước khi worker chạy, và dừng giữa chừng;
+- người khác không dừng được.
+
+Cách ly: probe `POST /api/v1/agent/threads/[id]/stop`.
+
 ## [095] Đề xuất kèm "tiết kiệm được ₫X trong 30 ngày" + ngưỡng từ dữ liệu ("Vì sao giá trị này?") — 2026-10-25
 
 Theo Madgicx AI Marketer (ý tưởng #1 trong `docs/research/madgicx-2026-10.md`). Phần này chỉ đọc, không gọi Meta.
