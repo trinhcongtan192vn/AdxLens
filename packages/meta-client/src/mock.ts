@@ -4,7 +4,8 @@
  * KHÔNG dùng ở staging/production.
  */
 import type { InsightQuery, MetaReadApi } from './read';
-import type { MetaAd, MetaAdAccount, MetaAdSet, MetaCampaign, MetaCreative, MetaInsight } from './types';
+import type { MetaAd, MetaAdAccount, MetaAdSet, MetaCampaign, MetaCreative, MetaInsight, MetaPage } from './types';
+import { CONNECT_SCOPES, WRITE_SCOPES } from './oauth';
 
 function hash(s: string): number {
   let h = 2166136261;
@@ -315,6 +316,16 @@ function splitRow(row: MetaInsight, groups: { fields: Partial<MetaInsight>; weig
   });
 }
 
+export const MOCK_PAGES: MetaPage[] = [
+  {
+    id: 'page1',
+    name: 'Trang Mock A',
+    category: 'Shopping & retail',
+    instagram_business_account: { id: 'ig1', username: 'mock_a' },
+  },
+  { id: 'page2', name: 'Trang Mock B', category: 'Hotel', instagram_business_account: null },
+];
+
 export class MockMetaRead implements MetaReadApi {
   constructor(private readonly now: () => Date = () => new Date()) {}
 
@@ -322,10 +333,25 @@ export class MockMetaRead implements MetaReadApi {
     return { id: 'mock-meta-user', name: 'Meta Mock User' };
   }
 
+  /** Token `mock-write-*` (P201) → quyền ghi; còn lại → bộ quyền kết nối ADR-0016 (Meta cấp đủ). */
   async grantedScopes(token: string) {
-    return token.includes('write')
-      ? ['ads_read', 'business_management', 'ads_management']
-      : ['ads_read', 'business_management'];
+    return token.includes('write') ? [...WRITE_SCOPES] : [...CONNECT_SCOPES];
+  }
+
+  async listPages() {
+    return MOCK_PAGES;
+  }
+
+  async listPixels(_t: string, act: string) {
+    return [
+      { id: `pix${accountNum(act)}`, name: `Pixel ${accountNum(act)}`, last_fired_time: '2026-10-23T10:00:00+0000' },
+    ];
+  }
+
+  async listBusinesses() {
+    return [
+      { id: 'biz1', name: 'Mock Business', owned_product_catalogs: { data: [{ id: 'cat1', name: 'Danh mục chính' }] } },
+    ];
   }
 
   async listAdAccounts() {

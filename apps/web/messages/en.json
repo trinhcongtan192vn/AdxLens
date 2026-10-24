@@ -521,25 +521,25 @@
       "missing_scope": "AdxLens needs the ads_read permission to sync your numbers.",
       "failed": "Could not connect to Meta. Please try again."
     },
-    "s03Title": "AdxLens only reads your ad data",
-    "s03Intro": "Next, Meta will ask you to grant read access. Here's what we do and don't do.",
+    "s03Title": "Connect Meta so AdxLens can read your metrics and assets",
+    "s03Intro": "Meta will ask you to grant permissions once. Here is what AdxLens does and does not do with them.",
     "s03": {
       "read": {
-        "title": "Read metrics",
-        "body": "Campaigns, ad sets, ads, spend, results, budgets."
+        "title": "Read metrics and assets",
+        "body": "Campaigns, ad sets, ads, spend, results; your Pages, Instagram accounts, pixels and catalogs so you can set defaults per client."
       },
       "write": {
-        "title": "Change anything on Meta",
-        "body": "We never pause ads, change budgets, or create or delete ads."
+        "title": "Change your ads on its own",
+        "body": "AdxLens never pauses ads, changes budgets or creates ads by itself. Management access is only used after the Owner enables write access and you approve each change."
       },
       "control": {
         "title": "You stay in control",
-        "body": "Disconnect at any time and ask us to delete your data (Connections)."
+        "body": "Untick any permission in the Meta dialog, disconnect and ask us to delete your data at any time (Connections)."
       }
     },
     "continueWithMeta": "Continue with Meta",
     "viewDemo": "See the sample account first",
-    "scopes": "Permissions requested: {scopes} (read-only).",
+    "scopes": "Requested: {scopes}. Only ads_read is required.",
     "s04Title": "Choose ad accounts to track",
     "s04Limit": "The {plan} plan tracks up to {limit} accounts. You can change this later.",
     "s04Loading": "Fetching 30-day spend from Meta…",
@@ -554,7 +554,23 @@
       "growth": "Growth",
       "scale": "Scale"
     },
-    "writeAccess": "Write access"
+    "writeAccess": "Write access",
+    "scopeGroups": {
+      "title": "Permission groups Meta will ask for",
+      "ads": "Ads — read metrics; manage (only when you approve a change)",
+      "business": "Business — businesses and product catalogs",
+      "pages": "Pages — page list, content and comments, leads from lead ads",
+      "instagram": "Instagram — profile and posts"
+    },
+    "assets": {
+      "title": "Meta assets",
+      "page": "{n} Pages",
+      "instagram": "{n} Instagram",
+      "pixel": "{n} pixels",
+      "catalog": "{n} catalogs",
+      "missing": "Not granted: {scopes}. Some features (default Page / pixel, leads, catalogs) will have no data.",
+      "regrant": "Reconnect to grant"
+    }
   },
   "placeholder": {
     "comingSoon": "This screen is coming in the next release."

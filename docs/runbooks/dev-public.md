@@ -93,7 +93,20 @@ Dùng **Meta App dev đang có** (app ở chế độ *Development*). Không dù
    - Ở chế độ Development, **chỉ** admin / developer / tester của app đăng nhập Facebook trong AdxLens được.
 4. Tester muốn kết nối tài khoản quảng cáo nào thì phải **có quyền với tài khoản đó trong Business Manager** (quyền của
    Meta, AdxLens không cấp thay được).
-5. Giữ app ở **Development**. Chuyển *Live* cần App Review (`ads_read`, `business_management` Advanced Access), làm sau.
+5. Giữ app ở **Development**. Chuyển *Live* cần App Review cho **từng** quyền ở mục 6 (Advanced Access), làm sau.
+6. **Quyền khi kết nối (ADR-0016, từ 24/10/2026)**: AdxLens xin một lần bộ quyền rộng:
+   - `ads_read`, `ads_management`, `business_management`, `catalog_management`;
+   - `pages_show_list`, `pages_read_engagement`, `pages_read_user_content`, `pages_manage_ads`, `pages_manage_posts`,
+     `pages_manage_engagement`, `leads_retrieval`;
+   - `instagram_basic`.
+
+   Trong app Meta → **Use cases**, thêm các use case để các quyền này hợp lệ: *Create & manage ads with Marketing API*,
+   *Manage everything on your Page*, *Capture & manage ad leads*, *Manage messaging & content on Instagram*, *Manage
+   product catalog*.
+   - Nếu Meta báo **"Invalid Scopes: …"**: hoặc thêm use case tương ứng, hoặc bỏ quyền đó bằng cách thêm vào
+     `.env.local` dòng `META_CONNECT_SCOPES=ads_read,ads_management,business_management,...` (chỉ giữ quyền hợp lệ),
+     rồi bấm "Cập nhật bản test".
+   - Người kết nối có thể bỏ chọn bớt quyền; chỉ `ads_read` là bắt buộc. Trang **Kết nối** hiện quyền nào chưa cấp.
 
 ---
 

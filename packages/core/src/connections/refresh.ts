@@ -3,6 +3,7 @@ import { schema } from '@adxlens/db';
 import { MetaApiError, type MetaReadApi } from '@adxlens/meta-client';
 import { addDays, localDate, systemClock, type Clock, type WorkspaceCtx } from '@adxlens/core/shared';
 import type { TokenKeys } from './crypto';
+import { refreshAssets } from './assets';
 import { connectionIsDemo, metaFor } from './demo';
 import { markConnectionExpired, withConnectionToken } from './service';
 
@@ -61,6 +62,14 @@ export async function refreshAvailableAccounts(
           .set({ active30d: Number(spend) > 0 })
           .where(and(eq(adAccounts.workspaceId, ctx.workspaceId), eq(adAccounts.metaAccountId, a.id)));
       }
+      // ADR-0016: Page / Instagram / Pixel / Catalog cho onboarding theo Client (thiếu quyền thì bỏ qua nhóm đó).
+      await refreshAssets(
+        ctx,
+        connectionId,
+        token,
+        accounts.map((a) => a.id),
+        { meta, clock },
+      );
       return { accounts: accounts.length, status: 'ok' as const };
     });
   } catch (e) {

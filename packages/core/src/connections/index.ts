@@ -1,4 +1,5 @@
 export * from './assignment';
+export * from './assets';
 export { keysFromEnv, type TokenKeys } from './crypto';
 export * from './meta';
 export * from './refresh';

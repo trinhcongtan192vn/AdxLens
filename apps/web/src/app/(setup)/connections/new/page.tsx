@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { READ_SCOPES } from '@adxlens/meta-client';
+import { getEnv } from '@adxlens/config/env';
+import { connectScopes } from '@adxlens/meta-client';
 import { Badge, buttonVariants } from '@adxlens/ui';
 import { SetupShell } from '@/components/setup-shell';
 import { requirePermission } from '@/server/guards';
@@ -11,7 +12,7 @@ export async function generateMetadata() {
   return { title: t('s03Title') };
 }
 
-/** S03 Giải thích quyền chỉ đọc trước OAuth (Penpot). */
+/** S03 Giải thích quyền trước OAuth (ADR-0016: bộ quyền rộng, ghi vẫn cần bật + duyệt). */
 export default async function ExplainPermissionsPage() {
   const pc = await getPageContext();
   requirePermission(pc, 'connections.manage');
@@ -39,6 +40,14 @@ export default async function ExplainPermissionsPage() {
           </div>
         ))}
       </div>
+      <div className="mt-4 rounded-lg border border-line px-3 py-3">
+        <p className="text-small font-medium text-fg">{t('scopeGroups.title')}</p>
+        <ul className="mt-2 list-disc pl-5 text-small text-fg-secondary">
+          {(['ads', 'business', 'pages', 'instagram'] as const).map((g) => (
+            <li key={g}>{t(`scopeGroups.${g}`)}</li>
+          ))}
+        </ul>
+      </div>
       {/* Liên kết thường (không phải fetch) để trình duyệt theo chuyển hướng 302 tới Meta. */}
       <a
         href="/api/v1/connections/meta/authorize?scope=read"
@@ -49,7 +58,9 @@ export default async function ExplainPermissionsPage() {
       <Link href="/demo" className="mt-4 block text-body text-link hover:underline">
         {t('viewDemo')}
       </Link>
-      <p className="mt-4 text-small text-fg-tertiary">{t('scopes', { scopes: READ_SCOPES.join(', ') })}</p>
+      <p className="mt-4 text-small text-fg-tertiary">
+        {t('scopes', { scopes: connectScopes(getEnv().META_CONNECT_SCOPES).join(', ') })}
+      </p>
     </SetupShell>
   );
 }

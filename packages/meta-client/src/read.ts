@@ -4,17 +4,23 @@ import {
   adAccountSchema,
   adSchema,
   adsetSchema,
+  businessSchema,
   campaignSchema,
   creativeSchema,
   DEFAULT_ATTRIBUTION,
   insightSchema,
   meSchema,
+  pageSchema,
+  pixelSchema,
   type MetaAd,
   type MetaAdAccount,
   type MetaAdSet,
+  type MetaBusiness,
   type MetaCampaign,
   type MetaCreative,
   type MetaInsight,
+  type MetaPage,
+  type MetaPixel,
 } from './types';
 
 /** Nhóm phân tích theo đối tượng / vị trí / khu vực (roadmap A4). */
@@ -44,6 +50,11 @@ export interface MetaReadApi {
   listAds(token: string, act: string): Promise<MetaAd[]>;
   listCreatives(token: string, act: string): Promise<MetaCreative[]>;
   getInsights(token: string, act: string, q: InsightQuery): Promise<MetaInsight[]>;
+  /** ADR-0016: Page người dùng quản lý (kèm Instagram business account). Không lấy page token. */
+  listPages(token: string): Promise<MetaPage[]>;
+  listPixels(token: string, act: string): Promise<MetaPixel[]>;
+  /** Business + catalog sở hữu. */
+  listBusinesses(token: string): Promise<MetaBusiness[]>;
 }
 
 export const AD_ACCOUNT_FIELDS = 'id,name,currency,timezone_name,account_status';
@@ -95,6 +106,36 @@ export class HttpMetaRead implements MetaReadApi {
     return this.http.paginate(`${act}/adcreatives`, token, { fields: CREATIVE_FIELDS, limit: 500 }, creativeSchema, {
       account: act,
     });
+  }
+
+  listPages(token: string) {
+    return this.http.paginate(
+      'me/accounts',
+      token,
+      { fields: 'id,name,category,instagram_business_account{id,username}', limit: 100 },
+      pageSchema,
+    );
+  }
+
+  listPixels(token: string, act: string) {
+    return this.http.paginate(
+      `${act}/adspixels`,
+      token,
+      { fields: 'id,name,last_fired_time', limit: 100 },
+      pixelSchema,
+      {
+        account: act,
+      },
+    );
+  }
+
+  listBusinesses(token: string) {
+    return this.http.paginate(
+      'me/businesses',
+      token,
+      { fields: 'id,name,owned_product_catalogs{id,name}', limit: 100 },
+      businessSchema,
+    );
   }
 
   /** Insights theo ngày (time_increment=1) với cửa sổ attribution khớp Ads Manager (L3 6.3). */

@@ -24,6 +24,34 @@ export type MetaAdAccount = z.infer<typeof adAccountSchema>;
 
 export const meSchema = z.object({ id: z.string(), name: z.string().optional() });
 
+/**
+ * Tài sản (ADR-0016): chỉ đọc danh sách. Schema KHÔNG có `access_token` — zod bỏ trường lạ, nên page token Meta có trả
+ * thì cũng không đi tiếp.
+ */
+export const pageSchema = z.object({
+  id: z.string(),
+  name: z.string().default(''),
+  category: z.string().nullish(),
+  instagram_business_account: z.object({ id: z.string(), username: z.string().nullish() }).nullish(),
+});
+export type MetaPage = z.infer<typeof pageSchema>;
+
+export const pixelSchema = z.object({
+  id: z.string(),
+  name: z.string().default(''),
+  last_fired_time: z.string().nullish(),
+});
+export type MetaPixel = z.infer<typeof pixelSchema>;
+
+export const businessSchema = z.object({
+  id: z.string(),
+  name: z.string().default(''),
+  owned_product_catalogs: z
+    .object({ data: z.array(z.object({ id: z.string(), name: z.string().default('') })) })
+    .nullish(),
+});
+export type MetaBusiness = z.infer<typeof businessSchema>;
+
 export const campaignSchema = z.object({
   id: z.string(),
   name: z.string().nullish(),
