@@ -133,7 +133,13 @@ if (sbRunning && sbEnv.changed) {
   console.log('Cấu hình Supabase Auth đổi — khởi động lại Supabase (dữ liệu giữ nguyên)…');
   run('pnpm', ['exec', 'supabase', 'stop', '--workdir', 'infra']);
 }
-if (!sbRunning || sbEnv.changed) run('pnpm', ['exec', 'supabase', 'start', '--workdir', 'infra']);
+if (!sbRunning || sbEnv.changed) {
+  // Container (thường là Studio) đôi khi khởi động chậm quá thời gian chờ của CLI → thử lại một lần.
+  if (!ok('pnpm', ['exec', 'supabase', 'start', '--workdir', 'infra'])) {
+    console.log('Supabase khởi động chậm — thử lại…');
+    run('pnpm', ['exec', 'supabase', 'start', '--workdir', 'infra']);
+  }
+}
 run('pnpm', ['exec', 'supabase', 'seed', 'buckets', '--workdir', 'infra']);
 
 const envText = readFileSync('.env.local', 'utf8');
