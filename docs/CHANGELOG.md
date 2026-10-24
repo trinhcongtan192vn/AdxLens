@@ -2,6 +2,22 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [084] W10 — MCP server cho AdxLens (khóa API theo workspace) — 2026-10-24
+
+**Thay đổi** (ADR-0020; vùng bảo vệ `db`: `app.api_keys` + RLS):
+- Endpoint **`POST /api/v1/mcp`** (MCP Streamable HTTP, JSON-RPC 2.0, giao thức `2025-06-18`): `initialize`, `ping`, `tools/list`, `tools/call`; notification → 202; `GET` → 405. Dùng **chung bộ công cụ với AI Agents** (W9), số do AdxLens tính.
+- **Khóa API** `adx_<prefix>_<secret>`: chỉ lưu SHA-256, khóa rõ hiện **một lần**; chạy với quyền của người tạo trong workspace (mất quyền → khóa ngừng); thu hồi có hiệu lực ngay; nhật ký `api_key.created` / `api_key.revoked`; tối đa 20 khóa hoạt động; 60 lời gọi / phút / khóa.
+- `propose_action` chỉ khi khóa có phạm vi **"Đề xuất thay đổi"** VÀ cờ `p2a_approve` bật → thẻ chờ duyệt trong AI Agents (hội thoại "MCP · <tên khóa>"); MCP không bao giờ thực thi ghi.
+- Cờ `p1_recommendations` kiểm ở mỗi request.
+- Tra khóa theo hash (xuyên workspace, bước xác thực) đặt ở `core/ops` có ghi chú lý do.
+- **Cài đặt → Tích hợp** (owner / manager, sau cờ P1): tạo khóa (tùy chọn phạm vi đề xuất), hiện khóa một lần + cấu hình mẫu Claude Desktop + lệnh `claude mcp add` cho Claude Code; danh sách (dùng gần nhất), thu hồi.
+- ADR-0019 / 0020 cập nhật đúng cách đã làm (thẻ đề xuất + hộp thoại G4; vị trí code).
+
+**Test tự động:**
+- `mcp.test.ts`: chỉ lưu hash (khóa test băm khớp giữa agent và ops), danh sách không có hash, buyer không tạo, thu hồi → từ chối; cờ tắt; initialize / notification / tools/list / tools/call = tổng insight; method lạ, batch; cách ly workspace; `propose_action` cần phạm vi + cờ, chỉ tạo thẻ.
+- `api/v1/mcp/mcp.test.ts`: 401 khi không / sai khóa, 200 initialize, 202 notification, danh sách không lộ khóa, thu hồi → 401.
+- `settings-tabs.test.ts`: tab Tích hợp theo cờ + vai trò. `tests/isolation`: dữ liệu B + probe khóa API.
+
 ## [083] W9 — AI Agents: chat có công cụ đọc, số do AdxLens tính, đề xuất thay đổi chờ duyệt — 2026-10-24
 
 **Thay đổi** (ADR-0019; vùng bảo vệ `db`: `agent_threads`, `agent_messages` + RLS; không sửa `execution` / `flags`):

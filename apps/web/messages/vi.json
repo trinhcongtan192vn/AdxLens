@@ -101,7 +101,8 @@
     "billing": "Gói & thanh toán",
     "notifications": "Thông báo",
     "profile": "Hồ sơ cá nhân",
-    "guardrails": "Guardrails"
+    "guardrails": "Guardrails",
+    "integrations": "Tích hợp"
   },
   "pages": {
     "notifications": "Thông báo",
@@ -3142,5 +3143,39 @@
     "floating": "Vì sao chi phí của tôi tăng? Hỏi AdxLens…",
     "limit": "Đã hết lượt hỏi hôm nay, thử lại ngày mai.",
     "error": "Không gửi được câu hỏi"
+  },
+  "integrations": {
+    "title": "MCP server — kết nối AdxLens với Claude và công cụ AI khác",
+    "intro": "Tạo khóa API để Claude Desktop, Claude Code hoặc ứng dụng hỗ trợ MCP đọc số liệu của workspace này (cùng bộ công cụ với AI Agents). Khóa chạy với quyền của bạn; chỉ đọc, đề xuất thay đổi vẫn cần duyệt trong AdxLens.",
+    "endpoint": "Địa chỉ MCP:",
+    "create": "Tạo khóa API",
+    "createdTitle": "Khóa API mới",
+    "emptyTitle": "Chưa có khóa API",
+    "emptyBody": "Tạo khóa để dùng AdxLens trong Claude hoặc công cụ MCP khác.",
+    "cols": {
+      "name": "Tên",
+      "key": "Khóa",
+      "scopes": "Phạm vi",
+      "lastUsed": "Dùng gần nhất",
+      "created": "Tạo lúc"
+    },
+    "scopes": {
+      "read": "Đọc số liệu",
+      "propose": "Đề xuất thay đổi"
+    },
+    "revoke": "Thu hồi",
+    "revoked": "Đã thu hồi",
+    "revokedToast": "Đã thu hồi khóa",
+    "once": "Sao chép khóa ngay: AdxLens chỉ hiện khóa này một lần và không lưu bản rõ.",
+    "copy": "Sao chép khóa",
+    "copied": "Đã sao chép",
+    "copyConfig": "Sao chép cấu hình",
+    "configTitle": "Cấu hình mẫu (Claude Desktop / ứng dụng MCP):",
+    "claudeCode": "Claude Code: claude mcp add --transport http adxlens {url} --header \"Authorization: Bearer <khóa>\"",
+    "done": "Xong",
+    "error": "Không tạo được khóa",
+    "proposeLabel": "Cho phép đề xuất thay đổi (tạm dừng / bật lại / ngân sách)",
+    "proposeHint": "Đề xuất hiện trong AI Agents dưới dạng thẻ chờ bạn xem trước và duyệt; MCP không bao giờ tự thay đổi quảng cáo.",
+    "proposeOff": "Cần gói có tính năng duyệt hành động."
   }
 }

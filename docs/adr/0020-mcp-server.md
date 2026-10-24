@@ -30,6 +30,13 @@ trong `apps/web`. Route chỉ:
 
 **Giới hạn:** 60 lời gọi / phút / khóa, dùng Redis như auth throttle.
 
+**Vị trí code (khi làm, 24/10/2026):**
+- Tạo / liệt kê / thu hồi khóa và xử lý JSON-RPC ở `packages/core/agent` (`api-keys.ts`, `mcp.ts`).
+- Tra khóa theo hash là **truy vấn xuyên workspace** (bước xác thực, chưa biết workspace), nên đặt ở
+  `packages/core/ops/api-keys.ts` có ghi chú lý do (CLAUDE.md quy tắc 1).
+- Đề xuất từ MCP lưu thành thẻ trong hội thoại "MCP · <tên khóa>" của người tạo khóa, duyệt như ADR-0019.
+- Máy chủ không trạng thái: `POST` JSON-RPC đơn (không batch), notification trả 202, `GET` trả 405.
+
 ## Rủi ro
 
 - Khóa bị lộ thì lộ dữ liệu số liệu của workspace.

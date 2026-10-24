@@ -1,4 +1,4 @@
-import { boolean, index, jsonb, text, uuid } from 'drizzle-orm/pg-core';
+import { boolean, index, jsonb, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { app, createdAt, updatedAt } from './_common';
 import { workspaces } from './tenancy';
 
@@ -60,4 +60,30 @@ export const agentMessages = app.table(
     createdAt: createdAt(),
   },
   (t) => [index().on(t.workspaceId, t.threadId, t.createdAt), index().on(t.workspaceId, t.userId, t.createdAt)],
+);
+
+export const API_KEY_SCOPES = ['read', 'propose'] as const;
+
+/**
+ * Khóa API theo workspace cho MCP server (ADR-0020). Chỉ lưu SHA-256 của khóa; khóa rõ hiện MỘT lần lúc tạo. Khóa chạy
+ * với quyền của người tạo trong workspace; người tạo mất quyền thì khóa ngừng.
+ */
+export const apiKeys = app.table(
+  'api_keys',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    createdBy: uuid('created_by').notNull(),
+    name: text('name').notNull(),
+    /** 8 ký tự đầu để nhận diện trong danh sách (không đủ để dùng). */
+    prefix: text('prefix').notNull(),
+    hash: text('hash').notNull().unique(),
+    scopes: text('scopes').array().notNull().default(['read']),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+    revokedAt: timestamp('revoked_at', { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index().on(t.workspaceId)],
 );
