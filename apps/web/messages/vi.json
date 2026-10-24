@@ -75,7 +75,14 @@
     "switchClient": "Chọn khách",
     "allClients": "Tất cả khách",
     "clientFilter": "Khách: {name}",
-    "clearClient": "Xem mọi khách"
+    "clearClient": "Xem mọi khách",
+    "workspaces": "Workspace của bạn",
+    "newWorkspace": "Tạo workspace mới",
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "buyer": "Media buyer"
+    }
   },
   "errors": {
     "notFoundTitle": "Không tìm thấy trang",
@@ -331,7 +338,11 @@
     "submit": "Tiếp tục",
     "working": "Đang tạo…",
     "invalid": "Thông tin chưa hợp lệ. Kiểm tra tên, múi giờ và tiền tệ.",
-    "error": "Không tạo được workspace. Vui lòng thử lại."
+    "error": "Không tạo được workspace. Vui lòng thử lại.",
+    "another": "Mỗi workspace là một agency riêng: thanh toán, kết nối Meta và thành viên riêng. Thêm khách mới cho agency hiện tại? Hãy tạo Client.",
+    "toClients": "Đến Client",
+    "back": "Quay lại",
+    "freeLimit": "Bạn đã sở hữu một workspace gói Free. Nâng cấp gói của workspace đó (Cài đặt › Gói & thanh toán) trước khi tạo thêm, hoặc thêm khách mới dưới dạng Client."
   },
   "invite": {
     "metaTitle": "Lời mời",

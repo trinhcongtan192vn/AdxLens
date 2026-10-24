@@ -1,11 +1,13 @@
 import { and, eq, ne, sql } from 'drizzle-orm';
 import type { DbOrTx } from '@adxlens/db';
 import { schema } from '@adxlens/db';
-import { systemClock, type Clock, type WorkspaceCtx } from '@adxlens/core/shared';
+import { AppError, systemClock, type Clock, type WorkspaceCtx } from '@adxlens/core/shared';
+import { isStaff } from '@adxlens/core/tenancy';
 import {
   DEFAULT_PLAN,
   EXTRA_ACCOUNT_MONTHLY_VND,
   GRACE_PERIOD_DAYS,
+  MAX_OWNED_FREE_WORKSPACES,
   PLAN_KEYS,
   PLANS,
   type Entitlement,
@@ -13,7 +15,7 @@ import {
   type PlanKey,
 } from './plans';
 
-const { billingPlans, subscriptions, adAccounts, metaConnections, workspaces } = schema;
+const { billingPlans, subscriptions, adAccounts, metaConnections, workspaces, memberships } = schema;
 
 export type PlanConfig = Plan & { monthlyPriceUsd: number | null; extraAccountVnd: number };
 
@@ -209,4 +211,34 @@ export async function setSubscription(
     .insert(subscriptions)
     .values({ workspaceId: ctx.workspaceId, ...values })
     .onConflictDoUpdate({ target: subscriptions.workspaceId, set: values });
+}
+
+/**
+ * Số workspace user đang sở hữu ở gói Free (chưa có subscription, gói `free`, hoặc đã hủy).
+ * Truy vấn theo user trên các workspace mà chính user là owner (như `listWorkspacesForUser`), không đọc dữ liệu
+ * nghiệp vụ của workspace nào.
+ */
+export async function ownedFreeWorkspaceCount(db: DbOrTx, userId: string): Promise<number> {
+  const [r] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(memberships)
+    .leftJoin(subscriptions, eq(subscriptions.workspaceId, memberships.workspaceId))
+    .where(
+      and(
+        eq(memberships.userId, userId),
+        eq(memberships.role, 'owner'),
+        sql`(${subscriptions.workspaceId} is null or ${subscriptions.planKey} = 'free' or ${subscriptions.status} = 'canceled')`,
+      ),
+    );
+  return r?.n ?? 0;
+}
+
+/** Trước khi tạo workspace (A07): workspace mới ở gói Free → chặn khi user đã sở hữu đủ số workspace Free. */
+export async function assertCanCreateWorkspace(db: DbOrTx, userId: string): Promise<void> {
+  if (await isStaff(db, userId)) return;
+  if ((await ownedFreeWorkspaceCount(db, userId)) >= MAX_OWNED_FREE_WORKSPACES) {
+    throw new AppError('PLAN_REQUIRED', 'Bạn đã có workspace gói Free. Nâng cấp gói workspace đó trước khi tạo thêm.', {
+      reason: 'free_workspace_limit',
+    });
+  }
 }

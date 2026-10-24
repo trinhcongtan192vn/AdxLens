@@ -40,6 +40,18 @@ test('F1: đăng ký → xác minh email → tạo workspace → vào app; Cài 
   await expect(page.getByText('Chưa chấp nhận')).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/ST02.png` });
 
+  // Bộ chọn workspace: vai trò + "Tạo workspace mới"; đã có 1 workspace Free → tạo thêm bị chặn, gợi ý dùng Client.
+  await page.getByTestId('workspace-switcher').click();
+  await expect(page.getByRole('menuitem', { name: /Agency Sao Mai Đổi Tên.*Owner/ })).toBeVisible();
+  await page.getByRole('menuitem', { name: 'Tạo workspace mới' }).click();
+  await expect(page).toHaveURL(/\/onboarding\/workspace/);
+  await expect(page.getByText('Mỗi workspace là một agency riêng')).toBeVisible();
+  await page.getByLabel('Tên agency').fill('Agency Thứ Hai');
+  await page.getByRole('button', { name: 'Tiếp tục' }).click();
+  await expect(page.getByText('Bạn đã sở hữu một workspace gói Free')).toBeVisible();
+  await page.getByRole('link', { name: 'Quay lại' }).click();
+  await expect(page).toHaveURL(/\/overview/);
+
   const invite = await waitForEmail(invitee, { subject: /mời bạn/ });
   const link = firstLink(invite.html, '/invite/');
 

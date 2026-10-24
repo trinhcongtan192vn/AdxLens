@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { resolveActor } from '@adxlens/core/tenancy';
+import { listWorkspacesForUser, resolveActor } from '@adxlens/core/tenancy';
 import { closeTestDb, seedMember, seedUser, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
 import { asUser, call, installTestServer, uninstallTestServer } from '../../../test-utils';
 import * as inviteRoute from './members/invitations/route';
@@ -134,6 +134,17 @@ describe('workspace (ST01, A07)', () => {
     const id = (r.body as { id: string }).id;
     expect((await resolveActor(db, id, u.id))!.role).toBe('owner');
     expect(r.headers.get('set-cookie')).toContain(`ws=${id}`);
+  });
+
+  it('đã sở hữu 1 workspace Free → tạo thêm bị chặn 402, không tạo workspace', async () => {
+    const u = asUser(await seedUser(db));
+    const body = { name: 'Agency Một', timezone: 'Asia/Ho_Chi_Minh', currency: 'VND' };
+    expect((await call(workspacesRoute.POST, { user: u, body })).status).toBe(201);
+    const r = await call(workspacesRoute.POST, { user: u, body: { ...body, name: 'Agency Hai' } });
+    expect(r.status).toBe(402);
+    expect(r.body).toMatchObject({ error: { code: 'PLAN_REQUIRED', details: { reason: 'free_workspace_limit' } } });
+    expect(r.headers.get('set-cookie')).toBeNull();
+    expect(await listWorkspacesForUser(db, u.id)).toHaveLength(1);
   });
 
   it('múi giờ không hợp lệ bị từ chối', async () => {

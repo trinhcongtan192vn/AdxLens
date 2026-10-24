@@ -61,6 +61,11 @@ export const EXTRA_ACCOUNT_MONTHLY_VND = 79_000;
 export const ANNUAL_DISCOUNT = 0.2;
 /** ADR-0001 A8: ân hạn khi past_due hoặc vượt hạn mức. */
 export const GRACE_PERIOD_DAYS = 7;
+/**
+ * Mỗi user sở hữu (owner) tối đa bấy nhiêu workspace ở gói Free — tránh tạo nhiều workspace để dùng nhiều tài khoản
+ * QC miễn phí. Staff AdxLens không bị giới hạn.
+ */
+export const MAX_OWNED_FREE_WORKSPACES = 1;
 /** ADR-0001 A5: workspace mới ở gói Free. */
 export const DEFAULT_PLAN: PlanKey = 'free';
 

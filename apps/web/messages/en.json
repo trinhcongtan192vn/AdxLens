@@ -75,7 +75,14 @@
     "switchClient": "Choose client",
     "allClients": "All clients",
     "clientFilter": "Client: {name}",
-    "clearClient": "Show all clients"
+    "clearClient": "Show all clients",
+    "workspaces": "Your workspaces",
+    "newWorkspace": "Create new workspace",
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "buyer": "Media buyer"
+    }
   },
   "errors": {
     "notFoundTitle": "Page not found",
@@ -331,7 +338,11 @@
     "submit": "Continue",
     "working": "Creating…",
     "invalid": "Some details are invalid. Check the name, time zone and currency.",
-    "error": "Could not create the workspace. Please try again."
+    "error": "Could not create the workspace. Please try again.",
+    "another": "Each workspace is a separate agency: separate billing, Meta connections and members. Adding a new client to your current agency? Create a Client instead.",
+    "toClients": "Go to Clients",
+    "back": "Back",
+    "freeLimit": "You already own a Free workspace. Upgrade that workspace (Settings › Plan & billing) before creating another, or add the new customer as a Client."
   },
   "invite": {
     "metaTitle": "Invitation",

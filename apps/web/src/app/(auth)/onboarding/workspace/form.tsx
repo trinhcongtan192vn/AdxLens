@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useTransition } from 'react';
@@ -8,7 +9,7 @@ import { AuthHeading } from '@/components/auth-form';
 import { api, ApiError } from '@/lib/api-client';
 import { canonicalTimeZone, COMMON_CURRENCIES, COMMON_TIMEZONES, timeZoneLabel } from '@/lib/timezone';
 
-export function CreateWorkspaceForm({ locale }: { locale: 'vi' | 'en' }) {
+export function CreateWorkspaceForm({ locale, another = false }: { locale: 'vi' | 'en'; another?: boolean }) {
   const t = useTranslations('onboarding');
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -41,12 +42,26 @@ export function CreateWorkspaceForm({ locale }: { locale: 'vi' | 'en' }) {
             router.push('/overview');
             router.refresh();
           } catch (err) {
-            setError(err instanceof ApiError && err.status === 422 ? t('invalid') : t('error'));
+            setError(
+              err instanceof ApiError && err.status === 422
+                ? t('invalid')
+                : err instanceof ApiError && err.status === 402
+                  ? t('freeLimit')
+                  : t('error'),
+            );
           }
         });
       }}
     >
       <AuthHeading title={t('title')} description={t('description')} />
+      {another ? (
+        <Banner tone="info" className="mb-4">
+          {t('another')}{' '}
+          <Link href="/clients" className="text-link underline">
+            {t('toClients')}
+          </Link>
+        </Banner>
+      ) : null}
       {error ? (
         <Banner tone="danger" className="mb-4">
           {error}
@@ -77,6 +92,11 @@ export function CreateWorkspaceForm({ locale }: { locale: 'vi' | 'en' }) {
         <Button type="submit" kind="primary" size="m" className="w-full" disabled={pending}>
           {pending ? t('working') : t('submit')}
         </Button>
+        {another ? (
+          <Link href="/overview" className="text-center text-body text-link hover:underline">
+            {t('back')}
+          </Link>
+        ) : null}
       </div>
     </form>
   );
