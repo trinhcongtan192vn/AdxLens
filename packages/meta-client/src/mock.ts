@@ -128,6 +128,17 @@ function structure(act: string): Structure {
         lifetime_budget: null,
         learning_stage_info: { status: small || (ci === 1 && si === 2) ? 'LEARNING_LIMITED' : 'SUCCESS' },
         promoted_object: objective === 'OUTCOME_SALES' ? { custom_event_type: 'PURCHASE' } : null,
+        // Giai đoạn phễu: LAL (prospecting), retarget web 30 ngày; ad set thứ 3 của chiến dịch lead nhắm khách cũ.
+        targeting: {
+          custom_audiences:
+            si === 0
+              ? [{ id: `ca_lal_${n}`, name: 'Lookalike 1% khách mua' }]
+              : si === 1
+                ? [{ id: `ca_web_${n}`, name: 'Web 30 ngày' }]
+                : ci === 1 && si === 2
+                  ? [{ id: `ca_list_${n}`, name: 'Khách cũ (danh sách)' }]
+                  : [],
+        },
       });
       const adCount = small ? 1 : 3;
       for (let ai = 0; ai < adCount; ai++) {
@@ -140,6 +151,14 @@ function structure(act: string): Structure {
           image_url: null,
           object_type: ai === 0 ? 'VIDEO' : 'PHOTO',
           video_id: ai === 0 ? `7${aid}` : null,
+          body: [
+            '🔥 Sale 50% hôm nay! Mua ngay kẻo lỡ 👉',
+            'Bộ sưu tập mới cho mùa lễ hội. Chất liệu cao cấp, giao hàng toàn quốc trong 48 giờ, đổi trả miễn phí 30 ngày. Xem thêm tại website chính thức của chúng tôi.',
+            'Ưu đãi riêng cho bạn',
+          ][ai],
+          title: ['Giảm 50%', 'Bộ sưu tập mới', 'Ưu đãi'][ai],
+          link_url: `https://shop.example.vn/${['sale', 'bo-suu-tap', 'uu-dai'][ai]}?utm_source=fb&utm_campaign=${cid}`,
+          call_to_action_type: ['SHOP_NOW', 'LEARN_MORE', 'SIGN_UP'][ai],
         });
         ads.push({
           id: aid,
@@ -347,6 +366,15 @@ export class MockMetaRead implements MetaReadApi {
   async listPixels(_t: string, act: string) {
     return [
       { id: `pix${accountNum(act)}`, name: `Pixel ${accountNum(act)}`, last_fired_time: '2026-10-23T10:00:00+0000' },
+    ];
+  }
+
+  async listCustomAudiences(_t: string, act: string) {
+    const n = accountNum(act);
+    return [
+      { id: `ca_lal_${n}`, name: 'Lookalike 1% khách mua', subtype: 'LOOKALIKE' },
+      { id: `ca_web_${n}`, name: 'Web 30 ngày', subtype: 'WEBSITE' },
+      { id: `ca_list_${n}`, name: 'Khách cũ (danh sách)', subtype: 'CUSTOM' },
     ];
   }
 

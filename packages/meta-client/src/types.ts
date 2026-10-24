@@ -73,6 +73,13 @@ export const adsetSchema = z.object({
   lifetime_budget: numStr.nullish(),
   learning_stage_info: z.object({ status: z.string().optional() }).nullish(),
   promoted_object: z.record(z.string(), z.unknown()).nullish(),
+  /** Chỉ custom audience đưa vào / loại trừ (phân loại giai đoạn phễu); không lưu cả targeting. */
+  targeting: z
+    .object({
+      custom_audiences: z.array(z.object({ id: z.string(), name: z.string().nullish() })).nullish(),
+      excluded_custom_audiences: z.array(z.object({ id: z.string(), name: z.string().nullish() })).nullish(),
+    })
+    .nullish(),
 });
 
 export const adSchema = z.object({
@@ -92,7 +99,34 @@ export const creativeSchema = z.object({
   image_url: z.string().nullish(),
   object_type: z.string().nullish(),
   video_id: z.string().nullish(),
+  /** Chữ quảng cáo / tiêu đề / URL đích / CTA (Ad Copy Insights, phễu theo trang đích). */
+  body: z.string().nullish(),
+  title: z.string().nullish(),
+  link_url: z.string().nullish(),
+  call_to_action_type: z.string().nullish(),
+  object_story_spec: z
+    .object({
+      link_data: z
+        .object({ link: z.string().nullish(), message: z.string().nullish(), name: z.string().nullish() })
+        .nullish(),
+      video_data: z
+        .object({
+          message: z.string().nullish(),
+          title: z.string().nullish(),
+          call_to_action: z.object({ value: z.object({ link: z.string().nullish() }).nullish() }).nullish(),
+        })
+        .nullish(),
+    })
+    .nullish(),
 });
+
+/** Custom audience của ad account (loại: CUSTOM = danh sách khách, WEBSITE, ENGAGEMENT, LOOKALIKE…). */
+export const customAudienceSchema = z.object({
+  id: z.string(),
+  name: z.string().default(''),
+  subtype: z.string().nullish(),
+});
+export type MetaCustomAudience = z.infer<typeof customAudienceSchema>;
 
 export type MetaCampaign = z.infer<typeof campaignSchema>;
 export type MetaAdSet = z.infer<typeof adsetSchema>;

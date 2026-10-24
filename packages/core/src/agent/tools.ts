@@ -10,6 +10,8 @@ import {
   entityNames,
   entityTable,
   explainCpaChange,
+  landingPages,
+  stageAnalysis,
   METRIC_KEYS,
   metricValues,
   pctChange,
@@ -386,6 +388,81 @@ export const TOOLS: Record<string, Tool> = {
               cpc: Math.round(p.cpc),
               spend: p.spend,
             })),
+        },
+      };
+    },
+  },
+
+  funnel_stages: {
+    spec: {
+      name: 'funnel_stages',
+      description:
+        'Chi tiêu, kết quả, chi phí / kết quả, ROAS theo giai đoạn phễu của nhóm QC (prospecting, re_engagement, retargeting, retention), kỳ này và kỳ trước.',
+      input_schema: {
+        type: 'object',
+        properties: { period: { type: 'string', enum: [...AGENT_PERIODS] }, account_id: { type: 'string' } },
+      },
+    },
+    input: z.object({ period, account_id: accountId }),
+    run: async (t, i: { period: Period; account_id?: string }) => {
+      const s = await scope(t, i.account_id);
+      const { cur, prev } = ranges(i.period, s.timezone, t.now);
+      const rows = await stageAnalysis(
+        t.ctx,
+        s.accounts.map((a) => a.id),
+        cur,
+        prev,
+      );
+      return {
+        data: {
+          currency: s.currency,
+          stages: rows.map((r) => ({
+            stage: r.stage,
+            spend: r.metrics.spend,
+            spend_share_pct: r.spendShare,
+            results: r.metrics.results,
+            cpa: r.metrics.cpa,
+            roas: r.metrics.roas,
+            previous_spend: r.prev.spend,
+            previous_cpa: r.prev.cpa,
+            spend_change_pct: pctChange(r.metrics.spend, r.prev.spend),
+            cpa_change_pct: pctChange(r.metrics.cpa, r.prev.cpa),
+          })),
+        },
+      };
+    },
+  },
+
+  landing_pages: {
+    spec: {
+      name: 'landing_pages',
+      description:
+        'Trang đích của quảng cáo (host + đường dẫn): chi tiêu, click, tỷ lệ click → chuyển đổi (%), chi phí / kết quả.',
+      input_schema: {
+        type: 'object',
+        properties: { period: { type: 'string', enum: [...AGENT_PERIODS] }, account_id: { type: 'string' } },
+      },
+    },
+    input: z.object({ period, account_id: accountId }),
+    run: async (t, i: { period: Period; account_id?: string }) => {
+      const s = await scope(t, i.account_id);
+      const { cur } = ranges(i.period, s.timezone, t.now);
+      const rows = await landingPages(
+        t.ctx,
+        s.accounts.map((a) => a.id),
+        cur,
+      );
+      return {
+        data: {
+          currency: s.currency,
+          pages: rows.slice(0, 10).map((p) => ({
+            page: data(p.page),
+            ads: p.ads,
+            spend: p.metrics.spend,
+            link_clicks: p.metrics.link_clicks,
+            click_to_conversion_pct: p.cvr,
+            cpa: p.metrics.cpa,
+          })),
         },
       };
     },

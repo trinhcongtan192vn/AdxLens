@@ -21,6 +21,7 @@ import {
   type Clock,
   type WorkspaceCtx,
 } from '@adxlens/core/shared';
+import { creativeCopy, funnelStageOf } from './funnel-stage';
 import { extractResult, resultActionTypes, toDecimal } from './results';
 
 const { adAccounts, entities, insightsBreakdowns, insightsDaily, syncRuns } = schema;
@@ -169,6 +170,14 @@ async function syncStructure(ctx: WorkspaceCtx, adAccountId: string, act: string
     meta.listAds(token, act),
     meta.listCreatives(token, act),
   ]);
+  // Loại custom audience để phân loại giai đoạn phễu; thiếu quyền / lỗi → null (không đoán, không chặn đồng bộ).
+  const audienceTypes = await meta
+    .listCustomAudiences(token, act)
+    .then((list) => new Map(list.map((a) => [a.id, a.subtype ?? null])))
+    .catch((e: unknown) => {
+      if (e instanceof MetaApiError && e.isTokenInvalid) throw e;
+      return null;
+    });
   const base = { workspaceId: ctx.workspaceId, adAccountId };
   const money = (v: string | null | undefined) => (v ? toDecimal(v) : null);
   const rows: (typeof entities.$inferInsert)[] = [
@@ -198,6 +207,10 @@ async function syncStructure(ctx: WorkspaceCtx, adAccountId: string, act: string
         optimization_goal: s.optimization_goal ?? null,
         custom_event_type: (s.promoted_object?.custom_event_type as string | undefined) ?? null,
         lifetime_budget: s.lifetime_budget ?? null,
+        funnel_stage: funnelStageOf(
+          (s.targeting?.custom_audiences ?? []).map((x) => x.id),
+          audienceTypes,
+        ),
       },
     })),
     ...ads.map((a) => ({
@@ -227,6 +240,7 @@ async function syncStructure(ctx: WorkspaceCtx, adAccountId: string, act: string
         image_url: c.image_url ?? null,
         format: c.object_type ?? null,
         video_id: c.video_id ?? null,
+        ...creativeCopy(c),
       },
     })),
   ];
