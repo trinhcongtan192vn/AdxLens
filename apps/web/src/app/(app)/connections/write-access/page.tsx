@@ -104,7 +104,9 @@ export default async function WriteAccessPage({
                       <WriteAccessActions
                         connectionId={r.id}
                         enabled={r.writeEnabled && r.hasWriteScope}
-                        hasScope={r.hasWriteScope}
+                        // ADR-0016: kết nối mới có sẵn `ads_management` nhưng lần bật đầu vẫn qua "Cấp quyền ghi" (OAuth
+                        // xác nhận lại với Meta); "Bật lại" chỉ sau khi đã từng bật rồi thu hồi.
+                        hasScope={r.hasWriteScope && r.writeChangedAt !== null}
                         canGrant={planOk}
                       />
                     )}
