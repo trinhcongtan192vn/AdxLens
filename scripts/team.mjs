@@ -7,7 +7,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { copyFileSync, existsSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { buildStamp, DEFAULT_PM, devPublicConfig } from './lib/start-local.mjs';
+import { buildStamp, DEFAULT_PM, devPublicConfig, supabaseEnvFile } from './lib/start-local.mjs';
 import { formatDuration, listeningPid, needsInstall, teamDirOf } from './lib/team.mjs';
 
 const isWin = process.platform === 'win32';
@@ -116,18 +116,14 @@ if (!ok('pnpm', ['--filter', '@adxlens/worker', 'exec', 'playwright', 'install',
 
 step('Redis + Supabase (dùng chung với bản dev)…');
 run('docker', ['compose', '-f', 'infra/docker/compose.yml', 'up', '-d', '--wait'], inTeam);
-// infra/supabase/.env của bản team sinh từ .env.local của bản team (cùng nội dung với bản dev → thường không đổi).
-const sbEnv = JSON.parse(
-  out(
-    'node',
-    [
-      '--input-type=module',
-      '-e',
-      "import { syncSupabaseEnv } from './scripts/lib/supabase-env.mjs'; console.log(JSON.stringify({ changed: syncSupabaseEnv().changed }));",
-    ],
-    inTeam,
-  ) || '{"changed":false}',
-);
+// infra/supabase/.env của bản team sinh từ .env.local của bản team. Supabase đang chạy có thể được bật từ thư mục dev
+// (lần đầu) → so với file của nơi đó; chỉ khởi động lại (Auth gián đoạn ~1 phút) khi cấu hình thật sự khác.
+const sbFile = (dir) => path.join(dir, 'infra/supabase/.env');
+const sbNext = supabaseEnvFile(devPublicConfig(readFileSync(path.join(TEAM, '.env.local'), 'utf8')));
+const readOr = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : null);
+const sbPrev = readOr(sbFile(TEAM)) ?? readOr(sbFile(MAIN));
+if (readOr(sbFile(TEAM)) !== sbNext) writeFileSync(sbFile(TEAM), sbNext);
+const sbEnv = { changed: sbPrev !== sbNext };
 const sbRunning = ok('pnpm', ['exec', 'supabase', 'status', '--workdir', 'infra'], inTeam);
 if (sbRunning && sbEnv.changed) {
   console.log('Cấu hình Supabase Auth đổi — khởi động lại Supabase (dữ liệu giữ nguyên)…');
