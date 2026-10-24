@@ -2910,6 +2910,15 @@
       "createdShort": "Created",
       "created": "Alert created",
       "error": "Could not create the alert"
+    },
+    "agency": {
+      "title": "By client",
+      "client": "Client",
+      "spend7": "7-day spend",
+      "vsPrev": "Vs last week",
+      "health": "Health",
+      "goal": "Goal (7 days)",
+      "accounts": "{n} accounts"
     }
   },
   "wsAlerts": {

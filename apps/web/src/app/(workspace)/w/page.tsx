@@ -21,6 +21,7 @@ import { W_KPIS_COOKIE } from '@/lib/workspace-nav';
 import { translateText } from '@/server/translate';
 import { getPageContext } from '@/server/page-context';
 import { workspaceScope } from '@/server/workspace-scope';
+import { AgencyTable } from './agency-table';
 import { AlertSuggestions } from './alert-suggestions';
 
 export async function generateMetadata() {
@@ -279,6 +280,8 @@ export default async function WorkspaceHome() {
           })}
         </div>
       </section>
+
+      {scope.selected ? null : <AgencyTable />}
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         {/* Cần chú ý: phát hiện đang mở (số do rule tính, không LLM). */}
