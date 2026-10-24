@@ -632,8 +632,8 @@
     }
   },
   "recon": {
-    "ok": "Khớp {pct}",
-    "warning": "Lệch {pct}",
+    "ok": "Khớp Meta (lệch {pct})",
+    "warning": "Lệch {pct} so với Meta",
     "pending": "Chưa đối chiếu",
     "title": "Đối chiếu số liệu",
     "resync": "Chạy lại đồng bộ",
@@ -917,7 +917,21 @@
       "adset": "Chưa có nhóm quảng cáo trong kỳ này.",
       "ad": "Chưa có quảng cáo trong kỳ này."
     },
-    "footnote": "{from} → {to} · attribution 7d click / 1d view · theo múi giờ tài khoản"
+    "footnote": "{from} → {to} · attribution 7d click / 1d view · theo múi giờ tài khoản",
+    "grid": {
+      "search": "Tìm theo tên…",
+      "show": "Hiển thị",
+      "showActive": "Đang chạy hoặc có chi tiêu",
+      "showSpend": "Có chi tiêu trong kỳ",
+      "showAll": "Tất cả",
+      "hidden": "Ẩn {count} đối tượng tắt, không chi tiêu",
+      "total": "Tổng ({count})"
+    },
+    "levelPlural": {
+      "campaign": "Chiến dịch",
+      "adset": "Nhóm QC",
+      "ad": "Quảng cáo"
+    }
   },
   "report": {
     "kindLabel": {
@@ -2277,5 +2291,33 @@
     },
     "and": "VÀ",
     "or": "HOẶC"
+  },
+  "entity": {
+    "title": "Chi tiết đối tượng",
+    "crumbs": {
+      "clients": "Clients"
+    },
+    "openAdsManager": "Mở trong Ads Manager",
+    "dailyBudget": "Ngân sách ngày {budget}",
+    "learning": "Giai đoạn học: {stage}",
+    "tabs": {
+      "overview": "Tổng quan",
+      "children": "Con",
+      "findings": "Vấn đề",
+      "history": "Lịch sử thay đổi"
+    },
+    "trend": "Chi tiêu và kết quả theo ngày",
+    "noData": "Không có chi tiêu trong kỳ.",
+    "adsetScope": "Dữ liệu theo nhóm lấy ở cấp nhóm QC chứa quảng cáo này.",
+    "noFindings": "Không có vấn đề đang mở ở đối tượng này.",
+    "noHistory": "Chưa có thay đổi nào qua AdxLens.",
+    "noHistoryBody": "Thay đổi duyệt từ Việc tuần này hoặc do rule tự động sẽ hiện ở đây.",
+    "auto": "tự động (rule)",
+    "cols": {
+      "at": "Lúc",
+      "action": "Hành động",
+      "change": "Thay đổi",
+      "status": "Trạng thái"
+    }
   }
 }

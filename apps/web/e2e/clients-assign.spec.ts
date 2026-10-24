@@ -44,7 +44,9 @@ test('S04 → S05 gán Client → S06 đồng bộ → C01 → C02', async ({ pa
   await expect(page.getByRole('heading', { name: 'Đồng bộ xong dữ liệu 90 ngày' })).toBeVisible({ timeout: 60_000 });
   await expect(page.getByText('100% · 2 / 2 tài khoản')).toBeVisible();
   // Đối chiếu chạy sau đồng bộ: mỗi tài khoản có badge Khớp/Lệch (mock lệch 1,4% ở act_100000002).
-  await expect(page.getByText(/^(Khớp|Lệch) [\d,]+%$/)).toHaveCount(2, { timeout: 30_000 });
+  await expect(page.getByText(/^(Khớp Meta \(lệch [\d,]+%\)|Lệch [\d,]+% so với Meta)$/)).toHaveCount(2, {
+    timeout: 30_000,
+  });
   // O01: tổng quan agency có Client vừa gán, health và chi tiêu.
   await page.goto('/overview');
   await expect(page.getByRole('heading', { name: 'Tổng quan' })).toBeVisible();

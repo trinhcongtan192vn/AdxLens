@@ -25,7 +25,7 @@ test('PM bật cờ → báo cáo → chia sẻ → trang công khai → PDF →
   await expect(page.getByText('Tất cả tài khoản đã được gán Client.')).toBeVisible();
   await page.getByRole('link', { name: 'Xong, bắt đầu đồng bộ' }).click();
   await expect(page.getByRole('heading', { name: 'Đồng bộ xong dữ liệu 90 ngày' })).toBeVisible({ timeout: 90_000 });
-  await expect(page.getByText(/^Khớp [\d,]+%$/)).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/^Khớp Meta \(lệch [\d,]+%\)$/)).toBeVisible({ timeout: 30_000 });
 
   // Cờ tắt: không có mục Báo cáo; /reports → trang "tính năng chưa bật".
   await expect(page.getByRole('link', { name: 'Báo cáo', exact: true })).toHaveCount(0);
