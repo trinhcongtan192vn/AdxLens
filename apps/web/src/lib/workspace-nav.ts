@@ -2,6 +2,8 @@ import type { FlagKey } from '@adxlens/core/flags';
 
 /** Giao diện Workspace (song song giao diện cổ điển, lộ trình W3): bố cục theo Madgicx Workspace. */
 export const W_SCOPE_COOKIE = 'w_scope';
+/** 4 KPI trang chủ, nối bằng dấu chấm. */
+export const W_KPIS_COOKIE = 'w_kpis';
 export const W_BASE = '/w';
 
 export type WNavKey = 'home' | 'agents' | 'ads' | 'adsManager' | 'funnels' | 'geography' | 'scale' | 'alerts';

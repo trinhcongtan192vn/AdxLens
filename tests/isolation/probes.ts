@@ -542,6 +542,28 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     crossParams: (w) => ({ id: w.b.client.id }),
     query: () => ({ month: '2026-10' }),
   },
+  'GET /api/v1/alerts': { kind: 'workspace' },
+  'POST /api/v1/alerts': {
+    kind: 'workspace',
+    body: (w) => ({
+      adAccountId: w.a.adAccount.id,
+      metric: 'cpm',
+      condition: 'above',
+      threshold: '50000',
+      window: '1d',
+    }),
+  },
+  'PATCH /api/v1/alerts/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.alert.id }),
+    body: () => ({ enabled: false }),
+  },
+  'DELETE /api/v1/alerts/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.alert.id }),
+  },
   'GET /api/v1/clients/[id]/goal': {
     kind: 'workspace',
     params: (w) => ({ id: w.a.client.id }),

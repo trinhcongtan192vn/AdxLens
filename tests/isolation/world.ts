@@ -256,6 +256,35 @@ export async function seedWorld(db: Db) {
     invoiceEmail: 'beta-invoice-secret@beta.vn',
   });
 
+  // W1–W5: tài sản Meta, mục tiêu Client, cảnh báo tự đặt của B.
+  await db.insert(schema.metaAssets).values({
+    workspaceId: b.workspace.id,
+    connectionId: bConnection.id,
+    kind: 'page',
+    metaId: 'page_beta_secret',
+    name: 'Beta Page Secret',
+  });
+  await db.insert(schema.clientGoals).values({
+    workspaceId: b.workspace.id,
+    clientId: bClient.id,
+    primaryMetric: 'cpa',
+    primaryTarget: '777777',
+    industry: 'finance',
+    defaultPageId: 'page_beta_secret',
+  });
+  const [bAlert] = await db
+    .insert(schema.customAlerts)
+    .values({
+      workspaceId: b.workspace.id,
+      adAccountId: bAdAccount.id,
+      currency: 'VND',
+      metric: 'cpm',
+      condition: 'above',
+      threshold: '987654',
+      createdBy: b.owner.id,
+    })
+    .returning();
+
   const world = {
     a: {
       workspace: a.workspace,
@@ -282,6 +311,7 @@ export async function seedWorld(db: Db) {
       notification: bNote!,
       schedule: bSchedule!,
       delivery: bDelivery!,
+      alert: bAlert!,
     },
     /** Chuỗi của B tuyệt đối không được xuất hiện trong phản hồi cho ngữ cảnh A. */
     bFingerprints: [
@@ -298,6 +328,10 @@ export async function seedWorld(db: Db) {
       bAdAccount.id,
       bAdAccount.name,
       'act_999999',
+      'page_beta_secret',
+      'Beta Page Secret',
+      '987654',
+      bAlert!.id,
       bRun!.id,
       'Beta Campaign Secret',
       bFinding!.id,

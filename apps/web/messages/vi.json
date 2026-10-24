@@ -1882,6 +1882,11 @@
         "label": "Biến động bất thường hằng ngày",
         "title": "{account}: {anomaly, select, spend_spike {chi tiêu tăng {pct}%} spend_stop {chi tiêu về 0} cpa_spike {CPA tăng {pct}%} other {không có kết quả dù vẫn chi tiêu}}",
         "body": "Ngày {date}, so với 7 ngày trước. Kiểm tra trước khi khách hỏi."
+      },
+      "custom_alert": {
+        "label": "Cảnh báo tự đặt",
+        "title": "{scopeAll, select, yes {Mọi tài khoản} other {{scope}}}: {metric, select, spend {Chi tiêu} cpa {Chi phí / kết quả} cpm {Giá CPM} cpc {Giá CPC} ctr {Tỷ lệ CTR} roas {Chỉ số ROAS} cost_per_purchase {Chi phí / lượt mua} cpl {Chi phí / lead} cost_per_add_to_cart {Chi phí / thêm giỏ} frequency {Tần suất} other {Kết quả}} {cond, select, above {vượt ngưỡng} other {dưới ngưỡng}}",
+        "body": "Ngày {date}: {value} {currency} so với ngưỡng {threshold} {currency}."
       }
     },
     "settings": {
@@ -2810,5 +2815,114 @@
     },
     "coming": "Đang được dựng trong đợt này.",
     "switchNew": "Giao diện mới"
+  },
+  "wsHome": {
+    "greeting": "Chào {name}",
+    "emptyTitle": "Chưa có tài khoản quảng cáo",
+    "emptyBody": "Kết nối Meta để xem sức khỏe tài khoản, KPI và cảnh báo.",
+    "connect": "Kết nối Meta",
+    "otherCurrency": "{n} tài khoản khác tiền tệ không được cộng vào phạm vi này (đang tính {currency}).",
+    "customize": "Tùy chỉnh",
+    "customizeTitle": "Chọn 4 chỉ số",
+    "customizeHint": "Chọn đúng 4 chỉ số ({n}/4).",
+    "save": "Lưu",
+    "close": "Đóng",
+    "health": {
+      "title": "Sức khỏe tài khoản",
+      "none": "Chưa có dữ liệu audit.",
+      "excellent": "Xuất sắc",
+      "good": "Tốt",
+      "fair": "Trung bình",
+      "poor": "Kém",
+      "single": "Trừ điểm theo vấn đề đang mở, mỗi nhóm tối đa 30.",
+      "agency": "Thấp nhất trong các tài khoản · trung bình {avg}",
+      "details": "Xem chi tiết"
+    },
+    "tracking": {
+      "title": "Tracking",
+      "none": "Chưa thấy Pixel nào của các tài khoản này (cần quyền đọc Pixel khi kết nối).",
+      "active": "Đang nhận sự kiện",
+      "stale": "{days} ngày chưa có sự kiện",
+      "never": "Chưa có sự kiện"
+    },
+    "ask": {
+      "title": "Hỏi AdxLens",
+      "placeholder": "Vì sao chi phí / kết quả tăng tuần này?",
+      "locked": "AI agent mở khi gói của bạn có tính năng gợi ý.",
+      "whyCpaQ": "Vì sao chi phí / kết quả thay đổi trong 7 ngày qua?"
+    },
+    "quick": {
+      "whyCpa": "Vì sao CPA đổi?",
+      "report": "Tạo báo cáo",
+      "alert": "Tạo cảnh báo",
+      "rule": "Tạo rule"
+    },
+    "perf": {
+      "title": "Hiệu suất",
+      "coverage": "Dữ liệu {days}/{total} ngày",
+      "vsPrev": "so với {value} kỳ trước"
+    },
+    "attention": {
+      "title": "Cần chú ý",
+      "none": "Không có vấn đề đang mở. Tốt lắm!",
+      "sev": {
+        "high": "Cao",
+        "medium": "Vừa",
+        "low": "Thấp"
+      }
+    },
+    "suggest": {
+      "title": "Gợi ý cảnh báo từ dữ liệu",
+      "none": "Cần ít nhất 3 tuần dữ liệu để gợi ý ngưỡng.",
+      "range": "{metric} 7 ngày dao động {min} – {max} trong 30 ngày qua",
+      "notifyAbove": "Báo khi vượt {value}",
+      "notifyBelow": "Báo khi dưới {value}",
+      "now": "hiện {value}",
+      "create": "Tạo cảnh báo",
+      "createdShort": "Đã tạo",
+      "created": "Đã tạo cảnh báo",
+      "error": "Không tạo được cảnh báo"
+    }
+  },
+  "wsAlerts": {
+    "title": "Cảnh báo",
+    "subtitle": "Nhận thông báo khi chỉ số vượt ngưỡng bạn đặt. Kiểm mỗi ngày sau khi đồng bộ.",
+    "new": "Tạo cảnh báo",
+    "newIntro": "Chọn chỉ số, điều kiện và ngưỡng. Trung bình 7 ngày qua giúp đặt ngưỡng hợp lý.",
+    "emptyTitle": "Chưa có cảnh báo",
+    "emptyBody": "Tạo cảnh báo hoặc dùng gợi ý từ dữ liệu ở trang chủ.",
+    "cols": {
+      "alert": "Cảnh báo",
+      "scope": "Tài khoản",
+      "window": "Theo",
+      "last": "Lần báo gần nhất",
+      "status": "Trạng thái"
+    },
+    "rule": "{metric} {cond, select, above {vượt} other {dưới}} {value}",
+    "allAccounts": "Mọi tài khoản",
+    "windows": {
+      "1d": "Ngày hôm qua",
+      "7d": "7 ngày qua"
+    },
+    "fired": "{date}: {value}",
+    "never": "Chưa báo",
+    "on": "Đang bật",
+    "off": "Đã tắt",
+    "pause": "Tắt cảnh báo",
+    "resume": "Bật cảnh báo",
+    "paused": "Đã tắt cảnh báo",
+    "resumed": "Đã bật cảnh báo",
+    "delete": "Xóa cảnh báo",
+    "deleted": "Đã xóa cảnh báo",
+    "created": "Đã tạo cảnh báo",
+    "error": "Không thực hiện được, thử lại",
+    "metric": "Chỉ số",
+    "condition": "Điều kiện",
+    "above": "Vượt",
+    "below": "Dưới",
+    "threshold": "Ngưỡng",
+    "avg7": "Trung bình 7 ngày qua: {value}",
+    "fromData": "Gợi ý từ dữ liệu 30 ngày:",
+    "save": "Tạo cảnh báo"
   }
 }

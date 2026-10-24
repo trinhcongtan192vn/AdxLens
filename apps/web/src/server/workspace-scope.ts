@@ -5,7 +5,14 @@ import { PERIOD_COOKIE, periodRange, previousRange, toPeriod, type DateRange, ty
 import { W_PERIODS, W_SCOPE_COOKIE } from '@/lib/workspace-nav';
 import type { PageContext } from './page-context';
 
-export type WAccount = { id: string; name: string; currency: string; timezone: string; clientId: string | null };
+export type WAccount = {
+  id: string;
+  metaAccountId: string;
+  name: string;
+  currency: string;
+  timezone: string;
+  clientId: string | null;
+};
 
 export type WScope = {
   /** Mọi tài khoản actor được xem (buyer chỉ Client được gán). */
@@ -32,6 +39,7 @@ export async function workspaceScope(pc: PageContext, now = new Date()): Promise
   const all = (await listAdAccounts(pc.ctx)).filter((a) => a.connectionStatus !== 'revoked');
   const accounts: WAccount[] = all.map((a) => ({
     id: a.id,
+    metaAccountId: a.metaAccountId,
     name: a.name,
     currency: a.currency,
     timezone: a.timezone,
