@@ -143,9 +143,9 @@ export function ActionDialog({
         </Link>
       </Banner>
       {type === 'pause_campaign' || type === 'resume_campaign' ? (
-        <Banner tone="warning" className="mb-3" data-testid="campaign-note">
-          {t('campaignNote')}
-        </Banner>
+        <div className="mb-3" data-testid="campaign-note">
+          <Banner tone="warning">{t('campaignNote')}</Banner>
+        </div>
       ) : null}
       {isBudget ? (
         <div className="mb-3 flex items-end gap-2">
