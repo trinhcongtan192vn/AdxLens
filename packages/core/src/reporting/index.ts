@@ -25,3 +25,4 @@ export * from './automation-overview';
 export * from './creative-insights';
 export * from './latest-changes';
 export * from './copy-stage';
+export * from './business';

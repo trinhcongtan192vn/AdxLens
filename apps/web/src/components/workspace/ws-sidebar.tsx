@@ -3,6 +3,7 @@
 import {
   Bell,
   Bot,
+  Briefcase,
   ChartColumnBig,
   Filter,
   Globe,
@@ -24,6 +25,7 @@ import { isWActive, type WNavItem, type WNavKey } from '@/lib/workspace-nav';
 const ICONS: Record<WNavKey, LucideIcon> = {
   home: House,
   agents: Bot,
+  business: Briefcase,
   ads: LayoutGrid,
   adsManager: Rows3,
   funnels: Filter,

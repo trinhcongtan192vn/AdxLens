@@ -2818,7 +2818,8 @@
       "scale": "Mở rộng",
       "alerts": "Cảnh báo",
       "settings": "Cài đặt",
-      "classic": "Giao diện cổ điển"
+      "classic": "Giao diện cổ điển",
+      "business": "Business"
     },
     "create": {
       "button": "Tạo mới",
@@ -3411,5 +3412,21 @@
     "deny": "Từ chối",
     "badClient": "Liên kết cấp quyền không hợp lệ (ứng dụng hoặc địa chỉ chuyển về không khớp). Thêm lại connector trong ứng dụng.",
     "badRequest": "Yêu cầu cấp quyền thiếu thông tin bảo mật bắt buộc. Thêm lại connector trong ứng dụng."
+  },
+  "wsBusiness": {
+    "subtitle": "Tổng hợp từ Meta, {from} → {to}",
+    "blended": "Tổng hợp (Blended)",
+    "share": "Chia sẻ",
+    "copied": "Đã sao chép link (người nhận cần quyền trong workspace)",
+    "aov": "Giá trị đơn TB (Meta)",
+    "otherCurrency": "{n} tài khoản dùng tiền tệ khác không cộng vào tổng; xem từng tài khoản bên dưới.",
+    "store": {
+      "netProfit": "Lợi nhuận quảng cáo ròng",
+      "mer": "MER",
+      "cac": "CAC",
+      "ltv": "LTV / LTV:CAC"
+    },
+    "needsStore": "Cần nguồn đơn hàng (Shopify / web) — chưa kết nối. Số từ Meta không đủ để tính.",
+    "byAccount": "Theo tài khoản QC"
   }
 }

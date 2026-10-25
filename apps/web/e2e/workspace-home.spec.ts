@@ -91,6 +91,9 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await page.getByRole('link', { name: 'Mở rộng', exact: true }).click();
   await expect(page.getByTestId('fatigue-chart')).toContainText('Quảng cáo có mệt không?');
   await expect(page.getByTestId('quadrant-burning_out')).toBeVisible();
+  await page.getByRole('link', { name: 'Business', exact: true }).click();
+  await expect(page.getByTestId('business-blended')).toContainText('ROAS');
+  await expect(page.getByTestId('business-accounts')).toContainText('VND');
 
   // W9: AI Agents sau cờ P1 (workspace mới chưa bật) → không có menu, trang chặn ở server, không có ô hỏi nổi.
   await expect(page.getByRole('link', { name: 'AI Agents' })).toHaveCount(0);
