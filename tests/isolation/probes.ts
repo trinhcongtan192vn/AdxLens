@@ -220,6 +220,19 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     crossParams: (w) => ({ id: w.b.shareLink.id }),
   },
   'GET /api/v1/business-links': { kind: 'workspace' },
+  // ADR-0029: kết nối cửa hàng / analytics.
+  'GET /api/v1/stores': { kind: 'workspace' },
+  'PATCH /api/v1/stores/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    body: () => ({ client_id: null }),
+  },
+  'DELETE /api/v1/stores/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+  },
+  'GET /api/v1/stores/shopify/authorize': { kind: 'workspace', query: () => ({ shop: 'probe' }) },
+  'GET /api/v1/stores/shopify/callback': { kind: 'workspace' },
   'POST /api/v1/business-links': {
     kind: 'workspace',
     body: (w) => ({ client_id: w.b.client.id, period_days: 30 }),

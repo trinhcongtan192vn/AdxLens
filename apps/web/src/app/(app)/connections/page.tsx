@@ -28,7 +28,11 @@ import { addDays, localDate } from '@adxlens/core/shared';
 import { maskAccountId, tokenState } from '@/lib/format';
 import { requirePermission } from '@/server/guards';
 import { getPageContext } from '@/server/page-context';
+import { listStoreConnections } from '@adxlens/core/stores';
+import { listClients } from '@adxlens/core/tenancy';
+import { shopifyConfig } from '@/server/stores';
 import { ConnectionList } from './connection-list';
+import { StoresCard } from './stores-card';
 import { ResyncButton } from './resync-button';
 
 export async function generateMetadata() {
@@ -46,11 +50,13 @@ export default async function ConnectionsPage({ searchParams }: { searchParams: 
   const format = await getFormatter();
   const now = await getNow();
   const { error } = await searchParams;
-  const [allConnections, allAccounts, deletions, assets] = await Promise.all([
+  const [allConnections, allAccounts, deletions, assets, stores, clientRows] = await Promise.all([
     listConnections(pc.ctx),
     listAdAccounts(pc.ctx),
     listDeletionRequests(pc.ctx),
     listAssets(pc.ctx),
+    listStoreConnections(pc.ctx),
+    listClients(pc.ctx),
   ]);
   const td = await getTranslations('disconnect');
   // Kết nối đã ngắt: tài khoản QC của nó không còn hiện trong bảng (dữ liệu chờ xóa).
@@ -210,6 +216,20 @@ export default async function ConnectionsPage({ searchParams }: { searchParams: 
           />
         </>
       )}
+      <StoresCard
+        shopifyEnabled={shopifyConfig().enabled}
+        clients={clientRows.filter((c) => !c.archivedAt).map((c) => ({ id: c.id, name: c.name }))}
+        items={stores.map((s) => ({
+          id: s.id,
+          provider: s.provider,
+          name: s.name,
+          externalId: s.externalId,
+          clientId: s.clientId,
+          status: s.status,
+          lastSyncedAt: s.lastSyncedAt?.toISOString() ?? null,
+          lastError: s.lastError,
+        }))}
+      />
       {connections.length ? (
         <ConnectionList
           purgeDays={PURGE_DELAY_DAYS}

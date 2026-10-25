@@ -6,6 +6,7 @@ import { publicBusiness, recordBusinessView } from '@adxlens/core/reporting';
 import { getWorkspace } from '@adxlens/core/tenancy';
 import { EmptyState } from '@adxlens/ui';
 import { BusinessTiles, type BusinessTileKey } from '@/components/business-tiles';
+import { StoreTiles } from '@/components/store-tiles';
 import { deps } from '@/server/deps';
 import { shareUnlockCookie } from '@/server/share-cookie';
 import { verify } from '@/server/signed';
@@ -67,6 +68,9 @@ export default async function PublicBusinessPage({ params }: { params: Promise<{
             label={label}
             testid="public-blended"
           />
+          {s.store.connections ? (
+            <StoreTiles summary={s.store} adSpend={s.blended.values.spend} adCurrency={s.currency} locale={locale} />
+          ) : null}
         </section>
       ) : null}
       {s.accounts.map((a) => (

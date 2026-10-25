@@ -260,6 +260,40 @@ export const JOB_PROBES: Record<string, JobProbe> = {
     },
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, draftId: p!.draftId }),
   },
+  // ADR-0029: kết nối cửa hàng của A (chưa có token → bỏ qua); dữ liệu B không đổi.
+  'sync:store_daily': {
+    prepare: async (db, w) => {
+      const [c] = await db
+        .insert(schema.storeConnections)
+        .values({
+          workspaceId: w.a.workspace.id,
+          provider: 'shopify',
+          externalId: 'probe-a.myshopify.com',
+          name: 'Probe A',
+          createdBy: w.a.owner.id,
+        })
+        .returning();
+      return { connectionId: c!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, connectionId: p!.connectionId, days: 3, tick: 'probe' }),
+  },
+  // Ngữ cảnh A, id kết nối của B → không tìm thấy (truy vấn theo workspace), không chạm B.
+  'sync:store_daily#cross': {
+    prepare: async (db, w) => {
+      const [c] = await db
+        .insert(schema.storeConnections)
+        .values({
+          workspaceId: w.b.workspace.id,
+          provider: 'shopify',
+          externalId: 'probe-b.myshopify.com',
+          name: 'Probe B',
+          createdBy: w.b.owner.id,
+        })
+        .returning();
+      return { connectionId: c!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, connectionId: p!.connectionId, days: 3, tick: 'probe' }),
+  },
   'recommend:agent_reply': {
     prepare: async (db, w) => {
       const [t] = await db

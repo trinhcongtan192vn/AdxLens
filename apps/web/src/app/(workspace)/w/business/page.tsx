@@ -1,6 +1,9 @@
 import { getLocale, getTranslations } from 'next-intl/server';
 import { businessDashboard, listBusinessLinks, type BusinessBlock } from '@adxlens/core/reporting';
+import { listAdAccounts } from '@adxlens/core/connections';
+import { storeSummary } from '@adxlens/core/stores';
 import { can, listClients } from '@adxlens/core/tenancy';
+import { StoreTiles } from '@/components/store-tiles';
 import { Card } from '@adxlens/ui';
 import { BusinessTiles, type BusinessTileKey } from '@/components/business-tiles';
 import { WsHeader } from '@/components/workspace/ws-header';
@@ -29,6 +32,13 @@ export default async function BusinessPage() {
   const tm = await getTranslations('metrics');
   const locale = await getLocale();
   const data = await businessDashboard(pc.ctx, scope.ids, scope.cur, scope.prev);
+  // ADR-0029: số liệu cửa hàng / GA4 của các Client trong phạm vi.
+  const clientIds = [
+    ...new Set(
+      (await listAdAccounts(pc.ctx)).filter((a) => scope.ids.includes(a.id) && a.clientId).map((a) => a.clientId!),
+    ),
+  ];
+  const store = await storeSummary(pc.ctx, clientIds, scope.cur);
   const label = (k: BusinessTileKey) => (k === 'aov' ? t('aov') : tm(`${k}.name`));
 
   const tiles = (b: BusinessBlock, currency: string | null, testid?: string) => (
@@ -71,8 +81,11 @@ export default async function BusinessPage() {
         {scope.excludedOtherCurrency ? (
           <p className="mt-2 text-caption text-fg-tertiary">{t('otherCurrency', { n: scope.excludedOtherCurrency })}</p>
         ) : null}
+        {store.connections ? (
+          <StoreTiles summary={store} adSpend={data.blended.values.spend} adCurrency={scope.currency} locale={locale} />
+        ) : null}
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {NEEDS_STORE.map((k) => (
+          {NEEDS_STORE.filter((k) => !store.connections || (k !== 'mer' && k !== 'cac')).map((k) => (
             <div key={k} className="rounded-lg border border-dashed border-line p-3">
               <p className="text-caption text-fg-tertiary">{t(`store.${k}`)}</p>
               <p className="mt-1 text-caption text-fg-secondary">{t('needsStore')}</p>

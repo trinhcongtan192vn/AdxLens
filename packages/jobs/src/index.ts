@@ -48,6 +48,13 @@ export const JOBS = {
     schema: z.object({ ...ws, adAccountId: uuid, from: isoDate, to: isoDate, syncRunId: uuid }),
     jobId: (p) => `sync:backfill:${p.syncRunId}:${p.from}:${p.to}`,
   }),
+  // ADR-0029: đồng bộ số liệu cửa hàng / GA4 của một kết nối (vừa kết nối: 30 ngày; hằng ngày: 3 ngày).
+  'sync:store_daily': def({
+    queue: 'sync',
+    workspaceScoped: true,
+    schema: z.object({ ...ws, connectionId: uuid, days: z.number().int().min(1).max(60), tick: z.string() }),
+    jobId: (p) => `store:${p.connectionId}:${p.tick}`,
+  }),
   'sync:daily_account': def({
     queue: 'sync',
     workspaceScoped: true,
