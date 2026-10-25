@@ -1,11 +1,12 @@
-import { eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import { decryptSecret, encryptSecret, type TokenKeys } from '@adxlens/core/connections';
 import { AppError, notFound, type ActorCtx, type WorkspaceCtx } from '@adxlens/core/shared';
 import { openaiImageClient, type ImageGenerator } from './creative-image';
 import { anthropicAgentClient, deepseekAgentClient, geminiAgentClient, openaiAgentClient, type AgentLlm } from './llm';
+import { resolveRoute, type LlmTask } from './router';
 
-const { llmKeys, auditEvents } = schema;
+const { llmKeys, llmRoutes, auditEvents } = schema;
 
 export const LLM_PROVIDERS = schema.LLM_PROVIDERS;
 export type LlmProvider = (typeof LLM_PROVIDERS)[number];
@@ -50,26 +51,36 @@ export type LlmKeyInfo = {
   updatedAt: Date;
 };
 
-/** Thông tin khóa (không bao giờ có khóa rõ hay bản mã). */
+const INFO = {
+  provider: llmKeys.provider,
+  model: llmKeys.model,
+  keyHint: llmKeys.keyHint,
+  lastUsedAt: llmKeys.lastUsedAt,
+  lastError: llmKeys.lastError,
+  updatedAt: llmKeys.updatedAt,
+};
+
+/** Mọi khóa của workspace, mới nhất trước (không bao giờ có khóa rõ hay bản mã). ADR-0030: một khóa / nhà cung cấp. */
+export async function listLlmKeys(ctx: ActorCtx): Promise<LlmKeyInfo[]> {
+  assertManager(ctx);
+  return ctx.db
+    .select(INFO)
+    .from(llmKeys)
+    .where(eq(llmKeys.workspaceId, ctx.workspaceId))
+    .orderBy(desc(llmKeys.updatedAt));
+}
+
+/** Khóa đang trả lời AI agent (tuyến `analysis`, ADR-0030); không có khóa → null. */
 export async function getLlmKey(ctx: ActorCtx): Promise<LlmKeyInfo | null> {
   assertManager(ctx);
-  const [row] = await ctx.db
-    .select({
-      provider: llmKeys.provider,
-      model: llmKeys.model,
-      keyHint: llmKeys.keyHint,
-      lastUsedAt: llmKeys.lastUsedAt,
-      lastError: llmKeys.lastError,
-      updatedAt: llmKeys.updatedAt,
-    })
-    .from(llmKeys)
-    .where(eq(llmKeys.workspaceId, ctx.workspaceId));
-  return row ?? null;
+  const route = await resolveRoute(ctx, 'analysis');
+  if (!route) return null;
+  return (await listLlmKeys(ctx)).find((k) => k.provider === route.provider) ?? null;
 }
 
 /**
- * Lưu / thay khóa của workspace. `apiKey` bỏ trống = giữ khóa cũ, chỉ đổi model (cùng nhà cung cấp). Web chỉ mã hóa
- * (ADR-0022); nhật ký ghi nhà cung cấp, model, 4 ký tự cuối.
+ * Lưu / thay khóa của một nhà cung cấp (ADR-0030: khóa nhà cung cấp khác giữ nguyên). `apiKey` bỏ trống = giữ khóa cũ,
+ * chỉ đổi model. Web chỉ mã hóa (ADR-0022); nhật ký ghi nhà cung cấp, model, 4 ký tự cuối.
  */
 export async function saveLlmKey(
   ctx: ActorCtx,
@@ -86,15 +97,13 @@ export async function saveLlmKey(
   const [existing] = await ctx.db
     .select({ provider: llmKeys.provider })
     .from(llmKeys)
-    .where(eq(llmKeys.workspaceId, ctx.workspaceId));
+    .where(and(eq(llmKeys.workspaceId, ctx.workspaceId), eq(llmKeys.provider, input.provider)));
   if (!apiKey) {
-    if (!existing || existing.provider !== input.provider) {
-      throw new AppError('VALIDATION_FAILED', 'Nhập khóa API');
-    }
+    if (!existing) throw new AppError('VALIDATION_FAILED', 'Nhập khóa API');
     await ctx.db
       .update(llmKeys)
       .set({ model, updatedBy: ctx.actor.userId, updatedAt: new Date() })
-      .where(eq(llmKeys.workspaceId, ctx.workspaceId));
+      .where(and(eq(llmKeys.workspaceId, ctx.workspaceId), eq(llmKeys.provider, input.provider)));
   } else {
     if (!KEY_PATTERN[input.provider].test(apiKey)) {
       throw new AppError('VALIDATION_FAILED', 'Khóa API không đúng dạng của nhà cung cấp đã chọn');
@@ -114,9 +123,9 @@ export async function saveLlmKey(
     await ctx.db
       .insert(llmKeys)
       .values({ workspaceId: ctx.workspaceId, ...values })
-      .onConflictDoUpdate({ target: llmKeys.workspaceId, set: values });
+      .onConflictDoUpdate({ target: [llmKeys.workspaceId, llmKeys.provider], set: values });
   }
-  const info = (await getLlmKey(ctx))!;
+  const info = (await listLlmKeys(ctx)).find((k) => k.provider === input.provider)!;
   await ctx.db.insert(auditEvents).values({
     workspaceId: ctx.workspaceId,
     actorUserId: ctx.actor.userId,
@@ -126,19 +135,29 @@ export async function saveLlmKey(
   return info;
 }
 
-export async function deleteLlmKey(ctx: ActorCtx): Promise<void> {
+/**
+ * Xóa khóa của một nhà cung cấp, hoặc mọi khóa khi không truyền. Lựa chọn model đang trỏ tới nhà cung cấp bị xóa cũng
+ * bị xóa (ADR-0030 mục 3).
+ */
+export async function deleteLlmKey(ctx: ActorCtx, provider?: LlmProvider): Promise<void> {
   assertManager(ctx);
-  const [row] = await ctx.db
+  const only = provider ? eq(llmKeys.provider, provider) : undefined;
+  const rows = await ctx.db
     .delete(llmKeys)
-    .where(eq(llmKeys.workspaceId, ctx.workspaceId))
+    .where(and(eq(llmKeys.workspaceId, ctx.workspaceId), only))
     .returning({ provider: llmKeys.provider, keyHint: llmKeys.keyHint });
-  if (!row) throw notFound('Khóa AI');
-  await ctx.db.insert(auditEvents).values({
-    workspaceId: ctx.workspaceId,
-    actorUserId: ctx.actor.userId,
-    event: 'llm_key.deleted',
-    detail: { provider: row.provider, keyHint: row.keyHint },
-  });
+  if (!rows.length) throw notFound('Khóa AI');
+  await ctx.db
+    .delete(llmRoutes)
+    .where(and(eq(llmRoutes.workspaceId, ctx.workspaceId), provider ? eq(llmRoutes.provider, provider) : undefined));
+  for (const row of rows) {
+    await ctx.db.insert(auditEvents).values({
+      workspaceId: ctx.workspaceId,
+      actorUserId: ctx.actor.userId,
+      event: 'llm_key.deleted',
+      detail: { provider: row.provider, keyHint: row.keyHint },
+    });
+  }
 }
 
 /** Workspace đã có khóa riêng chưa (mọi vai trò; không lộ gì về khóa) — để ẩn banner "chưa cấu hình". */
@@ -147,84 +166,78 @@ export async function hasWorkspaceLlmKey(ctx: WorkspaceCtx): Promise<boolean> {
   return Boolean(row);
 }
 
-/**
- * CHỈ worker: dựng client LLM từ khóa của workspace (giải mã tại đây). Ghi lần dùng / mã lỗi gần nhất để trang cài đặt
- * báo "khóa sai / hết hạn mức". Không có khóa → null (worker dùng khóa nền tảng nếu có).
- */
-export async function workspaceAgentLlm(
-  ctx: WorkspaceCtx,
-  keys: TokenKeys,
-  opts: { fetchImpl?: typeof fetch } = {},
-): Promise<{ llm: AgentLlm; provider: LlmProvider; model: string } | null> {
+async function loadKey(ctx: WorkspaceCtx, provider: LlmProvider, keys: TokenKeys): Promise<string | null> {
   const [row] = await ctx.db
-    .select({
-      provider: llmKeys.provider,
-      model: llmKeys.model,
-      keyCiphertext: llmKeys.keyCiphertext,
-      keyVersion: llmKeys.keyVersion,
-    })
+    .select({ keyCiphertext: llmKeys.keyCiphertext, keyVersion: llmKeys.keyVersion })
     .from(llmKeys)
-    .where(eq(llmKeys.workspaceId, ctx.workspaceId));
-  if (!row) return null;
-  const apiKey = decryptSecret(row.keyCiphertext, row.keyVersion, keys);
-  const inner = CLIENTS[row.provider]({
-    apiKey,
-    model: row.model,
-    ...(opts.fetchImpl ? { fetchImpl: opts.fetchImpl } : {}),
-  });
+    .where(and(eq(llmKeys.workspaceId, ctx.workspaceId), eq(llmKeys.provider, provider)));
+  return row ? decryptSecret(row.keyCiphertext, row.keyVersion, keys) : null;
+}
+
+/** Bọc một lần gọi: ghi lần dùng / mã lỗi gần nhất lên khóa của nhà cung cấp (trang cài đặt báo "khóa sai"). */
+function tracked<T>(ctx: WorkspaceCtx, provider: LlmProvider, call: () => Promise<T>): Promise<T> {
   const mark = (lastError: string | null) =>
     ctx.db
       .update(llmKeys)
       .set(lastError ? { lastError } : { lastError: null, lastUsedAt: new Date() })
-      .where(eq(llmKeys.workspaceId, ctx.workspaceId));
-  const llm: AgentLlm = {
-    async chat(input) {
-      try {
-        const r = await inner.chat(input);
-        await mark(null);
-        return r;
-      } catch (e) {
-        await mark(e instanceof Error && /^LLM_[A-Z0-9_]+$/.test(e.message) ? e.message : 'LLM_ERROR');
-        throw e;
-      }
+      .where(and(eq(llmKeys.workspaceId, ctx.workspaceId), eq(llmKeys.provider, provider)));
+  return call().then(
+    async (r) => {
+      await mark(null);
+      return r;
     },
-  };
-  return { llm, provider: row.provider, model: row.model };
+    async (e: unknown) => {
+      await mark(e instanceof Error && /^LLM_[A-Z0-9_]+$/.test(e.message) ? e.message : 'LLM_ERROR');
+      throw e;
+    },
+  );
 }
 
 /**
- * CHỈ worker (ADR-0027): bộ tạo ảnh từ khóa OpenAI của workspace (giải mã tại đây). Không có khóa / không phải OpenAI →
- * null. Ghi lần dùng / mã lỗi gần nhất như agent.
+ * CHỈ worker (ADR-0030): client LLM cho một việc chat (`analysis` | `copywriting`) theo tuyến của workspace; giải mã
+ * khóa tại đây. Không có tuyến → null (worker dùng khóa nền tảng cho `analysis`; `copywriting` không có tính năng).
+ */
+export async function routedAgentLlm(
+  ctx: WorkspaceCtx,
+  keys: TokenKeys,
+  task: Exclude<LlmTask, 'image'>,
+  opts: { fetchImpl?: typeof fetch } = {},
+): Promise<{ llm: AgentLlm; provider: LlmProvider; model: string } | null> {
+  const route = await resolveRoute(ctx, task);
+  if (!route) return null;
+  const apiKey = await loadKey(ctx, route.provider, keys);
+  if (!apiKey) return null;
+  const inner = CLIENTS[route.provider]({
+    apiKey,
+    model: route.model,
+    ...(opts.fetchImpl ? { fetchImpl: opts.fetchImpl } : {}),
+  });
+  const llm: AgentLlm = { chat: (input) => tracked(ctx, route.provider, () => inner.chat(input)) };
+  return { llm, provider: route.provider, model: route.model };
+}
+
+/** CHỈ worker: client cho AI agent (tuyến `analysis`). Không có khóa riêng → null (dùng khóa nền tảng). */
+export function workspaceAgentLlm(ctx: WorkspaceCtx, keys: TokenKeys, opts: { fetchImpl?: typeof fetch } = {}) {
+  return routedAgentLlm(ctx, keys, 'analysis', opts);
+}
+
+/**
+ * CHỈ worker (ADR-0027, 0030): bộ tạo ảnh theo tuyến `image` (khóa OpenAI của workspace, giải mã tại đây). Không có tuyến
+ * → null. Không bao giờ dùng khóa nền tảng.
  */
 export async function workspaceImageGenerator(
   ctx: WorkspaceCtx,
   keys: TokenKeys,
   opts: { fetchImpl?: typeof fetch } = {},
 ): Promise<ImageGenerator | null> {
-  const [row] = await ctx.db
-    .select({ provider: llmKeys.provider, keyCiphertext: llmKeys.keyCiphertext, keyVersion: llmKeys.keyVersion })
-    .from(llmKeys)
-    .where(eq(llmKeys.workspaceId, ctx.workspaceId));
-  if (!row || row.provider !== 'openai') return null;
+  const route = await resolveRoute(ctx, 'image');
+  if (!route || route.provider !== 'openai') return null;
+  const apiKey = await loadKey(ctx, route.provider, keys);
+  if (!apiKey) return null;
   const inner = openaiImageClient({
-    apiKey: decryptSecret(row.keyCiphertext, row.keyVersion, keys),
+    apiKey,
+    model: route.model,
     ...(opts.fetchImpl ? { fetchImpl: opts.fetchImpl } : {}),
   });
-  const mark = (lastError: string | null) =>
-    ctx.db
-      .update(llmKeys)
-      .set(lastError ? { lastError } : { lastError: null, lastUsedAt: new Date() })
-      .where(eq(llmKeys.workspaceId, ctx.workspaceId));
-  return {
-    async generate(prompt) {
-      try {
-        const r = await inner.generate(prompt);
-        await mark(null);
-        return r;
-      } catch (e) {
-        await mark(e instanceof Error && /^LLM_[A-Z0-9_]+$/.test(e.message) ? e.message : 'LLM_ERROR');
-        throw e;
-      }
-    },
-  };
+  return { generate: (prompt) => tracked(ctx, route.provider, () => inner.generate(prompt)) };
 }

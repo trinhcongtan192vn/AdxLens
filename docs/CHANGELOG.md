@@ -27,6 +27,53 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [134] AI router: nhiều khóa AI (mỗi nhà cung cấp một khóa), chọn model theo việc (ADR-0030) — 2026-10-25
+
+PM yêu cầu: "Triển khai AI router và nâng cấp bộ công cụ cho AI agent". Phần này là lõi router; giao diện ở 135.
+
+- **Nhiều khóa:**
+  - workspace lưu được khóa Anthropic, OpenAI, Gemini, DeepSeek **cùng lúc**, mỗi nhà cung cấp một khóa;
+  - lưu khóa nhà cung cấp B không còn xóa khóa nhà cung cấp A.
+- **Việc AI và mặc định:**
+  - `analysis` (AI agent chat): mặc định khóa cập nhật gần nhất;
+  - `copywriting` (viết nội dung quảng cáo, dùng ở 138): mặc định theo `analysis`;
+  - `image` (tạo ảnh creative): mặc định khóa OpenAI, model `gpt-image-1`.
+- **Chọn model cho từng việc** (`app.llm_routes`):
+  - chỉ Owner / Manager;
+  - nhà cung cấp phải đã có khóa và làm được việc đó (ảnh chỉ OpenAI, model trong danh sách đóng);
+  - xóa khóa → lựa chọn trỏ tới nhà cung cấp đó bị xóa;
+  - nhật ký `llm_route.saved` / `llm_route.deleted`.
+- **Worker:**
+  - agent chat và AI tạo ảnh lấy client theo tuyến;
+  - ghi lần dùng / mã lỗi lên đúng khóa của nhà cung cấp.
+  - Workspace dùng Claude cho chat vẫn tạo ảnh được nếu có thêm khóa OpenAI.
+- **Hạn mức ảnh AI:** thêm **20 ảnh / workspace / 24 giờ**, ngoài giới hạn 3 ảnh đang tạo.
+- **API:**
+  - `GET /api/v1/llm-routes`: mọi khóa (không khóa rõ) + model hiệu lực theo việc;
+  - `PUT /api/v1/llm-routes`, `DELETE /api/v1/llm-routes?task=`;
+  - `DELETE /api/v1/llm-key?provider=` xóa một khóa.
+
+**Vùng bảo vệ:** `packages/db`, migration 0085–0086:
+- `llm_keys` đổi ràng buộc duy nhất `workspace_id` → `(workspace_id, provider)`; dữ liệu cũ (≤ 1 khóa) giữ nguyên;
+- bảng `llm_routes` có RLS.
+
+Không chạm `connections` (dùng lại `encryptSecret` / `decryptSecret`).
+
+**Test tự động:**
+- `core/agent/router.test.ts`:
+  - hai khóa cùng tồn tại, mặc định theo việc;
+  - chọn model kiểm vai trò / nhà cung cấp / khóa / model ảnh;
+  - worker gọi đúng endpoint + model theo việc, ghi lần dùng đúng khóa;
+  - xóa khóa → route bị xóa, ảnh tắt;
+  - workspace khác không thấy gì;
+  - hạn mức 20 ảnh / ngày.
+- `api/v1/llm-routes/llm-routes.test.ts`: cờ tắt → 404, danh sách không lộ khóa, chọn / bỏ / xóa khóa theo nhà cung cấp.
+- Bộ cách ly: `GET|PUT|DELETE /api/v1/llm-routes`.
+- Test cũ (`llm-keys`, `creative-image`, `llm-key` route) giữ nguyên, không sửa.
+
+**PM kiểm tra:** Cài đặt → Tích hợp → lưu khóa Anthropic rồi khóa OpenAI → AI Agents trả lời bằng Claude; Launcher vẫn có
+"AI tạo ảnh".
+
 ## [133] Kết nối TikTok Shop: đơn / doanh thu người bán trên TikTok theo Client (ADR-0029 phụ lục) — 2026-10-25
 
 PM yêu cầu: "tích hợp thêm tiktok để lấy số khách bán trên tiktok". Đây là **TikTok Shop** (đơn bán), không phải TikTok

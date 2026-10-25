@@ -1,4 +1,4 @@
-import { boolean, customType, index, integer, jsonb, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, customType, index, integer, jsonb, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { app, createdAt, updatedAt } from './_common';
 import { workspaces } from './tenancy';
 
@@ -103,28 +103,53 @@ export const LLM_PROVIDERS = ['anthropic', 'openai', 'gemini', 'deepseek'] as co
 const bytea = customType<{ data: Buffer; driverData: Buffer }>({ dataType: () => 'bytea' });
 
 /**
- * Khóa LLM workspace tự mang (BYOK, ADR-0022): AI agent chạy bằng tài khoản Anthropic / OpenAI của chính agency.
- * Khóa mã hóa AES-256-GCM như token Meta; web chỉ mã hóa, worker giải mã. RLS bật, không có policy cho người dùng.
+ * Khóa LLM workspace tự mang (BYOK, ADR-0022): AI chạy bằng tài khoản nhà cung cấp của chính agency. ADR-0030: tối đa
+ * một khóa cho mỗi nhà cung cấp; `model` = model chat mặc định của khóa. Khóa mã hóa AES-256-GCM như token Meta; web chỉ
+ * mã hóa, worker giải mã. RLS bật, không có policy cho người dùng.
  */
-export const llmKeys = app.table('llm_keys', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  workspaceId: uuid('workspace_id')
-    .notNull()
-    .unique()
-    .references(() => workspaces.id, { onDelete: 'cascade' }),
-  provider: text('provider', { enum: LLM_PROVIDERS }).notNull(),
-  model: text('model').notNull(),
-  keyCiphertext: bytea('key_ciphertext').notNull(),
-  keyVersion: integer('key_version').notNull(),
-  /** 4 ký tự cuối để nhận diện (không đủ để dùng). */
-  keyHint: text('key_hint').notNull(),
-  updatedBy: uuid('updated_by').notNull(),
-  lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
-  /** Mã lỗi gần nhất từ nhà cung cấp (vd. LLM_HTTP_401) — không chứa khóa. */
-  lastError: text('last_error'),
-  createdAt: createdAt(),
-  updatedAt: updatedAt(),
-});
+export const llmKeys = app.table(
+  'llm_keys',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    provider: text('provider', { enum: LLM_PROVIDERS }).notNull(),
+    model: text('model').notNull(),
+    keyCiphertext: bytea('key_ciphertext').notNull(),
+    keyVersion: integer('key_version').notNull(),
+    /** 4 ký tự cuối để nhận diện (không đủ để dùng). */
+    keyHint: text('key_hint').notNull(),
+    updatedBy: uuid('updated_by').notNull(),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+    /** Mã lỗi gần nhất từ nhà cung cấp (vd. LLM_HTTP_401) — không chứa khóa. */
+    lastError: text('last_error'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex('llm_keys_workspace_provider_uq').on(t.workspaceId, t.provider)],
+);
+
+/** Việc AI định tuyến được (ADR-0030). */
+export const LLM_TASKS = ['analysis', 'copywriting', 'image'] as const;
+
+/** AI router (ADR-0030): việc → (nhà cung cấp, model) của workspace. Không có dòng → mặc định theo khóa. */
+export const llmRoutes = app.table(
+  'llm_routes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    task: text('task', { enum: LLM_TASKS }).notNull(),
+    provider: text('provider', { enum: LLM_PROVIDERS }).notNull(),
+    model: text('model').notNull(),
+    updatedBy: uuid('updated_by').notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex('llm_routes_workspace_task_uq').on(t.workspaceId, t.task)],
+);
 
 /**
  * Ứng dụng OAuth đăng ký động (RFC 7591) để kết nối MCP (ADR-0022 B): Claude, ChatGPT… Không thuộc workspace — là
