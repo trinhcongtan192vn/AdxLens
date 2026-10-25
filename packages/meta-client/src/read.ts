@@ -68,9 +68,9 @@ export interface MetaReadApi {
 }
 
 export const AD_ACCOUNT_FIELDS = 'id,name,currency,timezone_name,account_status';
-const CAMPAIGN_FIELDS = 'id,name,status,effective_status,objective,daily_budget,lifetime_budget';
+const CAMPAIGN_FIELDS = 'id,name,status,effective_status,objective,daily_budget,lifetime_budget,spend_cap';
 const ADSET_FIELDS =
-  'id,name,campaign_id,status,effective_status,optimization_goal,daily_budget,lifetime_budget,learning_stage_info,promoted_object,targeting{custom_audiences,excluded_custom_audiences,flexible_spec}';
+  'id,name,campaign_id,status,effective_status,optimization_goal,daily_budget,lifetime_budget,bid_amount,bid_strategy,learning_stage_info,promoted_object,targeting{custom_audiences,excluded_custom_audiences,flexible_spec}';
 /** Cạnh ảnh thumbnail xin từ Meta (px). */
 export const THUMB_PX = 720;
 const AD_FIELDS = 'id,name,adset_id,campaign_id,status,effective_status,creative{id}';

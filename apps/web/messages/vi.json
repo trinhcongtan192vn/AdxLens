@@ -2365,7 +2365,9 @@
       "resume_campaign": "Bật lại chiến dịch",
       "rename_ad": "Đổi tên quảng cáo",
       "rename_adset": "Đổi tên nhóm QC",
-      "rename_campaign": "Đổi tên chiến dịch"
+      "rename_campaign": "Đổi tên chiến dịch",
+      "set_adset_bid": "Đổi giá thầu nhóm QC",
+      "set_campaign_spend_cap": "Đổi giới hạn chi chiến dịch"
     },
     "state": {
       "ACTIVE": "Đang chạy",
@@ -2458,7 +2460,12 @@
       "quiet_hours": "Ngoài giờ cho phép.",
       "no_auto_resume": "Không tự bật lại.",
       "no_auto_duplicate": "Không tự nhân bản.",
-      "no_auto_edit": "Rule tự động không được đổi tên / giá thầu / giới hạn chi (chỉ duyệt tay)."
+      "no_auto_edit": "Rule tự động không được đổi tên / giá thầu / giới hạn chi (chỉ duyệt tay).",
+      "no_bid_amount": "Nhóm QC đang dùng chiến lược giá thầu tự động (không có giá thầu để đổi).",
+      "invalid_bid": "Giá thầu mới không hợp lệ.",
+      "bid_change_too_large": "Đổi giá thầu quá {max}% mỗi lần.",
+      "invalid_spend_cap": "Giới hạn chi mới không hợp lệ.",
+      "spend_cap_change_too_large": "Nâng giới hạn chi quá {max}% mỗi lần (hạ thì không giới hạn)."
     },
     "bulkButton": "Xem trước & duyệt ({count})",
     "bulkTitle": "Duyệt {count} gợi ý",
@@ -2727,7 +2734,9 @@
       "resume_campaign": "Bật lại {count} chiến dịch",
       "rename_ad": "Đổi tên quảng cáo",
       "rename_adset": "Đổi tên nhóm quảng cáo",
-      "rename_campaign": "Đổi tên chiến dịch"
+      "rename_campaign": "Đổi tên chiến dịch",
+      "set_adset_bid": "Đổi giá thầu nhóm quảng cáo",
+      "set_campaign_spend_cap": "Đổi giới hạn chi tiêu chiến dịch"
     },
     "confirm": "Thực hiện {count} hành động",
     "note": "Mỗi hành động được kiểm guardrails, thực hiện qua Meta rồi xác minh lại; chỉ gửi đối tượng không vi phạm. Theo dõi kết quả ở",
@@ -2745,7 +2754,11 @@
     "sent": "Đã gửi",
     "campaignNote": "Tạm dừng chiến dịch sẽ dừng mọi nhóm QC bên dưới. Bật lại chỉ bật chiến dịch, không bật nhóm QC đang tắt.",
     "newName": "Tên mới",
-    "rename": "Đổi tên"
+    "rename": "Đổi tên",
+    "newBid": "Giá thầu mới",
+    "newSpendCap": "Giới hạn chi tiêu mới",
+    "bid": "Giá thầu",
+    "spendCap": "Giới hạn chi"
   },
   "goals": {
     "title": "Mục tiêu và onboarding",

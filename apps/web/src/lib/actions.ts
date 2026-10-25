@@ -20,7 +20,8 @@ export function describeChange(
   format: Fmt,
   tr: Tr,
 ): string {
-  if ('daily_budget' in a.afterExpected) {
+  const money = (['daily_budget', 'bid_amount', 'spend_cap'] as const).find((k) => k in a.afterExpected);
+  if (money) {
     // Meta lưu ngân sách theo đơn vị nhỏ nhất: tiền không có phần lẻ (VND, JPY…) = 1; USD… = cent.
     const div = ZERO_DECIMAL.has(a.currency) ? 1 : 100;
     const show = (v: string | null | undefined) =>
@@ -31,7 +32,7 @@ export function describeChange(
             maximumFractionDigits: div === 1 ? 0 : 2,
           })
         : '—';
-    return `${show(a.beforeState.daily_budget)} → ${show(a.afterExpected.daily_budget)}`;
+    return `${show(a.beforeState[money])} → ${show(a.afterExpected[money])}`;
   }
   if ('copy_status' in a.afterExpected) return tr.t('copyPaused');
   // ADR-0025: đổi tên.

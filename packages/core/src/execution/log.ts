@@ -44,6 +44,8 @@ export async function listActions(
 }
 
 function canUndo(a: ActionRow): boolean {
+  // ADR-0025: chiến dịch trước đó chưa có giới hạn chi → không hoàn tác (không gỡ giới hạn).
+  if ('spend_cap' in a.beforeState && !a.beforeState.spend_cap) return false;
   return a.status === 'success' && UNDOABLE[a.actionType as ActionType] && a.resultCode !== 'no_change';
 }
 
@@ -89,6 +91,8 @@ const INVERSE: Partial<Record<ActionType, ActionType>> = {
   rename_ad: 'rename_ad',
   rename_adset: 'rename_adset',
   rename_campaign: 'rename_campaign',
+  set_adset_bid: 'set_adset_bid',
+  set_campaign_spend_cap: 'set_campaign_spend_cap',
 };
 
 /**
@@ -109,6 +113,7 @@ export async function undoAction(ctx: ActorCtx, id: string, deps: { enqueue: Enq
       targetMetaId: a.targetMetaId,
       newDailyBudget: type === 'set_adset_budget' ? (a.beforeState.daily_budget ?? null) : null,
       newName: a.beforeState.name ?? null,
+      newValue: a.beforeState.bid_amount ?? a.beforeState.spend_cap ?? null,
       recommendationId: a.recommendationId,
       undoOf: a.id,
     },

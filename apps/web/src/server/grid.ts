@@ -52,6 +52,9 @@ export function toGridRows(
         metaId: r.metaId,
         name: r.name ?? r.metaId,
         dailyBudget: level === 'adset' ? (r.dailyBudget ?? null) : null,
+        // ADR-0025: giá thầu (nhóm QC) và giới hạn chi (chiến dịch) hiện tại.
+        bidAmount: level === 'adset' ? (r.bidAmount ?? null) : null,
+        spendCap: level === 'campaign' ? (r.spendCap ?? null) : null,
       },
     };
   });

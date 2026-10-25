@@ -31,4 +31,24 @@ describe('describeChange (P203)', () => {
       describeChange({ beforeState: {}, afterExpected: { copy_status: 'PAUSED' }, currency: 'VND' }, format, tr),
     ).toBe('copyPaused');
   });
+
+  it('ADR-0025: giá thầu, giới hạn chi (chưa có → —), đổi tên', () => {
+    expect(
+      describeChange(
+        { beforeState: { bid_amount: '40000' }, afterExpected: { bid_amount: '44000' }, currency: 'VND' },
+        format,
+        tr,
+      ),
+    ).toBe('₫40,000 → ₫44,000');
+    expect(
+      describeChange(
+        { beforeState: { spend_cap: null }, afterExpected: { spend_cap: '500000' }, currency: 'USD' },
+        format,
+        tr,
+      ),
+    ).toBe('— → $5,000.00');
+    expect(
+      describeChange({ beforeState: { name: 'Cũ' }, afterExpected: { name: 'Mới' }, currency: 'VND' }, format, tr),
+    ).toBe('Cũ → Mới');
+  });
 });

@@ -27,6 +27,45 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [124] Đổi giá thầu nhóm QC và giới hạn chi tiêu chiến dịch qua Execution Gateway (ADR-0025) — 2026-10-25
+
+Bước 2 của gap "Giá thầu + giới hạn chi + đổi tên" (bước 1: đổi tên ở [119]).
+
+- **Đồng bộ thêm từ Meta:** `bid_amount`, `bid_strategy` của nhóm QC và `spend_cap` của chiến dịch (lưu trong `attrs`).
+- **`set_adset_bid`** (`POST /{adset_id}` với `bid_amount`):
+  - chỉ nhóm QC đang có giá thầu (Bid cap / Cost cap); chiến lược tự động → `no_bid_amount`;
+  - |thay đổi| ≤ ngưỡng ngân sách (mặc định 15%, workspace chỉ đặt chặt hơn) → `bid_change_too_large`.
+- **`set_campaign_spend_cap`** (`POST /{campaign_id}` với `spend_cap`):
+  - hạ hoặc đặt mới luôn được (thêm phanh);
+  - nâng > ngưỡng → `spend_cap_change_too_large`;
+  - không gỡ giới hạn.
+- **Chung:**
+  - đọc giá trị thật ngay trước khi ghi; đã bị đổi trên Meta sau khi duyệt thì không ghi đè;
+  - xác minh bằng cách đọc lại; cập nhật bản chụp cấu trúc;
+  - hoàn tác chịu cùng guardrail (hạ mạnh rồi hoàn tác = nâng quá ngưỡng → bị chặn);
+  - chiến dịch trước đó chưa có giới hạn chi thì không hoàn tác.
+  - Rule tự động không bao giờ tạo (`no_auto_edit`).
+- **Giao diện (bảng chiến dịch / nhóm QC):**
+  - nút **Giá thầu** ở nhóm QC có giá thầu; nút **Giới hạn chi** ở chiến dịch;
+  - hộp thoại nhập giá trị mới → xem trước "cũ → mới" + vi phạm guardrail → duyệt;
+  - Nhật ký hiện giá trị theo tiền tệ tài khoản.
+- Ô nhập cùng đơn vị với ô ngân sách hiện có (đơn vị nhỏ nhất của Meta; xem nợ kỹ thuật `ZERO_DECIMAL`).
+- **Chưa làm:** nút trong Ads Manager mới (đang có ở bảng của trang khách / tài khoản).
+
+**Vùng bảo vệ:**
+- `packages/core/execution` (gateway, guardrails, hoàn tác);
+- `packages/meta-client/write` (`setBidAmount`, `setSpendCap`).
+- **Cần PM chạy integration test trên staging trước khi merge `main`.**
+
+**Test tự động:**
+- `execution/bid-cap.test.ts`:
+  - giá thầu +10%: ghi, xác minh, bản chụp, hoàn tác;
+  - +20% / chiến lược tự động / trùng giá → chặn;
+  - giới hạn chi: hạ được, nâng > 15% chặn, hoàn tác (vừa / mạnh), đặt mới không hoàn tác;
+  - đổi trên Meta → không ghi đè; rule tự động bị chặn.
+- `lib/actions.test.ts`: hiển thị giá thầu / giới hạn chi / đổi tên.
+- `grid-actions.test.ts`: thiếu giá trị → 422.
+
 ## [123] Bỏ xóa workspace ở Cài đặt; nút "Đồng bộ lại" ở trang Kết nối — 2026-10-25
 
 PM yêu cầu:

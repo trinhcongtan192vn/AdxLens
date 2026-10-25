@@ -10,7 +10,8 @@
 - Vùng bảo vệ: `packages/core/execution`, `packages/meta-client/write` (chỉ execution import).
 - Thực hiện ở 2 bước:
   - CHANGELOG 119: đổi tên;
-  - CHANGELOG 120: giá thầu + giới hạn chi.
+  - CHANGELOG 124: giá thầu + giới hạn chi.
+- Hoàn tác chịu cùng guardrail: hạ giới hạn chi / giá thầu mạnh rồi hoàn tác (= nâng > ngưỡng) bị chặn, như ngân sách.
 
 ## Quyết định
 
@@ -25,7 +26,7 @@
   - trùng tên hiện tại thì báo "không thay đổi".
 - **Hoàn tác** được: đặt lại tên cũ.
 
-### 2. Giá thầu nhóm QC — `set_adset_bid` (bước 120)
+### 2. Giá thầu nhóm QC — `set_adset_bid` (bước 124)
 - **Gọi Meta:** `POST /{adset_id}` với `bid_amount`, là số nguyên theo đơn vị nhỏ nhất của tiền tệ, giống ngân sách.
 - **Chỉ áp cho nhóm QC đang có `bid_amount`:** chiến lược Bid cap / Cost cap.
   - Nhóm QC dùng chiến lược thấp nhất / tự động thì báo `no_bid_amount`.
@@ -35,7 +36,7 @@
   - Vi phạm thì báo `bid_change_too_large`.
 - **Hoàn tác** được.
 
-### 3. Giới hạn chi tiêu chiến dịch — `set_campaign_spend_cap` (bước 120)
+### 3. Giới hạn chi tiêu chiến dịch — `set_campaign_spend_cap` (bước 124)
 - **Gọi Meta:** `POST /{campaign_id}` với `spend_cap`, đơn vị nhỏ nhất.
 - **Hạ** giới hạn, hoặc đặt giới hạn cho chiến dịch chưa có: luôn được phép, vì đây là thêm phanh. Meta tự từ chối nếu
   mức thấp hơn số đã chi.

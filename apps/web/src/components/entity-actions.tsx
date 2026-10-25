@@ -9,7 +9,15 @@ import { Badge, Banner, Button, Dialog, Field, Input, Skeleton } from '@adxlens/
 import { describeChange } from '@/lib/actions';
 import { api, ApiError } from '@/lib/api-client';
 
-export type ActionTarget = { adAccountId: string; metaId: string; name: string; dailyBudget?: string | null };
+export type ActionTarget = {
+  adAccountId: string;
+  metaId: string;
+  name: string;
+  dailyBudget?: string | null;
+  /** ADR-0025: giá thầu hiện tại (nhóm QC Bid cap / Cost cap), giới hạn chi hiện tại (chiến dịch). */
+  bidAmount?: string | null;
+  spendCap?: string | null;
+};
 export type GridActionType =
   | 'pause_ad'
   | 'resume_ad'
@@ -20,7 +28,9 @@ export type GridActionType =
   | 'resume_campaign'
   | 'rename_ad'
   | 'rename_adset'
-  | 'rename_campaign';
+  | 'rename_campaign'
+  | 'set_adset_bid'
+  | 'set_campaign_spend_cap';
 
 /** ADR-0025: loại đổi tên theo cấp. */
 export const renameType = (level: 'ad' | 'adset' | 'campaign'): GridActionType => `rename_${level}`;
@@ -40,6 +50,7 @@ const body = (t: ActionTarget, type: GridActionType, value?: string) => ({
   target_meta_id: t.metaId,
   ...(type === 'set_adset_budget' ? { new_daily_budget: value } : {}),
   ...(type.startsWith('rename_') ? { new_name: value } : {}),
+  ...(type === 'set_adset_bid' || type === 'set_campaign_spend_cap' ? { new_value: value } : {}),
 });
 
 /**
@@ -65,7 +76,14 @@ export function ActionDialog({
   const tc = useTranslations('common');
   const format = useFormatter();
   const router = useRouter();
-  const [budget, setBudget] = useState(targets[0]?.dailyBudget ? String(Number(targets[0].dailyBudget)) : '');
+  // Ô số: ngân sách / giá thầu / giới hạn chi (cùng đơn vị với ngân sách hiện có).
+  const initialNumber =
+    type === 'set_adset_bid'
+      ? targets[0]?.bidAmount
+      : type === 'set_campaign_spend_cap'
+        ? targets[0]?.spendCap
+        : targets[0]?.dailyBudget;
+  const [budget, setBudget] = useState(initialNumber ? String(Number(initialNumber)) : '');
   const [previews, setPreviews] = useState<Record<string, Preview | { error: string }> | null>(null);
   const [pending, start] = useTransition();
   // Lỗi khi gửi (quyền ghi, kill switch, quyền duyệt…) theo từng đối tượng — giữ hộp thoại mở để thấy lý do.
@@ -75,7 +93,10 @@ export function ActionDialog({
   const isRename = type.startsWith('rename_');
   const [name, setName] = useState(targets[0]?.name ?? '');
   // Hộp thoại có ô nhập (ngân sách / tên mới): xem trước sau khi nhập.
-  const isBudget = type === 'set_adset_budget' || isRename;
+  const isBudget =
+    type === 'set_adset_budget' || type === 'set_adset_bid' || type === 'set_campaign_spend_cap' || isRename;
+  const numberLabel =
+    type === 'set_adset_bid' ? 'newBid' : type === 'set_campaign_spend_cap' ? 'newSpendCap' : 'newBudget';
   const value = isRename ? name : budget;
 
   const load = () => {
@@ -175,7 +196,7 @@ export function ActionDialog({
         </div>
       ) : isBudget ? (
         <div className="mb-3 flex items-end gap-2">
-          <Field label={t('newBudget')} htmlFor="grid-budget" className="flex-1">
+          <Field label={t(numberLabel)} htmlFor="grid-budget" className="flex-1">
             <Input
               id="grid-budget"
               inputMode="decimal"

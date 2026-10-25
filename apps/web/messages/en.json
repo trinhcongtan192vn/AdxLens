@@ -2365,7 +2365,9 @@
       "resume_campaign": "Resume campaign",
       "rename_ad": "Rename ad",
       "rename_adset": "Rename ad set",
-      "rename_campaign": "Rename campaign"
+      "rename_campaign": "Rename campaign",
+      "set_adset_bid": "Change ad set bid",
+      "set_campaign_spend_cap": "Change campaign spending limit"
     },
     "state": {
       "ACTIVE": "Active",
@@ -2458,7 +2460,12 @@
       "quiet_hours": "Outside allowed hours.",
       "no_auto_resume": "No automatic resume.",
       "no_auto_duplicate": "No automatic duplicate.",
-      "no_auto_edit": "Automated rules never rename or change bids / spending limits (manual approval only)."
+      "no_auto_edit": "Automated rules never rename or change bids / spending limits (manual approval only).",
+      "no_bid_amount": "This ad set uses an automatic bid strategy (no bid to change).",
+      "invalid_bid": "Invalid new bid.",
+      "bid_change_too_large": "Bid change over {max}% per action.",
+      "invalid_spend_cap": "Invalid new spending limit.",
+      "spend_cap_change_too_large": "Raising the spending limit over {max}% per action (lowering is unlimited)."
     },
     "bulkButton": "Preview & approve ({count})",
     "bulkTitle": "Approve {count} suggestions",
@@ -2727,7 +2734,9 @@
       "resume_campaign": "Resume {count} campaigns",
       "rename_ad": "Rename ad",
       "rename_adset": "Rename ad set",
-      "rename_campaign": "Rename campaign"
+      "rename_campaign": "Rename campaign",
+      "set_adset_bid": "Change ad set bid",
+      "set_campaign_spend_cap": "Change campaign spending limit"
     },
     "confirm": "Run {count} actions",
     "note": "Each action is checked against guardrails, executed on Meta and verified; only objects without violations are sent. Follow results in the",
@@ -2745,7 +2754,11 @@
     "sent": "Submitted",
     "campaignNote": "Pausing a campaign stops every ad set under it. Resuming only turns the campaign on, not ad sets you turned off.",
     "newName": "New name",
-    "rename": "Rename"
+    "rename": "Rename",
+    "newBid": "New bid",
+    "newSpendCap": "New spending limit",
+    "bid": "Bid",
+    "spendCap": "Spending limit"
   },
   "goals": {
     "title": "Goals and onboarding",

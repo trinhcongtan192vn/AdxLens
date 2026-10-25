@@ -39,5 +39,10 @@ describe('API thao tác từ bảng chiến dịch (G4)', () => {
     expect((await call(preview.POST, { user: u, workspaceId: workspace.id, body: noBudget })).status).toBe(422);
     const dup = { ad_account_id: acc.id, action_type: 'duplicate_adset', target_meta_id: '123' };
     expect((await call(bulk.POST, { user: u, workspaceId: workspace.id, body: { items: [dup] } })).status).toBe(422);
+    // ADR-0025: giá thầu / giới hạn chi thiếu giá trị, đổi tên thiếu tên → 422.
+    for (const action_type of ['set_adset_bid', 'set_campaign_spend_cap', 'rename_ad']) {
+      const body = { ad_account_id: acc.id, action_type, target_meta_id: '123' };
+      expect((await call(preview.POST, { user: u, workspaceId: workspace.id, body })).status).toBe(422);
+    }
   });
 });

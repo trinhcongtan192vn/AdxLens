@@ -232,7 +232,7 @@ async function syncStructure(ctx: WorkspaceCtx, adAccountId: string, act: string
       objective: c.objective ?? null,
       dailyBudget: money(c.daily_budget),
       learningStage: null,
-      attrs: { lifetime_budget: c.lifetime_budget ?? null },
+      attrs: { lifetime_budget: c.lifetime_budget ?? null, spend_cap: c.spend_cap ?? null },
     })),
     ...adsets.map((s) => ({
       ...base,
@@ -248,6 +248,8 @@ async function syncStructure(ctx: WorkspaceCtx, adAccountId: string, act: string
         optimization_goal: s.optimization_goal ?? null,
         custom_event_type: (s.promoted_object?.custom_event_type as string | undefined) ?? null,
         lifetime_budget: s.lifetime_budget ?? null,
+        bid_amount: s.bid_amount ?? null,
+        bid_strategy: s.bid_strategy ?? null,
         funnel_stage: funnelStageOf(
           (s.targeting?.custom_audiences ?? []).map((x) => x.id),
           audienceTypes,
