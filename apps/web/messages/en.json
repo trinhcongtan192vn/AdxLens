@@ -2367,7 +2367,8 @@
       "rename_adset": "Rename ad set",
       "rename_campaign": "Rename campaign",
       "set_adset_bid": "Change ad set bid",
-      "set_campaign_spend_cap": "Change campaign spending limit"
+      "set_campaign_spend_cap": "Change campaign spending limit",
+      "create_custom_audience": "Create custom audience"
     },
     "state": {
       "ACTIVE": "Active",
@@ -2413,7 +2414,8 @@
       "NOT_FOUND": "Item not found."
     },
     "createdPaused": "Created · paused",
-    "createdLookalike": "New lookalike created"
+    "createdLookalike": "New lookalike created",
+    "createdAudience": "Audience created"
   },
   "killSwitch": {
     "title": "Kill switch",
@@ -3721,6 +3723,37 @@
       "PLAN_REQUIRED": "Requires Growth plan or higher.",
       "other": "Could not create. Try again."
     },
-    "adsPartial": "Sent {n}/{total} ads — the rest were blocked (e.g. daily action limit reached)."
+    "adsPartial": "Sent {n}/{total} ads — the rest were blocked (e.g. daily action limit reached).",
+    "custom": {
+      "title": "Custom audience from pixel / engagement",
+      "intro": "Build an audience of people who did a website event (pixel) or engaged with your Page / Instagram. Use it as a lookalike source or for retargeting.",
+      "none": "No pixel, Page or Instagram account synced yet. Check permissions in Connections.",
+      "types": {
+        "pixel": "Website (pixel)",
+        "page": "Page engagement",
+        "ig_business": "Instagram engagement"
+      },
+      "source": {
+        "pixel": "Pixel",
+        "page": "Page",
+        "ig_business": "Instagram account"
+      },
+      "event": "Event",
+      "events": {
+        "all": "All visitors",
+        "PageView": "Page view",
+        "ViewContent": "View content",
+        "AddToCart": "Add to cart",
+        "InitiateCheckout": "Initiate checkout",
+        "Purchase": "Purchase",
+        "Lead": "Lead"
+      },
+      "days": "Days (1–{max})",
+      "daysShort": "{n} days",
+      "name": "Audience name (blank = automatic)",
+      "launch": "Create audience",
+      "note": "Needs approval; audiences don't spend money.",
+      "queued": "Audience creation sent. Follow it in the Action log."
+    }
   }
 }

@@ -2367,7 +2367,8 @@
       "rename_adset": "Đổi tên nhóm QC",
       "rename_campaign": "Đổi tên chiến dịch",
       "set_adset_bid": "Đổi giá thầu nhóm QC",
-      "set_campaign_spend_cap": "Đổi giới hạn chi chiến dịch"
+      "set_campaign_spend_cap": "Đổi giới hạn chi chiến dịch",
+      "create_custom_audience": "Tạo custom audience"
     },
     "state": {
       "ACTIVE": "Đang chạy",
@@ -2413,7 +2414,8 @@
       "NOT_FOUND": "Không tìm thấy đối tượng."
     },
     "createdPaused": "Tạo mới · tạm dừng",
-    "createdLookalike": "Tạo lookalike mới"
+    "createdLookalike": "Tạo lookalike mới",
+    "createdAudience": "Đã tạo audience"
   },
   "killSwitch": {
     "title": "Kill switch",
@@ -3721,6 +3723,37 @@
       "PLAN_REQUIRED": "Cần gói Growth trở lên.",
       "other": "Không tạo được. Thử lại."
     },
-    "adsPartial": "Đã gửi {n}/{total} quảng cáo — phần còn lại bị chặn (vd. hết hạn mức hành động hôm nay)."
+    "adsPartial": "Đã gửi {n}/{total} quảng cáo — phần còn lại bị chặn (vd. hết hạn mức hành động hôm nay).",
+    "custom": {
+      "title": "Custom audience từ pixel / tương tác",
+      "intro": "Tạo audience từ người đã thực hiện sự kiện trên website (pixel) hoặc đã tương tác với Page / Instagram. Dùng làm nguồn lookalike hoặc nhắm lại.",
+      "none": "Chưa có pixel, Page hay Instagram nào được đồng bộ. Kiểm tra quyền ở Kết nối.",
+      "types": {
+        "pixel": "Website (pixel)",
+        "page": "Tương tác Page",
+        "ig_business": "Tương tác Instagram"
+      },
+      "source": {
+        "pixel": "Pixel",
+        "page": "Page",
+        "ig_business": "Tài khoản Instagram"
+      },
+      "event": "Sự kiện",
+      "events": {
+        "all": "Mọi lượt truy cập",
+        "PageView": "Xem trang",
+        "ViewContent": "Xem nội dung",
+        "AddToCart": "Thêm vào giỏ",
+        "InitiateCheckout": "Bắt đầu thanh toán",
+        "Purchase": "Mua hàng",
+        "Lead": "Khách tiềm năng"
+      },
+      "days": "Số ngày (1–{max})",
+      "daysShort": "{n} ngày",
+      "name": "Tên audience (để trống = tự đặt)",
+      "launch": "Tạo audience",
+      "note": "Cần duyệt; audience không tự tiêu tiền.",
+      "queued": "Đã gửi tạo audience. Theo dõi ở Nhật ký hành động."
+    }
   }
 }

@@ -1,11 +1,13 @@
 import { getTranslations } from 'next-intl/server';
 import { creativeLibrary } from '@adxlens/core/recommendation';
+import { listAssets } from '@adxlens/core/connections';
 import { launcherSources } from '@adxlens/core/reporting';
 import { canApproveActions, listClients } from '@adxlens/core/tenancy';
 import { Banner, Card, EmptyState } from '@adxlens/ui';
 import { WsHeader } from '@/components/workspace/ws-header';
 import { getPageContext, requireFlag } from '@/server/page-context';
 import { workspaceScope } from '@/server/workspace-scope';
+import { CustomAudienceCard } from './custom-audience-card';
 import { LauncherView } from './launcher-view';
 
 export async function generateMetadata() {
@@ -52,11 +54,17 @@ export default async function LauncherPage({
   const canApprove = account.clientId
     ? canApproveActions(pc.ctx.actor, account.clientId)
     : pc.ctx.actor.role === 'owner';
-  const [sources, creatives, clients] = await Promise.all([
+  const [sources, creatives, clients, assets] = await Promise.all([
     launcherSources(pc.ctx, account.id),
     creativeLibrary(pc.ctx, account.id, scope.cur),
     listClients(pc.ctx),
+    listAssets(pc.ctx),
   ]);
+  // ADR-0026: nguồn custom audience — pixel của đúng tài khoản, Page / Instagram của workspace.
+  const asset = (kind: 'pixel' | 'page' | 'instagram') =>
+    assets
+      .filter((a) => a.kind === kind && (kind !== 'pixel' || !a.parentId || a.parentId === account.metaAccountId))
+      .map((a) => ({ metaId: a.metaId, name: a.name }));
   // Tem tên (Madgicx white label "asset name stamp"): tên mặc định bắt đầu bằng tên Client.
   const clientName = clients.find((c) => c.id === account.clientId)?.name ?? null;
   const top = creatives
@@ -100,6 +108,16 @@ export default async function LauncherPage({
         initialCreative={sp.creative ?? null}
         namePrefix={clientName}
       />
+      <div className="mt-4">
+        <CustomAudienceCard
+          adAccountId={account.id}
+          canApprove={canApprove}
+          pixels={asset('pixel')}
+          pages={asset('page')}
+          instagram={asset('instagram')}
+          namePrefix={clientName}
+        />
+      </div>
     </>
   );
 }

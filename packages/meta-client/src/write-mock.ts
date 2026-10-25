@@ -5,7 +5,13 @@
  */
 import { MetaApiError } from './errors';
 import { MOCK_ACCOUNTS, mockStructure, mockWriteState } from './mock';
-import type { MetaObjectType, MetaWriteApi, WritableObject } from './write';
+import {
+  customAudienceRule,
+  type CustomAudienceSource,
+  type MetaObjectType,
+  type MetaWriteApi,
+  type WritableObject,
+} from './write';
 
 export type MockWriteFault = 'error_before' | 'error_after' | 'wrong_value';
 
@@ -211,6 +217,26 @@ export class MockMetaWrite implements MetaWriteApi {
       id,
       name: input.name,
       subtype: fault === 'wrong_value' ? 'CUSTOM' : 'LOOKALIKE',
+      act,
+    });
+    if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);
+    return { id };
+  }
+
+  async createCustomAudience(_t: string, act: string, input: { name: string; source: CustomAudienceSource }) {
+    customAudienceRule(input.source); // cùng kiểm tra như bản thật
+    this.calls.push({
+      op: 'createCustomAudience',
+      id: input.source.id,
+      value: `${input.source.type}:${input.source.days}`,
+    });
+    const fault = this.takeFault();
+    const id = `ca_new_${mockWriteState.createdAudiences.size + 1}`;
+    const subtype = input.source.type === 'pixel' ? 'WEBSITE' : 'ENGAGEMENT';
+    mockWriteState.createdAudiences.set(id, {
+      id,
+      name: input.name,
+      subtype: fault === 'wrong_value' ? 'CUSTOM' : subtype,
       act,
     });
     if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);

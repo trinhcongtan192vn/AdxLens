@@ -1,10 +1,16 @@
 import { and, count, eq, gte, inArray, sql } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import type { Enqueue } from '@adxlens/jobs';
-import { connectionCanWrite, listAdAccounts, withConnectionToken, type TokenKeys } from '@adxlens/core/connections';
+import {
+  connectionCanWrite,
+  listAdAccounts,
+  listAssets,
+  withConnectionToken,
+  type TokenKeys,
+} from '@adxlens/core/connections';
 import { isEnabled } from '@adxlens/core/flags';
 import { MetaApiError } from '@adxlens/meta-client';
-import type { MetaWriteApi, WritableObject } from '@adxlens/meta-client/write';
+import { PIXEL_EVENTS, type MetaWriteApi, type WritableObject } from '@adxlens/meta-client/write';
 import { notify } from '@adxlens/core/notification';
 import { openIncident } from '@adxlens/core/ops';
 import {
@@ -41,6 +47,7 @@ const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'campaign' | 'account'> =
   duplicate_adset: 'adset',
   create_ad: 'adset',
   create_lookalike: 'account',
+  create_custom_audience: 'account',
   pause_campaign: 'campaign',
   resume_campaign: 'campaign',
   rename_ad: 'ad',
@@ -50,7 +57,7 @@ const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'campaign' | 'account'> =
   set_campaign_spend_cap: 'campaign',
 };
 
-const LAUNCH_TYPES = new Set<ActionType>(['create_ad', 'create_lookalike']);
+const LAUNCH_TYPES = new Set<ActionType>(['create_ad', 'create_lookalike', 'create_custom_audience']);
 
 /** Hoàn tác được hay không (ADR-0009..0011). */
 export const UNDOABLE: Record<ActionType, boolean> = {
@@ -62,6 +69,7 @@ export const UNDOABLE: Record<ActionType, boolean> = {
   duplicate_adset: false,
   create_ad: false,
   create_lookalike: false,
+  create_custom_audience: false,
   pause_campaign: true,
   resume_campaign: true,
   rename_ad: true,
@@ -761,6 +769,15 @@ type LaunchInput =
       country: string;
       ratioPct: number;
       name: string;
+    }
+  | {
+      /** ADR-0026: pixel (sự kiện website) hoặc tương tác Page / Instagram — nguồn phải là tài sản của workspace. */
+      kind: 'create_custom_audience';
+      adAccountId: string;
+      source:
+        | { type: 'pixel'; id: string; event: 'all' | (typeof PIXEL_EVENTS)[number]; days: number }
+        | { type: 'page' | 'ig_business'; id: string; days: number };
+      name: string;
     };
 
 /**
@@ -809,6 +826,32 @@ export async function requestLaunch(
     targetName = adset.name;
     params = { creative_id: input.creativeId, name };
     parents = [input.adsetId, adset.parent, adset.campaign].filter((x): x is string => !!x);
+  } else if (input.kind === 'create_custom_audience') {
+    const src = input.source;
+    const max = src.type === 'pixel' ? 180 : 365;
+    if (!Number.isInteger(src.days) || src.days < 1 || src.days > max) {
+      throw new AppError('VALIDATION_FAILED', `Số ngày 1–${max}`);
+    }
+    if (src.type === 'pixel' && src.event !== 'all' && !PIXEL_EVENTS.includes(src.event)) {
+      throw new AppError('VALIDATION_FAILED', 'Sự kiện pixel không hợp lệ');
+    }
+    // Nguồn là tài sản đã đồng bộ của workspace (ADR-0016); pixel phải thuộc đúng tài khoản QC.
+    const assets = await listAssets(ctx, src.type === 'pixel' ? 'pixel' : src.type === 'page' ? 'page' : 'instagram');
+    const asset = assets.find((x) => x.metaId === src.id);
+    if (!asset || (src.type === 'pixel' && asset.parentId && asset.parentId !== account.metaAccountId)) {
+      throw new AppError('NOT_FOUND', 'Không tìm thấy nguồn audience');
+    }
+    targetType = 'account';
+    targetMetaId = account.metaAccountId;
+    targetName = account.name;
+    params = {
+      source_type: src.type,
+      source_id: src.id,
+      source_name: asset.name,
+      event: src.type === 'pixel' ? src.event : '',
+      days: String(src.days),
+      name,
+    };
   } else {
     if (!/^[A-Z]{2}$/.test(input.country)) throw new AppError('VALIDATION_FAILED', 'Mã quốc gia 2 chữ');
     if (!Number.isInteger(input.ratioPct) || input.ratioPct < 1 || input.ratioPct > 10) {
@@ -850,7 +893,11 @@ export async function requestLaunch(
   });
   if (violations.length) throw new AppError('GUARDRAIL_VIOLATION', 'Vi phạm guardrails', { violations });
   const after: Record<string, string | null> =
-    input.kind === 'create_ad' ? { created_status: 'PAUSED' } : { created_subtype: 'LOOKALIKE' };
+    input.kind === 'create_ad'
+      ? { created_status: 'PAUSED' }
+      : input.kind === 'create_custom_audience'
+        ? { created_subtype: input.source.type === 'pixel' ? 'WEBSITE' : 'ENGAGEMENT' }
+        : { created_subtype: 'LOOKALIKE' };
   const [row] = await ctx.db
     .insert(actions)
     .values({
@@ -919,14 +966,33 @@ async function executeLaunch(
                 creativeId: a.params.creative_id!,
               })
             ).id
-          : (
-              await deps.writer.createLookalike(token, act, {
-                name: a.params.name!,
-                originAudienceId: a.params.origin_audience_id!,
-                country: a.params.country!,
-                ratio: a.params.ratio!,
-              })
-            ).id;
+          : a.actionType === 'create_custom_audience'
+            ? (
+                await deps.writer.createCustomAudience(token, act, {
+                  name: a.params.name!,
+                  source:
+                    a.params.source_type === 'pixel'
+                      ? {
+                          type: 'pixel',
+                          id: a.params.source_id!,
+                          event: a.params.event as 'all',
+                          days: Number(a.params.days),
+                        }
+                      : {
+                          type: a.params.source_type as 'page' | 'ig_business',
+                          id: a.params.source_id!,
+                          days: Number(a.params.days),
+                        },
+                })
+              ).id
+            : (
+                await deps.writer.createLookalike(token, act, {
+                  name: a.params.name!,
+                  originAudienceId: a.params.origin_audience_id!,
+                  country: a.params.country!,
+                  ratio: a.params.ratio!,
+                })
+              ).id;
       await log(ctx, a.id, 'meta_call', { ok: true, created_id: createdId });
     } catch (err) {
       const e = scrub(err);
@@ -947,14 +1013,14 @@ async function executeLaunch(
             };
       }
       const au = await deps.writer.getAudience(token, createdId);
-      const ok = au.subtype === 'LOOKALIKE';
+      const ok = au.subtype === a.afterExpected.created_subtype;
       await log(ctx, a.id, 'verify', { ok, after: { created_id: createdId, subtype: au.subtype ?? null } });
       return ok
         ? done({ created_id: createdId, created_subtype: au.subtype ?? null })
         : {
             kind: 'failed' as const,
             code: 'verify_mismatch',
-            error: { code: 'verify_mismatch', message: 'Audience mới không phải lookalike' },
+            error: { code: 'verify_mismatch', message: 'Audience mới không đúng loại mong đợi' },
           };
     } catch (err) {
       return { kind: 'failed' as const, code: 'verify_failed', error: scrub(err) };
