@@ -5,7 +5,7 @@ import { useFormatter, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { Badge, Button, Card, Checkbox, EmptyState, Input, Select, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
 import { COLUMN_SETS, type ColumnSet, type MetricKey, addDecimal, pausedByParent, pctChange } from '@/lib/grid';
-import { ActionDialog, type ActionTarget, type GridActionType } from './entity-actions';
+import { ActionDialog, renameType, type ActionTarget, type GridActionType } from './entity-actions';
 
 export type GridKpis = {
   spend: string;
@@ -453,6 +453,14 @@ export function EntityGrid({
                               {isActive(r.status) ? tg('pause') : tg('resume')}
                             </Button>
                           )}
+                          <Button
+                            kind="ghost"
+                            size="s"
+                            onClick={() => open(renameType(level), [r.target!])}
+                            data-testid="row-rename"
+                          >
+                            {tg('rename')}
+                          </Button>
                           {level === 'adset' && r.target.dailyBudget ? (
                             <Button kind="ghost" size="s" onClick={() => open('set_adset_budget', [r.target!])}>
                               {tg('budget')}

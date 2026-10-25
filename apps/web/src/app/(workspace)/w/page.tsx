@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { topFindings } from '@adxlens/core/insight';
 import { buyerOnboarding } from '@adxlens/core/recommendation';
+import { can } from '@adxlens/core/tenancy';
 import {
   changeIsGood,
   defaultHomeMetrics,
@@ -63,9 +64,12 @@ export default async function WorkspaceHome() {
             title={t('emptyTitle')}
             description={t('emptyBody')}
             action={
-              <a href="/connections/new" className={buttonVariants({ kind: 'primary', size: 'm' })}>
-                {t('connect')}
-              </a>
+              // Chỉ ai quản lý kết nối (Owner / Manager) thấy nút; buyer chỉ thấy lời nhắn.
+              can(pc.ctx.actor.role, 'connections.manage') ? (
+                <a href="/connections/new" className={buttonVariants({ kind: 'primary', size: 'm' })}>
+                  {t('connect')}
+                </a>
+              ) : null
             }
           />
         </Card>

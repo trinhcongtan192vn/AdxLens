@@ -86,6 +86,9 @@ const INVERSE: Partial<Record<ActionType, ActionType>> = {
   pause_campaign: 'resume_campaign',
   resume_campaign: 'pause_campaign',
   set_adset_budget: 'set_adset_budget',
+  rename_ad: 'rename_ad',
+  rename_adset: 'rename_adset',
+  rename_campaign: 'rename_campaign',
 };
 
 /**
@@ -105,6 +108,7 @@ export async function undoAction(ctx: ActorCtx, id: string, deps: { enqueue: Enq
       actionType: inverse,
       targetMetaId: a.targetMetaId,
       newDailyBudget: type === 'set_adset_budget' ? (a.beforeState.daily_budget ?? null) : null,
+      newName: a.beforeState.name ?? null,
       recommendationId: a.recommendationId,
       undoOf: a.id,
     },

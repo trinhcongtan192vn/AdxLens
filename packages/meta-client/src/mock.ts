@@ -70,7 +70,7 @@ function accountNum(act: string): string {
  * cấu trúc xác định khi đọc — để luồng ghi → đọc lại (verifier) chạy được ở local/test.
  */
 export const mockWriteState = {
-  overrides: new Map<string, { status?: string; daily_budget?: string }>(),
+  overrides: new Map<string, { status?: string; daily_budget?: string; name?: string }>(),
   copies: new Map<string, MetaAdSet>(),
   /** ADR-0023: quảng cáo / audience tạo qua Meta giả. */
   createdAds: new Map<string, MetaAd & { act: string }>(),
@@ -90,6 +90,7 @@ function applyOverride<T extends { id: string; status?: string | null; effective
     ...o,
     ...(w.status ? { status: w.status, effective_status: w.status } : {}),
     ...(w.daily_budget !== undefined ? { daily_budget: w.daily_budget } : {}),
+    ...(w.name !== undefined ? { name: w.name } : {}),
   };
 }
 

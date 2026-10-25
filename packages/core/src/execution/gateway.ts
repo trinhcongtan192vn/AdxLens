@@ -17,7 +17,13 @@ import {
   type WorkspaceCtx,
 } from '@adxlens/core/shared';
 import { canApproveActions } from '@adxlens/core/tenancy';
-import { checkGuardrails, effectiveGuardrails, type ActionType, type GuardrailViolation } from './guardrails';
+import {
+  checkGuardrails,
+  effectiveGuardrails,
+  RENAME_TYPES,
+  type ActionType,
+  type GuardrailViolation,
+} from './guardrails';
 import { breakerOpen, cancelPending, killSwitchState, recordFailure, recordSuccess } from './safety';
 
 const { actions, actionLogs, adAccounts, entities } = schema;
@@ -36,6 +42,9 @@ const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'campaign' | 'account'> =
   create_lookalike: 'account',
   pause_campaign: 'campaign',
   resume_campaign: 'campaign',
+  rename_ad: 'ad',
+  rename_adset: 'adset',
+  rename_campaign: 'campaign',
 };
 
 const LAUNCH_TYPES = new Set<ActionType>(['create_ad', 'create_lookalike']);
@@ -52,7 +61,18 @@ export const UNDOABLE: Record<ActionType, boolean> = {
   create_lookalike: false,
   pause_campaign: true,
   resume_campaign: true,
+  rename_ad: true,
+  rename_adset: true,
+  rename_campaign: true,
 };
+
+/** ADR-0025: tên mới đã chuẩn hóa (bỏ khoảng trắng hai đầu, 1–400 ký tự, không ký tự điều khiển) hoặc null. */
+export function cleanName(v: string | null | undefined): string | null {
+  const s = (v ?? '').trim();
+  // eslint-disable-next-line no-control-regex
+  if (!s || s.length > 400 || /[\u0000-\u001f\u007f]/.test(s)) return null;
+  return s;
+}
 
 /** Đơn vị nhỏ nhất của tiền tệ dạng số nguyên (ngân sách Meta) từ chuỗi numeric. */
 export function minorUnits(v: string | null | undefined): string | null {
@@ -62,7 +82,8 @@ export function minorUnits(v: string | null | undefined): string | null {
   return String(BigInt(m[1]!)); // phần lẻ của đơn vị nhỏ nhất bị bỏ (làm tròn xuống)
 }
 
-function expectedAfter(type: ActionType, newBudget?: string | null): State {
+function expectedAfter(type: ActionType, newBudget?: string | null, newName?: string | null): State {
+  if (RENAME_TYPES.has(type)) return { name: newName ?? null };
   if (type === 'pause_ad' || type === 'pause_adset' || type === 'pause_campaign') return { status: 'PAUSED' };
   if (type === 'resume_ad' || type === 'resume_adset' || type === 'resume_campaign') return { status: 'ACTIVE' };
   if (type === 'set_adset_budget') return { daily_budget: newBudget ?? null };
@@ -124,6 +145,13 @@ async function targetEntity(ctx: WorkspaceCtx, adAccountId: string, type: 'ad' |
   return e ?? null;
 }
 
+/** Trạng thái trước theo lần đồng bộ gần nhất (thuộc tính mà hành động sẽ đổi). */
+function beforeOf(type: ActionType, e: { name: string | null; status: string | null; daily_budget: string | null }) {
+  if (type === 'set_adset_budget') return { daily_budget: minorUnits(e.daily_budget) } as State;
+  if (RENAME_TYPES.has(type)) return { name: e.name } as State;
+  return { status: e.status } as State;
+}
+
 async function accountOf(ctx: WorkspaceCtx, adAccountId: string) {
   const [a] = await ctx.db
     .select({
@@ -164,6 +192,8 @@ export type ActionRequest = {
   actionType: ActionType;
   targetMetaId: string;
   newDailyBudget?: string | null;
+  /** ADR-0025: tên mới cho `rename_*`. */
+  newName?: string | null;
   recommendationId?: string | null;
   undoOf?: string | null;
 };
@@ -184,8 +214,12 @@ export async function previewAction(ctx: ActorCtx, input: ActionRequest, clock: 
   if (!e) throw new AppError('NOT_FOUND', 'Không tìm thấy đối tượng');
   const g = await effectiveGuardrails(ctx);
   const newBudget = input.actionType === 'set_adset_budget' ? minorUnits(input.newDailyBudget) : null;
-  const before: State =
-    input.actionType === 'set_adset_budget' ? { daily_budget: minorUnits(e.daily_budget) } : { status: e.status };
+  const before = beforeOf(input.actionType, e);
+  const newName = RENAME_TYPES.has(input.actionType) ? cleanName(input.newName) : null;
+  if (RENAME_TYPES.has(input.actionType)) {
+    if (!newName) throw new AppError('VALIDATION_FAILED', 'Tên mới không hợp lệ (1–400 ký tự)');
+    if (newName === e.name) throw new AppError('VALIDATION_FAILED', 'Tên mới trùng tên hiện tại');
+  }
   const violations: GuardrailViolation[] = checkGuardrails({
     guardrails: g,
     actionType: input.actionType,
@@ -208,7 +242,7 @@ export async function previewAction(ctx: ActorCtx, input: ActionRequest, clock: 
     targetType: type,
     targetName: e.name,
     before,
-    after: expectedAfter(input.actionType, newBudget),
+    after: expectedAfter(input.actionType, newBudget, newName),
     violations,
     undoable: UNDOABLE[input.actionType],
   };
@@ -258,7 +292,11 @@ export async function requestAction(
       targetMetaId: input.targetMetaId,
       targetName: p.targetName,
       tier: 'approve',
-      params: p.after.daily_budget ? { daily_budget: p.after.daily_budget } : {},
+      params: p.after.daily_budget
+        ? { daily_budget: p.after.daily_budget }
+        : p.after.name
+          ? { name: p.after.name }
+          : {},
       beforeState: p.before,
       afterExpected: p.after,
       idempotencyKey: `${base}#${prior.length + 1}`,
@@ -331,11 +369,7 @@ export async function requestAutoAction(
   if (!e) return { skipped: 'target_missing' };
   const g = await effectiveGuardrails(ctx);
   const newBudget = input.actionType === 'set_adset_budget' ? minorUnits(input.newDailyBudget) : null;
-  const before: State = input.revertOf
-    ? input.revertOf.expectedState
-    : input.actionType === 'set_adset_budget'
-      ? { daily_budget: minorUnits(e.daily_budget) }
-      : { status: e.status };
+  const before: State = input.revertOf ? input.revertOf.expectedState : beforeOf(input.actionType, e);
   const after = expectedAfter(input.actionType, newBudget);
   const violations = checkGuardrails({
     guardrails: {
@@ -392,6 +426,7 @@ function scrub(e: unknown): { code: string; message: string } {
 }
 
 function matches(obj: WritableObject, expected: State): boolean {
+  if ('name' in expected) return (obj.name ?? null) === expected.name;
   if ('status' in expected) return obj.status === expected.status;
   if ('daily_budget' in expected) return minorUnits(obj.daily_budget ?? null) === expected.daily_budget;
   if ('copy_status' in expected) return obj.status === expected.copy_status;
@@ -400,6 +435,7 @@ function matches(obj: WritableObject, expected: State): boolean {
 
 function snapshot(obj: WritableObject): State {
   return {
+    name: obj.name ?? null,
     status: obj.status ?? null,
     effective_status: obj.effective_status ?? null,
     daily_budget: minorUnits(obj.daily_budget ?? null),
@@ -480,11 +516,13 @@ export async function executeAction(
     }
     // Đối tượng đã bị đổi từ lúc duyệt → không ghi đè (ADR-0008 bước 6).
     const beforeOk =
-      'daily_budget' in a.beforeState
-        ? minorUnits(live.daily_budget ?? null) === a.beforeState.daily_budget
-        : 'status' in a.beforeState && type !== 'duplicate_adset'
-          ? live.status === a.beforeState.status
-          : true;
+      'name' in a.beforeState
+        ? (live.name ?? null) === a.beforeState.name
+        : 'daily_budget' in a.beforeState
+          ? minorUnits(live.daily_budget ?? null) === a.beforeState.daily_budget
+          : 'status' in a.beforeState && type !== 'duplicate_adset'
+            ? live.status === a.beforeState.status
+            : true;
     if (!beforeOk)
       return {
         kind: 'failed' as const,
@@ -497,6 +535,7 @@ export async function executeAction(
     try {
       if (type === 'set_adset_budget')
         await deps.writer.setDailyBudget(token, a.targetMetaId, a.afterExpected.daily_budget!);
+      else if (RENAME_TYPES.has(type)) await deps.writer.setName(token, a.targetMetaId, a.afterExpected.name!);
       else if (type === 'duplicate_adset')
         verifyId = (await deps.writer.copyAdSet(token, a.targetMetaId)).copiedAdSetId;
       else await deps.writer.setStatus(token, a.targetMetaId, a.afterExpected.status as 'ACTIVE' | 'PAUSED');
@@ -547,7 +586,9 @@ export async function executeAction(
         .set(
           type === 'set_adset_budget'
             ? { dailyBudget: outcome.after.daily_budget ?? null, updatedAt: ts }
-            : { status: outcome.after.status ?? null, updatedAt: ts },
+            : RENAME_TYPES.has(type)
+              ? { name: outcome.after.name ?? null, updatedAt: ts }
+              : { status: outcome.after.status ?? null, updatedAt: ts },
         )
         .where(
           and(

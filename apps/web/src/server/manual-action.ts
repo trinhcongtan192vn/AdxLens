@@ -17,12 +17,21 @@ export const manualActionSchema = z
       // ADR-0015: trạng thái chiến dịch (duyệt tay).
       'pause_campaign',
       'resume_campaign',
+      // ADR-0025: đổi tên (duyệt tay).
+      'rename_ad',
+      'rename_adset',
+      'rename_campaign',
     ]),
     target_meta_id: z.string().regex(/^\d{1,30}$/),
     new_daily_budget: z
       .string()
       .regex(/^\d{1,14}(\.\d{1,2})?$/)
       .nullish(),
+    new_name: z.string().trim().min(1).max(400).nullish(),
+  })
+  .refine((v) => !v.action_type.startsWith('rename_') || Boolean(v.new_name), {
+    message: 'Cần tên mới',
+    path: ['new_name'],
   })
   .refine((v) => v.action_type !== 'set_adset_budget' || Boolean(v.new_daily_budget), {
     message: 'Cần ngân sách mới',
@@ -35,5 +44,6 @@ export function toActionRequest(b: z.infer<typeof manualActionSchema>) {
     actionType: b.action_type,
     targetMetaId: b.target_meta_id,
     newDailyBudget: b.new_daily_budget ?? null,
+    newName: b.new_name ?? null,
   };
 }

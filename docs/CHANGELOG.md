@@ -27,6 +27,42 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [119] Đổi tên quảng cáo / nhóm QC / chiến dịch qua Execution Gateway (ADR-0025) — 2026-10-25
+
+PM chọn làm gap "Giá thầu + giới hạn chi + đổi tên" (đối chiếu Madgicx Academy). Bước này làm **đổi tên**. Giá thầu và
+giới hạn chi làm ở bước sau theo cùng ADR.
+
+- **ADR-0025** (chấp nhận): đổi tên, giá thầu nhóm QC, giới hạn chi chiến dịch.
+  - Chỉ duyệt tay; rule tự động không bao giờ tạo (`no_auto_edit`).
+  - Guardrails giữ nguyên.
+- **Hành động mới:** `rename_ad`, `rename_adset`, `rename_campaign`.
+  - Gọi `POST /{id}` với `name`.
+  - Trạng thái trước = tên theo lần đồng bộ gần nhất.
+  - Ngay trước khi ghi, đọc lại tên thật. Tên đã bị đổi trên Meta sau khi duyệt thì không ghi đè (`state_changed`).
+  - Verify bằng cách đọc lại tên; cập nhật bản chụp cấu trúc.
+  - Hoàn tác về tên cũ.
+- **Kiểm tên:** bỏ khoảng trắng hai đầu, 1–400 ký tự, không ký tự điều khiển, khác tên hiện tại.
+- **Giao diện:**
+  - Ads Manager có nút bút chì cạnh tên;
+  - bảng chiến dịch / nhóm QC / QC có nút "Đổi tên";
+  - hộp thoại nhập tên mới → xem trước "tên cũ → tên mới" → duyệt;
+  - Nhật ký hành động hiện tên cũ → mới.
+
+**Vùng bảo vệ:**
+- `packages/core/execution` (gateway, guardrails, hoàn tác);
+- `packages/meta-client/write` (`setName`; chỉ execution import).
+- **Cần PM chạy integration test trên staging trước khi merge `main`.**
+
+**Sửa lỗi của [118]:** sau khi gộp trang chủ, ô trống của `/w` hiện nút "Kết nối Meta" cho cả buyer. `/overview` cũ có
+kiểm quyền `connections.manage`, nay `/w` kiểm lại đúng như vậy. E2E `auth-workspace` (buyer không thấy Kết nối) bắt
+được lỗi này.
+
+**Test tự động:** `execution/rename.test.ts`:
+- luồng đủ: xem trước → duyệt → ghi 1 lần → xác minh → bản chụp → hoàn tác;
+- tên không hợp lệ / trùng → từ chối;
+- tên bị đổi trên Meta sau khi duyệt → không ghi đè;
+- rule tự động không đổi tên; cờ tắt → không chạy.
+
 ## [118] Một giao diện duy nhất: gộp giao diện cổ điển vào khung Workspace — 2026-10-25
 
 PM báo lỗi: đang ở giao diện mới, mở chi tiết chiến dịch / nhóm QC / QC / bài post thì quay về sidebar cũ. PM chọn:
