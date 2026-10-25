@@ -98,7 +98,7 @@ export const apiKeys = app.table(
   (t) => [index().on(t.workspaceId)],
 );
 
-export const LLM_PROVIDERS = ['anthropic', 'openai'] as const;
+export const LLM_PROVIDERS = ['anthropic', 'openai', 'gemini', 'deepseek'] as const;
 
 const bytea = customType<{ data: Buffer; driverData: Buffer }>({ dataType: () => 'bytea' });
 

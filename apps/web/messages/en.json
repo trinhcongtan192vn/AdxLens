@@ -3435,7 +3435,7 @@
     "proposeOff": "Requires a plan with action approval.",
     "llm": {
       "title": "Workspace AI model",
-      "intro": "AI Agents answer with your agency's own Anthropic (Claude) or OpenAI (GPT) account: usage is billed to your account with the provider. Numbers are still computed by AdxLens and checked before they are shown.",
+      "intro": "AI Agents answer with the agency's own AI account: Anthropic (Claude), OpenAI (GPT), Google (Gemini) or DeepSeek. Usage is billed to your account with the provider. Numbers are still computed and checked by AdxLens before they are shown.",
       "statusOn": "In use",
       "statusError": "Error",
       "using": "{provider} · {model}",
@@ -3445,13 +3445,13 @@
       "provider": "Provider",
       "providers": {
         "anthropic": "Anthropic (Claude)",
-        "openai": "OpenAI (GPT)"
+        "openai": "OpenAI (GPT)",
+        "gemini": "Google (Gemini)",
+        "deepseek": "DeepSeek"
       },
       "model": "Model",
       "key": "API key",
       "keyKeep": "Leave empty to keep the current key",
-      "whereAnthropic": "Create a key at console.anthropic.com → API Keys.",
-      "whereOpenai": "Create a key at platform.openai.com → API keys.",
       "security": "The key is encrypted at rest, never shown again and only used to answer questions in AI Agents.",
       "save": "Save key",
       "remove": "Remove key",
@@ -3463,7 +3463,14 @@
         "quota": "The last call was rejected: quota or credit exhausted at the provider.",
         "model": "The last call was rejected: your account cannot use this model. Change the model.",
         "other": "The last call failed. Try again in a few minutes."
-      }
+      },
+      "where": {
+        "anthropic": "Create a key at console.anthropic.com → API Keys.",
+        "openai": "Create a key at platform.openai.com → API keys.",
+        "gemini": "Create a key at aistudio.google.com → Get API key.",
+        "deepseek": "Create a key at platform.deepseek.com → API keys."
+      },
+      "modelHint": "Pick a suggested model or type another model your account can use."
     },
     "connector": {
       "title": "Use AdxLens in Claude / ChatGPT",

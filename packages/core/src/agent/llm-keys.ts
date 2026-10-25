@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import { decryptSecret, encryptSecret, type TokenKeys } from '@adxlens/core/connections';
 import { AppError, notFound, type ActorCtx, type WorkspaceCtx } from '@adxlens/core/shared';
-import { anthropicAgentClient, openaiAgentClient, type AgentLlm } from './llm';
+import { anthropicAgentClient, deepseekAgentClient, geminiAgentClient, openaiAgentClient, type AgentLlm } from './llm';
 
 const { llmKeys, auditEvents } = schema;
 
@@ -11,14 +11,25 @@ export type LlmProvider = (typeof LLM_PROVIDERS)[number];
 
 /** Model gợi ý cho từng nhà cung cấp; người dùng nhập được model khác (tên theo tài khoản của họ). */
 export const LLM_MODELS: Record<LlmProvider, readonly string[]> = {
-  anthropic: ['claude-sonnet-5-5', 'claude-opus-5-5', 'claude-haiku-5-5'],
-  openai: ['gpt-5', 'gpt-5-mini', 'gpt-4.1'],
+  anthropic: ['claude-sonnet-5-5', 'claude-opus-5-5', 'claude-haiku-5-5', 'claude-fable-5-1', 'claude-sonnet-4-5'],
+  openai: ['gpt-5', 'gpt-5-mini', 'gpt-5-nano', 'gpt-4.1', 'gpt-4.1-mini', 'o4-mini'],
+  gemini: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'],
+  deepseek: ['deepseek-chat', 'deepseek-reasoner'],
+};
+
+const CLIENTS: Record<LlmProvider, (cfg: { apiKey: string; model: string; fetchImpl?: typeof fetch }) => AgentLlm> = {
+  anthropic: anthropicAgentClient,
+  openai: openaiAgentClient,
+  gemini: geminiAgentClient,
+  deepseek: deepseekAgentClient,
 };
 
 /** Dạng khóa của từng nhà cung cấp — chặn dán nhầm (vd. khóa OpenAI vào ô Anthropic). */
 const KEY_PATTERN: Record<LlmProvider, RegExp> = {
   anthropic: /^sk-ant-[\w-]{20,}$/,
   openai: /^sk-(?!ant-)[\w-]{20,}$/,
+  gemini: /^AIza[\w-]{30,}$/,
+  deepseek: /^sk-(?!ant-)[\w-]{20,}$/,
 };
 
 const MODEL_PATTERN = /^[a-zA-Z0-9][\w.:-]{1,79}$/;
@@ -155,8 +166,11 @@ export async function workspaceAgentLlm(
     .where(eq(llmKeys.workspaceId, ctx.workspaceId));
   if (!row) return null;
   const apiKey = decryptSecret(row.keyCiphertext, row.keyVersion, keys);
-  const make = row.provider === 'openai' ? openaiAgentClient : anthropicAgentClient;
-  const inner = make({ apiKey, model: row.model, ...(opts.fetchImpl ? { fetchImpl: opts.fetchImpl } : {}) });
+  const inner = CLIENTS[row.provider]({
+    apiKey,
+    model: row.model,
+    ...(opts.fetchImpl ? { fetchImpl: opts.fetchImpl } : {}),
+  });
   const mark = (lastError: string | null) =>
     ctx.db
       .update(llmKeys)
