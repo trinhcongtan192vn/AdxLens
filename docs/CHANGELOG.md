@@ -27,6 +27,52 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [138] Tạo quảng cáo qua chat: agent viết nội dung + soạn kế hoạch, người dùng duyệt một lần trong chat (ADR-0030 / 0031) — 2026-10-25
+
+PM hỏi "ra lệnh cho agent qua chat để tạo ads". Agent chỉ đề xuất; tạo trên Meta chỉ khi người dùng duyệt thẻ kế hoạch.
+
+- **`write_ad_copy`:**
+  - gọi model của việc **viết nội dung** (AI router, khóa workspace; không có khóa → báo cấu hình);
+  - trả 1–3 phương án tiêu đề + nội dung chính;
+  - **phương án có con số người dùng chưa gõ bị loại** (vd. người dùng nói "giảm 30%", model viết "giảm 50%" → loại);
+  - tối đa 3 lần gọi mỗi câu trả lời.
+- **`propose_ad_plan`:**
+  - tạo kế hoạch `proposed` (creative → nhóm QC mới → quảng cáo, bước sau tham chiếu bước trước);
+  - tên / tiêu đề / nội dung chỉ được có số người dùng đã gõ hoặc số công cụ trả;
+  - ngân sách ngày phải là số người dùng đã nói (hiểu "200k", "2 triệu") hoặc ngân sách nhóm QC mẫu;
+  - sai → lỗi công cụ, agent phải hỏi lại.
+- **Thẻ kế hoạch trong chat:**
+  - đủ tham số từng bước: ảnh, tiêu đề, nội dung, CTA, link, ngân sách theo tiền tệ tài khoản, quốc gia, tuổi, audience,
+    tham chiếu bước;
+  - "Duyệt & chạy" chỉ hiện với người có quyền duyệt Client; vi phạm guardrail hiện ngay dưới bước;
+  - đang chạy → cập nhật từng bước (thành công / lỗi / bỏ qua); "Bỏ kế hoạch"; kế hoạch hết hạn sau 24 giờ.
+- **API:** `GET /api/v1/action-plans/[id]`, `POST …/approve` (202; vi phạm → 422 kèm kiểm từng bước), `POST …/cancel`.
+  Sau cờ P2a; kế hoạch chỉ hiện với người xem được tài khoản QC.
+- **Worker:** agent nhận thêm model viết nội dung theo tuyến `copywriting` (không bao giờ khóa nền tảng).
+- **Prompt:** chỉ dẫn quy trình tạo quảng cáo (`launch_assets` → `write_ad_copy` → `propose_ad_plan`), không bao giờ nói
+  "đã tạo".
+
+**Vùng bảo vệ:** `packages/db/schema/agent.ts` (chỉ kiểu TS của tin nhắn: `plans`, `newName`, `newValue`; không
+migration). Không chạm execution: agent gọi `createActionPlan` (chỉ tạo đề xuất).
+
+**Test tự động:**
+- `core/agent/ad-plan-tools.test.ts`:
+  - số người dùng gõ hiểu "200k", "2 triệu", "1,5tr";
+  - luồng đầy đủ: viết nội dung loại phương án "50%" → kế hoạch có "70%" bị từ chối → kế hoạch "30%" được tạo `proposed`,
+    gắn tin nhắn, không có hành động nào;
+  - ngân sách chưa nói → từ chối; không có model viết nội dung → lỗi; quá 3 lần viết → dừng ở 3;
+  - cờ P2a tắt → không có hai công cụ.
+- `api/v1/action-plans/[id]/action-plans.test.ts`: cờ tắt → 404; xem đủ bước; duyệt bước không hợp lệ → 422 kèm kiểm, vẫn
+  chờ; buyer → 404; hủy, hủy lần hai → 409.
+- Bộ cách ly: `GET /api/v1/action-plans/[id]`, `POST …/approve`, `POST …/cancel` (kế hoạch của B → 404).
+
+**PM kiểm tra:**
+1. Cài đặt → Tích hợp: có khóa AI.
+2. Launcher: tải một ảnh.
+3. AI Agents: "Tạo quảng cáo sale giảm 30% cho sản phẩm X, ngân sách 200k/ngày, link https://…" → thẻ kế hoạch 3 bước
+   → "Duyệt & chạy" → từng bước chuyển ✓.
+4. Nhật ký có 3 hành động; quảng cáo mới ở trạng thái tạm dừng.
+
 ## [137] Kế hoạch hành động: chuỗi tạo quảng cáo duyệt một lần, chạy tuần tự qua Execution Gateway (ADR-0031) — 2026-10-25
 
 Lõi + job; công cụ agent và thẻ trong chat ở 138.

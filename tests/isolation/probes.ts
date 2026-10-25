@@ -411,6 +411,21 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
     crossParams: (w) => ({ id: w.b.action.id }),
   },
+  'GET /api/v1/action-plans/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.plan.id }),
+  },
+  'POST /api/v1/action-plans/[id]/approve': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.plan.id }),
+  },
+  'POST /api/v1/action-plans/[id]/cancel': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+    crossParams: (w) => ({ id: w.b.plan.id }),
+  },
   'GET /api/v1/kill-switch': { kind: 'workspace' },
   'POST /api/v1/kill-switch': { kind: 'workspace', body: () => ({ active: false, reason: '' }) },
   'POST /api/v1/circuit-breakers/[id]/close': {

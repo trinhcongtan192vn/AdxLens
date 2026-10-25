@@ -1,5 +1,6 @@
 import {
   agentMessageOwner,
+  routedAgentLlm,
   runAgentReply,
   runAiImage,
   workspaceAgentLlm,
@@ -39,13 +40,17 @@ export const recommendHandlers: HandlerMap = {
     const actor = await resolveActor(db, p.workspaceId, userId);
     if (!actor) return { status: 'no_member' };
     const own = await workspaceAgentLlm({ db, workspaceId: p.workspaceId }, tokenKeys);
+    // ADR-0030: viết nội dung quảng cáo chỉ bằng khóa workspace (không bao giờ khóa nền tảng).
+    const copywriter =
+      (await routedAgentLlm({ db, workspaceId: p.workspaceId }, tokenKeys, 'copywriting'))?.llm ?? null;
     const r = await runAgentReply(
       { db, workspaceId: p.workspaceId, actor },
       p.messageId,
       own
-        ? { llm: own.llm, llmInfo: { via: 'workspace', provider: own.provider, model: own.model } }
+        ? { llm: own.llm, copywriter, llmInfo: { via: 'workspace', provider: own.provider, model: own.model } }
         : {
             llm: agentLlm,
+            copywriter,
             ...(agentLlm ? { llmInfo: { via: 'platform', provider: 'anthropic', model: agentLlmModel ?? '' } } : {}),
           },
     );

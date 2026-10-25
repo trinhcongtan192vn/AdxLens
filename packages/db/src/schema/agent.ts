@@ -32,8 +32,12 @@ export type AgentMessageData = {
     targetMetaId: string;
     targetName: string | null;
     newDailyBudget?: string | null;
+    newName?: string | null;
+    newValue?: string | null;
     reason?: string;
   }[];
+  /** ADR-0031: kế hoạch hành động agent đã đề xuất (id `action_plans`) — thẻ duyệt một lần trong chat. */
+  plans?: string[];
   /** llm: qua kiểm tra số; facts: trả bảng số từ công cụ vì LLM không qua kiểm tra / không có key. */
   source?: 'llm' | 'facts' | 'unconfigured' | 'stopped';
   /** Khóa nào trả lời: khóa workspace tự mang (ADR-0022) hay khóa nền tảng. */

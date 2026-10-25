@@ -3422,7 +3422,9 @@
       "entity_details": "Selected items",
       "account_structure": "Account structure",
       "launch_assets": "Launch assets",
-      "store_summary": "Store revenue"
+      "store_summary": "Store revenue",
+      "write_ad_copy": "Copywriting",
+      "propose_ad_plan": "Ad creation plan"
     },
     "proposal": "Proposal — needs your approval",
     "review": "Preview and approve",
@@ -3459,7 +3461,36 @@
       "adset": "Ad set",
       "ad": "Ad"
     },
-    "newName": "New name: {name}"
+    "newName": "New name: {name}",
+    "plan": {
+      "title": "Ad creation plan",
+      "approve": "Approve & run",
+      "cancel": "Discard plan",
+      "approved": "Approved — creating step by step",
+      "canceled": "Plan discarded",
+      "error": "Could not complete",
+      "noPermission": "You cannot approve actions for this client",
+      "safety": "Approve once; steps run one by one through guardrails. New ad sets and ads are always paused; turn them on when ready.",
+      "campaignBudget": "campaign budget",
+      "fromStep": "created in step \"{name}\"",
+      "adsetLine": "Daily budget {budget} · {countries} · age {ageMin}–{ageMax} · {audiences} audiences",
+      "adLine": "Ad set: {adset} · Creative: {creative}",
+      "stepFailed": "Step failed ({code}) — later steps did not run. See the action log.",
+      "kinds": {
+        "create_creative": "Creative",
+        "create_adset": "New ad set",
+        "create_ad": "Ad"
+      },
+      "status": {
+        "proposed": "Awaiting approval",
+        "approved": "Approved",
+        "running": "Running",
+        "done": "Done",
+        "failed": "Failed",
+        "canceled": "Discarded",
+        "expired": "Expired"
+      }
+    }
   },
   "integrations": {
     "title": "MCP server — connect AdxLens to Claude and other AI tools",

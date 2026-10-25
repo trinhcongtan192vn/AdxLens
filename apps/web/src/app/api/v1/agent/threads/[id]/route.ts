@@ -17,6 +17,7 @@ export const GET = route({
         content: m.content,
         tools: m.data.tools ?? [],
         proposals: m.data.proposals ?? [],
+        plans: m.data.plans ?? [],
         source: m.data.source ?? null,
         facts: m.data.facts ?? [],
         llm: m.data.llm ?? null,
