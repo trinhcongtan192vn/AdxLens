@@ -166,7 +166,7 @@ export function AdsView({ cards, metricOptions }: { cards: AdCardDto[]; metricOp
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4" data-testid="ads-grid">
           {rows.map((c) => (
             <Card key={`${c.adAccountId}:${c.metaId}`} className="flex flex-col p-0" data-testid="ad-card">
-              <Link href={`/accounts/${c.adAccountId}/ad/${c.metaId}`} className="block">
+              <Link href={`/accounts/${c.adAccountId}/ad/${c.metaId}?from=ads`} className="block">
                 {c.thumbnailUrl ? (
                   <img
                     src={c.thumbnailUrl}
@@ -183,7 +183,7 @@ export function AdsView({ cards, metricOptions }: { cards: AdCardDto[]; metricOp
               <div className="flex flex-1 flex-col gap-2 p-3">
                 <div className="flex items-start gap-2">
                   <Link
-                    href={`/accounts/${c.adAccountId}/ad/${c.metaId}`}
+                    href={`/accounts/${c.adAccountId}/ad/${c.metaId}?from=ads`}
                     className="line-clamp-2 flex-1 text-small font-medium text-fg hover:text-brand"
                   >
                     {c.name ?? c.metaId}
