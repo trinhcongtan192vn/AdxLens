@@ -1,4 +1,5 @@
 import type { GoogleAnalyticsApi } from './ga4';
+import type { TiktokShopApi } from './tiktok-shop';
 import type { ShopeeApi } from './shopee';
 import type { ShopifyApi } from './shopify';
 
@@ -79,6 +80,52 @@ export class MockShopee implements ShopeeApi {
     for (let d = new Date(`${range.from}T00:00:00Z`); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
       const n = 20 + (d.getUTCDate() % 3);
       out.push({ date: d.toISOString().slice(0, 10), orders: n, revenue: String(n * 150_000) });
+    }
+    return out;
+  }
+}
+
+/** TikTok Shop giả (STORE_MOCK=1): một lần ủy quyền gồm 2 shop VN; refresh token đổi mỗi lần làm mới. */
+export class MockTiktokShop implements TiktokShopApi {
+  private n = 0;
+
+  async exchangeCode(code: string) {
+    if (code === 'bad') throw new Error('TIKTOK_HTTP_400');
+    return { accessToken: 'tts_access', refreshToken: `tts_refresh_${code}` };
+  }
+
+  async refresh(refreshToken: string) {
+    if (refreshToken.includes('revoked')) throw new Error('TIKTOK_HTTP_401');
+    this.n += 1;
+    return { accessToken: 'tts_access', refreshToken: `tts_refresh_r${this.n}` };
+  }
+
+  async shops() {
+    return [
+      {
+        id: '7001',
+        cipher: 'ROW_cipher_1',
+        name: 'TikTok Shop 1',
+        region: 'VN',
+        currency: 'VND',
+        timezone: 'Asia/Ho_Chi_Minh',
+      },
+      {
+        id: '7002',
+        cipher: 'ROW_cipher_2',
+        name: 'TikTok Shop 2',
+        region: 'VN',
+        currency: 'VND',
+        timezone: 'Asia/Ho_Chi_Minh',
+      },
+    ];
+  }
+
+  async dailyOrders(_t: string, _c: string, range: { from: string; to: string }) {
+    const out: { date: string; orders: number; revenue: string }[] = [];
+    const end = new Date(`${range.to}T00:00:00Z`);
+    for (let d = new Date(`${range.from}T00:00:00Z`); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+      out.push({ date: d.toISOString().slice(0, 10), orders: 15, revenue: String(15 * 120_000) });
     }
     return out;
   }

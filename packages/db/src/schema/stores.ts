@@ -4,7 +4,7 @@ import { clients, workspaces } from './tenancy';
 
 const bytea = customType<{ data: Buffer; driverData: Buffer }>({ dataType: () => 'bytea' });
 
-export const STORE_PROVIDERS = ['shopify', 'ga4', 'shopee'] as const;
+export const STORE_PROVIDERS = ['shopify', 'ga4', 'shopee', 'tiktok_shop'] as const;
 export const STORE_STATUSES = ['active', 'error', 'revoked'] as const;
 
 /**

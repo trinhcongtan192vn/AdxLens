@@ -5,11 +5,13 @@ import {
   HttpGoogleAnalytics,
   HttpShopee,
   HttpShopify,
+  HttpTiktokShop,
   type GoogleAnalyticsApi,
   type ShopeeApi,
+  type TiktokShopApi,
   type ShopifyApi,
 } from '@adxlens/store-client';
-import { MockGoogleAnalytics, MockShopee, MockShopify } from '@adxlens/store-client/mock';
+import { MockGoogleAnalytics, MockShopee, MockShopify, MockTiktokShop } from '@adxlens/store-client/mock';
 import { decryptSecret, encryptSecret, type TokenKeys } from '@adxlens/core/connections';
 import {
   addDays,
@@ -157,7 +159,14 @@ export async function disconnectStore(ctx: ActorCtx, id: string): Promise<void> 
 export async function runStoreSync(
   ctx: WorkspaceCtx,
   input: { connectionId: string; from?: string; to?: string; days?: number },
-  deps: { shopify: ShopifyApi; ga4?: GoogleAnalyticsApi; shopee?: ShopeeApi; keys: TokenKeys; clock?: Clock },
+  deps: {
+    shopify: ShopifyApi;
+    ga4?: GoogleAnalyticsApi;
+    shopee?: ShopeeApi;
+    tiktok?: TiktokShopApi;
+    keys: TokenKeys;
+    clock?: Clock;
+  },
 ): Promise<{ status: 'ok' | 'skipped' | 'failed'; days?: number; code?: string }> {
   const [c] = await ctx.db
     .select()
@@ -170,6 +179,34 @@ export async function runStoreSync(
   const from = input.from ?? addDays(to, -((input.days ?? STORE_DAILY_DAYS) - 1));
   try {
     const token = decryptSecret(c.tokenCiphertext, c.tokenKeyVersion, deps.keys);
+    if (c.provider === 'tiktok_shop') {
+      if (!deps.tiktok) return { status: 'skipped' };
+      const saved = parseTiktokToken(token);
+      const t = await deps.tiktok.refresh(saved.r);
+      // Refresh token dùng chung cho các shop của cùng lần ủy quyền: đổi → cập nhật mọi kết nối đang giữ token cũ.
+      if (t.refreshToken !== saved.r) await rotateTiktokToken(ctx, saved.r, t.refreshToken, deps.keys);
+      const days = await deps.tiktok.dailyOrders(t.accessToken, saved.c, { from, to }, tz);
+      for (const r of days) {
+        await ctx.db
+          .insert(storeDaily)
+          .values({
+            workspaceId: ctx.workspaceId,
+            connectionId: c.id,
+            date: r.date,
+            orders: r.orders,
+            revenue: r.revenue,
+          })
+          .onConflictDoUpdate({
+            target: [storeDaily.connectionId, storeDaily.date],
+            set: { orders: r.orders, revenue: r.revenue, updatedAt: new Date() },
+          });
+      }
+      await ctx.db
+        .update(storeConnections)
+        .set({ status: 'active', lastSyncedAt: new Date(), lastError: null })
+        .where(and(eq(storeConnections.workspaceId, ctx.workspaceId), eq(storeConnections.id, c.id)));
+      return { status: 'ok', days: days.length };
+    }
     if (c.provider === 'shopee') {
       if (!deps.shopee) return { status: 'skipped' };
       // Shopee: refresh token đổi mỗi lần làm mới → mã hóa lại và lưu ngay (token cũ hết hiệu lực).
@@ -369,4 +406,44 @@ export function shopeeApi(cfg: { mock: boolean; host: string; partnerId?: string
   return cfg.mock
     ? new MockShopee()
     : new HttpShopee({ host: cfg.host, partnerId: cfg.partnerId ?? '', partnerKey: cfg.partnerKey ?? '' });
+}
+
+/** Token TikTok Shop lưu (mã hóa) = JSON { r: refresh token, c: shop cipher } — cipher bắt buộc cho API của shop. */
+export function tiktokTokenPayload(refreshToken: string, shopCipher: string): string {
+  return JSON.stringify({ r: refreshToken, c: shopCipher });
+}
+
+function parseTiktokToken(raw: string): { r: string; c: string } {
+  const v = JSON.parse(raw) as { r?: unknown; c?: unknown };
+  if (typeof v.r !== 'string' || typeof v.c !== 'string') throw new Error('TIKTOK_BAD_TOKEN');
+  return { r: v.r, c: v.c };
+}
+
+/** CHỈ worker: thay refresh token cũ bằng token mới ở mọi kết nối TikTok Shop của workspace đang giữ token cũ. */
+async function rotateTiktokToken(ctx: WorkspaceCtx, oldToken: string, newToken: string, keys: TokenKeys) {
+  const rows = await ctx.db
+    .select({
+      id: storeConnections.id,
+      blob: storeConnections.tokenCiphertext,
+      version: storeConnections.tokenKeyVersion,
+    })
+    .from(storeConnections)
+    .where(and(eq(storeConnections.workspaceId, ctx.workspaceId), eq(storeConnections.provider, 'tiktok_shop')));
+  for (const row of rows) {
+    if (!row.blob || row.version === null) continue;
+    const saved = parseTiktokToken(decryptSecret(row.blob, row.version, keys));
+    if (saved.r !== oldToken) continue;
+    const { blob } = encryptSecret(tiktokTokenPayload(newToken, saved.c), { keys, current: row.version });
+    await ctx.db
+      .update(storeConnections)
+      .set({ tokenCiphertext: blob })
+      .where(and(eq(storeConnections.workspaceId, ctx.workspaceId), eq(storeConnections.id, row.id)));
+  }
+}
+
+/** TikTok Shop thật hoặc giả (STORE_MOCK). */
+export function tiktokShopApi(cfg: { mock: boolean; appKey?: string; appSecret?: string }): TiktokShopApi {
+  return cfg.mock
+    ? new MockTiktokShop()
+    : new HttpTiktokShop({ appKey: cfg.appKey ?? '', appSecret: cfg.appSecret ?? '' });
 }

@@ -1,4 +1,4 @@
-import type { GoogleAnalyticsApi, ShopeeApi, ShopifyApi } from '@adxlens/store-client';
+import type { GoogleAnalyticsApi, ShopeeApi, ShopifyApi, TiktokShopApi } from '@adxlens/store-client';
 import type { AgentLlm } from '@adxlens/core/agent';
 import type { TokenKeys } from '@adxlens/core/connections';
 import type { MetaWriter } from '@adxlens/core/execution';
@@ -21,6 +21,7 @@ export type WorkerServices = {
   shopify: ShopifyApi;
   ga4: GoogleAnalyticsApi;
   shopee: ShopeeApi;
+  tiktok: TiktokShopApi;
   email: EmailSender;
   /** URL gốc của web app (link trong email). */
   appUrl: string;

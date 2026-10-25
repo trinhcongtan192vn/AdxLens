@@ -4,7 +4,7 @@ import { getEnv } from '@adxlens/config/env';
 import { getDb } from '@adxlens/db';
 import { keysFromEnv, metaReadApi, recordMetaCall } from '@adxlens/core/connections';
 import { createMetaWriter } from '@adxlens/core/execution';
-import { googleAnalyticsApi, shopeeApi, shopifyApi } from '@adxlens/core/stores';
+import { googleAnalyticsApi, shopeeApi, shopifyApi, tiktokShopApi } from '@adxlens/core/stores';
 import { smtpEmailSender } from '@adxlens/core/notification';
 import {
   mergeAlertRecipients,
@@ -57,6 +57,11 @@ const services: WorkerServices = {
     host: env.SHOPEE_HOST,
     partnerId: env.SHOPEE_PARTNER_ID,
     partnerKey: env.SHOPEE_PARTNER_KEY,
+  }),
+  tiktok: tiktokShopApi({
+    mock: env.STORE_MOCK,
+    appKey: env.TIKTOK_SHOP_APP_KEY,
+    appSecret: env.TIKTOK_SHOP_APP_SECRET,
   }),
   ga4: googleAnalyticsApi({
     mock: env.STORE_MOCK,

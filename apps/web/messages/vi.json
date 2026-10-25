@@ -3852,11 +3852,12 @@
   },
   "stores": {
     "title": "Cửa hàng & Analytics",
-    "intro": "Kết nối Shopify, Shopee và Google Analytics 4 của khách để Business Dashboard có doanh thu thật của cửa hàng, số đơn, AOV, MER (doanh thu cửa hàng / chi tiêu quảng cáo), phiên và chuyển đổi. Mỗi shop / property gắn với một Client; AdxLens chỉ đọc.",
+    "intro": "Kết nối Shopify, Shopee, TikTok Shop và Google Analytics 4 của khách để Business Dashboard có doanh thu thật của cửa hàng, số đơn, AOV, MER (doanh thu cửa hàng / chi tiêu quảng cáo), phiên và chuyển đổi. Mỗi shop / property gắn với một Client; AdxLens chỉ đọc.",
     "providers": {
       "shopify": "Shopify",
       "ga4": "Google Analytics 4",
-      "shopee": "Shopee"
+      "shopee": "Shopee",
+      "tiktok_shop": "TikTok Shop"
     },
     "cols": {
       "store": "Cửa hàng",
@@ -3873,7 +3874,7 @@
     "connectShopify": "Kết nối Shopify",
     "notConfigured": "Chưa cấu hình app Shopify (xem hướng dẫn docs/runbooks/store-connectors.md).",
     "tiles": {
-      "revenue": "Doanh thu cửa hàng (Shopify + Shopee)",
+      "revenue": "Doanh thu cửa hàng (web + sàn)",
       "orders": "Số đơn",
       "aov": "AOV cửa hàng",
       "mer": "MER",
@@ -3886,6 +3887,9 @@
     "ga4NotConfigured": "Chưa cấu hình Google OAuth cho GA4 (xem docs/runbooks/store-connectors.md).",
     "shopeeHint": "Chủ shop đăng nhập Shopee Seller và chọn shop để ủy quyền.",
     "connectShopee": "Kết nối Shopee",
-    "shopeeNotConfigured": "Chưa cấu hình app Shopee Open Platform (xem docs/runbooks/store-connectors.md)."
+    "shopeeNotConfigured": "Chưa cấu hình app Shopee Open Platform (xem docs/runbooks/store-connectors.md).",
+    "tiktokHint": "Người bán đăng nhập TikTok Shop Seller Center và ủy quyền; mọi shop được chọn sẽ gắn với Client này.",
+    "connectTiktok": "Kết nối TikTok Shop",
+    "tiktokNotConfigured": "Chưa cấu hình app TikTok Shop (xem docs/runbooks/store-connectors.md)."
   }
 }

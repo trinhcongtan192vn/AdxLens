@@ -76,3 +76,15 @@ Meta:
   - ngày theo múi giờ vùng của shop.
 - Doanh thu / đơn Shopee cộng chung với Shopify của cùng Client (cùng tiền tệ); không đổi schema (`provider` là text).
 
+## Phụ lục — TikTok Shop (PM 25/10/2026: "lấy số khách bán trên tiktok"; khác TikTok Ads, vẫn chưa làm)
+
+- **Provider `tiktok_shop`** (TikTok Shop Open API 202309):
+  - ký HMAC-SHA256 bằng app secret (secret + path + tham số đã sắp + body + secret);
+  - token đi kèm header `x-tts-access-token`.
+- **Một lần ủy quyền có thể gồm nhiều shop:** mỗi shop là một kết nối.
+  - Token lưu (mã hóa) = JSON gồm refresh token + `shop_cipher`.
+  - Refresh token dùng chung giữa các shop của cùng lần ủy quyền: khi TikTok trả token mới, worker cập nhật mọi kết nối
+    đang giữ token cũ.
+- **Đơn:** `orders/search` theo `create_time` và phân trang `page_token`; bỏ đơn hủy; doanh thu `payment.total_amount`.
+- Không đổi schema.
+
