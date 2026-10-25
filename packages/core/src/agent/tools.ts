@@ -317,15 +317,18 @@ export const TOOLS: Record<string, Tool> = {
       input_schema: {
         type: 'object',
         properties: {
-          kind: { type: 'string', enum: ['age_gender', 'placement', 'region'] },
+          kind: { type: 'string', enum: ['age_gender', 'placement', 'region', 'country'] },
           period: { type: 'string', enum: [...AGENT_PERIODS] },
           account_id: { type: 'string' },
         },
         required: ['kind'],
       },
     },
-    input: z.object({ kind: z.enum(['age_gender', 'placement', 'region']), period, account_id: accountId }),
-    run: async (t, i: { kind: 'age_gender' | 'placement' | 'region'; period: Period; account_id?: string }) => {
+    input: z.object({ kind: z.enum(['age_gender', 'placement', 'region', 'country']), period, account_id: accountId }),
+    run: async (
+      t,
+      i: { kind: 'age_gender' | 'placement' | 'region' | 'country'; period: Period; account_id?: string },
+    ) => {
       const s = await scope(t, i.account_id);
       const { cur } = ranges(i.period, s.timezone, t.now);
       const rows = await breakdownTable(

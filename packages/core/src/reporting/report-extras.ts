@@ -41,7 +41,7 @@ export async function breakdownTable(
   ctx: ActorCtx,
   adAccountIds: string[],
   range: DateRange,
-  breakdown: 'age_gender' | 'placement' | 'region',
+  breakdown: 'age_gender' | 'placement' | 'region' | 'country',
   limit = BREAKDOWN_ROWS_LIMIT,
 ): Promise<BreakdownRow[]> {
   const ids = await visible(ctx, adAccountIds);

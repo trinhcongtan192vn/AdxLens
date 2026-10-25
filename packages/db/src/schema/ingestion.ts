@@ -94,7 +94,7 @@ export const syncRuns = app.table(
   (t) => [index().on(t.workspaceId), index().on(t.adAccountId, t.createdAt)],
 );
 
-export const BREAKDOWN_KEYS = ['age_gender', 'placement', 'region'] as const;
+export const BREAKDOWN_KEYS = ['age_gender', 'placement', 'region', 'country'] as const;
 
 /**
  * Insight theo nhóm (roadmap A4): theo ngày, cấp ad set, tách theo độ tuổi-giới tính / vị trí hiển thị / khu vực.
