@@ -27,12 +27,13 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useTransition } from 'react';
 import { cn, Menu, Select } from '@adxlens/ui';
 import type { Role } from '@adxlens/core/shared';
 import { api } from '@/lib/api-client';
+import { activeNavPath } from '@/lib/entity-origin';
 import { isWActive, type ShellGroup, type ShellItem } from '@/lib/workspace-nav';
 
 const ICONS: Record<string, LucideIcon> = {
@@ -102,7 +103,8 @@ export function WsSidebar({
   currentClient: string | null;
 }) {
   const t = useTranslations();
-  const pathname = usePathname() ?? '/w';
+  // Trang chi tiết đối tượng sáng mục nguồn (Ads Manager…), không có mục riêng.
+  const pathname = activeNavPath(usePathname() ?? '/w', useSearchParams()?.toString() ?? '');
   const router = useRouter();
   const [pending, start] = useTransition();
   const current = workspaces.find((w) => w.id === currentWorkspaceId);

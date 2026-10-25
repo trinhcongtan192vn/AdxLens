@@ -38,6 +38,7 @@ import { KpiRow } from '@/components/kpi-row';
 import { TrendChart } from '@/components/trend-chart';
 import { describeChange } from '@/lib/actions';
 import { BreakdownList, breakdownLabel, CpaChangeBlock } from '@/report/report-view';
+import { ENTITY_ORIGINS, parseOrigin, withOrigin } from '@/lib/entity-origin';
 import { entityHref, toGridRows } from '@/server/grid';
 import { getPageContext } from '@/server/page-context';
 import { currentRanges } from '@/server/period';
@@ -62,7 +63,7 @@ export default async function EntityPage({
   searchParams,
 }: {
   params: Promise<{ id: string; level: string; metaId: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; from?: string }>;
 }) {
   const p = await params;
   if (!LEVELS.includes(p.level as EntityLevel)) notFound();
@@ -74,7 +75,11 @@ export default async function EntityPage({
     throw e;
   });
   const child = CHILD_LEVEL[level];
-  const requested = (await searchParams).tab as Tab;
+  const sp = await searchParams;
+  const requested = sp.tab as Tab;
+  // PM 25/10: chi tiết mở ở khung giữa, nhớ trang nguồn (breadcrumb + sidebar), không chuyển sang khu vực client.
+  const origin = parseOrigin(sp.from);
+  const tw = await getTranslations('ws');
   const tab: Tab = TABS.includes(requested) && !(requested === 'children' && !child) ? requested : 'overview';
   const t = await getTranslations('entity');
   const te = await getTranslations('entities');
@@ -88,32 +93,31 @@ export default async function EntityPage({
   const money = (v: string | null, cur = acc.currency) =>
     v === null ? '—' : `${format.number(Number(v), { maximumFractionDigits: cur === 'VND' ? 0 : 2 })} ${cur}`;
   const nf = (v: number, o: Intl.NumberFormatOptions = {}) => format.number(v, o as never);
-  const href = (tb: Tab) => `${entityHref(acc.id, level, metaId)}?tab=${tb}`;
+  const href = (tb: Tab) => withOrigin(`${entityHref(acc.id, level, metaId)}?tab=${tb}`, origin);
 
   const crumbs = [
-    <Link key="c" href="/clients" className="hover:text-fg">
-      {t('crumbs.clients')}
+    <Link key="o" href={ENTITY_ORIGINS[origin].href} className="hover:text-fg" data-testid="entity-back">
+      ← {tw(`nav.${ENTITY_ORIGINS[origin].nav}`)}
     </Link>,
-    ...(acc.clientId
-      ? [
-          <Link key="cl" href={`/clients/${acc.clientId}`} className="hover:text-fg">
-            {acc.clientName}
-          </Link>,
-        ]
-      : []),
-    <Link key="a" href={`/accounts/${acc.id}`} className="hover:text-fg">
-      {acc.name}
-    </Link>,
+    <span key="a">{acc.name}</span>,
     ...(info.campaign
       ? [
-          <Link key="cp" href={entityHref(acc.id, 'campaign', info.campaign.metaId)} className="hover:text-fg">
+          <Link
+            key="cp"
+            href={withOrigin(entityHref(acc.id, 'campaign', info.campaign.metaId), origin)}
+            className="hover:text-fg"
+          >
             {info.campaign.name ?? info.campaign.metaId}
           </Link>,
         ]
       : []),
     ...(info.adset
       ? [
-          <Link key="as" href={entityHref(acc.id, 'adset', info.adset.metaId)} className="hover:text-fg">
+          <Link
+            key="as"
+            href={withOrigin(entityHref(acc.id, 'adset', info.adset.metaId), origin)}
+            className="hover:text-fg"
+          >
             {info.adset.name ?? info.adset.metaId}
           </Link>,
         ]

@@ -153,7 +153,10 @@ export default async function ScalePage() {
                     .slice(0, 5)
                     .map((p) => (
                       <li key={p.metaId} className="truncate text-caption">
-                        <Link href={`/accounts/${p.adAccountId}/ad/${p.metaId}`} className="text-link hover:underline">
+                        <Link
+                          href={`/accounts/${p.adAccountId}/ad/${p.metaId}?from=scale`}
+                          className="text-link hover:underline"
+                        >
                           {p.name ?? p.metaId}
                         </Link>
                       </li>

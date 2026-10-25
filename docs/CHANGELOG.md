@@ -27,6 +27,26 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [142] Chi tiết chiến dịch / nhóm QC / QC mở ở khung giữa, nhớ trang nguồn — 2026-10-25
+
+PM góp ý UI/UX #4 (chọn "Trong khung giữa"): bấm vào chi tiết thì như sang màn của client, sidebar đổi.
+
+- Sidebar không còn đổi (từ 139).
+- **Breadcrumb của trang chi tiết bắt đầu bằng trang nguồn:** "← Ads Manager › Tài khoản › Chiến dịch › Nhóm QC › …";
+  không còn "Clients › Client".
+  - Nguồn qua `?from=` (Ads Manager mặc định; Quảng cáo, Mở rộng gắn nguồn khi mở);
+  - đi xuống chiến dịch / nhóm QC / tab vẫn giữ nguồn.
+- **Sidebar sáng mục nguồn** khi đang ở trang chi tiết.
+- "← Ads Manager" quay về trang nguồn với bộ lọc đang lưu (client, tài khoản, kỳ).
+- Helper thuần `lib/entity-origin.ts`; nguồn lạ → Ads Manager (không nhận đường dẫn tùy ý).
+
+**Vùng bảo vệ:** không.
+
+**Test tự động:**
+- `lib/entity-origin.test.ts`: nguồn lạ → mặc định; thêm `from=` giữ tham số; sidebar sáng mục nguồn ở trang chi tiết.
+- E2E `workspace-home.spec.ts`: Ads Manager → mở quảng cáo → "← Ads Manager", sidebar sáng Ads Manager → bấm quay lại
+  đúng `/w/ads-manager`.
+
 ## [141] Một màn "Thông báo": Hộp thư + Quy tắc cảnh báo — 2026-10-25
 
 PM góp ý UI/UX #1: màn Thông báo và màn Cảnh báo chưa rõ mục đích, cần một màn chung.
