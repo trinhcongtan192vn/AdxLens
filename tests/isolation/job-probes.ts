@@ -226,6 +226,40 @@ export const JOB_PROBES: Record<string, JobProbe> = {
     },
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, ruleId: p!.ruleId, tick: 'probe' }),
   },
+  // ADR-0027: bản nháp AI của A (không có khóa OpenAI → failed); dữ liệu B không đổi.
+  'recommend:creative_image': {
+    prepare: async (db, w) => {
+      const [d] = await db
+        .insert(schema.creativeDrafts)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          source: 'ai',
+          status: 'generating',
+          prompt: 'probe',
+        })
+        .returning();
+      return { draftId: d!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, draftId: p!.draftId }),
+  },
+  // Ngữ cảnh A, id bản nháp của B → không tìm thấy (truy vấn theo workspace), không chạm B.
+  'recommend:creative_image#cross': {
+    prepare: async (db, w) => {
+      const [d] = await db
+        .insert(schema.creativeDrafts)
+        .values({
+          workspaceId: w.b.workspace.id,
+          adAccountId: w.b.adAccount.id,
+          source: 'ai',
+          status: 'generating',
+          prompt: 'probe B',
+        })
+        .returning();
+      return { draftId: d!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, draftId: p!.draftId }),
+  },
   'recommend:agent_reply': {
     prepare: async (db, w) => {
       const [t] = await db

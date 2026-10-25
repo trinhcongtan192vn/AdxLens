@@ -73,6 +73,13 @@ export const JOBS = {
     jobId: (p) => `recommend:${p.workspaceId}:${p.week}`,
   }),
   /** ADR-0019: trả lời AI agent (LLM tool-use, có thể > 10 giây nên chạy ở worker). */
+  // ADR-0027: AI tạo ảnh cho bản nháp creative (khóa OpenAI của workspace, giải mã trong worker).
+  'recommend:creative_image': def({
+    queue: 'recommend',
+    workspaceScoped: true,
+    schema: z.object({ ...ws, draftId: uuid }),
+    jobId: (p) => `creative_image:${p.draftId}`,
+  }),
   'recommend:agent_reply': def({
     queue: 'recommend',
     workspaceScoped: true,

@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import { decryptSecret, encryptSecret, type TokenKeys } from '@adxlens/core/connections';
 import { AppError, notFound, type ActorCtx, type WorkspaceCtx } from '@adxlens/core/shared';
+import { openaiImageClient, type ImageGenerator } from './creative-image';
 import { anthropicAgentClient, deepseekAgentClient, geminiAgentClient, openaiAgentClient, type AgentLlm } from './llm';
 
 const { llmKeys, auditEvents } = schema;
@@ -189,4 +190,41 @@ export async function workspaceAgentLlm(
     },
   };
   return { llm, provider: row.provider, model: row.model };
+}
+
+/**
+ * CHỈ worker (ADR-0027): bộ tạo ảnh từ khóa OpenAI của workspace (giải mã tại đây). Không có khóa / không phải OpenAI →
+ * null. Ghi lần dùng / mã lỗi gần nhất như agent.
+ */
+export async function workspaceImageGenerator(
+  ctx: WorkspaceCtx,
+  keys: TokenKeys,
+  opts: { fetchImpl?: typeof fetch } = {},
+): Promise<ImageGenerator | null> {
+  const [row] = await ctx.db
+    .select({ provider: llmKeys.provider, keyCiphertext: llmKeys.keyCiphertext, keyVersion: llmKeys.keyVersion })
+    .from(llmKeys)
+    .where(eq(llmKeys.workspaceId, ctx.workspaceId));
+  if (!row || row.provider !== 'openai') return null;
+  const inner = openaiImageClient({
+    apiKey: decryptSecret(row.keyCiphertext, row.keyVersion, keys),
+    ...(opts.fetchImpl ? { fetchImpl: opts.fetchImpl } : {}),
+  });
+  const mark = (lastError: string | null) =>
+    ctx.db
+      .update(llmKeys)
+      .set(lastError ? { lastError } : { lastError: null, lastUsedAt: new Date() })
+      .where(eq(llmKeys.workspaceId, ctx.workspaceId));
+  return {
+    async generate(prompt) {
+      try {
+        const r = await inner.generate(prompt);
+        await mark(null);
+        return r;
+      } catch (e) {
+        await mark(e instanceof Error && /^LLM_[A-Z0-9_]+$/.test(e.message) ? e.message : 'LLM_ERROR');
+        throw e;
+      }
+    },
+  };
 }

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Banner, Button, Card, cn, Field, Input, Select, Textarea } from '@adxlens/ui';
 import { api, ApiError } from '@/lib/api-client';
+import { AiImageForm } from './ai-image-form';
 
 type Draft = {
   id: string;
@@ -37,14 +38,14 @@ export function NewCreativeCard({
   canApprove,
   pages,
   namePrefix,
-  children,
+  hasOpenAiKey,
 }: {
   adAccountId: string;
   canApprove: boolean;
   pages: { metaId: string; name: string }[];
   namePrefix: string | null;
-  /** Khối AI tạo ảnh (bước sau) chèn vào đây. */
-  children?: React.ReactNode;
+  /** ADR-0027: workspace có khóa OpenAI → hiện "AI tạo ảnh". */
+  hasOpenAiKey: boolean;
 }) {
   const t = useTranslations('wsLauncher.creative');
   const tl = useTranslations('wsLauncher');
@@ -160,7 +161,12 @@ export function NewCreativeCard({
         </Button>
         <span className="text-caption text-fg-tertiary">{t('uploadHint')}</span>
       </div>
-      {children}
+      <AiImageForm
+        adAccountId={adAccountId}
+        hasOpenAiKey={hasOpenAiKey}
+        canApprove={canApprove}
+        onQueued={() => void load()}
+      />
 
       {drafts.length ? (
         <ul

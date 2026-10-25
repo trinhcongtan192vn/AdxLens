@@ -3811,6 +3811,17 @@
         "APPLY_NOW": "Apply now",
         "DOWNLOAD": "Download",
         "MESSAGE_PAGE": "Send message"
+      },
+      "ai": {
+        "label": "AI image (workspace's OpenAI)",
+        "placeholder": "e.g. Product shot of a serum bottle on marble, natural light, no text",
+        "generate": "Generate",
+        "note": "Billed to the agency's OpenAI account. Images are drafts; review before creating a creative.",
+        "queued": "Generating; the image appears in the list when ready.",
+        "tooMany": "Several images are generating; try again when they finish.",
+        "failed": "Could not send the image request.",
+        "noKey": "To generate images with AI, add an OpenAI key for the workspace.",
+        "addKey": "Settings → Integrations"
       }
     }
   }
