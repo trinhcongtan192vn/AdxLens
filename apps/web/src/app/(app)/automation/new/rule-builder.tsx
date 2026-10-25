@@ -7,12 +7,13 @@ import { toast } from 'sonner';
 import { Banner, Button, Card, CardHeader, Field, Input, Select, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
 import { api, ApiError } from '@/lib/api-client';
 
-type Cond = { metric: string; op: 'gte' | 'lte'; value: string };
+type Cond = { metric: string; op: 'gte' | 'lte'; value: string; relative?: 'account_avg' };
 type Action = {
   type: 'pause_ad' | 'pause_adset' | 'set_adset_budget' | 'suggest_resume';
   changePct?: string;
   maxDailyBudget?: string;
   floorDailyBudget?: string;
+  pauseAtFloor?: boolean;
   revert?: { kind: 'restore_budget' | 'suggest_undo'; hour: number };
 };
 type Savings = { kind: 'saved' | 'extra' | 'none'; amount: string; currency: string; entities: number; days: number };
@@ -43,7 +44,13 @@ const METRICS = [
   'link_clicks_1d',
   'cpa_1d',
   'roas_1d',
+  'spend_3d',
+  'results_3d',
+  'cpa_3d',
+  'roas_3d',
 ] as const;
+/** Chỉ số tỷ lệ — so được với trung bình tài khoản (server kiểm lại). */
+const RELATIVE = new Set(['cpa', 'ctr', 'frequency', 'roas', 'cpa_1d', 'roas_1d', 'cpa_3d', 'roas_3d']);
 /** Giờ hẹn ngoài giờ yên tĩnh mặc định (22:00–06:00); server kiểm lại theo guardrails của workspace. */
 const REVERT_HOURS = Array.from({ length: 16 }, (_, i) => i + 6);
 
@@ -235,7 +242,12 @@ export function RuleBuilder({
                   <Select
                     aria-label={t('fields.metric')}
                     value={c.metric}
-                    onChange={(e) => setCond(i, { metric: e.target.value })}
+                    onChange={(e) =>
+                      setCond(i, {
+                        metric: e.target.value,
+                        ...(RELATIVE.has(e.target.value) ? {} : { relative: undefined }),
+                      })
+                    }
                     className="w-auto"
                   >
                     {METRICS.map((m) => (
@@ -259,6 +271,20 @@ export function RuleBuilder({
                     onChange={(e) => setCond(i, { value: e.target.value.trim() })}
                     className="w-32"
                   />
+                  {RELATIVE.has(c.metric) ? (
+                    <Select
+                      aria-label={t('fields.valueKind')}
+                      value={c.relative ?? 'fixed'}
+                      onChange={(e) =>
+                        setCond(i, { relative: e.target.value === 'account_avg' ? 'account_avg' : undefined })
+                      }
+                      className="w-auto"
+                      data-testid="rule-value-kind"
+                    >
+                      <option value="fixed">{t('valueKind.fixed')}</option>
+                      <option value="account_avg">{t('valueKind.account_avg')}</option>
+                    </Select>
+                  ) : null}
                   {conds.length > 1 ? (
                     <Button kind="ghost" size="s" onClick={() => setConds(conds.filter((_, j) => j !== i))}>
                       {t('remove')}
@@ -343,6 +369,14 @@ export function RuleBuilder({
                 value={action.floorDailyBudget ?? ''}
                 onChange={(e) => setAction({ ...action, floorDailyBudget: e.target.value.trim() || undefined })}
               />
+              <label className="mt-1 flex items-center gap-2 text-small text-fg">
+                <input
+                  type="checkbox"
+                  checked={Boolean(action.pauseAtFloor)}
+                  onChange={(e) => setAction({ ...action, pauseAtFloor: e.target.checked || undefined })}
+                />
+                {t('pauseAtFloor')}
+              </label>
             </Field>
           ) : null}
           {action.revert ? (

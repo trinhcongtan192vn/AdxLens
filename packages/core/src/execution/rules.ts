@@ -11,6 +11,7 @@ import {
   compareDecimal,
   divDecimal,
   localDate,
+  mulRatio,
   systemClock,
   type ActorCtx,
   type Clock,
@@ -39,7 +40,14 @@ export const RULE_METRICS = [
   'link_clicks_1d',
   'cpa_1d',
   'roas_1d',
+  // 3 ngày gần nhất (Madgicx Strategies: ROAS 7 / 3 / 1 ngày).
+  'spend_3d',
+  'results_3d',
+  'cpa_3d',
+  'roas_3d',
 ] as const;
+/** Chỉ số dạng tỷ lệ — so được với trung bình tài khoản (giá trị động). */
+export const RELATIVE_METRICS = ['cpa', 'ctr', 'frequency', 'roas', 'cpa_1d', 'roas_1d', 'cpa_3d', 'roas_3d'] as const;
 export type RuleMetric = (typeof RULE_METRICS)[number];
 /** Số ngày shadow tối thiểu trước khi bật live (ADR-0012, L3 18). */
 export const SHADOW_MIN_DAYS = 14;
@@ -50,6 +58,11 @@ export const ruleConditionSchema = z.object({
   metric: z.enum(RULE_METRICS),
   op: z.enum(['gte', 'lte']),
   value: decimal,
+  /**
+   * Giá trị động (Madgicx Strategies): `account_avg` → ngưỡng = `value` × chỉ số đó của cả tài khoản trong cùng cửa sổ
+   * (vd. ROAS ≥ 1.2 × trung bình). Chỉ cho chỉ số dạng tỷ lệ.
+   */
+  relative: z.enum(['account_avg']).optional(),
 });
 /** Giờ hẹn (giờ tài khoản) — phải ngoài giờ yên tĩnh của workspace (kiểm ở validateRule). */
 const revertSchema = z.object({
@@ -69,6 +82,8 @@ export const ruleActionSchema = z.object({
     .string()
     .regex(/^\d{1,14}$/)
     .optional(),
+  /** Sunsetting (Madgicx): đã ở sàn mà vẫn khớp → tạm dừng hẳn nhóm QC (tự động được; chỉ bật lại là bị cấm). */
+  pauseAtFloor: z.boolean().optional(),
   revert: revertSchema.optional(),
 });
 export const ruleInputSchema = z.object({
@@ -268,6 +283,14 @@ async function validateRule(ctx: WorkspaceCtx, r: z.output<typeof ruleInputSchem
       fields: ['floorDailyBudget'],
     });
   }
+  if (r.action.pauseAtFloor && !r.action.floorDailyBudget) {
+    throw new AppError('VALIDATION_FAILED', 'Tạm dừng khi chạm sàn cần sàn ngân sách', { fields: ['pauseAtFloor'] });
+  }
+  for (const c of r.condition) {
+    if (c.relative && !(RELATIVE_METRICS as readonly string[]).includes(c.metric)) {
+      throw new AppError('VALIDATION_FAILED', 'Giá trị động chỉ dùng cho chỉ số dạng tỷ lệ', { fields: ['condition'] });
+    }
+  }
   const tpl = RULE_TEMPLATES.find((t) => t.key === r.templateKey);
   if (tpl?.requiresFloorDailyBudget && !r.action.floorDailyBudget) {
     throw new AppError('VALIDATION_FAILED', 'Cần sàn ngân sách ngày', { fields: ['floorDailyBudget'] });
@@ -404,7 +427,91 @@ export type EntityMetrics = {
   metrics: Record<RuleMetric, string | null>;
 };
 
-/** Chỉ số 7 ngày tới `asOf` (và 7 ngày trước đó) theo cấp, đọc snapshot — không gọi Meta. */
+type RawMetrics = {
+  spend: string | null;
+  impressions: string | null;
+  link_clicks: string | null;
+  results: string | null;
+  freq_w: string | null;
+  p_spend: string | null;
+  p_impressions: string | null;
+  p_link_clicks: string | null;
+  p_results: string | null;
+  value: string | null;
+  spend_1d: string | null;
+  results_1d: string | null;
+  link_clicks_1d: string | null;
+  value_1d: string | null;
+  spend_3d: string | null;
+  results_3d: string | null;
+  value_3d: string | null;
+};
+
+/** Tổng thô theo cửa sổ 7 ngày / 7 ngày trước / 1 ngày / 3 ngày tới `asOf` (dùng chung cho đối tượng và tài khoản). */
+function rawSums(asOf: string) {
+  const curFrom = addDays(asOf, -6);
+  const prevFrom = addDays(asOf, -13);
+  const prevTo = addDays(asOf, -7);
+  const from3 = addDays(asOf, -2);
+  return {
+    prevFrom,
+    sums: sql`
+      sum(i.spend) filter (where i.date between ${curFrom} and ${asOf})::text as spend,
+      sum(i.impressions) filter (where i.date between ${curFrom} and ${asOf})::text as impressions,
+      sum(i.link_clicks) filter (where i.date between ${curFrom} and ${asOf})::text as link_clicks,
+      sum(i.results) filter (where i.date between ${curFrom} and ${asOf})::text as results,
+      sum(coalesce(i.frequency, 0) * i.impressions) filter (where i.date between ${curFrom} and ${asOf})::text as freq_w,
+      sum(i.spend) filter (where i.date between ${prevFrom} and ${prevTo})::text as p_spend,
+      sum(i.impressions) filter (where i.date between ${prevFrom} and ${prevTo})::text as p_impressions,
+      sum(i.link_clicks) filter (where i.date between ${prevFrom} and ${prevTo})::text as p_link_clicks,
+      sum(i.results) filter (where i.date between ${prevFrom} and ${prevTo})::text as p_results,
+      sum(i.conversion_value) filter (where i.date between ${curFrom} and ${asOf})::text as value,
+      sum(i.spend) filter (where i.date = ${asOf})::text as spend_1d,
+      sum(i.results) filter (where i.date = ${asOf})::text as results_1d,
+      sum(i.link_clicks) filter (where i.date = ${asOf})::text as link_clicks_1d,
+      sum(i.conversion_value) filter (where i.date = ${asOf})::text as value_1d,
+      sum(i.spend) filter (where i.date between ${from3} and ${asOf})::text as spend_3d,
+      sum(i.results) filter (where i.date between ${from3} and ${asOf})::text as results_3d,
+      sum(i.conversion_value) filter (where i.date between ${from3} and ${asOf})::text as value_3d`,
+  };
+}
+
+function deriveMetrics(r: RawMetrics): Record<RuleMetric, string | null> {
+  const ratio = (a: string | null, b: string | null, scale = 6) =>
+    a !== null && b !== null && compareDecimal(b, '0') > 0 ? divDecimal(a, b, scale) : null;
+  const change = (cur: string | null, prev: string | null) => {
+    if (cur === null || prev === null || compareDecimal(prev, '0') <= 0) return null;
+    // (cur − prev) / prev × 100, tính bằng tỷ lệ thập phân.
+    const x = divDecimal(cur, prev, 6)!;
+    return ((Number(x) - 1) * 100).toFixed(2); // tỷ lệ % hiển thị, không phải tiền
+  };
+  const ctr = ratio(r.link_clicks ?? '0', r.impressions);
+  const pCtr = ratio(r.p_link_clicks ?? '0', r.p_impressions);
+  const cpa = ratio(r.spend ?? '0', r.results, 4);
+  const pCpa = ratio(r.p_spend ?? '0', r.p_results, 4);
+  return {
+    spend: r.spend ?? '0',
+    results: r.results ?? '0',
+    cpa,
+    ctr,
+    frequency: ratio(r.freq_w ?? '0', r.impressions, 4),
+    ctr_change_pct: change(ctr, pCtr),
+    cpa_change_pct: change(cpa, pCpa),
+    link_clicks: r.link_clicks ?? '0',
+    roas: ratio(r.value ?? '0', r.spend, 4),
+    spend_1d: r.spend_1d ?? '0',
+    results_1d: r.results_1d ?? '0',
+    link_clicks_1d: r.link_clicks_1d ?? '0',
+    cpa_1d: ratio(r.spend_1d ?? '0', r.results_1d, 4),
+    roas_1d: ratio(r.value_1d ?? '0', r.spend_1d, 4),
+    spend_3d: r.spend_3d ?? '0',
+    results_3d: r.results_3d ?? '0',
+    cpa_3d: ratio(r.spend_3d ?? '0', r.results_3d, 4),
+    roas_3d: ratio(r.value_3d ?? '0', r.spend_3d, 4),
+  };
+}
+
+/** Chỉ số 7 ngày tới `asOf` (và 7 ngày trước đó, 1 / 3 ngày gần nhất) theo cấp, đọc snapshot — không gọi Meta. */
 export async function entityMetrics(
   ctx: WorkspaceCtx,
   adAccountId: string,
@@ -412,112 +519,75 @@ export async function entityMetrics(
   asOf: string,
 ): Promise<EntityMetrics[]> {
   const key = sql.raw(level === 'ad' ? 'i.meta_id' : 'i.adset_id');
-  const curFrom = addDays(asOf, -6);
-  const prevFrom = addDays(asOf, -13);
-  const prevTo = addDays(asOf, -7);
-  const rows = await ctx.db.execute<{
-    meta_id: string;
-    name: string | null;
-    status: string | null;
-    daily_budget: string | null;
-    parent: string | null;
-    spend: string | null;
-    impressions: string | null;
-    link_clicks: string | null;
-    results: string | null;
-    freq_w: string | null;
-    p_spend: string | null;
-    p_impressions: string | null;
-    p_link_clicks: string | null;
-    p_results: string | null;
-    value: string | null;
-    spend_1d: string | null;
-    results_1d: string | null;
-    link_clicks_1d: string | null;
-    value_1d: string | null;
-  }>(sql`
+  const { prevFrom, sums } = rawSums(asOf);
+  const rows = await ctx.db.execute<
+    RawMetrics & {
+      meta_id: string;
+      name: string | null;
+      status: string | null;
+      daily_budget: string | null;
+      parent: string | null;
+    }
+  >(sql`
     with w as (
-      select ${key} as k,
-        sum(i.spend) filter (where i.date between ${curFrom} and ${asOf}) as spend,
-        sum(i.impressions) filter (where i.date between ${curFrom} and ${asOf}) as impressions,
-        sum(i.link_clicks) filter (where i.date between ${curFrom} and ${asOf}) as link_clicks,
-        sum(i.results) filter (where i.date between ${curFrom} and ${asOf}) as results,
-        sum(coalesce(i.frequency, 0) * i.impressions) filter (where i.date between ${curFrom} and ${asOf}) as freq_w,
-        sum(i.spend) filter (where i.date between ${prevFrom} and ${prevTo}) as p_spend,
-        sum(i.impressions) filter (where i.date between ${prevFrom} and ${prevTo}) as p_impressions,
-        sum(i.link_clicks) filter (where i.date between ${prevFrom} and ${prevTo}) as p_link_clicks,
-        sum(i.results) filter (where i.date between ${prevFrom} and ${prevTo}) as p_results,
-        sum(i.conversion_value) filter (where i.date between ${curFrom} and ${asOf}) as value,
-        sum(i.spend) filter (where i.date = ${asOf}) as spend_1d,
-        sum(i.results) filter (where i.date = ${asOf}) as results_1d,
-        sum(i.link_clicks) filter (where i.date = ${asOf}) as link_clicks_1d,
-        sum(i.conversion_value) filter (where i.date = ${asOf}) as value_1d
+      select ${key} as k, ${sums}
       from analytics.insights_daily i
       where i.workspace_id = ${ctx.workspaceId} and i.ad_account_id = ${adAccountId} and i.entity_type = 'ad'
         and i.date between ${prevFrom} and ${asOf} and ${key} is not null
       group by ${key}
     )
-    select e.meta_id, e.name, e.status, e.daily_budget::text as daily_budget, e.parent_meta_id as parent,
-      w.spend::text as spend, w.impressions::text as impressions, w.link_clicks::text as link_clicks,
-      w.results::text as results, w.freq_w::text as freq_w, w.p_spend::text as p_spend,
-      w.p_impressions::text as p_impressions, w.p_link_clicks::text as p_link_clicks, w.p_results::text as p_results,
-      w.value::text as value, w.spend_1d::text as spend_1d, w.results_1d::text as results_1d,
-      w.link_clicks_1d::text as link_clicks_1d, w.value_1d::text as value_1d
+    select e.meta_id, e.name, e.status, e.daily_budget::text as daily_budget, e.parent_meta_id as parent, w.*
     from analytics.entities e join w on w.k = e.meta_id
     where e.workspace_id = ${ctx.workspaceId} and e.ad_account_id = ${adAccountId} and e.entity_type = ${level}`);
-  const ratio = (a: string | null, b: string | null, scale = 6) =>
-    a !== null && b !== null && compareDecimal(b, '0') > 0 ? divDecimal(a, b, scale) : null;
-  const change = (cur: string | null, prev: string | null) => {
-    if (cur === null || prev === null || compareDecimal(prev, '0') <= 0) return null;
-    // (cur − prev) / prev × 100, tính bằng tỷ lệ thập phân.
-    const r = divDecimal(cur, prev, 6)!;
-    return ((Number(r) - 1) * 100).toFixed(2); // tỷ lệ % hiển thị, không phải tiền
-  };
-  return rows.map((r) => {
-    const ctr = ratio(r.link_clicks ?? '0', r.impressions);
-    const pCtr = ratio(r.p_link_clicks ?? '0', r.p_impressions);
-    const cpa = ratio(r.spend ?? '0', r.results, 4);
-    const pCpa = ratio(r.p_spend ?? '0', r.p_results, 4);
-    return {
-      metaId: r.meta_id,
-      name: r.name,
-      status: r.status,
-      dailyBudget: minorUnits(r.daily_budget),
-      parent: r.parent,
-      metrics: {
-        spend: r.spend ?? '0',
-        results: r.results ?? '0',
-        cpa,
-        ctr,
-        frequency: ratio(r.freq_w ?? '0', r.impressions, 4),
-        ctr_change_pct: change(ctr, pCtr),
-        cpa_change_pct: change(cpa, pCpa),
-        link_clicks: r.link_clicks ?? '0',
-        roas: ratio(r.value ?? '0', r.spend, 4),
-        spend_1d: r.spend_1d ?? '0',
-        results_1d: r.results_1d ?? '0',
-        link_clicks_1d: r.link_clicks_1d ?? '0',
-        cpa_1d: ratio(r.spend_1d ?? '0', r.results_1d, 4),
-        roas_1d: ratio(r.value_1d ?? '0', r.spend_1d, 4),
-      },
-    };
-  });
+  return rows.map((r) => ({
+    metaId: r.meta_id,
+    name: r.name,
+    status: r.status,
+    dailyBudget: minorUnits(r.daily_budget),
+    parent: r.parent,
+    metrics: deriveMetrics(r),
+  }));
+}
+
+/**
+ * Mốc so sánh "trung bình tài khoản" (Madgicx Strategies: ROAS so với trung bình tài khoản): cùng chỉ số nhưng tính trên
+ * toàn tài khoản QC trong cùng cửa sổ.
+ */
+export async function accountBaseline(
+  ctx: WorkspaceCtx,
+  adAccountId: string,
+  asOf: string,
+): Promise<Record<RuleMetric, string | null>> {
+  const { prevFrom, sums } = rawSums(asOf);
+  const [r] = await ctx.db.execute<RawMetrics>(sql`
+    select ${sums} from analytics.insights_daily i
+    where i.workspace_id = ${ctx.workspaceId} and i.ad_account_id = ${adAccountId} and i.entity_type = 'ad'
+      and i.date between ${prevFrom} and ${asOf}`);
+  return deriveMetrics(r!);
 }
 
 /** Khớp điều kiện (VÀ). Chỉ số không tính được (null) → không khớp. Chỉ đối tượng đang chạy. */
 export function matchConditions(
-  conditions: { metric: string; op: string; value: string }[],
+  conditions: { metric: string; op: string; value: string; relative?: 'account_avg' }[],
   e: Pick<EntityMetrics, 'metrics' | 'status'>,
   match: 'all' | 'any' = 'all',
   /** Revive (ADR-0021) xét đối tượng đang tạm dừng; mọi rule khác chỉ xét đối tượng đang chạy. */
   status: 'ACTIVE' | 'PAUSED' = 'ACTIVE',
+  /** Chỉ số cả tài khoản cho điều kiện giá trị động; thiếu mốc → điều kiện không đúng. */
+  baseline?: Partial<Record<RuleMetric, string | null>>,
 ): boolean {
   if (e.status !== status) return false;
   // Chỉ số thiếu dữ liệu (null) không bao giờ làm điều kiện đúng — kể cả với "HOẶC" (ADR-0014).
-  const ok = (c: { metric: string; op: string; value: string }) => {
+  const ok = (c: { metric: string; op: string; value: string; relative?: 'account_avg' }) => {
     const v = e.metrics[c.metric as RuleMetric];
     if (v === null || v === undefined) return false;
-    const cmp = compareDecimal(v, c.value);
+    let threshold = c.value;
+    if (c.relative === 'account_avg') {
+      const b = baseline?.[c.metric as RuleMetric];
+      if (b === null || b === undefined) return false;
+      threshold = mulRatio(b, Number(c.value), 6);
+    }
+    const cmp = compareDecimal(v, threshold);
     return c.op === 'gte' ? cmp >= 0 : cmp <= 0;
   };
   return match === 'any' ? conditions.some(ok) : conditions.every(ok);
@@ -563,7 +633,13 @@ function plan(rule: Pick<RuleRow, 'action' | 'level'>, matched: EntityMetrics[])
     // Sunsetting (ADR-0021): không giảm dưới sàn; đã ở / dưới sàn → bỏ qua đối tượng.
     const floor = rule.action.floorDailyBudget;
     if (floor && newDailyBudget !== null) {
-      if (e.dailyBudget !== null && BigInt(e.dailyBudget) <= BigInt(floor)) continue;
+      if (e.dailyBudget !== null && BigInt(e.dailyBudget) <= BigInt(floor)) {
+        // Sunsetting "giảm dần rồi dừng hẳn": đã ở sàn mà vẫn kém → tạm dừng nhóm QC.
+        if (rule.action.pauseAtFloor) {
+          out.push({ metaId: e.metaId, name: e.name, actionType: 'pause_adset', newDailyBudget: null });
+        }
+        continue;
+      }
       if (BigInt(newDailyBudget) < BigInt(floor)) newDailyBudget = floor;
     }
     out.push({ metaId: e.metaId, name: e.name, actionType: rule.action.type as ActionType, newDailyBudget });
@@ -619,9 +695,10 @@ export async function backtestRule(
   const last = new Map<string, string>();
   for (let i = BACKTEST_DAYS - 1; i >= 0; i--) {
     const d = addDays(end, -i);
+    const base = r.condition.some((c) => c.relative) ? await accountBaseline(ctx, r.adAccountId, d) : undefined;
     const m = (await entityMetrics(ctx, r.adAccountId, r.level, d)).filter(
       (e) =>
-        matchConditions(r.condition, e, r.match, statusFor(r)) &&
+        matchConditions(r.condition, e, r.match, statusFor(r), base) &&
         !(r.guardrails.excludeMetaIds ?? []).includes(e.metaId),
     );
     for (const w of plan(r, m)) {
@@ -649,7 +726,8 @@ export async function evaluateRule(ctx: WorkspaceCtx, rule: RuleRow, clock: Cloc
   const metrics = await entityMetrics(ctx, rule.adAccountId, rule.level, asOf);
   const g = await effectiveGuardrails(ctx);
   const exclude = [...g.excludeMetaIds, ...(rule.guardrails.excludeMetaIds ?? [])];
-  let matched = metrics.filter((e) => matchConditions(rule.condition, e, rule.match, statusFor(rule)));
+  const base = rule.condition.some((c) => c.relative) ? await accountBaseline(ctx, rule.adAccountId, asOf) : undefined;
+  let matched = metrics.filter((e) => matchConditions(rule.condition, e, rule.match, statusFor(rule), base));
   const paused =
     rule.action.type === 'suggest_resume' ? await rulePausedTargets(ctx, rule.adAccountId, rule.level, now) : null;
   if (paused) matched = matched.filter((e) => paused.has(e.metaId));

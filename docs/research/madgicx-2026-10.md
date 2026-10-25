@@ -254,3 +254,56 @@
 
 Khoảng 70 ảnh chụp giao diện lưu tạm trong thư mục scratchpad của phiên ngày 24/10/2026 (không commit vì chứa dữ liệu tài
 khoản quảng cáo thật). Cần ảnh nào cho PRD thì chụp lại.
+
+## 7. Đối chiếu gap sau khi build (25/10/2026, nguồn công khai)
+
+**Nguồn:**
+- 19 bài Madgicx Academy (`academy.madgicx.com/lessons/...`): AI Marketer, automation tactics / strategies / custom,
+  Ads Manager 2.0, Meta Dashboard, Business Dashboard, One-Click Report (+ templates), Creative Insights, AI Ad Generator,
+  Ad Launcher, Audience Launcher, Audience Studio, Cloud Tracking, MCP, White label.
+- Changelog `roadmap.madgicx.com` chỉ hiện bằng JavaScript, nên chỉ đọc được tiêu đề.
+- Không dịch ngược app Madgicx (không dùng REA lên app của họ): điều khoản dịch vụ và chính DISCLAIMER của REA không cho
+  phép khi chưa được ủy quyền.
+
+**Ký hiệu:** ✅ có · 🟡 có một phần · ❌ chưa · ⛔ cố ý không làm (quy tắc / ADR).
+
+| Khu vực | Madgicx (theo Academy) | AdxLens sau 095–109 | Gap |
+|---|---|---|---|
+| AI Marketer | Audit + gợi ý mỗi 24 giờ; KPI chính + mục tiêu; Dismiss có phản hồi; chấm sao việc đã làm; "Edit settings" trước khi chạy | Việc tuần này (tuần); phát hiện hằng ngày; mục tiêu theo Client; bỏ qua có lý do; tạo automation từ gợi ý + ước tính tiết kiệm | 🟡 Danh sách gợi ý theo **tuần**, không theo ngày; chưa chấm sao việc đã làm |
+| Tactic | Revive, Stop Loss (tự bật lại 0h), Sunsetting (giảm dần **rồi dừng hẳn**), Surf (ad set / **chiến dịch CBO**); auto-select tài sản mới | 4 tactic; Stop-loss / Revive chỉ đề xuất bật lại; Sunsetting dừng ở sàn; Surf cấp ad set | ⛔ tự bật lại (guardrail); ⛔ cấp chiến dịch (ADR-0015); ❌ **Sunsetting dừng hẳn khi chạm sàn** |
+| Strategies | 7 mẫu; điều kiện **ROAS 7 / 3 / 1 ngày so với trung bình tài khoản** (giá trị động); "Hours since creation > 120"; chạy 30–60 phút | Mẫu rule; cửa sổ 7 ngày + 1 ngày; giá trị cố định; chạy 30 phút | ❌ **giá trị động (so với trung bình tài khoản)**; ❌ cửa sổ 3 ngày; ❌ tuổi đối tượng (cần đồng bộ `created_time`) |
+| Custom automation | 24 hành động (bid, spending limit, đổi tên, tối ưu phân khúc, xóa…) | Tạm dừng, đổi ngân sách, đề xuất bật lại; lịch theo ngày / giờ | ❌ bid / spending limit / đổi tên / tối ưu phân khúc: hành động ghi mới, cần ADR |
+| Ads Manager 2.0 | Lọc theo **giai đoạn phễu**; bulk đổi ngân sách theo %; cột latest actions / 5 tuần / tactic đang áp; AI Bidding; tối ưu phân khúc | Cây 3 cấp; cột tùy chọn; sparkline; thay đổi gần nhất; sửa ngân sách từng dòng; hỏi AI về mục chọn | ❌ **lọc theo giai đoạn phễu**; ❌ bulk ngân sách theo %; ❌ cột "rule đang áp"; ❌ AI Bidding |
+| Meta Dashboard | Giai đoạn phễu; so 2 KPI theo thời gian; PDF + lịch gửi; white label | Tab Giai đoạn phễu + biểu đồ; báo cáo lịch gửi + thương hiệu | 🟡 chưa so 2 KPI **theo thời gian** từng giai đoạn |
+| Business Dashboard | Shopify / GA4 / Google / TikTok / Klaviyo; kéo thả bố cục; đổi tiền tệ; **link LIVE công khai** | Chỉ Meta; tổng hợp + theo tài khoản; sao chép link nội bộ | ❌ nguồn ngoài Meta; ❌ link công khai |
+| One-Click Report | Builder widget kéo thả, 8 loại widget, blended metric, goal completion; không có lịch gửi / white label | Báo cáo có kiểm toàn vẹn, lịch gửi, thương hiệu, 3 mẫu ngành, khối mục tiêu | 🟡 chưa có builder widget; AdxLens mạnh hơn ở lịch gửi + white label + kiểm số |
+| Creative Insights | Định dạng, ma trận, xu hướng tuần, **AI tag hình ảnh**, Smart Filter, "Open in Ads Launcher" | Định dạng, ma trận, xu hướng tuần, chữ quảng cáo | ❌ **"Mở trong Ad Launcher"**; ❌ AI tag hình ảnh; ❌ Smart Filter |
+| Audience Studio | Top audiences; gợi ý interest (Meta API); Audience Mixer | Top audiences | ❌ gợi ý interest (đọc API); ❌ Mixer (tạo ad set: ghi) |
+| Ad Launcher | Creative Clusters (chữ × creative); nhiều ad set một lần; upload ảnh / video; copy variations; UTM / CTA; launch post có sẵn | 1 ad set × ≤ 5 creative có sẵn, quảng cáo PAUSED | ❌ **nhiều ad set một lần**; ❌ upload, copy mới, UTM / CTA |
+| Audience Launcher | 76 audience dựng sẵn, tạo ad set / chiến dịch | Lookalike từ custom audience | ❌ audience pixel / tương tác, tạo ad set |
+| AI Ad Generator | Tạo ảnh từ prompt / creative; image editor | — | ❌ cần mô hình ảnh + lưu file (ADR-0023 "chưa làm") |
+| Cloud Tracking | Dịch vụ CAPI Gateway (CNAME) | — | ⛔ dịch vụ cài đặt, không phải phần mềm |
+| MCP | OAuth + Client ID / Secret; 49 công cụ (27 ghi) | OAuth + khóa API; ~12 công cụ đọc + đề xuất | ⛔ MCP không ghi (ADR-0020); 🟡 ít công cụ đọc hơn |
+| White label | Logo / màu báo cáo; **tem tên tài sản** (tiền tố tên chiến dịch / ad / audience tạo trong Madgicx) | Thương hiệu báo cáo, link công khai, cổng khách | ❌ **tem tên** cho tài sản tạo từ Launcher |
+
+**AdxLens mạnh hơn** (giữ nguyên):
+- số khớp Ads Manager ≤ 1%;
+- AI không tạo số;
+- mọi thao tác ghi qua duyệt / guardrails / kill switch / hoàn tác;
+- cổng khách + phân quyền theo Client;
+- báo cáo có lịch gửi + white label (One-Click Report của Madgicx không có).
+
+**Sửa ngay (chỉ đọc, hoặc trong khuôn khổ ADR đã duyệt):**
+1. Rule: **giá trị động so với trung bình tài khoản** + cửa sổ **3 ngày** (Strategies).
+2. Sunsetting: tùy chọn **tạm dừng khi chạm sàn**. Tạm dừng được tự động; chỉ bật lại là bị cấm.
+3. Ads Manager mới: **lọc theo giai đoạn phễu**.
+4. Creative: **"Mở trong Ad Launcher"** (chọn sẵn creative).
+5. Ad Launcher: **nhiều ad set một lần** (vẫn giới hạn hành động / ngày) + **tem tên** theo Client.
+
+**Để PM quyết (ghi Meta mới hoặc nguồn ngoài):**
+- bid / spending limit / đổi tên / tối ưu phân khúc;
+- upload creative + AI Ad Generator;
+- audience pixel + tạo ad set;
+- Shopify / GA4;
+- link Business Dashboard công khai;
+- gợi ý interest (API đọc mới, ít rủi ro).

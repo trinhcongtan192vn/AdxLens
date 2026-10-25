@@ -11,7 +11,16 @@ import {
 } from '@adxlens/db/testing';
 import { addDays } from '@adxlens/core/shared';
 import { resolveActor } from '@adxlens/core/tenancy';
-import { backtestRule, estimateRuleSavings, RULE_TEMPLATES, suggestTemplateValues, templateForSource } from './index';
+import {
+  accountBaseline,
+  backtestRule,
+  entityMetrics,
+  estimateRuleSavings,
+  matchConditions,
+  RULE_TEMPLATES,
+  suggestTemplateValues,
+  templateForSource,
+} from './index';
 
 const db = testDb();
 beforeEach(() => truncateAll(db));
@@ -164,5 +173,62 @@ describe('ước tính tiết kiệm + ngưỡng từ dữ liệu (Madgicx AI Ma
     });
     expect(templateForSource('spend_no_conversion')).toBe('pause_adset_no_results');
     expect(templateForSource('khong_co')).toBeNull();
+  });
+});
+
+describe('giá trị động so với trung bình tài khoản + cửa sổ 3 ngày (Madgicx Strategies)', () => {
+  it('mốc tài khoản = tổng cả tài khoản; ngưỡng = hệ số × mốc; 3 ngày = tổng 3 ngày gần nhất', async () => {
+    const s = await setup();
+    // a1: CPA 50.000 (100k / 2); a2: CPA 100.000 (100k / 1) → CPA tài khoản = 200k / 3 ≈ 66.667.
+    await s.ad('a1', fine);
+    await s.ad('a2', () => ({ spend: 100_000, impressions: 3000, clicks: 60, results: 1, frequency: 1.5 }));
+    const base = await accountBaseline(s.ctx, s.acc.id, AS_OF);
+    expect(Number(base.cpa)).toBeCloseTo(200_000 / 3, 0);
+    const m = await entityMetrics(s.ctx, s.acc.id, 'ad', AS_OF);
+    expect(m.find((x) => x.metaId === 'a1')!.metrics.spend_3d).toBe('300000.0000');
+    expect(Number(m.find((x) => x.metaId === 'a2')!.metrics.cpa_3d)).toBe(100_000);
+    // CPA ≥ 1,2 × trung bình (≈ 80.000) → chỉ a2.
+    const cond = [{ metric: 'cpa' as const, op: 'gte' as const, value: '1.2', relative: 'account_avg' as const }];
+    expect(m.filter((e) => matchConditions(cond, e, 'all', 'ACTIVE', base)).map((e) => e.metaId)).toEqual(['a2']);
+    // Thiếu mốc → không khớp (không đoán).
+    expect(m.filter((e) => matchConditions(cond, e, 'all', 'ACTIVE', {})).length).toBe(0);
+    // Backtest dùng mốc theo từng ngày.
+    const bt = await backtestRule(
+      s.ctx,
+      { adAccountId: s.acc.id, name: 'r', level: 'ad', condition: cond, action: { type: 'pause_ad' } },
+      clock,
+    );
+    expect(new Set(bt.items.map((i) => i.metaId))).toEqual(new Set(['a2']));
+  });
+
+  it('giá trị động chỉ cho chỉ số tỷ lệ; tạm dừng khi chạm sàn cần sàn', async () => {
+    const s = await setup();
+    await s.ad('a1', fine);
+    await expect(
+      backtestRule(
+        s.ctx,
+        {
+          adAccountId: s.acc.id,
+          name: 'r',
+          level: 'ad',
+          condition: [{ metric: 'spend', op: 'gte', value: '2', relative: 'account_avg' }],
+          action: { type: 'pause_ad' },
+        },
+        clock,
+      ),
+    ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+    await expect(
+      backtestRule(
+        s.ctx,
+        {
+          adAccountId: s.acc.id,
+          name: 'r',
+          level: 'adset',
+          condition: [{ metric: 'spend', op: 'gte', value: '0' }],
+          action: { type: 'set_adset_budget', changePct: '-15', pauseAtFloor: true },
+        },
+        clock,
+      ),
+    ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
   });
 });

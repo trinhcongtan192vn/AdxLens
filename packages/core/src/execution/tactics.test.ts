@@ -378,3 +378,37 @@ describe('lịch chạy theo ngày / giờ trong tuần', () => {
     });
   });
 });
+
+describe('Sunsetting: giảm dần rồi dừng hẳn', () => {
+  it('đã ở sàn + pauseAtFloor → tạo hành động tạm dừng nhóm QC (tự động được); không bật → bỏ qua', async () => {
+    const s = await setup();
+    const [as] = await db
+      .select({ metaId: schema.entities.metaId, budget: schema.entities.dailyBudget })
+      .from(schema.entities)
+      .where(and(eq(schema.entities.adAccountId, s.adAccountId), eq(schema.entities.entityType, 'adset')))
+      .orderBy(schema.entities.metaId)
+      .limit(1);
+    const floor = String(BigInt(Math.round(Number(as!.budget))));
+    const others = (
+      await db
+        .select({ metaId: schema.entities.metaId })
+        .from(schema.entities)
+        .where(and(eq(schema.entities.adAccountId, s.adAccountId), eq(schema.entities.entityType, 'adset')))
+    )
+      .map((x) => x.metaId)
+      .filter((x) => x !== as!.metaId);
+    const off = await s.rule({
+      action: { type: 'set_adset_budget', changePct: '-15', floorDailyBudget: floor },
+      guardrails: { maxActionsPerDay: 1, excludeMetaIds: others },
+    });
+    await liveEvaluate(s.wctx, off.id, { enqueue: s.enqueue, clock });
+    expect(await actionsOf(off.id)).toEqual([]);
+    const on = await s.rule({
+      action: { type: 'set_adset_budget', changePct: '-15', floorDailyBudget: floor, pauseAtFloor: true },
+      guardrails: { maxActionsPerDay: 1, excludeMetaIds: others },
+    });
+    await liveEvaluate(s.wctx, on.id, { enqueue: s.enqueue, clock });
+    const [a] = await actionsOf(on.id);
+    expect(a).toMatchObject({ actionType: 'pause_adset', targetMetaId: as!.metaId, tier: 'auto' });
+  });
+});

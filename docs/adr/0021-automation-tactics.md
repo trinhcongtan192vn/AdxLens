@@ -75,7 +75,14 @@ Ràng buộc chung:
 `guardrails.schedule` = ngày trong tuần + khung giờ (giờ tài khoản). Ngoài lịch thì rule không đánh giá (cả shadow lẫn
 live). Chỉ làm rule chạy ít đi; giờ yên tĩnh vẫn áp dụng.
 
-### 6. Chưa làm
+### 6. Bổ sung sau đối chiếu gap (110)
+
+- Điều kiện **giá trị động**: `relative: 'account_avg'` → ngưỡng = hệ số × chỉ số của cả tài khoản trong cùng cửa sổ.
+  Chỉ cho chỉ số dạng tỷ lệ; thiếu mốc thì không khớp.
+- Cửa sổ **3 ngày**: `spend_3d`, `results_3d`, `cpa_3d`, `roas_3d`.
+- Sunsetting **dừng hẳn khi chạm sàn** (`pauseAtFloor`): tạm dừng là hành động auto được phép; bật lại vẫn bị cấm.
+
+### 7. Chưa làm
 
 - Rule cấp chiến dịch: cần hành động trạng thái chiến dịch (ADR-0015, chưa duyệt).
 - Chạy theo dữ liệu trong ngày (cần đồng bộ nhiều lần / ngày).

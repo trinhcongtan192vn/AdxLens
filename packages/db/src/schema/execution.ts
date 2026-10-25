@@ -133,6 +133,7 @@ export type RuleAction = {
   changePct?: string;
   maxDailyBudget?: string;
   floorDailyBudget?: string;
+  pauseAtFloor?: boolean;
   revert?: { kind: 'restore_budget' | 'suggest_undo'; hour: number };
 };
 
@@ -148,7 +149,9 @@ export const automationRules = app.table(
     name: text('name').notNull(),
     templateKey: text('template_key'),
     level: text('level', { enum: ['ad', 'adset'] }).notNull(),
-    condition: jsonb('condition').$type<{ metric: string; op: string; value: string }[]>().notNull(),
+    condition: jsonb('condition')
+      .$type<{ metric: string; op: string; value: string; relative?: 'account_avg' }[]>()
+      .notNull(),
     /** ADR-0014: 'all' = mọi điều kiện (VÀ), 'any' = ít nhất một (HOẶC). */
     match: text('match', { enum: RULE_MATCHES }).notNull().default('all'),
     action: jsonb('action').$type<RuleAction>().notNull(),
