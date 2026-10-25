@@ -27,6 +27,13 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [111] Sửa nút cập nhật bản team: lỗi build do kiểu route cũ — 2026-10-25
+
+- **Lỗi:** `Cap-nhat-AdxLens.cmd` build lỗi `Type '"/w"' is not assignable to type 'LayoutRoutes'`. Nguyên nhân: Next kiểm
+  kiểu cả `.next/types` của lần build trước lẫn `.next-next/types` của bản mới.
+- **Sửa:** `scripts/team.mjs` xóa `apps/web/.next/types` trước khi build. App đang chạy không dùng file kiểu, nên team
+  không bị gián đoạn thêm.
+
 ## [109] (đã gỡ) Bản xem trước cho PM — 2026-10-25
 
 PM thấy không cần, nên đã gỡ lại toàn bộ: `Xem-truoc-AdxLens.cmd`, `scripts/preview*.mjs`, biến `WORKER_SCHEDULES`.

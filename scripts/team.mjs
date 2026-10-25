@@ -108,6 +108,9 @@ if (
 step('Build bản mới (app cũ vẫn chạy cho team dùng, khoảng 2–4 phút)…');
 const nextDir = path.join(TEAM, 'apps/web/.next-next');
 rmSync(nextDir, { recursive: true, force: true });
+// Kiểu route của lần build trước (.next/types) bị Next kiểm cùng bản mới (tsconfig include cả .next và .next-next) →
+// lệch khi route đổi. App đang chạy không dùng các file kiểu này, xóa an toàn.
+rmSync(path.join(TEAM, 'apps/web/.next/types'), { recursive: true, force: true });
 run('pnpm', ['--filter', '@adxlens/web', 'build'], { ...inTeam, env: { ...process.env, NEXT_DIST_DIR: '.next-next' } });
 restoreGenerated();
 // Dấu build giống start-local → khi bật lại (kể cả Mo-AdxLens.cmd) không build lại.
