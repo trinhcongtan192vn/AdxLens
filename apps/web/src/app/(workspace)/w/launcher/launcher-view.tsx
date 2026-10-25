@@ -85,12 +85,14 @@ export function LauncherView({
   return (
     <div className="flex flex-col gap-4">
       {done?.length ? (
-        <Banner tone="success" data-testid="launcher-done">
-          {t('doneBody', { n: done.length })}{' '}
-          <a href="/action-log" className="font-medium underline">
-            {t('openLog')}
-          </a>
-        </Banner>
+        <div data-testid="launcher-done">
+          <Banner tone="success">
+            {t('doneBody', { n: done.length })}{' '}
+            <a href="/action-log" className="font-medium underline">
+              {t('openLog')}
+            </a>
+          </Banner>
+        </div>
       ) : null}
 
       <Card data-testid="ad-launcher">
