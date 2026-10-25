@@ -18,10 +18,10 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await page.getByRole('link', { name: 'Xong, bắt đầu đồng bộ' }).click();
   await expect(page.getByRole('heading', { name: 'Đồng bộ xong dữ liệu 90 ngày' })).toBeVisible({ timeout: 60_000 });
 
+  // Khung chung: /overview cũ chuyển về trang chủ /w.
   await page.goto('/overview');
-  await page.getByTestId('switch-workspace-ui').click();
   await expect(page).toHaveURL(/\/w$/);
-  await expect(page.getByRole('navigation', { name: 'Điều hướng Workspace' })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Điều hướng chính' })).toBeVisible();
   await expect(page.getByTestId('ws-health')).toContainText('Sức khỏe tài khoản');
   await expect(page.getByTestId('ws-tracking')).toContainText('Pixel');
   await expect(page.getByTestId('ws-coverage')).toHaveText(/Dữ liệu \d+\/7 ngày/);
@@ -103,7 +103,7 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   // Xuất PDF (in): khi in, sidebar + bộ chọn ẩn, dòng phạm vi / kỳ hiện.
   await expect(page.getByTestId('ws-export-pdf')).toBeVisible();
   await page.emulateMedia({ media: 'print' });
-  await expect(page.getByRole('navigation', { name: 'Điều hướng Workspace' })).toBeHidden();
+  await expect(page.getByRole('navigation', { name: 'Điều hướng chính' })).toBeHidden();
   // Kỳ đang chọn là 30 ngày (đổi ở đầu test).
   await expect(page.getByText(/· 30 ngày$/)).toBeVisible();
   await page.emulateMedia({ media: 'screen' });
@@ -115,6 +115,11 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page).toHaveURL(/\/feature-unavailable/);
   await page.goto('/w');
 
-  await page.getByTestId('switch-classic').click();
-  await expect(page).toHaveURL(/\/overview$/);
+  // Mở trang có từ giao diện cũ (Clients → chi tiết khách / tài khoản): vẫn cùng sidebar của khung chung.
+  await page.getByRole('link', { name: 'Clients', exact: true }).click();
+  await expect(page).toHaveURL(/\/clients$/);
+  await expect(page.getByTestId('ws-create')).toBeVisible();
+  await expect(page.getByTestId('page-toolbar')).toBeVisible();
+  await page.goto('/w');
+  await expect(page.getByTestId('page-toolbar')).toHaveCount(0);
 });

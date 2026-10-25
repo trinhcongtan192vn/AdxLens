@@ -56,6 +56,6 @@ export async function resetPasswordAction(_: FormState, fd: FormData): Promise<F
     password: str(fd, 'password'),
     confirm: str(fd, 'confirm'),
   });
-  if (r.status === 'ok') redirect('/overview');
+  if (r.status === 'ok') redirect('/w');
   return r;
 }

@@ -50,7 +50,7 @@ test('F1: đăng ký → xác minh email → tạo workspace → vào app; Cài 
   await page.getByRole('button', { name: 'Tiếp tục' }).click();
   await expect(page.getByText('Bạn đã sở hữu một workspace gói Free')).toBeVisible();
   await page.getByRole('link', { name: 'Quay lại' }).click();
-  await expect(page).toHaveURL(/\/overview/);
+  await expect(page).toHaveURL(/\/w$/);
 
   const invite = await waitForEmail(invitee, { subject: /mời bạn/ });
   const link = firstLink(invite.html, '/invite/');
@@ -67,7 +67,7 @@ test('F1: đăng ký → xác minh email → tạo workspace → vào app; Cài 
   await page.getByLabel('Họ tên').fill('Nguyễn Văn B');
   await page.getByLabel('Mật khẩu').fill(PASSWORD);
   await page.getByRole('button', { name: 'Chấp nhận và vào workspace' }).click();
-  await expect(page).toHaveURL(/\/overview/);
+  await expect(page).toHaveURL(/\/w$/);
   // Buyer không thấy Báo cáo và Kết nối.
   await expect(page.getByRole('link', { name: 'Báo cáo' })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Kết nối' })).toHaveCount(0);

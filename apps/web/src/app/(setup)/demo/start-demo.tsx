@@ -25,7 +25,7 @@ export function StartDemo({ exists }: { exists: boolean }) {
           {t('back')}
         </Link>
         {exists ? (
-          <Link href="/overview" className={buttonVariants({ kind: 'primary', size: 'm' })}>
+          <Link href="/w" className={buttonVariants({ kind: 'primary', size: 'm' })}>
             {t('goOverview')}
           </Link>
         ) : (

@@ -1,8 +1,10 @@
 import { Activity, AlertTriangle, Bot, ChartLine, FileText, Radar, Sparkles, Zap } from 'lucide-react';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { topFindings } from '@adxlens/core/insight';
+import { buyerOnboarding } from '@adxlens/core/recommendation';
 import {
   changeIsGood,
   defaultHomeMetrics,
@@ -21,6 +23,7 @@ import { W_KPIS_COOKIE } from '@/lib/workspace-nav';
 import { translateText } from '@/server/translate';
 import { getPageContext } from '@/server/page-context';
 import { workspaceScope } from '@/server/workspace-scope';
+import { AgencyAttention } from './agency-attention';
 import { AgencyTable } from './agency-table';
 import { AlertSuggestions } from './alert-suggestions';
 
@@ -35,6 +38,8 @@ export async function generateMetadata() {
  */
 export default async function WorkspaceHome() {
   const pc = await getPageContext();
+  // A08 (P1-11): buyer mới vào lần đầu → màn chào mừng theo vai trò (sau cờ Gợi ý).
+  if (pc.flags.p1_recommendations && (await buyerOnboarding(pc.ctx))) redirect('/welcome');
   const scope = await workspaceScope(pc);
   const t = await getTranslations('wsHome');
   const tw = await getTranslations('ws');
@@ -281,7 +286,12 @@ export default async function WorkspaceHome() {
         </div>
       </section>
 
-      {scope.selected ? null : <AgencyTable />}
+      {scope.selected ? null : (
+        <div className="mt-4">
+          <AgencyAttention />
+          <AgencyTable />
+        </div>
+      )}
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         {/* Cần chú ý: phát hiện đang mở (số do rule tính, không LLM). */}

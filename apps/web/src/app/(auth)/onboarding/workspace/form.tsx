@@ -39,7 +39,7 @@ export function CreateWorkspaceForm({ locale, another = false }: { locale: 'vi' 
                 locale,
               },
             });
-            router.push('/overview');
+            router.push('/w');
             router.refresh();
           } catch (err) {
             setError(
@@ -93,7 +93,7 @@ export function CreateWorkspaceForm({ locale, another = false }: { locale: 'vi' 
           {pending ? t('working') : t('submit')}
         </Button>
         {another ? (
-          <Link href="/overview" className="text-center text-body text-link hover:underline">
+          <Link href="/w" className="text-center text-body text-link hover:underline">
             {t('back')}
           </Link>
         ) : null}

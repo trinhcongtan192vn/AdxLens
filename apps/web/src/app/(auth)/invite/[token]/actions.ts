@@ -19,7 +19,7 @@ async function finish(workspaceId: string): Promise<never> {
     httpOnly: true,
     maxAge: 31536000,
   });
-  redirect('/overview');
+  redirect('/w');
 }
 
 /** Người đã đăng nhập đúng email: chấp nhận ngay. */

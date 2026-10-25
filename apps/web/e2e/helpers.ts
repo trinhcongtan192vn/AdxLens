@@ -51,7 +51,7 @@ export async function signUpAndCreateWorkspace(page: Page, opts: { workspace?: s
   await expect(page).toHaveURL(/\/onboarding\/workspace/);
   await page.getByLabel('Tên agency').fill(opts.workspace ?? 'Agency E2E');
   await page.getByRole('button', { name: 'Tiếp tục' }).click();
-  await expect(page).toHaveURL(/\/overview/);
+  await expect(page).toHaveURL(/\/w$/);
   return email;
 }
 

@@ -15,7 +15,7 @@ export function SetupShell({
   return (
     <div className="min-h-screen bg-canvas">
       <header className="flex h-12 items-center border-b border-line bg-surface px-6">
-        <Link href="/overview" className="flex items-center gap-2">
+        <Link href="/w" className="flex items-center gap-2">
           <span className="size-6 rounded-md bg-brand" aria-hidden />
           <span className="text-h3 font-semibold text-brand">AdxLens</span>
         </Link>

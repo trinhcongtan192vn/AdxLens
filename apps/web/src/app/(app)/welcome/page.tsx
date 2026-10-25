@@ -18,7 +18,7 @@ export default async function WelcomePage() {
   const pc = await getPageContext();
   await requireFlag(pc, 'p1_recommendations');
   const data = await buyerOnboarding(pc.ctx);
-  if (!data) redirect('/overview');
+  if (!data) redirect('/w');
   const t = await getTranslations('welcome');
   return (
     <div className="mx-auto flex max-w-[720px] flex-col gap-4 py-6">
