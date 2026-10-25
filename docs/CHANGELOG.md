@@ -27,6 +27,39 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [125] Audience Launcher: custom audience từ pixel / tương tác Page / Instagram (ADR-0026) — 2026-10-25
+
+Gap "Audience pixel + nhóm QC mới" (PM chọn sau khi đối chiếu Madgicx Academy). Bước 1: custom audience. Bước 2 (nhóm
+QC mới, luôn PAUSED) làm ở PR sau.
+
+- **ADR-0026** (chấp nhận): `create_custom_audience`, `create_adset`. Chỉ duyệt tay; rule tự động không bao giờ tạo.
+- **`/w/launcher` → thẻ "Custom audience từ pixel / tương tác"**, 3 loại nguồn:
+  - **Website (pixel):**
+    - mọi lượt truy cập, hoặc một sự kiện: Xem trang, Xem nội dung, Thêm vào giỏ, Bắt đầu thanh toán, Mua hàng,
+      Khách tiềm năng;
+    - 1–180 ngày.
+  - **Tương tác Page:** 1–365 ngày.
+  - **Tương tác Instagram:** 1–365 ngày.
+- Tên tự đặt theo tên Client · sự kiện · nguồn · số ngày; sửa được.
+- **Nguồn chỉ là tài sản đã đồng bộ của workspace** (ADR-0016); pixel phải thuộc đúng tài khoản QC. Nguồn lạ → 404.
+- **Gọi Meta:** `POST /act_x/customaudiences` (`rule` JSON, `prefill=1`).
+  - Đọc lại để xác minh `subtype` (WEBSITE / ENGAGEMENT).
+  - Lỗi giữa chừng → không đoán, báo kiểm tra thủ công.
+  - Không hoàn tác (audience không tự tiêu tiền).
+- Nhật ký hành động: "Đã tạo audience".
+
+**Vùng bảo vệ:**
+- `packages/core/execution`;
+- `packages/meta-client/write` (`createCustomAudience`, `customAudienceRule`).
+- **Cần PM chạy integration test trên staging trước khi merge `main`.**
+
+**Test tự động:**
+- `launch.test.ts`:
+  - pixel của tài khoản khác / Page lạ → 404; quá 180 ngày, sự kiện lạ → 422;
+  - tạo + xác minh WEBSITE; tương tác Page → ENGAGEMENT; sai loại → `verify_mismatch`.
+- `meta-client/write.test.ts`: dựng `rule` pixel / mọi lượt / Instagram; chặn số ngày và id sai.
+- Bộ cách ly: thêm `POST /api/v1/launcher/audiences`.
+
 ## [124] Đổi giá thầu nhóm QC và giới hạn chi tiêu chiến dịch qua Execution Gateway (ADR-0025) — 2026-10-25
 
 Bước 2 của gap "Giá thầu + giới hạn chi + đổi tên" (bước 1: đổi tên ở [119]).

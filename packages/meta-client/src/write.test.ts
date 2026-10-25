@@ -4,7 +4,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from
 import { MetaApiError } from './errors';
 import { GRAPH_BASE } from './http';
 import { MockMetaRead, mockWriteState } from './mock';
-import { HttpMetaWrite } from './write';
+import { customAudienceRule, HttpMetaWrite } from './write';
 import { MockMetaWrite } from './write-mock';
 
 const V = 'v24.0';
@@ -111,5 +111,27 @@ describe('MockMetaWrite', () => {
     const w = new MockMetaWrite();
     await expect(w.getObject('', 'nope', 'ad')).rejects.toBeInstanceOf(MetaApiError);
     await expect(w.setStatus('', 'nope', 'PAUSED')).rejects.toBeInstanceOf(MetaApiError);
+  });
+});
+
+describe('rule custom audience (ADR-0026)', () => {
+  it('pixel theo sự kiện / mọi lượt truy cập; tương tác Page / Instagram; kiểm số ngày và id', () => {
+    const r = JSON.parse(customAudienceRule({ type: 'pixel', id: '123', event: 'AddToCart', days: 30 }));
+    expect(r.inclusions.rules[0]).toEqual({
+      event_sources: [{ id: '123', type: 'pixel' }],
+      retention_seconds: 2_592_000,
+      filter: { operator: 'and', filters: [{ field: 'event', operator: 'eq', value: 'AddToCart' }] },
+    });
+    expect(
+      JSON.parse(customAudienceRule({ type: 'pixel', id: '123', event: 'all', days: 7 })).inclusions.rules[0].filter
+        .filters[0],
+    ).toEqual({ field: 'url', operator: 'i_contains', value: '' });
+    expect(
+      JSON.parse(customAudienceRule({ type: 'ig_business', id: '9', days: 365 })).inclusions.rules[0].filter.filters[0]
+        .value,
+    ).toBe('ig_business_profile_all');
+    expect(() => customAudienceRule({ type: 'pixel', id: '1', event: 'all', days: 181 })).toThrow();
+    expect(() => customAudienceRule({ type: 'page', id: '1', days: 0 })).toThrow();
+    expect(() => customAudienceRule({ type: 'page', id: 'x"}', days: 30 })).toThrow();
   });
 });

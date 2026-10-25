@@ -10,6 +10,8 @@ import {
   assignAdAccount,
   importAccounts,
   keysFromEnv,
+  listAssets,
+  refreshAssets,
   saveConnection,
   setWriteEnabled,
 } from '@adxlens/core/connections';
@@ -90,6 +92,7 @@ async function setup(opts: { write?: boolean } = {}) {
     run,
     pm,
     sources,
+    connectionId,
     creativeId: creative!.metaId,
   };
 }
@@ -271,5 +274,65 @@ describe('Audience Launcher (ADR-0023)', () => {
     const c = await requestLaunch(s.ctx, { ...base, ratioPct: 3 }, { enqueue: s.enqueue, clock });
     writer.failNext('wrong_value');
     expect(await s.run(c.id)).toEqual({ status: 'failed', resultCode: 'verify_mismatch' });
+  });
+
+  it('ADR-0026 custom audience: pixel của đúng tài khoản / tương tác Page; xác minh loại; nguồn lạ, số ngày sai bị chặn', async () => {
+    const s = await setup();
+    await refreshAssets(s.wctx, s.connectionId, 'mock-token', ['act_100000001', 'act_100000002'], {
+      meta: new MockMetaRead(clock.now),
+      clock,
+    });
+    const pixels = await listAssets(s.wctx, 'pixel');
+    const own = pixels.find((p) => p.parentId === 'act_100000001')!;
+    const other = pixels.find((p) => p.parentId === 'act_100000002')!;
+    const page = (await listAssets(s.wctx, 'page'))[0]!;
+    const base = { kind: 'create_custom_audience' as const, adAccountId: s.adAccountId, name: 'Thêm giỏ 30 ngày' };
+    const deps = { enqueue: s.enqueue, clock };
+
+    // Pixel của tài khoản khác / id lạ → 404; quá 180 ngày, sự kiện lạ → 422.
+    await expect(
+      requestLaunch(
+        s.ctx,
+        { ...base, source: { type: 'pixel', id: other.metaId, event: 'AddToCart', days: 30 } },
+        deps,
+      ),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(
+      requestLaunch(s.ctx, { ...base, source: { type: 'page', id: '999', days: 30 } }, deps),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(
+      requestLaunch(s.ctx, { ...base, source: { type: 'pixel', id: own.metaId, event: 'AddToCart', days: 181 } }, deps),
+    ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+    await expect(
+      requestLaunch(
+        s.ctx,
+        { ...base, source: { type: 'pixel', id: own.metaId, event: 'Hack' as never, days: 30 } },
+        deps,
+      ),
+    ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+
+    const a = await requestLaunch(
+      s.ctx,
+      { ...base, source: { type: 'pixel', id: own.metaId, event: 'AddToCart', days: 30 } },
+      deps,
+    );
+    expect(a).toMatchObject({
+      actionType: 'create_custom_audience',
+      targetType: 'account',
+      tier: 'approve',
+      params: { source_type: 'pixel', source_id: own.metaId, event: 'AddToCart', days: '30' },
+      afterExpected: { created_subtype: 'WEBSITE' },
+    });
+    expect(await s.run(a.id)).toEqual({ status: 'success', resultCode: 'ok' });
+    expect(writer.calls.at(-1)).toEqual({ op: 'createCustomAudience', id: own.metaId, value: 'pixel:30' });
+
+    const e = await requestLaunch(
+      s.ctx,
+      { ...base, name: 'Tương tác Page 90 ngày', source: { type: 'page', id: page.metaId, days: 90 } },
+      deps,
+    );
+    expect(e.afterExpected).toEqual({ created_subtype: 'ENGAGEMENT' });
+    writer.failNext('wrong_value');
+    expect(await s.run(e.id)).toEqual({ status: 'failed', resultCode: 'verify_mismatch' });
   });
 });

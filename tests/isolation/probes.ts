@@ -602,6 +602,14 @@ export const ROUTE_PROBES: Record<string, Probe> = {
       name: 'Probe',
     }),
   },
+  'POST /api/v1/launcher/audiences': {
+    kind: 'workspace',
+    body: (w) => ({
+      adAccountId: w.a.adAccount.id,
+      name: 'Probe',
+      source: { type: 'page', id: 'page_probe', days: 30 },
+    }),
+  },
   'POST /api/v1/oauth/register': {
     kind: 'exempt',
     reason: 'Đăng ký ứng dụng OAuth trước khi có người dùng / workspace; bảng client không thuộc workspace (ADR-0022)',

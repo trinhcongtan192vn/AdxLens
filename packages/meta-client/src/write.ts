@@ -25,6 +25,37 @@ export type WritableObject = z.infer<typeof writableObjectSchema>;
 
 export type MetaObjectType = 'ad' | 'adset' | 'campaign';
 
+/** ADR-0026: nguồn của custom audience — pixel (sự kiện website), tương tác Page, tương tác Instagram doanh nghiệp. */
+export type CustomAudienceSource =
+  | { type: 'pixel'; id: string; event: 'all' | (typeof PIXEL_EVENTS)[number]; days: number }
+  | { type: 'page' | 'ig_business'; id: string; days: number };
+export const PIXEL_EVENTS = ['PageView', 'ViewContent', 'AddToCart', 'InitiateCheckout', 'Purchase', 'Lead'] as const;
+
+/** `rule` (JSON) của Meta cho custom audience website / tương tác. Kiểm khoảng ngày theo giới hạn của Meta. */
+export function customAudienceRule(s: CustomAudienceSource): string {
+  const max = s.type === 'pixel' ? 180 : 365;
+  if (!Number.isInteger(s.days) || s.days < 1 || s.days > max) throw new Error(`Số ngày 1–${max}`);
+  if (!/^[\w-]{1,40}$/.test(s.id)) throw new Error('id nguồn không hợp lệ');
+  const filter =
+    s.type === 'pixel'
+      ? s.event === 'all'
+        ? { field: 'url', operator: 'i_contains', value: '' }
+        : { field: 'event', operator: 'eq', value: s.event }
+      : { field: 'event', operator: 'eq', value: s.type === 'page' ? 'page_engaged' : 'ig_business_profile_all' };
+  return JSON.stringify({
+    inclusions: {
+      operator: 'or',
+      rules: [
+        {
+          event_sources: [{ id: s.id, type: s.type }],
+          retention_seconds: s.days * 86_400,
+          filter: { operator: 'and', filters: [filter] },
+        },
+      ],
+    },
+  });
+}
+
 export interface MetaWriteApi {
   /** Đọc trạng thái hiện tại của đối tượng (dùng trước khi ghi và để xác minh sau khi ghi). */
   getObject(token: string, id: string, type: MetaObjectType): Promise<WritableObject>;
@@ -50,6 +81,12 @@ export interface MetaWriteApi {
     token: string,
     act: string,
     input: { name: string; originAudienceId: string; country: string; ratio: string },
+  ): Promise<{ id: string }>;
+  /** ADR-0026: tạo custom audience từ pixel / tương tác Page / Instagram. */
+  createCustomAudience(
+    token: string,
+    act: string,
+    input: { name: string; source: CustomAudienceSource },
   ): Promise<{ id: string }>;
   /** Đọc lại audience vừa tạo (xác minh). */
   getAudience(token: string, id: string): Promise<{ id: string; name?: string | null; subtype?: string | null }>;
@@ -146,6 +183,18 @@ export class HttpMetaWrite implements MetaWriteApi {
         origin_audience_id: input.originAudienceId,
         lookalike_spec: JSON.stringify({ ratio: Number(input.ratio), country: input.country }),
       },
+      idSchema,
+      { endpoint: 'customaudiences/create' },
+    );
+    return { id: r.id };
+  }
+
+  async createCustomAudience(token: string, act: string, input: { name: string; source: CustomAudienceSource }) {
+    const r = await this.http.request(
+      'POST',
+      `${act}/customaudiences`,
+      token,
+      { name: input.name, rule: customAudienceRule(input.source), prefill: '1' },
       idSchema,
       { endpoint: 'customaudiences/create' },
     );
