@@ -130,15 +130,25 @@ export const ACTION_TYPES = [
   'rename_ad',
   'rename_adset',
   'rename_campaign',
+  // ADR-0025: giá thầu nhóm QC, giới hạn chi chiến dịch (chỉ duyệt tay).
+  'set_adset_bid',
+  'set_campaign_spend_cap',
 ] as const;
 export type ActionType = (typeof ACTION_TYPES)[number];
 
-/** ADR-0025: hành động sửa thuộc tính (tên…) — chỉ duyệt tay, rule không bao giờ tạo. */
+/** ADR-0025: hành động sửa thuộc tính (tên, giá thầu, giới hạn chi) — chỉ duyệt tay, rule không bao giờ tạo. */
 export const EDIT_TYPES: ReadonlySet<ActionType> = new Set<ActionType>([
   'rename_ad',
   'rename_adset',
   'rename_campaign',
+  'set_adset_bid',
+  'set_campaign_spend_cap',
 ]);
+/** ADR-0025: hành động đặt một giá trị tiền (đơn vị nhỏ nhất) → thuộc tính trên Meta. */
+export const VALUE_FIELD: Partial<Record<ActionType, 'bid_amount' | 'spend_cap'>> = {
+  set_adset_bid: 'bid_amount',
+  set_campaign_spend_cap: 'spend_cap',
+};
 export const RENAME_TYPES: ReadonlySet<ActionType> = new Set<ActionType>([
   'rename_ad',
   'rename_adset',
@@ -171,6 +181,9 @@ export function checkGuardrails(input: {
   dataDays: number;
   currentDailyBudget?: string | null;
   newDailyBudget?: string | null;
+  /** ADR-0025: giá trị hiện tại / mới của giá thầu hoặc giới hạn chi (đơn vị nhỏ nhất). */
+  currentValue?: string | null;
+  newValue?: string | null;
 }): GuardrailViolation[] {
   const g = input.guardrails;
   const v: GuardrailViolation[] = [];
@@ -200,6 +213,30 @@ export function checkGuardrails(input: {
     else if (!next || compareDecimal(next, '0') <= 0) v.push({ code: 'invalid_budget' });
     else if (compareDecimal(deltaPct(next, cur), g.maxBudgetChangePct) > 0) {
       v.push({ code: 'budget_change_too_large', params: { max: g.maxBudgetChangePct } });
+    }
+  }
+  // ADR-0025: giá thầu — chỉ nhóm QC đang có giá thầu; |thay đổi| ≤ ngưỡng ngân sách.
+  if (input.actionType === 'set_adset_bid') {
+    const cur = input.currentValue;
+    const next = input.newValue;
+    if (!cur || compareDecimal(cur, '0') <= 0) v.push({ code: 'no_bid_amount' });
+    else if (!next || compareDecimal(next, '0') <= 0) v.push({ code: 'invalid_bid' });
+    else if (compareDecimal(deltaPct(next, cur), g.maxBudgetChangePct) > 0) {
+      v.push({ code: 'bid_change_too_large', params: { max: g.maxBudgetChangePct } });
+    }
+  }
+  // ADR-0025: giới hạn chi — hạ / đặt mới luôn được (thêm phanh); nâng ≤ ngưỡng ngân sách; không gỡ.
+  if (input.actionType === 'set_campaign_spend_cap') {
+    const cur = input.currentValue;
+    const next = input.newValue;
+    if (!next || compareDecimal(next, '0') <= 0) v.push({ code: 'invalid_spend_cap' });
+    else if (
+      cur &&
+      compareDecimal(cur, '0') > 0 &&
+      compareDecimal(next, cur) > 0 &&
+      compareDecimal(deltaPct(next, cur), g.maxBudgetChangePct) > 0
+    ) {
+      v.push({ code: 'spend_cap_change_too_large', params: { max: g.maxBudgetChangePct } });
     }
   }
   return v;

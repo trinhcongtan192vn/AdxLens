@@ -70,7 +70,10 @@ function accountNum(act: string): string {
  * cấu trúc xác định khi đọc — để luồng ghi → đọc lại (verifier) chạy được ở local/test.
  */
 export const mockWriteState = {
-  overrides: new Map<string, { status?: string; daily_budget?: string; name?: string }>(),
+  overrides: new Map<
+    string,
+    { status?: string; daily_budget?: string; name?: string; bid_amount?: string; spend_cap?: string }
+  >(),
   copies: new Map<string, MetaAdSet>(),
   /** ADR-0023: quảng cáo / audience tạo qua Meta giả. */
   createdAds: new Map<string, MetaAd & { act: string }>(),
@@ -91,6 +94,8 @@ function applyOverride<T extends { id: string; status?: string | null; effective
     ...(w.status ? { status: w.status, effective_status: w.status } : {}),
     ...(w.daily_budget !== undefined ? { daily_budget: w.daily_budget } : {}),
     ...(w.name !== undefined ? { name: w.name } : {}),
+    ...(w.bid_amount !== undefined ? { bid_amount: w.bid_amount } : {}),
+    ...(w.spend_cap !== undefined ? { spend_cap: w.spend_cap } : {}),
   };
 }
 
@@ -125,6 +130,8 @@ function structure(act: string): Structure {
       objective,
       daily_budget: null,
       lifetime_budget: null,
+      // Chiến dịch bán hàng có giới hạn chi tiêu (ADR-0025).
+      spend_cap: ci === 0 ? '60000000' : null,
     });
     for (let si = 0; si < adsetCount; si++) {
       const sid = `${cid}${si}0`;
@@ -138,6 +145,9 @@ function structure(act: string): Structure {
         optimization_goal: GOAL[objective].goal,
         daily_budget: small ? '50000' : String(300000 + si * 150000),
         lifetime_budget: null,
+        // Ad set LAL dùng Cost cap (có giá thầu); còn lại chi phí thấp nhất (ADR-0025).
+        bid_strategy: si === 0 ? 'COST_CAP' : 'LOWEST_COST_WITHOUT_CAP',
+        bid_amount: si === 0 ? '40000' : null,
         learning_stage_info: { status: small || (ci === 1 && si === 2) ? 'LEARNING_LIMITED' : 'SUCCESS' },
         promoted_object: objective === 'OUTCOME_SALES' ? { custom_event_type: 'PURCHASE' } : null,
         // Giai đoạn phễu: LAL (prospecting), retarget web 30 ngày; ad set thứ 3 của chiến dịch lead nhắm khách cũ.

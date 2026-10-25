@@ -32,6 +32,7 @@ export class MockMetaWrite implements MetaWriteApi {
             effective_status: adset.effective_status,
             daily_budget: adset.daily_budget,
             lifetime_budget: adset.lifetime_budget,
+            bid_amount: adset.bid_amount ?? null,
             campaign_id: adset.campaign_id,
             account_id: a.id.replace(/^act_/, ''),
           },
@@ -46,6 +47,7 @@ export class MockMetaWrite implements MetaWriteApi {
             name: camp.name,
             status: camp.status,
             effective_status: camp.effective_status,
+            spend_cap: camp.spend_cap ?? null,
             account_id: a.id.replace(/^act_/, ''),
           },
         };
@@ -76,7 +78,10 @@ export class MockMetaWrite implements MetaWriteApi {
     return f.obj;
   }
 
-  private apply(id: string, patch: { status?: string; daily_budget?: string; name?: string }) {
+  private apply(
+    id: string,
+    patch: { status?: string; daily_budget?: string; name?: string; bid_amount?: string; spend_cap?: string },
+  ) {
     const fault = this.fault;
     this.fault = null;
     if (fault === 'error_before')
@@ -87,6 +92,8 @@ export class MockMetaWrite implements MetaWriteApi {
           status: patch.status ? 'ARCHIVED' : undefined,
           daily_budget: patch.daily_budget ? '1' : undefined,
           name: patch.name ? `${patch.name} (sai)` : undefined,
+          bid_amount: patch.bid_amount ? '1' : undefined,
+          spend_cap: patch.spend_cap ? '1' : undefined,
         }
       : patch;
     const cur = mockWriteState.overrides.get(id) ?? {};
@@ -95,6 +102,8 @@ export class MockMetaWrite implements MetaWriteApi {
       ...(value.status ? { status: value.status } : {}),
       ...(value.daily_budget ? { daily_budget: value.daily_budget } : {}),
       ...(value.name ? { name: value.name } : {}),
+      ...(value.bid_amount ? { bid_amount: value.bid_amount } : {}),
+      ...(value.spend_cap ? { spend_cap: value.spend_cap } : {}),
     });
     if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);
   }
@@ -109,6 +118,22 @@ export class MockMetaWrite implements MetaWriteApi {
     if (!this.find(id)) throw new MetaApiError(400, 100, 33, 'GraphMethodException', 'Object does not exist', null);
     this.calls.push({ op: 'setName', id, value: name });
     this.apply(id, { name });
+  }
+
+  async setBidAmount(_t: string, adsetId: string, amount: string) {
+    if (this.find(adsetId)?.type !== 'adset') {
+      throw new MetaApiError(400, 100, 33, 'GraphMethodException', 'Object does not exist', null);
+    }
+    this.calls.push({ op: 'setBidAmount', id: adsetId, value: amount });
+    this.apply(adsetId, { bid_amount: amount });
+  }
+
+  async setSpendCap(_t: string, campaignId: string, amount: string) {
+    if (this.find(campaignId)?.type !== 'campaign') {
+      throw new MetaApiError(400, 100, 33, 'GraphMethodException', 'Object does not exist', null);
+    }
+    this.calls.push({ op: 'setSpendCap', id: campaignId, value: amount });
+    this.apply(campaignId, { spend_cap: amount });
   }
 
   async setDailyBudget(_t: string, adsetId: string, amount: string) {

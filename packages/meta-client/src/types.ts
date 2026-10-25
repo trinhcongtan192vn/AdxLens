@@ -60,6 +60,8 @@ export const campaignSchema = z.object({
   objective: z.string().nullish(),
   daily_budget: numStr.nullish(),
   lifetime_budget: numStr.nullish(),
+  /** ADR-0025: giới hạn chi tiêu chiến dịch (đơn vị nhỏ nhất). */
+  spend_cap: numStr.nullish(),
 });
 
 export const adsetSchema = z.object({
@@ -71,6 +73,9 @@ export const adsetSchema = z.object({
   optimization_goal: z.string().nullish(),
   daily_budget: numStr.nullish(),
   lifetime_budget: numStr.nullish(),
+  /** ADR-0025: giá thầu (Bid cap / Cost cap), đơn vị nhỏ nhất; chiến lược tự động thì không có. */
+  bid_amount: numStr.nullish(),
+  bid_strategy: z.string().nullish(),
   learning_stage_info: z.object({ status: z.string().optional() }).nullish(),
   promoted_object: z.record(z.string(), z.unknown()).nullish(),
   /** Chỉ custom audience đưa vào / loại trừ (phân loại giai đoạn phễu); không lưu cả targeting. */

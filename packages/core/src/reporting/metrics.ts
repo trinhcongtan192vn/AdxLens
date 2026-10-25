@@ -102,6 +102,9 @@ export type EntityRow = {
   parentMetaId: string | null;
   /** Ngân sách ngày (nhóm QC dùng ngân sách ngày), chuỗi decimal theo tiền tệ tài khoản. */
   dailyBudget?: string | null;
+  /** ADR-0025: giá thầu nhóm QC / giới hạn chi chiến dịch (đơn vị nhỏ nhất, từ lần đồng bộ gần nhất). */
+  bidAmount?: string | null;
+  spendCap?: string | null;
   kpis: Kpis;
 };
 
@@ -123,6 +126,8 @@ export async function entityTable(
       status: string | null;
       parent: string | null;
       daily_budget: string | null;
+      bid_amount: string | null;
+      spend_cap: string | null;
     }
   >(sql`
     with m as (
@@ -132,6 +137,7 @@ export async function entityTable(
       group by ad_account_id, ${key}
     )
     select e.ad_account_id, e.meta_id, e.name, e.status, e.parent_meta_id as parent, e.daily_budget::text as daily_budget,
+      e.attrs->>'bid_amount' as bid_amount, e.attrs->>'spend_cap' as spend_cap,
       m.spend, m.impressions,
       m.reach, m.clicks, m.link_clicks, m.results, m.conversion_value, m.result_types
     from analytics.entities e
@@ -145,6 +151,8 @@ export async function entityTable(
     status: r.status,
     parentMetaId: r.parent,
     dailyBudget: r.daily_budget,
+    bidAmount: r.bid_amount,
+    spendCap: r.spend_cap,
     kpis: toKpis(r.spend === null ? undefined : r),
   }));
 }

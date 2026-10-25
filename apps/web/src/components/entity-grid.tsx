@@ -461,6 +461,21 @@ export function EntityGrid({
                           >
                             {tg('rename')}
                           </Button>
+                          {level === 'adset' && r.target.bidAmount ? (
+                            <Button kind="ghost" size="s" onClick={() => open('set_adset_bid', [r.target!])}>
+                              {tg('bid')}
+                            </Button>
+                          ) : null}
+                          {level === 'campaign' ? (
+                            <Button
+                              kind="ghost"
+                              size="s"
+                              onClick={() => open('set_campaign_spend_cap', [r.target!])}
+                              data-testid="row-spend-cap"
+                            >
+                              {tg('spendCap')}
+                            </Button>
+                          ) : null}
                           {level === 'adset' && r.target.dailyBudget ? (
                             <Button kind="ghost" size="s" onClick={() => open('set_adset_budget', [r.target!])}>
                               {tg('budget')}

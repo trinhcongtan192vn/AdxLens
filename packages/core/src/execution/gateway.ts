@@ -21,6 +21,7 @@ import {
   checkGuardrails,
   effectiveGuardrails,
   RENAME_TYPES,
+  VALUE_FIELD,
   type ActionType,
   type GuardrailViolation,
 } from './guardrails';
@@ -45,6 +46,8 @@ const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'campaign' | 'account'> =
   rename_ad: 'ad',
   rename_adset: 'adset',
   rename_campaign: 'campaign',
+  set_adset_bid: 'adset',
+  set_campaign_spend_cap: 'campaign',
 };
 
 const LAUNCH_TYPES = new Set<ActionType>(['create_ad', 'create_lookalike']);
@@ -64,6 +67,8 @@ export const UNDOABLE: Record<ActionType, boolean> = {
   rename_ad: true,
   rename_adset: true,
   rename_campaign: true,
+  set_adset_bid: true,
+  set_campaign_spend_cap: true,
 };
 
 /** ADR-0025: tên mới đã chuẩn hóa (bỏ khoảng trắng hai đầu, 1–400 ký tự, không ký tự điều khiển) hoặc null. */
@@ -82,8 +87,15 @@ export function minorUnits(v: string | null | undefined): string | null {
   return String(BigInt(m[1]!)); // phần lẻ của đơn vị nhỏ nhất bị bỏ (làm tròn xuống)
 }
 
-function expectedAfter(type: ActionType, newBudget?: string | null, newName?: string | null): State {
+function expectedAfter(
+  type: ActionType,
+  newBudget?: string | null,
+  newName?: string | null,
+  newValue?: string | null,
+): State {
   if (RENAME_TYPES.has(type)) return { name: newName ?? null };
+  const field = VALUE_FIELD[type];
+  if (field) return { [field]: newValue ?? null };
   if (type === 'pause_ad' || type === 'pause_adset' || type === 'pause_campaign') return { status: 'PAUSED' };
   if (type === 'resume_ad' || type === 'resume_adset' || type === 'resume_campaign') return { status: 'ACTIVE' };
   if (type === 'set_adset_budget') return { daily_budget: newBudget ?? null };
@@ -132,10 +144,13 @@ async function targetEntity(ctx: WorkspaceCtx, adAccountId: string, type: 'ad' |
     name: string | null;
     status: string | null;
     daily_budget: string | null;
+    bid_amount: string | null;
+    spend_cap: string | null;
     parent: string | null;
     campaign: string | null;
   }>(sql`
     select e.name, e.status, e.daily_budget::text as daily_budget, e.parent_meta_id as parent,
+      e.attrs->>'bid_amount' as bid_amount, e.attrs->>'spend_cap' as spend_cap,
       coalesce(e.attrs->>'campaign_id', p.parent_meta_id) as campaign
     from analytics.entities e
     left join analytics.entities p on p.workspace_id = e.workspace_id and p.ad_account_id = e.ad_account_id
@@ -146,8 +161,19 @@ async function targetEntity(ctx: WorkspaceCtx, adAccountId: string, type: 'ad' |
 }
 
 /** Trạng thái trước theo lần đồng bộ gần nhất (thuộc tính mà hành động sẽ đổi). */
-function beforeOf(type: ActionType, e: { name: string | null; status: string | null; daily_budget: string | null }) {
+function beforeOf(
+  type: ActionType,
+  e: {
+    name: string | null;
+    status: string | null;
+    daily_budget: string | null;
+    bid_amount?: string | null;
+    spend_cap?: string | null;
+  },
+) {
   if (type === 'set_adset_budget') return { daily_budget: minorUnits(e.daily_budget) } as State;
+  const field = VALUE_FIELD[type];
+  if (field) return { [field]: minorUnits(e[field] ?? null) } as State;
   if (RENAME_TYPES.has(type)) return { name: e.name } as State;
   return { status: e.status } as State;
 }
@@ -194,6 +220,8 @@ export type ActionRequest = {
   newDailyBudget?: string | null;
   /** ADR-0025: tên mới cho `rename_*`. */
   newName?: string | null;
+  /** ADR-0025: giá thầu / giới hạn chi mới (đơn vị nhỏ nhất của tiền tệ, như ngân sách). */
+  newValue?: string | null;
   recommendationId?: string | null;
   undoOf?: string | null;
 };
@@ -220,6 +248,11 @@ export async function previewAction(ctx: ActorCtx, input: ActionRequest, clock: 
     if (!newName) throw new AppError('VALIDATION_FAILED', 'Tên mới không hợp lệ (1–400 ký tự)');
     if (newName === e.name) throw new AppError('VALIDATION_FAILED', 'Tên mới trùng tên hiện tại');
   }
+  const field = VALUE_FIELD[input.actionType];
+  const newValue = field ? minorUnits(input.newValue) : null;
+  if (field && newValue !== null && newValue === before[field]) {
+    throw new AppError('VALIDATION_FAILED', 'Giá trị mới trùng giá trị hiện tại');
+  }
   const violations: GuardrailViolation[] = checkGuardrails({
     guardrails: g,
     actionType: input.actionType,
@@ -231,6 +264,8 @@ export async function previewAction(ctx: ActorCtx, input: ActionRequest, clock: 
     dataDays: await dataDays(ctx, account.id, type, input.targetMetaId, localDate(now, account.timezone)),
     currentDailyBudget: before.daily_budget ?? null,
     newDailyBudget: newBudget,
+    currentValue: field ? (before[field] ?? null) : null,
+    newValue,
   });
   if (input.undoOf) {
     // Hoàn tác của hành động AdxLens đã làm: không tính vào giới hạn số hành động/ngày.
@@ -242,7 +277,7 @@ export async function previewAction(ctx: ActorCtx, input: ActionRequest, clock: 
     targetType: type,
     targetName: e.name,
     before,
-    after: expectedAfter(input.actionType, newBudget, newName),
+    after: expectedAfter(input.actionType, newBudget, newName, newValue),
     violations,
     undoable: UNDOABLE[input.actionType],
   };
@@ -292,11 +327,11 @@ export async function requestAction(
       targetMetaId: input.targetMetaId,
       targetName: p.targetName,
       tier: 'approve',
-      params: p.after.daily_budget
-        ? { daily_budget: p.after.daily_budget }
-        : p.after.name
-          ? { name: p.after.name }
-          : {},
+      params: Object.fromEntries(
+        Object.entries(p.after).filter(
+          (x): x is [string, string] => ['daily_budget', 'name', 'bid_amount', 'spend_cap'].includes(x[0]) && !!x[1],
+        ),
+      ),
       beforeState: p.before,
       afterExpected: p.after,
       idempotencyKey: `${base}#${prior.length + 1}`,
@@ -427,6 +462,8 @@ function scrub(e: unknown): { code: string; message: string } {
 
 function matches(obj: WritableObject, expected: State): boolean {
   if ('name' in expected) return (obj.name ?? null) === expected.name;
+  if ('bid_amount' in expected) return minorUnits(obj.bid_amount ?? null) === expected.bid_amount;
+  if ('spend_cap' in expected) return minorUnits(obj.spend_cap ?? null) === expected.spend_cap;
   if ('status' in expected) return obj.status === expected.status;
   if ('daily_budget' in expected) return minorUnits(obj.daily_budget ?? null) === expected.daily_budget;
   if ('copy_status' in expected) return obj.status === expected.copy_status;
@@ -439,6 +476,8 @@ function snapshot(obj: WritableObject): State {
     status: obj.status ?? null,
     effective_status: obj.effective_status ?? null,
     daily_budget: minorUnits(obj.daily_budget ?? null),
+    bid_amount: minorUnits(obj.bid_amount ?? null),
+    spend_cap: minorUnits(obj.spend_cap ?? null),
   };
 }
 
@@ -498,6 +537,8 @@ export async function executeAction(
     dataDays: await dataDays(ctx, account.id, a.targetType, a.targetMetaId, today),
     currentDailyBudget: a.beforeState.daily_budget ?? null,
     newDailyBudget: a.afterExpected.daily_budget ?? null,
+    currentValue: VALUE_FIELD[type] ? (a.beforeState[VALUE_FIELD[type]!] ?? null) : null,
+    newValue: VALUE_FIELD[type] ? (a.afterExpected[VALUE_FIELD[type]!] ?? null) : null,
   });
   if (violations.length)
     return finish('canceled', 'guardrail', { errorMessage: violations.map((v) => v.code).join(',') });
@@ -518,11 +559,15 @@ export async function executeAction(
     const beforeOk =
       'name' in a.beforeState
         ? (live.name ?? null) === a.beforeState.name
-        : 'daily_budget' in a.beforeState
-          ? minorUnits(live.daily_budget ?? null) === a.beforeState.daily_budget
-          : 'status' in a.beforeState && type !== 'duplicate_adset'
-            ? live.status === a.beforeState.status
-            : true;
+        : 'bid_amount' in a.beforeState
+          ? minorUnits(live.bid_amount ?? null) === a.beforeState.bid_amount
+          : 'spend_cap' in a.beforeState
+            ? minorUnits(live.spend_cap ?? null) === a.beforeState.spend_cap
+            : 'daily_budget' in a.beforeState
+              ? minorUnits(live.daily_budget ?? null) === a.beforeState.daily_budget
+              : 'status' in a.beforeState && type !== 'duplicate_adset'
+                ? live.status === a.beforeState.status
+                : true;
     if (!beforeOk)
       return {
         kind: 'failed' as const,
@@ -536,6 +581,10 @@ export async function executeAction(
       if (type === 'set_adset_budget')
         await deps.writer.setDailyBudget(token, a.targetMetaId, a.afterExpected.daily_budget!);
       else if (RENAME_TYPES.has(type)) await deps.writer.setName(token, a.targetMetaId, a.afterExpected.name!);
+      else if (type === 'set_adset_bid')
+        await deps.writer.setBidAmount(token, a.targetMetaId, a.afterExpected.bid_amount!);
+      else if (type === 'set_campaign_spend_cap')
+        await deps.writer.setSpendCap(token, a.targetMetaId, a.afterExpected.spend_cap!);
       else if (type === 'duplicate_adset')
         verifyId = (await deps.writer.copyAdSet(token, a.targetMetaId)).copiedAdSetId;
       else await deps.writer.setStatus(token, a.targetMetaId, a.afterExpected.status as 'ACTIVE' | 'PAUSED');
@@ -588,7 +637,14 @@ export async function executeAction(
             ? { dailyBudget: outcome.after.daily_budget ?? null, updatedAt: ts }
             : RENAME_TYPES.has(type)
               ? { name: outcome.after.name ?? null, updatedAt: ts }
-              : { status: outcome.after.status ?? null, updatedAt: ts },
+              : VALUE_FIELD[type]
+                ? {
+                    attrs: sql`${entities.attrs} || ${JSON.stringify({
+                      [VALUE_FIELD[type]!]: outcome.after[VALUE_FIELD[type]!] ?? null,
+                    })}::jsonb`,
+                    updatedAt: ts,
+                  }
+                : { status: outcome.after.status ?? null, updatedAt: ts },
         )
         .where(
           and(

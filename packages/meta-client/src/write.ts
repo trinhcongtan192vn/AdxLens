@@ -15,6 +15,8 @@ export const writableObjectSchema = z.object({
   effective_status: z.string().nullish(),
   daily_budget: numStr.nullish(),
   lifetime_budget: numStr.nullish(),
+  bid_amount: numStr.nullish(),
+  spend_cap: numStr.nullish(),
   adset_id: z.string().nullish(),
   campaign_id: z.string().nullish(),
   account_id: z.string().nullish(),
@@ -29,6 +31,10 @@ export interface MetaWriteApi {
   setStatus(token: string, id: string, status: 'ACTIVE' | 'PAUSED'): Promise<void>;
   /** ADR-0025: đổi tên ad / ad set / chiến dịch. */
   setName(token: string, id: string, name: string): Promise<void>;
+  /** ADR-0025: giá thầu nhóm QC (Bid cap / Cost cap), số nguyên đơn vị nhỏ nhất. */
+  setBidAmount(token: string, adsetId: string, amount: string): Promise<void>;
+  /** ADR-0025: giới hạn chi tiêu chiến dịch, số nguyên đơn vị nhỏ nhất. */
+  setSpendCap(token: string, campaignId: string, amount: string): Promise<void>;
   /** `amount` là số nguyên đơn vị nhỏ nhất của tiền tệ, dạng chuỗi (không float). */
   setDailyBudget(token: string, adsetId: string, amount: string): Promise<void>;
   /** Nhân bản sâu ad set, bản sao luôn PAUSED (ADR-0011). */
@@ -51,8 +57,8 @@ export interface MetaWriteApi {
 
 const FIELDS: Record<MetaObjectType, string> = {
   ad: 'id,name,status,effective_status,adset_id,campaign_id,account_id',
-  adset: 'id,name,status,effective_status,daily_budget,lifetime_budget,campaign_id,account_id',
-  campaign: 'id,name,status,effective_status,daily_budget,lifetime_budget,account_id',
+  adset: 'id,name,status,effective_status,daily_budget,lifetime_budget,bid_amount,campaign_id,account_id',
+  campaign: 'id,name,status,effective_status,daily_budget,lifetime_budget,spend_cap,account_id',
 };
 const okSchema = z.object({ success: z.boolean().optional() }).passthrough();
 const copySchema = z.object({ copied_adset_id: z.string() }).passthrough();
@@ -77,6 +83,18 @@ export class HttpMetaWrite implements MetaWriteApi {
 
   async setName(token: string, id: string, name: string) {
     await this.http.request('POST', id, token, { name }, okSchema, { endpoint: 'object/name' });
+  }
+
+  async setBidAmount(token: string, adsetId: string, amount: string) {
+    if (!/^\d+$/.test(amount)) throw new Error('bid_amount phải là số nguyên đơn vị nhỏ nhất');
+    await this.http.request('POST', adsetId, token, { bid_amount: amount }, okSchema, { endpoint: 'adset/bid' });
+  }
+
+  async setSpendCap(token: string, campaignId: string, amount: string) {
+    if (!/^\d+$/.test(amount)) throw new Error('spend_cap phải là số nguyên đơn vị nhỏ nhất');
+    await this.http.request('POST', campaignId, token, { spend_cap: amount }, okSchema, {
+      endpoint: 'campaign/spend_cap',
+    });
   }
 
   async setDailyBudget(token: string, adsetId: string, amount: string) {
