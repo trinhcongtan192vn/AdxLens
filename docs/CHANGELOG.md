@@ -2,6 +2,48 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [106] Ad Launcher + Audience Launcher (ADR-0023) — 2026-10-25
+
+Theo Madgicx 3.4 (Ad Launcher, Audience Launcher). Đây là hai hành động ghi Meta mới; PM đã duyệt ngày 25/10/2026.
+
+- **Workspace › Launcher** (`/w/launcher`, sau cờ P2a):
+  - **Ad Launcher**:
+    - chọn nhóm QC có sẵn và tối đa 5 creative tốt nhất (sắp theo ROAS kỳ đang chọn);
+    - mỗi creative tạo một quảng cáo mới **ở trạng thái TẠM DỪNG**;
+    - mỗi cái là một hành động duyệt tay qua Execution Gateway.
+  - **Audience Launcher**: tạo lookalike 1–10% (tối đa 3 tỷ lệ) từ custom audience có sẵn, theo quốc gia. Không đụng
+    quảng cáo / ngân sách.
+- **Execution Gateway:**
+  - hành động `create_ad`, `create_lookalike`, chỉ tier `approve`;
+  - guardrail mới `no_auto_create` chặn tự chạy (chặt hơn, không nới);
+  - đủ cổng: cờ, gói, kill switch, breaker, quyền ghi, hạn mức / ngày, loại trừ;
+  - nguồn (nhóm QC, creative, audience) phải thuộc tài khoản QC theo snapshot;
+  - ghi một lần, đọc lại xác minh (quảng cáo PAUSED đúng nhóm QC / audience LOOKALIKE);
+  - lỗi giữa chừng: không đoán, không gọi lại, báo kiểm tra thủ công. Không hoàn tác được.
+- **meta-client (ghi):** `createAd`, `createLookalike`, `getAudience`. Meta giả có thêm quảng cáo / audience tạo ra và
+  lỗi theo kịch bản.
+- **Đồng bộ:** lưu custom audience thành entity `audience` (id, tên, loại) làm nguồn cho Launcher.
+- Nhật ký hành động hiện "Tạo quảng cáo / Tạo lookalike".
+- **Chưa làm (ghi trong ADR):**
+  - tạo creative mới / AI Ad Generator (cần lưu file + chọn mô hình tạo ảnh);
+  - audience theo pixel / tương tác.
+
+**Vùng bảo vệ:**
+- `packages/core/execution` (`gateway.ts`: `requestLaunch`, `executeLaunch`; `guardrails.ts`);
+- `packages/meta-client/write`;
+- `packages/db` (giá trị `target_type = account`, entity `audience`; không cần migration SQL).
+- **Cần PM chạy integration test trên staging trước khi merge `main`.**
+
+**Test tự động:**
+- `execution/launch.test.ts`:
+  - tạo quảng cáo PAUSED + xác minh + nhật ký;
+  - nguồn lạ, buyer, loại trừ, cờ tắt, chưa có quyền ghi;
+  - không tự chạy (`no_auto_create`, rule, preview);
+  - lỗi Meta → kiểm tra thủ công / verify_mismatch;
+  - lookalike: tạo, xác minh, nguồn / tỷ lệ / quốc gia sai.
+- Cách ly: probe 2 route Launcher.
+- E2E `p2a.spec.ts`: chọn creative → tạo → banner "đang chạy qua Execution Gateway".
+
 ## [105] Ads Manager mới: sửa ngân sách ngày ngay trong bảng — 2026-10-25
 
 Theo Madgicx Ads Manager 2.0: sửa ngân sách trực tiếp.

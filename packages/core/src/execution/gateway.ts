@@ -26,14 +26,18 @@ const { actions, actionLogs, adAccounts, entities } = schema;
 type State = Record<string, string | null>;
 export type ActionRow = typeof actions.$inferSelect;
 
-const TARGET_TYPE: Record<ActionType, 'ad' | 'adset'> = {
+const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'account'> = {
   pause_ad: 'ad',
   resume_ad: 'ad',
   pause_adset: 'adset',
   resume_adset: 'adset',
   set_adset_budget: 'adset',
   duplicate_adset: 'adset',
+  create_ad: 'adset',
+  create_lookalike: 'account',
 };
+
+const LAUNCH_TYPES = new Set<ActionType>(['create_ad', 'create_lookalike']);
 
 /** Hoàn tác được hay không (ADR-0009..0011). */
 export const UNDOABLE: Record<ActionType, boolean> = {
@@ -43,6 +47,8 @@ export const UNDOABLE: Record<ActionType, boolean> = {
   resume_adset: true,
   set_adset_budget: true,
   duplicate_adset: false,
+  create_ad: false,
+  create_lookalike: false,
 };
 
 /** Đơn vị nhỏ nhất của tiền tệ dạng số nguyên (ngân sách Meta) từ chuỗi numeric. */
@@ -162,6 +168,9 @@ export async function previewAction(ctx: ActorCtx, input: ActionRequest, clock: 
   const account = (await listAdAccounts(ctx)).find((a) => a.id === input.adAccountId);
   if (!account) throw new AppError('NOT_FOUND', 'Không tìm thấy tài khoản');
   const type = TARGET_TYPE[input.actionType];
+  if (type === 'account' || LAUNCH_TYPES.has(input.actionType)) {
+    throw new AppError('VALIDATION_FAILED', 'Tạo mới đi qua Ad / Audience Launcher');
+  }
   const e = await targetEntity(ctx, account.id, type, input.targetMetaId);
   if (!e) throw new AppError('NOT_FOUND', 'Không tìm thấy đối tượng');
   const g = await effectiveGuardrails(ctx);
@@ -308,6 +317,7 @@ export async function requestAutoAction(
     .limit(1);
   if (recent && !input.revertOf) return { skipped: 'cooldown' };
   const type = TARGET_TYPE[input.actionType];
+  if (type === 'account' || LAUNCH_TYPES.has(input.actionType)) return { skipped: 'no_auto_create' };
   const e = await targetEntity(ctx, account.id, type, input.targetMetaId);
   if (!e) return { skipped: 'target_missing' };
   const g = await effectiveGuardrails(ctx);
@@ -426,8 +436,11 @@ export async function executeAction(
 
   const block = await safetyBlock(ctx, account.id, account.connectionId);
   if (block) return finish('canceled', block);
+  if (LAUNCH_TYPES.has(type)) return executeLaunch(ctx, a, account, deps, finish);
   const g = await effectiveGuardrails(ctx);
-  const e = await targetEntity(ctx, account.id, a.targetType, a.targetMetaId);
+  if (a.targetType === 'account') return finish('canceled', 'invalid_target');
+  const objType: 'ad' | 'adset' = a.targetType;
+  const e = await targetEntity(ctx, account.id, objType, a.targetMetaId);
   const today = localDate(now, account.timezone);
   const violations = checkGuardrails({
     guardrails: g,
@@ -447,7 +460,7 @@ export async function executeAction(
   const outcome = await withConnectionToken(ctx, account.connectionId, deps.keys, async (token) => {
     let live: WritableObject;
     try {
-      live = await deps.writer.getObject(token, a.targetMetaId, a.targetType);
+      live = await deps.writer.getObject(token, a.targetMetaId, objType);
     } catch (err) {
       return { kind: 'failed' as const, code: 'read_failed', error: scrub(err) };
     }
@@ -492,7 +505,7 @@ export async function executeAction(
     // Xác minh: đọc lại trạng thái thật (kể cả khi lời gọi báo lỗi — Meta có thể đã áp).
     let after: WritableObject;
     try {
-      after = await deps.writer.getObject(token, verifyId, a.targetType);
+      after = await deps.writer.getObject(token, verifyId, objType);
     } catch (err) {
       return { kind: 'failed' as const, code: 'verify_failed', error: callError ?? scrub(err) };
     }
@@ -631,4 +644,246 @@ export async function actionCounts(ctx: WorkspaceCtx) {
     .from(actions)
     .where(eq(actions.workspaceId, ctx.workspaceId))
     .groupBy(actions.status);
+}
+
+type LaunchInput =
+  | { kind: 'create_ad'; adAccountId: string; adsetId: string; creativeId: string; name: string }
+  | {
+      kind: 'create_lookalike';
+      adAccountId: string;
+      originAudienceId: string;
+      country: string;
+      ratioPct: number;
+      name: string;
+    };
+
+/**
+ * ADR-0023 — Ad Launcher / Audience Launcher: tạo hành động `create_ad` / `create_lookalike` tier `approve` (duyệt
+ * tay, không bao giờ auto). Đủ cổng an toàn như mọi hành động ghi; nguồn (ad set, creative, audience) phải thuộc tài
+ * khoản QC của workspace theo snapshot. Quảng cáo mới luôn PAUSED. Không hoàn tác được.
+ */
+export async function requestLaunch(
+  ctx: ActorCtx,
+  input: LaunchInput,
+  deps: { enqueue: Enqueue; clock?: Clock },
+): Promise<ActionRow> {
+  const clock = deps.clock ?? systemClock;
+  const now = clock.now();
+  const account = (await listAdAccounts(ctx)).find((x) => x.id === input.adAccountId);
+  if (!account) throw new AppError('NOT_FOUND', 'Không tìm thấy tài khoản');
+  if (!account.clientId ? ctx.actor.role === 'buyer' : !canApproveActions(ctx.actor, account.clientId)) {
+    throw new AppError('FORBIDDEN', 'Bạn không có quyền duyệt hành động cho Client này');
+  }
+  const block = await safetyBlock(ctx, account.id, account.connectionId);
+  if (block) throw BLOCK_ERROR[block]!;
+  const name = input.name.trim().slice(0, 200);
+  if (!name) throw new AppError('VALIDATION_FAILED', 'Cần tên');
+  let targetType: 'adset' | 'account';
+  let targetMetaId: string;
+  let targetName: string | null;
+  let params: Record<string, string>;
+  let parents: string[] = [];
+  if (input.kind === 'create_ad') {
+    const adset = await targetEntity(ctx, account.id, 'adset', input.adsetId);
+    if (!adset) throw new AppError('NOT_FOUND', 'Không tìm thấy nhóm QC');
+    const [cr] = await ctx.db
+      .select({ id: entities.metaId })
+      .from(entities)
+      .where(
+        and(
+          eq(entities.workspaceId, ctx.workspaceId),
+          eq(entities.adAccountId, account.id),
+          eq(entities.entityType, 'creative'),
+          eq(entities.metaId, input.creativeId),
+        ),
+      );
+    if (!cr) throw new AppError('NOT_FOUND', 'Không tìm thấy creative');
+    targetType = 'adset';
+    targetMetaId = input.adsetId;
+    targetName = adset.name;
+    params = { creative_id: input.creativeId, name };
+    parents = [input.adsetId, adset.parent, adset.campaign].filter((x): x is string => !!x);
+  } else {
+    if (!/^[A-Z]{2}$/.test(input.country)) throw new AppError('VALIDATION_FAILED', 'Mã quốc gia 2 chữ');
+    if (!Number.isInteger(input.ratioPct) || input.ratioPct < 1 || input.ratioPct > 10) {
+      throw new AppError('VALIDATION_FAILED', 'Tỷ lệ lookalike 1–10%');
+    }
+    const [au] = await ctx.db
+      .select({ id: entities.metaId, name: entities.name })
+      .from(entities)
+      .where(
+        and(
+          eq(entities.workspaceId, ctx.workspaceId),
+          eq(entities.adAccountId, account.id),
+          eq(entities.entityType, 'audience'),
+          eq(entities.metaId, input.originAudienceId),
+        ),
+      );
+    if (!au) throw new AppError('NOT_FOUND', 'Không tìm thấy audience gốc');
+    targetType = 'account';
+    targetMetaId = account.metaAccountId;
+    targetName = account.name;
+    params = {
+      origin_audience_id: input.originAudienceId,
+      country: input.country,
+      ratio: (input.ratioPct / 100).toFixed(2),
+      name,
+    };
+  }
+  const g = await effectiveGuardrails(ctx);
+  const violations = checkGuardrails({
+    guardrails: g,
+    actionType: input.kind,
+    tier: 'approve',
+    targetIds: parents,
+    accountTimezone: account.timezone,
+    now,
+    actionsToday: await actionsToday(ctx, account.id, account.timezone, now),
+    // Tạo mới không cần lịch sử dữ liệu của đối tượng.
+    dataDays: g.minDataDays,
+  });
+  if (violations.length) throw new AppError('GUARDRAIL_VIOLATION', 'Vi phạm guardrails', { violations });
+  const after: Record<string, string | null> =
+    input.kind === 'create_ad' ? { created_status: 'PAUSED' } : { created_subtype: 'LOOKALIKE' };
+  const [row] = await ctx.db
+    .insert(actions)
+    .values({
+      workspaceId: ctx.workspaceId,
+      adAccountId: account.id,
+      actionType: input.kind,
+      targetType,
+      targetMetaId,
+      targetName,
+      tier: 'approve',
+      params,
+      beforeState: {},
+      afterExpected: after,
+      idempotencyKey: `${ctx.workspaceId}:launch:${input.kind}:${JSON.stringify(params)}:${now.toISOString()}`,
+      requestedBy: ctx.actor.userId,
+      approvedBy: ctx.actor.userId,
+      createdAt: now,
+    })
+    .returning();
+  await log(ctx, row!.id, 'approved', { by: ctx.actor.userId, params, after });
+  await deps.enqueue('execute:action', { workspaceId: ctx.workspaceId, actionId: row!.id });
+  return row!;
+}
+
+/** Thực thi tạo mới (ADR-0023): ghi một lần, đọc lại xác minh; lỗi giữa chừng → không đoán, báo kiểm tra thủ công. */
+async function executeLaunch(
+  ctx: WorkspaceCtx,
+  a: ActionRow,
+  account: { id: string; connectionId: string; timezone: string },
+  deps: ExecuteDeps,
+  finish: (
+    status: 'success' | 'failed' | 'canceled',
+    resultCode: string,
+    extra?: Partial<typeof actions.$inferInsert>,
+  ) => Promise<{ status: 'success' | 'failed' | 'canceled'; resultCode: string }>,
+) {
+  const clock = deps.clock ?? systemClock;
+  const g = await effectiveGuardrails(ctx);
+  const violations = checkGuardrails({
+    guardrails: g,
+    actionType: a.actionType as ActionType,
+    tier: a.tier,
+    targetIds: a.targetType === 'adset' ? [a.targetMetaId] : [],
+    accountTimezone: account.timezone,
+    now: clock.now(),
+    actionsToday: await actionsToday(ctx, account.id, account.timezone, clock.now(), a.id),
+    dataDays: g.minDataDays,
+  });
+  if (violations.length)
+    return finish('canceled', 'guardrail', { errorMessage: violations.map((v) => v.code).join(',') });
+  const [acc] = await ctx.db
+    .select({ metaAccountId: adAccounts.metaAccountId })
+    .from(adAccounts)
+    .where(and(eq(adAccounts.workspaceId, ctx.workspaceId), eq(adAccounts.id, account.id)));
+  const act = acc!.metaAccountId;
+  const done = (after: Record<string, string | null>) => ({ kind: 'success' as const, after });
+  const outcome = await withConnectionToken(ctx, account.connectionId, deps.keys, async (token) => {
+    let createdId: string;
+    try {
+      createdId =
+        a.actionType === 'create_ad'
+          ? (
+              await deps.writer.createAd(token, act, {
+                name: a.params.name!,
+                adsetId: a.targetMetaId,
+                creativeId: a.params.creative_id!,
+              })
+            ).id
+          : (
+              await deps.writer.createLookalike(token, act, {
+                name: a.params.name!,
+                originAudienceId: a.params.origin_audience_id!,
+                country: a.params.country!,
+                ratio: a.params.ratio!,
+              })
+            ).id;
+      await log(ctx, a.id, 'meta_call', { ok: true, created_id: createdId });
+    } catch (err) {
+      const e = scrub(err);
+      await log(ctx, a.id, 'meta_call', { ok: false, error: e });
+      return { kind: 'failed' as const, code: 'meta_error_check_manually', error: e };
+    }
+    try {
+      if (a.actionType === 'create_ad') {
+        const ad = await deps.writer.getObject(token, createdId, 'ad');
+        const ok = ad.status === 'PAUSED' && ad.adset_id === a.targetMetaId;
+        await log(ctx, a.id, 'verify', { ok, after: { created_id: createdId, status: ad.status ?? null } });
+        return ok
+          ? done({ created_id: createdId, created_status: ad.status ?? null })
+          : {
+              kind: 'failed' as const,
+              code: 'verify_mismatch',
+              error: { code: 'verify_mismatch', message: 'Quảng cáo mới không ở trạng thái mong đợi' },
+            };
+      }
+      const au = await deps.writer.getAudience(token, createdId);
+      const ok = au.subtype === 'LOOKALIKE';
+      await log(ctx, a.id, 'verify', { ok, after: { created_id: createdId, subtype: au.subtype ?? null } });
+      return ok
+        ? done({ created_id: createdId, created_subtype: au.subtype ?? null })
+        : {
+            kind: 'failed' as const,
+            code: 'verify_mismatch',
+            error: { code: 'verify_mismatch', message: 'Audience mới không phải lookalike' },
+          };
+    } catch (err) {
+      return { kind: 'failed' as const, code: 'verify_failed', error: scrub(err) };
+    }
+  });
+  const ts = clock.now();
+  if (outcome.kind === 'success') {
+    await recordSuccess(ctx, account.id);
+    const r = await finish('success', 'ok', {
+      afterState: outcome.after,
+      executedAt: ts,
+      verifiedAt: ts,
+    });
+    if (a.requestedBy) {
+      await notify(ctx, {
+        kind: 'action_executed',
+        recipients: { userIds: [a.requestedBy] },
+        params: { action: a.actionType, item: a.params.name ?? a.targetMetaId },
+        link: `/action-log/${a.id}`,
+        dedupeKey: `action_executed:${a.id}`,
+      });
+    }
+    return r;
+  }
+  await recordFailure(ctx, account.id, g.breakerFailures, clock);
+  await notify(
+    ctx,
+    {
+      kind: 'action_failed',
+      recipients: { roles: ['owner'], userIds: a.requestedBy ? [a.requestedBy] : [] },
+      params: { action: a.params.name ?? a.targetMetaId, reason: outcome.error.message },
+      link: `/action-log/${a.id}`,
+      dedupeKey: `action_failed:${a.id}`,
+    },
+    { enqueue: deps.enqueue },
+  );
+  return finish('failed', outcome.code, { errorMessage: outcome.error.message, executedAt: ts });
 }

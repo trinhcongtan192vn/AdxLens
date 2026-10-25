@@ -117,4 +117,60 @@ export class MockMetaWrite implements MetaWriteApi {
     if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);
     return { copiedAdSetId };
   }
+
+  private takeFault() {
+    const fault = this.fault;
+    this.fault = null;
+    if (fault === 'error_before')
+      throw new MetaApiError(500, 2, null, 'OAuthException', 'Service temporarily unavailable', null);
+    return fault;
+  }
+
+  async createAd(_t: string, act: string, input: { name: string; adsetId: string; creativeId: string }) {
+    const s = mockStructure(act);
+    const adset = s.adsets.find((x) => x.id === input.adsetId);
+    if (!adset || !s.creatives.some((c) => c.id === input.creativeId)) {
+      throw new MetaApiError(400, 100, null, 'OAuthException', 'Invalid parameter', null);
+    }
+    this.calls.push({ op: 'createAd', id: input.adsetId, value: input.creativeId });
+    const fault = this.takeFault();
+    const id = `${input.adsetId}8${mockWriteState.createdAds.size + 1}`;
+    const status = fault === 'wrong_value' ? 'ACTIVE' : 'PAUSED';
+    mockWriteState.createdAds.set(id, {
+      id,
+      name: input.name,
+      adset_id: input.adsetId,
+      campaign_id: adset.campaign_id,
+      status,
+      effective_status: status,
+      creative: { id: input.creativeId },
+      act,
+    });
+    if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);
+    return { id };
+  }
+
+  async createLookalike(
+    _t: string,
+    act: string,
+    input: { name: string; originAudienceId: string; country: string; ratio: string },
+  ) {
+    this.calls.push({ op: 'createLookalike', id: input.originAudienceId, value: `${input.country}:${input.ratio}` });
+    const fault = this.takeFault();
+    const id = `ca_new_${mockWriteState.createdAudiences.size + 1}`;
+    mockWriteState.createdAudiences.set(id, {
+      id,
+      name: input.name,
+      subtype: fault === 'wrong_value' ? 'CUSTOM' : 'LOOKALIKE',
+      act,
+    });
+    if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);
+    return { id };
+  }
+
+  async getAudience(_t: string, id: string) {
+    const a = mockWriteState.createdAudiences.get(id);
+    if (!a) throw new MetaApiError(400, 100, 33, 'GraphMethodException', 'Object does not exist', null);
+    return { id: a.id, name: a.name, subtype: a.subtype };
+  }
 }

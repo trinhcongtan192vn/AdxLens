@@ -54,7 +54,8 @@ export const actions = app.table(
     recommendationId: uuid('recommendation_id').references(() => recommendations.id, { onDelete: 'set null' }),
     ruleId: uuid('rule_id'),
     actionType: text('action_type').notNull(),
-    targetType: text('target_type', { enum: ['ad', 'adset'] }).notNull(),
+    /** `account`: hành động cấp tài khoản QC (tạo lookalike, ADR-0023). */
+    targetType: text('target_type', { enum: ['ad', 'adset', 'account'] }).notNull(),
     targetMetaId: text('target_meta_id').notNull(),
     targetName: text('target_name'),
     tier: text('tier', { enum: ACTION_TIERS }).notNull(),

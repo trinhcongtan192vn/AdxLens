@@ -7,7 +7,17 @@ export const W_KPIS_COOKIE = 'w_kpis';
 export const W_BASE = '/w';
 
 export type WNavKey =
-  'home' | 'agents' | 'business' | 'ads' | 'adsManager' | 'funnels' | 'geography' | 'scale' | 'audiences' | 'alerts';
+  | 'home'
+  | 'agents'
+  | 'business'
+  | 'ads'
+  | 'adsManager'
+  | 'funnels'
+  | 'geography'
+  | 'scale'
+  | 'audiences'
+  | 'launcher'
+  | 'alerts';
 
 export type WNavItem = { key: WNavKey; href: string; flag?: FlagKey };
 
@@ -21,6 +31,7 @@ export const W_NAV: WNavItem[] = [
   { key: 'geography', href: '/w/geography' },
   { key: 'scale', href: '/w/scale' },
   { key: 'audiences', href: '/w/audiences' },
+  { key: 'launcher', href: '/w/launcher', flag: 'p2a_approve' },
 ];
 
 /** Mục ở đáy sidebar. */

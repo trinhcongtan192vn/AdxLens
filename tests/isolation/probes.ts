@@ -563,6 +563,20 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     }),
   },
   'DELETE /api/v1/llm-key': { kind: 'workspace' },
+  'POST /api/v1/launcher/ads': {
+    kind: 'workspace',
+    body: (w) => ({ adAccountId: w.a.adAccount.id, adsetId: '999000111', creativeIds: ['999000222'], name: 'Probe' }),
+  },
+  'POST /api/v1/launcher/lookalikes': {
+    kind: 'workspace',
+    body: (w) => ({
+      adAccountId: w.a.adAccount.id,
+      originAudienceId: 'ca_probe',
+      country: 'VN',
+      ratios: [1],
+      name: 'Probe',
+    }),
+  },
   'POST /api/v1/oauth/register': {
     kind: 'exempt',
     reason: 'Đăng ký ứng dụng OAuth trước khi có người dùng / workspace; bảng client không thuộc workspace (ADR-0022)',

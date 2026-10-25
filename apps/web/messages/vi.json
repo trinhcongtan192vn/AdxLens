@@ -2302,7 +2302,9 @@
       "resume_adset": "Bật lại nhóm quảng cáo",
       "set_adset_budget": "Đổi ngân sách ngày nhóm quảng cáo",
       "duplicate_adset": "Nhân bản nhóm quảng cáo",
-      "suggest_resume": "Đề xuất bật lại"
+      "suggest_resume": "Đề xuất bật lại",
+      "create_ad": "Tạo quảng cáo",
+      "create_lookalike": "Tạo lookalike"
     },
     "state": {
       "ACTIVE": "Đang chạy",
@@ -2346,7 +2348,9 @@
       "FORBIDDEN": "Bạn không có quyền duyệt hành động này, hoặc kết nối chưa có quyền ghi.",
       "CONFLICT": "Hành động đang được thực hiện hoặc không còn áp dụng được.",
       "NOT_FOUND": "Không tìm thấy đối tượng."
-    }
+    },
+    "createdPaused": "Tạo mới · tạm dừng",
+    "createdLookalike": "Tạo lookalike mới"
   },
   "killSwitch": {
     "title": "Kill switch",
@@ -2876,7 +2880,8 @@
       "settings": "Cài đặt",
       "classic": "Giao diện cổ điển",
       "business": "Business",
-      "audiences": "Audiences"
+      "audiences": "Audiences",
+      "launcher": "Launcher"
     },
     "create": {
       "button": "Tạo mới",
@@ -3534,5 +3539,48 @@
     "emptyBody": "Danh sách audience có sau lần đồng bộ kế tiếp (đọc từ targeting của nhóm QC).",
     "note": "Số của mỗi audience = tổng các nhóm QC dùng audience đó; nhóm QC dùng nhiều audience được tính cho mỗi audience, nên tổng các dòng có thể lớn hơn tổng tài khoản.",
     "noData": "{n} nhóm QC có chi tiêu chưa có thông tin audience (chờ đồng bộ)."
+  },
+  "wsLauncher": {
+    "subtitle": "Tạo quảng cáo từ creative tốt nhất và tạo lookalike — mỗi thao tác qua duyệt và Execution Gateway",
+    "noAccount": "Chưa có tài khoản QC",
+    "pickAccount": "Đang dùng tài khoản {name}. Chọn tài khoản khác ở bộ chọn phạm vi.",
+    "noPermission": "Bạn không có quyền duyệt hành động cho Client này.",
+    "paused": "đang tạm dừng",
+    "adsQueued": "Đã gửi {n} quảng cáo để tạo",
+    "audiencesQueued": "Đã gửi {n} lookalike để tạo",
+    "doneBody": "{n} hành động đang chạy qua Execution Gateway.",
+    "openLog": "Xem nhật ký hành động",
+    "ads": {
+      "title": "Ad Launcher",
+      "intro": "Chọn nhóm QC có sẵn và tối đa 5 creative (sắp theo ROAS kỳ đang chọn). Mỗi creative thành một quảng cáo mới ở trạng thái TẠM DỪNG; bạn bật khi sẵn sàng.",
+      "adset": "Nhóm QC",
+      "name": "Tên quảng cáo",
+      "nameHint": "Nhiều creative → thêm #1, #2…",
+      "pick": "Chọn creative (tối đa {max})",
+      "creative": "Creative",
+      "spend": "Chi tiêu",
+      "results": "Kết quả",
+      "select": "Chọn {name}",
+      "launch": "Tạo {n} quảng cáo (tạm dừng)",
+      "note": "Không hoàn tác được; muốn bỏ thì tạm dừng / xóa trên Meta."
+    },
+    "aud": {
+      "title": "Audience Launcher",
+      "intro": "Tạo lookalike từ custom audience có sẵn của tài khoản (khách mua, web, danh sách). Không đụng quảng cáo hay ngân sách.",
+      "none": "Tài khoản chưa có custom audience (hoặc chưa đồng bộ).",
+      "origin": "Audience gốc",
+      "country": "Quốc gia",
+      "countryHint": "Mã 2 chữ, vd. VN",
+      "ratios": "Tỷ lệ (tối đa 3)",
+      "launch": "Tạo {n} lookalike",
+      "note": "Meta cần vài giờ để điền audience."
+    },
+    "errors": {
+      "GUARDRAIL_VIOLATION": "Vượt giới hạn hành động hôm nay hoặc đối tượng bị loại trừ.",
+      "FORBIDDEN": "Không có quyền hoặc kết nối chưa có quyền ghi.",
+      "KILL_SWITCH_ACTIVE": "Kill switch đang bật.",
+      "PLAN_REQUIRED": "Cần gói Growth trở lên.",
+      "other": "Không tạo được. Thử lại."
+    }
   }
 }

@@ -171,13 +171,11 @@ async function syncStructure(ctx: WorkspaceCtx, adAccountId: string, act: string
     meta.listCreatives(token, act),
   ]);
   // Loại custom audience để phân loại giai đoạn phễu; thiếu quyền / lỗi → null (không đoán, không chặn đồng bộ).
-  const audienceTypes = await meta
-    .listCustomAudiences(token, act)
-    .then((list) => new Map(list.map((a) => [a.id, a.subtype ?? null])))
-    .catch((e: unknown) => {
-      if (e instanceof MetaApiError && e.isTokenInvalid) throw e;
-      return null;
-    });
+  const audienceList = await meta.listCustomAudiences(token, act).catch((e: unknown) => {
+    if (e instanceof MetaApiError && e.isTokenInvalid) throw e;
+    return null;
+  });
+  const audienceTypes = audienceList ? new Map(audienceList.map((a) => [a.id, a.subtype ?? null])) : null;
   const base = { workspaceId: ctx.workspaceId, adAccountId };
   const money = (v: string | null | undefined) => (v ? toDecimal(v) : null);
   const rows: (typeof entities.$inferInsert)[] = [
@@ -243,6 +241,19 @@ async function syncStructure(ctx: WorkspaceCtx, adAccountId: string, act: string
         video_id: c.video_id ?? null,
         ...creativeCopy(c),
       },
+    })),
+    // ADR-0023: custom audience (nguồn cho Audience Launcher) — chỉ id, tên, loại.
+    ...(audienceList ?? []).map((a) => ({
+      ...base,
+      entityType: 'audience' as const,
+      metaId: a.id,
+      parentMetaId: null,
+      name: a.name ?? null,
+      status: null,
+      objective: null,
+      dailyBudget: null,
+      learningStage: null,
+      attrs: { subtype: a.subtype ?? null },
     })),
   ];
   for (let i = 0; i < rows.length; i += 500) {
