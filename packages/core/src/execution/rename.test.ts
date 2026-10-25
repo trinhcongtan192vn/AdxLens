@@ -16,13 +16,7 @@ import {
 import { disableFlag, enableFlag } from '@adxlens/core/flags';
 import { startBackfill, syncRange } from '@adxlens/core/ingestion';
 import { resolveActor } from '@adxlens/core/tenancy';
-import {
-  executeAction,
-  previewAction,
-  requestAction,
-  requestAutoAction,
-  undoAction,
-} from './index';
+import { executeAction, previewAction, requestAction, requestAutoAction, undoAction } from './index';
 
 const db = testDb();
 afterAll(() => closeTestDb());
