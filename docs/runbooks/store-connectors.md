@@ -1,4 +1,4 @@
-# Runbook: kết nối cửa hàng / analytics (Shopify, GA4)
+# Runbook: kết nối cửa hàng / analytics (Shopify, Shopee, GA4)
 
 ADR-0029. Dùng khi cài AdxLens ở môi trường mới (local / staging) hoặc khi PM tạo app thật.
 
@@ -91,3 +91,41 @@ Khởi động lại app và worker (bản team: chạy `node scripts/team.mjs`)
 | Google báo `redirect_uri_mismatch` | URI ở mục 3.1 bước 4 phải trùng từng ký tự với địa chỉ app công khai. |
 | `?store=noaccess` | Tài khoản Google đăng nhập không có quyền trên property, hoặc nhập sai Property ID. |
 | Kết nối hiện "Cần kết nối lại" sau ~7 ngày | App OAuth đang ở chế độ *Testing*: refresh token hết hạn sau 7 ngày. Kết nối lại, hoặc chuyển app sang *In production*. |
+
+## 4. Shopee (Shopee Open Platform)
+
+### 4.1 Tạo app
+1. Đăng ký tài khoản developer tại <https://open.shopee.com>, xác minh doanh nghiệp. Shopee duyệt vài ngày.
+2. **App Management → Create App:** loại **ERP System** hoặc **Seller In House System** (quản lý nhiều shop của khách).
+3. **Redirect URL Domain:** `https://<tên miền app>`, ví dụ `https://adxlens-dev.sctech.io.vn`.
+   AdxLens chuyển về `https://<tên miền app>/api/v1/stores/shopee/callback?state=…`.
+4. **API Permission:** chỉ cần **Shop** và **Order** (đọc).
+5. Lấy **Partner ID** và **Partner Key**:
+   - **Test** (sandbox): host `https://partner.test-stable.shopeemobile.com`, dùng shop test của Shopee.
+   - **Live** (sau khi app được duyệt): host `https://partner.shopeemobile.com`.
+
+### 4.2 Điền vào `.env.local`
+```
+SHOPEE_PARTNER_ID=<Partner ID>
+SHOPEE_PARTNER_KEY=<Partner Key>
+SHOPEE_HOST=https://partner.test-stable.shopeemobile.com   # sandbox; live: https://partner.shopeemobile.com
+STORE_MOCK=0
+```
+
+### 4.3 Kết nối một shop
+1. Ở **Kết nối → Cửa hàng & Analytics**, chọn Client → **Kết nối Shopee**.
+2. Chủ shop đăng nhập **Shopee Seller**, chọn shop → **Xác nhận ủy quyền**.
+3. AdxLens lưu refresh token (mã hóa), đọc thông tin shop rồi đồng bộ 30 ngày đơn.
+   - Vùng của shop quyết định tiền tệ và múi giờ (VN → VND, Asia/Ho_Chi_Minh).
+4. **Token:** access token sống 4 giờ; refresh token sống 30 ngày và **đổi mỗi lần làm mới**. Đồng bộ hằng ngày tự làm
+   mới và lưu token mới, nên chỉ cần đồng bộ chạy đều.
+5. Business Dashboard: doanh thu và số đơn Shopee **cộng chung** với Shopify của cùng Client (khi cùng tiền tệ).
+
+### 4.4 Sự cố
+| Hiện tượng | Nguyên nhân / cách xử lý |
+|---|---|
+| `?store=invalid` | Phiên quá 10 phút, hoặc Redirect URL Domain không khớp. |
+| `?store=failed` | Sai Partner ID / Key, hoặc sai host (sandbox ↔ live). |
+| "Cần kết nối lại" | Refresh token hết hạn (worker không chạy hơn 30 ngày) hoặc chủ shop hủy ủy quyền (Shopee yêu cầu ủy quyền lại mỗi năm). Kết nối lại. |
+| Doanh thu khác Seller Center | AdxLens tính theo ngày tạo đơn, bỏ đơn hủy, dùng `total_amount` (tổng người mua trả). |
+

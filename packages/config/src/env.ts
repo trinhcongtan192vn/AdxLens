@@ -55,6 +55,10 @@ export const storeEnvSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}$/)
     .default('2025-07'),
+  SHOPEE_PARTNER_ID: optionalString,
+  SHOPEE_PARTNER_KEY: optionalString,
+  /** Live: https://partner.shopeemobile.com · Sandbox: https://partner.test-stable.shopeemobile.com */
+  SHOPEE_HOST: z.string().url().default('https://partner.shopeemobile.com'),
   GOOGLE_CLIENT_ID: optionalString,
   GOOGLE_CLIENT_SECRET: optionalString,
   /** Chỉ local/test: Shopify / GA4 giả (không cần app thật). */

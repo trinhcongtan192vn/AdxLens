@@ -2,3 +2,4 @@
 export * from './money';
 export * from './shopify';
 export * from './ga4';
+export * from './shopee';

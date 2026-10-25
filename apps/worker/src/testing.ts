@@ -1,5 +1,5 @@
 // Chỉ dùng trong test: dịch vụ worker với Meta mock, khóa test, enqueue và email ghi lại.
-import { googleAnalyticsApi, shopifyApi } from '@adxlens/core/stores';
+import { googleAnalyticsApi, shopeeApi, shopifyApi } from '@adxlens/core/stores';
 import { keysFromEnv } from '@adxlens/core/connections';
 import { memoryEmailSender } from '@adxlens/core/notification';
 import type { Db } from '@adxlens/db';
@@ -49,6 +49,7 @@ export function testWorkerServices(db: Db, now?: () => Date) {
     metaWriter: createMetaWriter({ mock: true, apiVersion: 'v24.0' }),
     shopify: shopifyApi({ mock: true, apiVersion: '2025-07' }),
     ga4: googleAnalyticsApi({ mock: true }),
+    shopee: shopeeApi({ mock: true, host: 'https://partner.test-stable.shopeemobile.com' }),
   };
   return { services, enqueue, email, throttled, rendered, uploads };
 }

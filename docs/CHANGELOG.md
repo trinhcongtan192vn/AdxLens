@@ -27,6 +27,36 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [132] Kết nối Shopee: doanh thu / số đơn theo Client ở Business Dashboard (ADR-0029 phụ lục) — 2026-10-25
+
+PM yêu cầu: sau Facebook, Google, Shopify thì tích hợp luôn Shopee (TikTok Ads chưa cần).
+
+- **Kết nối → "Cửa hàng & Analytics" → Kết nối Shopee:** chọn Client → chủ shop đăng nhập Shopee Seller và ủy quyền shop
+  → AdxLens lưu refresh token (mã hóa), đồng bộ 30 ngày đơn; hằng ngày 03:00 giờ shop → 3 ngày.
+- **`store-client` → Shopee Open Platform v2:**
+  - chữ ký HMAC (partner key), URL ủy quyền, đổi code / làm mới token;
+  - thông tin shop (vùng → tiền tệ, múi giờ);
+  - `get_order_list` theo cửa sổ 14 ngày + `get_order_detail` theo lô 50, bỏ đơn hủy, cộng tiền bằng decimal;
+  - lỗi chỉ mã (token sai / hết hạn → `SHOPEE_HTTP_401` → "Cần kết nối lại").
+- **Refresh token xoay vòng:** mỗi lần đồng bộ, worker lưu refresh token mới (mã hóa lại); token cũ hết hiệu lực.
+- **Business Dashboard:** doanh thu / số đơn / AOV / MER cộng chung Shopify + Shopee của cùng Client (cùng tiền tệ).
+- **Env mới:** `SHOPEE_PARTNER_ID`, `SHOPEE_PARTNER_KEY`, `SHOPEE_HOST` (sandbox / live).
+  - **Hướng dẫn tạo app cho PM:** `docs/runbooks/store-connectors.md` mục 4.
+- `state` OAuth gắn trong redirect URL (Shopee không trả lại `state`), đối chiếu cookie ký 10 phút.
+
+**Vùng bảo vệ:** không đổi schema (`provider` thêm giá trị `shopee`, cột text); token dùng `core/connections/secrets`.
+
+**Test tự động:**
+- `store-client/shopee.test.ts`:
+  - chữ ký đúng chuẩn v2, URL ủy quyền;
+  - danh sách + chi tiết, bỏ đơn hủy, ngày theo múi giờ vùng;
+  - lỗi token → 401.
+- `core/stores/stores.test.ts`:
+  - refresh token mới được lưu (mã hóa, khác bản cũ);
+  - doanh thu cộng chung Shopify + Shopee;
+  - bị thu hồi → cần kết nối lại.
+- Bộ cách ly: `GET /api/v1/stores/shopee/authorize`, `callback`.
+
 ## [131] Kết nối Google Analytics 4 (Google OAuth): phiên / chuyển đổi theo Client ở Business (ADR-0029) — 2026-10-25
 
 Bước 2 của kết nối cửa hàng / analytics (bước 1: Shopify [130]). PM chọn Google OAuth.

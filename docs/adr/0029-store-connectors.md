@@ -60,3 +60,19 @@ Meta:
 - **Token cửa hàng:** mã hóa, không log, không trả qua API; chỉ worker giải mã.
 - **Số liệu cửa hàng lệch với báo cáo của shop** (múi giờ, đơn hoàn): ghi rõ định nghĩa ở trang; không dùng cho đối chiếu
   Meta 1%.
+
+## Phụ lục — Shopee (PM 25/10/2026: "tích hợp luôn shopee"; TikTok Ads chưa cần)
+
+- **Provider `shopee`** (Shopee Open Platform v2):
+  - ký HMAC-SHA256 bằng partner key;
+  - Shopee không trả lại `state`, nên `state` gắn trong chính redirect URL và đối chiếu với cookie ký.
+- **Token:**
+  - lưu refresh token (mã hóa);
+  - access token 4 giờ;
+  - refresh token **xoay vòng**: mỗi lần làm mới, worker mã hóa lại token mới và lưu ngay.
+- **Đơn:**
+  - `get_order_list` theo cửa sổ ≤ 15 ngày + `get_order_detail` theo lô 50;
+  - bỏ đơn hủy; doanh thu `total_amount`;
+  - ngày theo múi giờ vùng của shop.
+- Doanh thu / đơn Shopee cộng chung với Shopify của cùng Client (cùng tiền tệ); không đổi schema (`provider` là text).
+

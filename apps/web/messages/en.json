@@ -3852,10 +3852,11 @@
   },
   "stores": {
     "title": "Stores & Analytics",
-    "intro": "Connect the client's Shopify store and Google Analytics 4 so the Business Dashboard shows real store revenue, orders, AOV, MER (store revenue / ad spend), sessions and conversions. Each store / property maps to one client; AdxLens only reads.",
+    "intro": "Connect the client's Shopify, Shopee and Google Analytics 4 so the Business Dashboard shows real store revenue, orders, AOV, MER (store revenue / ad spend), sessions and conversions. Each store / property maps to one client; AdxLens only reads.",
     "providers": {
       "shopify": "Shopify",
-      "ga4": "Google Analytics 4"
+      "ga4": "Google Analytics 4",
+      "shopee": "Shopee"
     },
     "cols": {
       "store": "Store",
@@ -3872,7 +3873,7 @@
     "connectShopify": "Connect Shopify",
     "notConfigured": "The Shopify app is not configured (see docs/runbooks/store-connectors.md).",
     "tiles": {
-      "revenue": "Store revenue",
+      "revenue": "Store revenue (Shopify + Shopee)",
       "orders": "Orders",
       "aov": "Store AOV",
       "mer": "MER",
@@ -3882,6 +3883,9 @@
     "property": "GA4 Property ID",
     "propertyHint": "GA4 → Admin → Property settings (a number).",
     "connectGa4": "Connect Google Analytics",
-    "ga4NotConfigured": "Google OAuth for GA4 is not configured (see docs/runbooks/store-connectors.md)."
+    "ga4NotConfigured": "Google OAuth for GA4 is not configured (see docs/runbooks/store-connectors.md).",
+    "shopeeHint": "The shop owner signs in to Shopee Seller and picks the shop to authorize.",
+    "connectShopee": "Connect Shopee",
+    "shopeeNotConfigured": "The Shopee Open Platform app is not configured (see docs/runbooks/store-connectors.md)."
   }
 }
