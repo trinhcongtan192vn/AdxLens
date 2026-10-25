@@ -3422,7 +3422,9 @@
       "entity_details": "Đối tượng đã chọn",
       "account_structure": "Cấu trúc tài khoản",
       "launch_assets": "Tài sản tạo QC",
-      "store_summary": "Doanh thu cửa hàng"
+      "store_summary": "Doanh thu cửa hàng",
+      "write_ad_copy": "Viết nội dung",
+      "propose_ad_plan": "Kế hoạch tạo QC"
     },
     "proposal": "Đề xuất — cần bạn duyệt",
     "review": "Xem trước và duyệt",
@@ -3459,7 +3461,36 @@
       "adset": "Nhóm QC",
       "ad": "Quảng cáo"
     },
-    "newName": "Tên mới: {name}"
+    "newName": "Tên mới: {name}",
+    "plan": {
+      "title": "Kế hoạch tạo quảng cáo",
+      "approve": "Duyệt & chạy",
+      "cancel": "Bỏ kế hoạch",
+      "approved": "Đã duyệt — đang tạo từng bước",
+      "canceled": "Đã bỏ kế hoạch",
+      "error": "Không thực hiện được",
+      "noPermission": "Bạn không có quyền duyệt cho Client này",
+      "safety": "Duyệt một lần, chạy lần lượt từng bước qua guardrails. Nhóm QC và quảng cáo mới luôn ở trạng thái tạm dừng; bạn bật khi sẵn sàng.",
+      "campaignBudget": "ngân sách chiến dịch",
+      "fromStep": "tạo ở bước \"{name}\"",
+      "adsetLine": "Ngân sách ngày {budget} · {countries} · tuổi {ageMin}–{ageMax} · {audiences} audience",
+      "adLine": "Nhóm QC: {adset} · Creative: {creative}",
+      "stepFailed": "Bước lỗi ({code}) — các bước sau không chạy. Xem Nhật ký hành động.",
+      "kinds": {
+        "create_creative": "Creative",
+        "create_adset": "Nhóm QC mới",
+        "create_ad": "Quảng cáo"
+      },
+      "status": {
+        "proposed": "Chờ duyệt",
+        "approved": "Đã duyệt",
+        "running": "Đang chạy",
+        "done": "Hoàn tất",
+        "failed": "Lỗi",
+        "canceled": "Đã bỏ",
+        "expired": "Hết hạn"
+      }
+    }
   },
   "integrations": {
     "title": "MCP server — kết nối AdxLens với Claude và công cụ AI khác",

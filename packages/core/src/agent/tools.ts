@@ -23,6 +23,15 @@ import {
 import { addDays, AppError, localDate, type ActorCtx } from '@adxlens/core/shared';
 import { storeSummary } from '@adxlens/core/stores';
 import { listClients } from '@adxlens/core/tenancy';
+import {
+  proposeAdPlanInput,
+  proposeAdPlanSpec,
+  runProposeAdPlan,
+  runWriteAdCopy,
+  writeAdCopyInput,
+  writeAdCopySpec,
+  type AdToolContext,
+} from './ad-plan-tools';
 import type { AgentToolSpec } from './llm';
 
 const { entities } = schema;
@@ -35,6 +44,8 @@ export type ToolContext = {
   /** Tài khoản người dùng đang chọn ở giao diện (ngữ cảnh mặc định). */
   defaultAccountId: string | null;
   now: Date;
+  /** ADR-0030 / 0031: công cụ viết nội dung + kế hoạch tạo quảng cáo (chỉ có trong `runAgentReply`). */
+  ad?: AdToolContext;
 };
 
 /** Loại thay đổi agent đề xuất được (một đối tượng đã có; tạo mới đi qua kế hoạch ADR-0031). */
@@ -70,7 +81,7 @@ export type ProposalOut = {
 const levelOf = (t: ProposalType): 'ad' | 'adset' | 'campaign' =>
   t.endsWith('_campaign') || t === 'set_campaign_spend_cap' ? 'campaign' : t.endsWith('_ad') ? 'ad' : 'adset';
 
-export type ToolResult = { data: unknown; proposal?: ProposalOut };
+export type ToolResult = { data: unknown; proposal?: ProposalOut; planId?: string };
 
 type Tool = {
   spec: AgentToolSpec;
@@ -842,6 +853,26 @@ export const TOOLS: Record<string, Tool> = {
         },
         proposal,
       };
+    },
+  },
+
+  write_ad_copy: {
+    write: true,
+    spec: writeAdCopySpec,
+    input: writeAdCopyInput,
+    run: async (t, i: never) => {
+      if (!t.ad) throw new AppError('NOT_FOUND', 'Không có công cụ write_ad_copy');
+      return { data: await runWriteAdCopy(t.ad, i) };
+    },
+  },
+
+  propose_ad_plan: {
+    write: true,
+    spec: proposeAdPlanSpec,
+    input: proposeAdPlanInput,
+    run: async (t, i: never) => {
+      if (!t.ad) throw new AppError('NOT_FOUND', 'Không có công cụ propose_ad_plan');
+      return runProposeAdPlan(t.ctx, t.ad, i);
     },
   },
 };

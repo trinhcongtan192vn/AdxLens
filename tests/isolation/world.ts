@@ -147,6 +147,19 @@ export async function seedWorld(db: Db) {
       idempotencyKey: `beta-action-${b.workspace.id}`,
     })
     .returning();
+  // ADR-0031: kế hoạch đang chờ duyệt của B.
+  const [bPlan] = await db
+    .insert(schema.actionPlans)
+    .values({
+      workspaceId: b.workspace.id,
+      adAccountId: bAdAccount.id,
+      title: 'Beta Plan Secret',
+      source: 'agent',
+      steps: [{ key: 'ad', kind: 'create_ad', adset: '1', creative: '2', name: 'Beta' }],
+      createdBy: b.owner.id,
+      expiresAt: new Date(Date.now() + 86_400_000),
+    })
+    .returning();
 
   const [bRule] = await db
     .insert(schema.automationRules)
@@ -357,6 +370,7 @@ export async function seedWorld(db: Db) {
       finding: bFinding!,
       recommendation: bRecommendation!,
       action: bAction!,
+      plan: bPlan!,
       rule: bRule!,
       report: bReport!,
       shareLink: bShare!,

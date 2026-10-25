@@ -9,6 +9,7 @@ import { Badge, Button, Card, cn, Select } from '@adxlens/ui';
 import { ActionDialog, type GridActionType } from '@/components/entity-actions';
 import { api, ApiError } from '@/lib/api-client';
 import { Markdown } from '@/components/markdown';
+import { PlanCard } from './plan-card';
 
 export type ContextEntity = { level: 'campaign' | 'adset' | 'ad'; metaId: string; name: string | null };
 type Thread = { id: string; title: string; favorite: boolean; updated_at: string };
@@ -29,6 +30,8 @@ type Message = {
   content: string;
   tools: { name: string }[];
   proposals: Proposal[];
+  /** ADR-0031: kế hoạch hành động agent đã đề xuất. */
+  plans?: string[];
   source: 'llm' | 'facts' | 'unconfigured' | 'stopped' | null;
   facts: { label: string; text: string }[];
   llm?: { via: 'workspace' | 'platform'; provider: string; model: string } | null;
@@ -317,6 +320,9 @@ export function AgentChat({
                           ))}
                         </p>
                       ) : null}
+                      {(m.plans ?? []).map((id) => (
+                        <PlanCard key={id} planId={id} />
+                      ))}
                       {m.proposals.map((p, i) => (
                         <div
                           key={i}
