@@ -3849,5 +3849,35 @@
     "lockedBody": "Số liệu đang được đối chiếu với Ads Manager. Vui lòng quay lại sau.",
     "footnote": "Số liệu từ Meta Ads, đối chiếu với Ads Manager (lệch ≤ 1%). Doanh thu là doanh thu Meta ghi nhận.",
     "poweredBy": "Báo cáo bởi AdxLens"
+  },
+  "stores": {
+    "title": "Cửa hàng & Analytics",
+    "intro": "Kết nối Shopify của khách để Business Dashboard có doanh thu thật của cửa hàng, số đơn, AOV và MER (doanh thu cửa hàng / chi tiêu quảng cáo). Mỗi shop gắn với một Client; AdxLens chỉ đọc đơn hàng.",
+    "providers": {
+      "shopify": "Shopify",
+      "ga4": "Google Analytics 4"
+    },
+    "cols": {
+      "store": "Cửa hàng",
+      "client": "Client",
+      "sync": "Đồng bộ gần nhất"
+    },
+    "noClient": "— Chưa gắn —",
+    "reconnect": "Cần kết nối lại",
+    "syncing": "Đang đồng bộ",
+    "disconnect": "Ngắt kết nối",
+    "removed": "Đã ngắt kết nối và xóa số liệu cửa hàng",
+    "shop": "Shop Shopify",
+    "shopHint": "Tên shop hoặc ten-shop.myshopify.com",
+    "connectShopify": "Kết nối Shopify",
+    "notConfigured": "Chưa cấu hình app Shopify (xem hướng dẫn docs/runbooks/store-connectors.md).",
+    "tiles": {
+      "revenue": "Doanh thu cửa hàng",
+      "orders": "Số đơn",
+      "aov": "AOV cửa hàng",
+      "mer": "MER",
+      "sessions": "Phiên (GA4)",
+      "conversions": "Chuyển đổi (GA4)"
+    }
   }
 }

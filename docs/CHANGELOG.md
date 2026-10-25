@@ -27,6 +27,47 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [130] Kết nối Shopify: doanh thu / số đơn cửa hàng theo Client ở Business Dashboard (ADR-0029) — 2026-10-25
+
+PM chọn: Shopify qua app OAuth Partner; GA4 qua Google OAuth (bước 131); mỗi shop / property gắn một Client; hiện ở
+Business Dashboard (nội bộ + link công khai).
+
+- **ADR-0029** (chấp nhận).
+- **Package mới `packages/store-client`:** lớp duy nhất gọi API cửa hàng / analytics, chỉ đọc; có mock `STORE_MOCK=1`.
+  - Shopify: dựng URL OAuth, kiểm `hmac` callback, đổi code lấy token, đọc thông tin shop;
+  - đơn theo ngày (múi giờ shop, phân trang `Link`, bỏ đơn hủy / test, cộng tiền bằng decimal).
+- **Module core mới `stores`:**
+  - lưu kết nối (token **mã hóa** như token Meta; kết nối lại → thay token, giữ Client);
+  - danh sách không token; gắn Client; ngắt kết nối (xóa token + số liệu ngày);
+  - đồng bộ (chỉ worker giải mã); tổng hợp theo Client; lịch theo giờ shop.
+- **Bảng mới** (migration 0083–0084, RLS theo workspace): `app.store_connections`, `analytics.store_daily`.
+- **Job `sync:store_daily`:**
+  - vừa kết nối → 30 ngày;
+  - hằng ngày 03:00 giờ shop → 3 ngày (cùng scheduler với Meta);
+  - 401 / 403 → kết nối "Cần kết nối lại".
+- **Kết nối → thẻ "Cửa hàng & Analytics":** nhập shop + chọn Client → **Kết nối Shopify** (OAuth); danh sách shop,
+  đổi Client, lần đồng bộ, ngắt kết nối. Chưa cấu hình app → hướng dẫn.
+- **Business Dashboard** (nội bộ + link công khai `/b`): khi Client có shop → ô **Doanh thu cửa hàng, Số đơn, AOV cửa
+  hàng, MER** (doanh thu cửa hàng / chi tiêu QC cùng kỳ, chỉ khi cùng tiền tệ; chia bằng decimal).
+- **Env mới:** `SHOPIFY_CLIENT_ID`, `SHOPIFY_CLIENT_SECRET`, `SHOPIFY_API_VERSION`, `GOOGLE_CLIENT_ID`,
+  `GOOGLE_CLIENT_SECRET`, `STORE_MOCK`.
+  - **Hướng dẫn tạo app Shopify cho PM:** `docs/runbooks/store-connectors.md`.
+
+**Vùng bảo vệ:** `packages/db` (2 bảng + RLS); token dùng `core/connections/secrets` (không đổi module connections).
+
+**Test tự động:**
+- `store-client/shopify.test.ts`:
+  - chuẩn hóa shop / chặn host lạ; URL OAuth;
+  - hmac đúng / sai secret / sai tham số; cộng tiền không float;
+  - phân trang + múi giờ + bỏ đơn hủy / test; lỗi HTTP chỉ mã.
+- `core/stores/stores.test.ts`:
+  - token không plaintext, không trả ra; buyer bị chặn; Client workspace khác → 404; kết nối lại thay token;
+  - đồng bộ ghi đè theo ngày + tổng theo Client; 401 → cần kết nối lại; ngắt kết nối xóa token + số liệu;
+  - cách ly workspace; lịch theo giờ shop.
+- Bộ cách ly:
+  - route `stores`, `stores/[id]`, `stores/shopify/authorize`, `callback`;
+  - job `sync:store_daily` (kể cả id kết nối của workspace khác).
+
 ## [129] Link Business Dashboard công khai cho khách (ADR-0028) — 2026-10-25
 
 Gap "Link Business công khai" (PM chọn sau khi đối chiếu Madgicx Academy).

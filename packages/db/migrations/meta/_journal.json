@@ -582,6 +582,20 @@
       "when": 1792909774701,
       "tag": "0082_business_links_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "7",
+      "when": 1792911259476,
+      "tag": "0083_store_connections",
+      "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1792911260705,
+      "tag": "0084_store_connections_rls",
+      "breakpoints": true
     }
   ]
 }

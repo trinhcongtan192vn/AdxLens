@@ -4,6 +4,7 @@ import { getEnv } from '@adxlens/config/env';
 import { getDb } from '@adxlens/db';
 import { keysFromEnv, metaReadApi, recordMetaCall } from '@adxlens/core/connections';
 import { createMetaWriter } from '@adxlens/core/execution';
+import { shopifyApi } from '@adxlens/core/stores';
 import { smtpEmailSender } from '@adxlens/core/notification';
 import {
   mergeAlertRecipients,
@@ -45,6 +46,12 @@ const services: WorkerServices = {
     onAudit: (a) => recordMetaCall(db, null, a).catch(() => undefined),
   }),
   tokenKeys: keysFromEnv(env).keys,
+  shopify: shopifyApi({
+    mock: env.STORE_MOCK,
+    clientId: env.SHOPIFY_CLIENT_ID,
+    clientSecret: env.SHOPIFY_CLIENT_SECRET,
+    apiVersion: env.SHOPIFY_API_VERSION,
+  }),
   metaWriter: createMetaWriter({
     mock: env.META_MOCK,
     apiVersion: env.META_API_VERSION,

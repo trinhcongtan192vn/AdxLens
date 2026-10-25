@@ -15,6 +15,7 @@ import {
   type WorkspaceCtx,
 } from '@adxlens/core/shared';
 import { assertCan, getClient } from '@adxlens/core/tenancy';
+import { storeSummary, type StoreSummary } from '@adxlens/core/stores';
 import { businessDashboard, type BusinessBlock } from './business';
 import { hashSharePassword, shareBlockReasons, type SHARE_EXPIRY_DAYS } from './share';
 
@@ -103,6 +104,8 @@ export type PublicBusiness =
       blended: BusinessBlock | null;
       currency: string | null;
       accounts: { id: string; name: string; currency: string; block: BusinessBlock }[];
+      /** ADR-0029: số liệu cửa hàng / GA4 của Client (nếu đã kết nối). */
+      store: StoreSummary;
     };
 
 /**
@@ -145,6 +148,7 @@ export async function publicBusiness(
     blended: currencies.length === 1 ? d.blended : null,
     currency: currencies.length === 1 ? currencies[0]! : null,
     accounts: d.accounts.map((a) => ({ id: a.id, name: a.name, currency: a.currency, block: a.block })),
+    store: await storeSummary(ctx, [client.id], range),
   };
 }
 

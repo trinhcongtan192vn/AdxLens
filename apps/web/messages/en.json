@@ -3849,5 +3849,35 @@
     "lockedBody": "Numbers are being reconciled with Ads Manager. Please check back later.",
     "footnote": "Data from Meta Ads, reconciled with Ads Manager (≤ 1% difference). Revenue is as reported by Meta.",
     "poweredBy": "Report by AdxLens"
+  },
+  "stores": {
+    "title": "Stores & Analytics",
+    "intro": "Connect the client's Shopify store so the Business Dashboard shows real store revenue, orders, AOV and MER (store revenue / ad spend). Each store maps to one client; AdxLens only reads orders.",
+    "providers": {
+      "shopify": "Shopify",
+      "ga4": "Google Analytics 4"
+    },
+    "cols": {
+      "store": "Store",
+      "client": "Client",
+      "sync": "Last sync"
+    },
+    "noClient": "— Not assigned —",
+    "reconnect": "Reconnect needed",
+    "syncing": "Syncing",
+    "disconnect": "Disconnect",
+    "removed": "Disconnected and store data deleted",
+    "shop": "Shopify store",
+    "shopHint": "Store name or your-store.myshopify.com",
+    "connectShopify": "Connect Shopify",
+    "notConfigured": "The Shopify app is not configured (see docs/runbooks/store-connectors.md).",
+    "tiles": {
+      "revenue": "Store revenue",
+      "orders": "Orders",
+      "aov": "Store AOV",
+      "mer": "MER",
+      "sessions": "Sessions (GA4)",
+      "conversions": "Conversions (GA4)"
+    }
   }
 }

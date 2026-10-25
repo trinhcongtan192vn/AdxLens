@@ -47,6 +47,23 @@ export const metaEnvSchema = z.object({
     .transform((v) => v === '1'),
 });
 
+/** ADR-0029: kết nối cửa hàng / analytics (app Shopify Partner, Google OAuth client). Trống = tắt nút kết nối. */
+export const storeEnvSchema = z.object({
+  SHOPIFY_CLIENT_ID: optionalString,
+  SHOPIFY_CLIENT_SECRET: optionalString,
+  SHOPIFY_API_VERSION: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/)
+    .default('2025-07'),
+  GOOGLE_CLIENT_ID: optionalString,
+  GOOGLE_CLIENT_SECRET: optionalString,
+  /** Chỉ local/test: Shopify / GA4 giả (không cần app thật). */
+  STORE_MOCK: z
+    .enum(['0', '1'])
+    .default('0')
+    .transform((v) => v === '1'),
+});
+
 export const tokenEnvSchema = z.object({
   TOKEN_ENC_KEY_V1: base64Key32,
   TOKEN_ENC_KEY_V2: z.preprocess(
@@ -87,6 +104,7 @@ export const integrationsEnvSchema = z.object({
 
 export const fullEnvSchema = baseEnvSchema.extend({
   ...metaEnvSchema.shape,
+  ...storeEnvSchema.shape,
   ...tokenEnvSchema.shape,
   ...integrationsEnvSchema.shape,
 });

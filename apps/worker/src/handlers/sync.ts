@@ -1,6 +1,7 @@
 import { refreshAvailableAccounts } from '@adxlens/core/connections';
 import { runDailySync, syncRange } from '@adxlens/core/ingestion';
 import { dueDailySyncs } from '@adxlens/core/ops';
+import { dueStoreSyncs, runStoreSync, STORE_DAILY_DAYS } from '@adxlens/core/stores';
 import type { HandlerMap } from '../handler';
 
 export const syncHandlers: HandlerMap = {
@@ -24,11 +25,27 @@ export const syncHandlers: HandlerMap = {
       { meta, keys: tokenKeys, enqueue },
     ),
 
-  // Scheduler mỗi giờ: enqueue daily sync cho tài khoản đang 03:00 giờ địa phương.
-  'maintenance:daily_sync_tick': async (_p, { db, enqueue, log }) => {
-    const due = await dueDailySyncs(db, new Date());
+  // ADR-0029: số liệu cửa hàng / GA4 của một kết nối (token giải mã trong runStoreSync, chỉ ở worker).
+  'sync:store_daily': async (p, { db, shopify, tokenKeys, log }) => {
+    const r = await runStoreSync(
+      { db, workspaceId: p.workspaceId },
+      { connectionId: p.connectionId, days: p.days },
+      { shopify, keys: tokenKeys },
+    );
+    log.info({ connection_id: p.connectionId, ...r }, 'store sync');
+    return r;
+  },
+
+  // Scheduler mỗi giờ: enqueue daily sync cho tài khoản đang 03:00 giờ địa phương (+ kết nối cửa hàng, ADR-0029).
+  'maintenance:daily_sync_tick': async (p, { db, enqueue, log }) => {
+    const now = new Date();
+    const due = await dueDailySyncs(db, now);
     for (const d of due) await enqueue('sync:daily_account', d);
-    if (due.length) log.info({ count: due.length }, 'đã lên lịch daily sync');
-    return { enqueued: due.length };
+    const stores = await dueStoreSyncs(db, now);
+    for (const s of stores) {
+      await enqueue('sync:store_daily', { ...s, days: STORE_DAILY_DAYS, tick: p.tick });
+    }
+    if (due.length || stores.length) log.info({ count: due.length, stores: stores.length }, 'đã lên lịch daily sync');
+    return { enqueued: due.length, stores: stores.length };
   },
 };
