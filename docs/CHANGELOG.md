@@ -2,6 +2,33 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [108] Tạm dừng / bật lại chiến dịch ngay trong AdxLens (ADR-0015) — 2026-10-25
+
+PM duyệt ngày 25/10/2026 ("Phần có ghi Meta thì cũng làm luôn"). ADR-0015 chuyển sang **Chấp nhận**.
+
+- **Bảng chiến dịch** (cổ điển: tài khoản, Client, trang chi tiết) có nút Tạm dừng / Bật lại cho từng dòng và hàng loạt,
+  khi được duyệt hành động.
+  - Trước đây chỉ có nhóm QC / quảng cáo; nhóm QC bị dừng do chiến dịch hiện "Bật chiến dịch trước (Ads Manager)".
+  - Nay dòng đó ghi "Bật chiến dịch trước", và người dùng bật được ngay trong AdxLens.
+- **Execution Gateway:**
+  - `pause_campaign` / `resume_campaign`, `target_type = campaign`, chỉ duyệt tay;
+  - guardrail `no_auto_campaign` chặn rule tự động (chặt hơn);
+  - xác minh bằng đọc lại `status`, hoàn tác được; đã ở trạng thái đích thì không gọi Meta;
+  - ngưỡng dữ liệu đếm theo `campaign_id`.
+- Hộp duyệt chiến dịch cảnh báo: tạm dừng sẽ dừng mọi nhóm QC bên dưới; bật lại không bật nhóm QC đang tắt.
+- Chưa làm: hộp duyệt hiện số nhóm QC bị ảnh hưởng và chi tiêu 7 ngày (ghi trong ADR).
+
+**Vùng bảo vệ:** `packages/core/execution`, `packages/meta-client/write` (đọc / ghi `campaign`), `packages/db` (giá trị
+`target_type = campaign`, không cần migration SQL). **Cần PM chạy `pnpm execution:check` trên staging trước khi merge
+`main`.**
+
+**Test tự động:** `execution/campaign.test.ts`:
+- tạm dừng → xác minh → hoàn tác bật lại;
+- đã ở trạng thái đích thì `no_change`;
+- loại trừ → vi phạm;
+- rule tự động bị chặn (`no_auto_campaign`);
+- cờ tắt → từ chối.
+
 ## [107] Rule chạy theo lịch: ngày / giờ trong tuần — 2026-10-25
 
 Theo Madgicx Custom automation: lịch theo ngày / giờ trong tuần.

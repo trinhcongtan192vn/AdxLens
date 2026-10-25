@@ -37,6 +37,19 @@ export class MockMetaWrite implements MetaWriteApi {
           },
         };
       }
+      const camp = s.campaigns.find((x) => x.id === id);
+      if (camp) {
+        return {
+          type: 'campaign',
+          obj: {
+            id: camp.id,
+            name: camp.name,
+            status: camp.status,
+            effective_status: camp.effective_status,
+            account_id: a.id.replace(/^act_/, ''),
+          },
+        };
+      }
       const ad = s.ads.find((x) => x.id === id);
       if (ad) {
         return {

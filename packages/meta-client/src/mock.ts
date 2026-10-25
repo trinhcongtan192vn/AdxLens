@@ -98,7 +98,12 @@ export function mockStructure(act: string): Structure {
   const s = structure(act);
   const copies = [...mockWriteState.copies.values()].filter((c) => s.campaigns.some((x) => x.id === c.campaign_id));
   const created = [...mockWriteState.createdAds.values()].filter((a) => a.act === act).map(({ act: _a, ...ad }) => ad);
-  return { ...s, adsets: [...s.adsets, ...copies].map(applyOverride), ads: [...s.ads, ...created].map(applyOverride) };
+  return {
+    ...s,
+    campaigns: s.campaigns.map(applyOverride),
+    adsets: [...s.adsets, ...copies].map(applyOverride),
+    ads: [...s.ads, ...created].map(applyOverride),
+  };
 }
 
 function structure(act: string): Structure {

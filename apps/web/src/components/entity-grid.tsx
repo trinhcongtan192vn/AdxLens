@@ -69,7 +69,7 @@ export function EntityGrid({
   const [preset, setPreset] = useState<ColumnSet>('performance');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [dialog, setDialog] = useState<{ type: GridActionType; targets: ActionTarget[] } | null>(null);
-  const actable = canAct && level !== 'campaign';
+  const actable = canAct;
   const showChanges = rows.some((r) => r.lastChange !== undefined);
   const [saved, setSaved] = useState<SavedFilter[]>([]);
   const multi = new Set(rows.map((r) => r.currency)).size > 1;
@@ -258,8 +258,9 @@ export function EntityGrid({
   const selectedRows = visible.filter((r) => selected.has(r.key) && canToggle(r));
   const toggleable = visible.filter(canToggle);
   const open = (type: GridActionType, targets: ActionTarget[]) => setDialog({ type, targets });
-  const pauseType: GridActionType = level === 'ad' ? 'pause_ad' : 'pause_adset';
-  const resumeType: GridActionType = level === 'ad' ? 'resume_ad' : 'resume_adset';
+  const pauseType: GridActionType = level === 'ad' ? 'pause_ad' : level === 'adset' ? 'pause_adset' : 'pause_campaign';
+  const resumeType: GridActionType =
+    level === 'ad' ? 'resume_ad' : level === 'adset' ? 'resume_adset' : 'resume_campaign';
 
   return (
     <>

@@ -21,7 +21,7 @@ export const writableObjectSchema = z.object({
 });
 export type WritableObject = z.infer<typeof writableObjectSchema>;
 
-export type MetaObjectType = 'ad' | 'adset';
+export type MetaObjectType = 'ad' | 'adset' | 'campaign';
 
 export interface MetaWriteApi {
   /** Đọc trạng thái hiện tại của đối tượng (dùng trước khi ghi và để xác minh sau khi ghi). */
@@ -50,6 +50,7 @@ export interface MetaWriteApi {
 const FIELDS: Record<MetaObjectType, string> = {
   ad: 'id,name,status,effective_status,adset_id,campaign_id,account_id',
   adset: 'id,name,status,effective_status,daily_budget,lifetime_budget,campaign_id,account_id',
+  campaign: 'id,name,status,effective_status,daily_budget,lifetime_budget,account_id',
 };
 const okSchema = z.object({ success: z.boolean().optional() }).passthrough();
 const copySchema = z.object({ copied_adset_id: z.string() }).passthrough();

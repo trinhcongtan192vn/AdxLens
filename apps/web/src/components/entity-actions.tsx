@@ -10,7 +10,8 @@ import { describeChange } from '@/lib/actions';
 import { api, ApiError } from '@/lib/api-client';
 
 export type ActionTarget = { adAccountId: string; metaId: string; name: string; dailyBudget?: string | null };
-export type GridActionType = 'pause_ad' | 'resume_ad' | 'pause_adset' | 'resume_adset' | 'set_adset_budget';
+export type GridActionType =
+  'pause_ad' | 'resume_ad' | 'pause_adset' | 'resume_adset' | 'set_adset_budget' | 'pause_campaign' | 'resume_campaign';
 
 type Preview = {
   target_name: string | null;
@@ -141,6 +142,11 @@ export function ActionDialog({
           {t('log')}
         </Link>
       </Banner>
+      {type === 'pause_campaign' || type === 'resume_campaign' ? (
+        <Banner tone="warning" className="mb-3" data-testid="campaign-note">
+          {t('campaignNote')}
+        </Banner>
+      ) : null}
       {isBudget ? (
         <div className="mb-3 flex items-end gap-2">
           <Field label={t('newBudget')} htmlFor="grid-budget" className="flex-1">
