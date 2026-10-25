@@ -3642,8 +3642,6 @@
   "wsBusiness": {
     "subtitle": "Tổng hợp từ Meta, {from} → {to}",
     "blended": "Tổng hợp (Blended)",
-    "share": "Chia sẻ",
-    "copied": "Đã sao chép link (người nhận cần quyền trong workspace)",
     "aov": "Giá trị đơn TB (Meta)",
     "otherCurrency": "{n} tài khoản dùng tiền tệ khác không cộng vào tổng; xem từng tài khoản bên dưới.",
     "store": {
@@ -3653,7 +3651,27 @@
       "ltv": "LTV / LTV:CAC"
     },
     "needsStore": "Cần nguồn đơn hàng (Shopify / web) — chưa kết nối. Số từ Meta không đủ để tính.",
-    "byAccount": "Theo tài khoản QC"
+    "byAccount": "Theo tài khoản QC",
+    "shareLink": {
+      "button": "Chia sẻ với khách",
+      "title": "Link Business công khai",
+      "intro": "Khách xem tổng quan quảng cáo của họ (7 hoặc 30 ngày tới hôm qua) không cần đăng nhập. Trang tự tạm khóa khi số liệu đang đối chiếu lệch, tài khoản chưa xác nhận hoặc kết nối bị ngắt.",
+      "client": "Khách",
+      "period": "Kỳ",
+      "days": "{n} ngày",
+      "expiry": "Hết hạn",
+      "never": "Không hết hạn",
+      "password": "Mật khẩu (tùy chọn, ≥ 6 ký tự)",
+      "create": "Tạo link và sao chép",
+      "noClient": "Chưa có khách nào.",
+      "copied": "Đã sao chép link",
+      "copy": "Sao chép link",
+      "revoke": "Thu hồi",
+      "revoked": "Đã thu hồi link",
+      "protected": "Có mật khẩu",
+      "revokedBadge": "Đã thu hồi",
+      "views": "{n} lượt xem"
+    }
   },
   "wsAudiences": {
     "subtitle": "Audience nào hiệu quả: lookalike, khách cũ, sở thích, nhắm rộng",
@@ -3824,5 +3842,12 @@
         "addKey": "Cài đặt → Tích hợp"
       }
     }
+  },
+  "publicBusiness": {
+    "period": "Từ {from} đến {to} · so với kỳ trước",
+    "lockedTitle": "Số liệu đang được cập nhật",
+    "lockedBody": "Số liệu đang được đối chiếu với Ads Manager. Vui lòng quay lại sau.",
+    "footnote": "Số liệu từ Meta Ads, đối chiếu với Ads Manager (lệch ≤ 1%). Doanh thu là doanh thu Meta ghi nhận.",
+    "poweredBy": "Báo cáo bởi AdxLens"
   }
 }

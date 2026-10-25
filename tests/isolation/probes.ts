@@ -219,6 +219,19 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
     crossParams: (w) => ({ id: w.b.shareLink.id }),
   },
+  'GET /api/v1/business-links': { kind: 'workspace' },
+  'POST /api/v1/business-links': {
+    kind: 'workspace',
+    body: (w) => ({ client_id: w.b.client.id, period_days: 30 }),
+  },
+  'DELETE /api/v1/business-links/[id]': {
+    kind: 'workspace',
+    params: () => ({ id: '00000000-0000-4000-8000-000000000000' }),
+  },
+  'POST /api/v1/public/business/[token]/unlock': {
+    kind: 'exempt',
+    reason: 'Trang công khai: xác thực bằng token 32 byte + mật khẩu link, không có workspace người xem (ADR-0028)',
+  },
   'POST /api/v1/public/share/[token]/unlock': {
     kind: 'exempt',
     reason: 'Trang công khai: xác thực bằng token 32 byte + mật khẩu link, không có workspace người xem (test riêng)',

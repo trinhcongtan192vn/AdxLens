@@ -12,3 +12,10 @@ export async function findShareByToken(db: Db, token: string) {
   const [link] = await db.select().from(schema.shareLinks).where(eq(schema.shareLinks.token, token));
   return link ?? null;
 }
+
+/** ADR-0028: tra link Business công khai theo token (xuyên workspace có chủ đích, như link báo cáo). */
+export async function findBusinessLinkByToken(db: Db, token: string) {
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
+  const [link] = await db.select().from(schema.businessLinks).where(eq(schema.businessLinks.token, token));
+  return link ?? null;
+}

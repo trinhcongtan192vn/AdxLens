@@ -30,3 +30,4 @@ export * from './geo-tiers';
 export * from './audiences';
 export * from './report-templates';
 export * from './launcher-sources';
+export * from './business-share';
