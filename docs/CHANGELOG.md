@@ -27,6 +27,28 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [112] Gap giao diện so với Madgicx: lọc giai đoạn phễu, Mở trong Ad Launcher, nhiều nhóm QC, tem tên — 2026-10-25
+
+Từ đối chiếu gap (`docs/research/madgicx-2026-10.md` mục 7).
+
+- **Ads Manager mới:** bộ lọc **giai đoạn phễu** (Tìm khách mới / Tương tác lại / Bám đuổi / Giữ chân).
+  - Quảng cáo lấy giai đoạn theo nhóm QC cha.
+  - Chế độ cây vẫn hiện chiến dịch có nhóm QC khớp.
+- **Creative → "Mở trong Ad Launcher"** (khi cờ P2a bật): mở Launcher đúng tài khoản, creative chọn sẵn.
+- **Ad Launcher:**
+  - chọn **tối đa 5 nhóm QC** một lần (Madgicx Ad Picker); mỗi cặp nhóm QC × creative là một hành động duyệt, tối đa 10
+    cặp mỗi lần;
+  - bị chặn giữa chừng (vd. hết hạn mức hành động hôm nay) thì dừng, báo "đã gửi n / tổng";
+  - **tem tên**: tên quảng cáo mặc định bắt đầu bằng tên Client (Madgicx white label "asset name stamp").
+
+**Test tự động:**
+- `api/v1/launcher/launcher.test.ts`:
+  - nhiều nhóm QC → mỗi cặp một hành động, tên đánh số;
+  - hết hạn mức giữa chừng → dừng, trả số đã tạo;
+  - hết hẳn → 422;
+  - quá 10 cặp → 422.
+- E2E `p2a.spec.ts` cập nhật cách chọn: nhóm QC chọn sẵn, chọn creative theo nhãn.
+
 ## [111] Sửa nút cập nhật bản team: lỗi build do kiểu route cũ — 2026-10-25
 
 - **Lỗi:** `Cap-nhat-AdxLens.cmd` build lỗi `Type '"/w"' is not assignable to type 'LayoutRoutes'`. Nguyên nhân: Next kiểm

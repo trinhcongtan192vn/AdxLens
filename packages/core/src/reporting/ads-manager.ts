@@ -15,6 +15,8 @@ export type AmRow = {
   name: string | null;
   status: string | null;
   dailyBudget: string | null;
+  /** Giai đoạn phễu (091): của nhóm QC; quảng cáo theo nhóm QC cha; chiến dịch null. */
+  stage: string | null;
   metrics: MetricValues;
   prev: MetricValues | null;
   /** Giá trị theo từng ngày của kỳ (sparkline trong ô); null = ngày không có dữ liệu. */
@@ -91,8 +93,10 @@ export async function adsManagerData(
       name: string | null;
       status: string | null;
       daily_budget: string | null;
+      stage: string | null;
     }>(sql`
-      select ad_account_id, entity_type, meta_id, parent_meta_id, name, status, daily_budget::text as daily_budget
+      select ad_account_id, entity_type, meta_id, parent_meta_id, name, status, daily_budget::text as daily_budget,
+        attrs->>'funnel_stage' as stage
       from analytics.entities
       where workspace_id = ${ctx.workspaceId} and ad_account_id in ${ids} and entity_type in ('campaign', 'adset', 'ad')`),
     level('campaign'),
@@ -102,6 +106,9 @@ export async function adsManagerData(
     metricValues(ctx, ids, prev),
   ]);
   const data = { campaign: lc, adset: ls, ad: la };
+  const adsetStage = new Map(
+    entities.filter((e) => e.entity_type === 'adset').map((e) => [`${e.ad_account_id}:${e.meta_id}`, e.stage]),
+  );
   const rows: AmRow[] = entities.map((e) => {
     const k = `${e.ad_account_id}:${e.meta_id}`;
     const d = data[e.entity_type].byKey.get(k);
@@ -114,6 +121,12 @@ export async function adsManagerData(
       name: e.name,
       status: e.status,
       dailyBudget: e.daily_budget,
+      stage:
+        e.entity_type === 'adset'
+          ? e.stage
+          : e.entity_type === 'ad'
+            ? (adsetStage.get(`${e.ad_account_id}:${e.parent_meta_id}`) ?? null)
+            : null,
       // Cộng các ngày bằng `sumRaw` (tiền cộng thập phân, không float).
       metrics: sum ? computeMetrics(sum) : empty,
       prev: data[e.entity_type].prevBy.get(k) ?? null,

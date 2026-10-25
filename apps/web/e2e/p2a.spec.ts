@@ -84,7 +84,13 @@ test('P2a: quyền ghi → duyệt → thực hiện + xác minh → hoàn tác 
 
   // Ad Launcher (ADR-0023): chọn creative → tạo quảng cáo (tạm dừng) qua Execution Gateway.
   await page.goto('/w/launcher');
-  await page.getByTestId('ad-launcher').getByRole('checkbox').first().check();
+  // Nhóm QC đầu tiên chọn sẵn; chọn creative đầu (ô có nhãn "Chọn …").
+  await expect(page.getByTestId('launcher-adsets').getByRole('checkbox').first()).toBeChecked();
+  await page
+    .getByTestId('ad-launcher')
+    .getByRole('checkbox', { name: /^Chọn / })
+    .first()
+    .check();
   await page.getByTestId('launch-ads').click();
   await expect(page.getByTestId('launcher-done')).toBeVisible();
   await expect(page.getByTestId('audience-launcher')).toContainText('Audience Launcher');

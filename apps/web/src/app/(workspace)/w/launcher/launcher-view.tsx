@@ -20,6 +20,9 @@ type Creative = {
 };
 
 const MAX_CREATIVES = 5;
+const MAX_ADSETS = 5;
+/** Tối đa hành động mỗi lần bấm; giới hạn hành động / ngày của guardrails vẫn áp dụng ở server. */
+const MAX_PAIRS = 10;
 
 /** Ad Launcher + Audience Launcher (ADR-0023). Mọi thao tác tạo hành động duyệt tay; quảng cáo mới luôn tạm dừng. */
 export function LauncherView({
@@ -29,6 +32,8 @@ export function LauncherView({
   adsets,
   audiences,
   creatives,
+  initialCreative,
+  namePrefix,
 }: {
   adAccountId: string;
   currency: string;
@@ -36,13 +41,19 @@ export function LauncherView({
   adsets: { metaId: string; name: string | null; status: string | null; campaignName: string | null }[];
   audiences: { metaId: string; name: string | null; subtype: string | null }[];
   creatives: Creative[];
+  initialCreative?: string | null;
+  namePrefix?: string | null;
 }) {
   const t = useTranslations('wsLauncher');
   const locale = useLocale();
   const [pending, start] = useTransition();
-  const [adset, setAdset] = useState(adsets[0]?.metaId ?? '');
-  const [picked, setPicked] = useState<string[]>([]);
-  const [adName, setAdName] = useState('AdxLens');
+  // Madgicx Ad Picker: nhiều nhóm QC một lần (mỗi cặp nhóm QC × creative = một hành động duyệt).
+  const [adsetIds, setAdsetIds] = useState<string[]>(adsets[0] ? [adsets[0].metaId] : []);
+  const [picked, setPicked] = useState<string[]>(
+    initialCreative && creatives.some((c) => c.creativeId === initialCreative) ? [initialCreative] : [],
+  );
+  const [adName, setAdName] = useState(namePrefix ? `${namePrefix} · AdxLens` : 'AdxLens');
+  const pairs = adsetIds.length * picked.length;
   const [origin, setOrigin] = useState(audiences[0]?.metaId ?? '');
   const [country, setCountry] = useState('VN');
   const [ratios, setRatios] = useState<number[]>([1]);
@@ -55,13 +66,14 @@ export function LauncherView({
   const launchAds = () =>
     start(async () => {
       try {
-        const r = await api<{ action_ids: string[] }>('launcher/ads', {
+        const r = await api<{ action_ids: string[]; stopped?: string }>('launcher/ads', {
           method: 'POST',
-          body: { adAccountId, adsetId: adset, creativeIds: picked, name: adName },
+          body: { adAccountId, adsetIds, creativeIds: picked, name: adName },
         });
         setDone(r.action_ids);
         setPicked([]);
-        toast.success(t('adsQueued', { n: r.action_ids.length }));
+        if (r.stopped) toast.warning(t('adsPartial', { n: r.action_ids.length, total: pairs }));
+        else toast.success(t('adsQueued', { n: r.action_ids.length }));
       } catch (e) {
         err(e);
       }
@@ -102,17 +114,33 @@ export function LauncherView({
         </h2>
         <p className="mt-1 text-small text-fg-secondary">{t('ads.intro')}</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <Field label={t('ads.adset')} htmlFor="l-adset">
-            <Select id="l-adset" value={adset} onChange={(e) => setAdset(e.target.value)}>
-              {adsets.map((a) => (
-                <option key={a.metaId} value={a.metaId}>
-                  {a.name ?? a.metaId}
-                  {a.campaignName ? ` · ${a.campaignName}` : ''}
-                  {a.status === 'PAUSED' ? ` (${t('paused')})` : ''}
-                </option>
-              ))}
-            </Select>
-          </Field>
+          <fieldset>
+            <legend className="text-small font-medium text-fg-secondary">{t('ads.adsets', { max: MAX_ADSETS })}</legend>
+            <div
+              className="mt-1 max-h-40 overflow-y-auto rounded-md border border-line p-2"
+              data-testid="launcher-adsets"
+            >
+              {adsets.map((a) => {
+                const on = adsetIds.includes(a.metaId);
+                return (
+                  <label key={a.metaId} className="flex items-center gap-2 py-0.5 text-small">
+                    <Checkbox
+                      checked={on}
+                      disabled={!on && adsetIds.length >= MAX_ADSETS}
+                      onChange={() =>
+                        setAdsetIds(on ? adsetIds.filter((x) => x !== a.metaId) : [...adsetIds, a.metaId])
+                      }
+                    />
+                    <span className="truncate">
+                      {a.name ?? a.metaId}
+                      {a.campaignName ? <span className="text-fg-tertiary"> · {a.campaignName}</span> : null}
+                      {a.status === 'PAUSED' ? <span className="text-fg-tertiary"> ({t('paused')})</span> : null}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
           <Field label={t('ads.name')} htmlFor="l-name" hint={t('ads.nameHint')}>
             <Input id="l-name" value={adName} maxLength={150} onChange={(e) => setAdName(e.target.value)} />
           </Field>
@@ -167,11 +195,13 @@ export function LauncherView({
           <Button
             kind="primary"
             size="m"
-            disabled={!canApprove || pending || !adset || !picked.length || !adName.trim()}
+            disabled={
+              !canApprove || pending || !adsetIds.length || !picked.length || !adName.trim() || pairs > MAX_PAIRS
+            }
             onClick={launchAds}
             data-testid="launch-ads"
           >
-            {t('ads.launch', { n: picked.length })}
+            {t('ads.launch', { n: pairs })}
           </Button>
           <span className="text-caption text-fg-tertiary">{t('ads.note')}</span>
         </div>

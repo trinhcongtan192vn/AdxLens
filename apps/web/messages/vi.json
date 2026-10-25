@@ -2124,7 +2124,8 @@
     "emptyBody": "Creative xuất hiện khi tài khoản có chi tiêu trong kỳ đã chọn.",
     "noAccounts": "Chưa có tài khoản quảng cáo",
     "noAccountsBody": "Kết nối Meta và nhập tài khoản để xem creative.",
-    "footnote": "Nguồn: Meta Marketing API, {from} → {to}, theo múi giờ tài khoản. Phân loại theo quy tắc công khai; \"dự báo\" là ước tính từ xu hướng CTR, không phải kết luận."
+    "footnote": "Nguồn: Meta Marketing API, {from} → {to}, theo múi giờ tài khoản. Phân loại theo quy tắc công khai; \"dự báo\" là ước tính từ xu hướng CTR, không phải kết luận.",
+    "openInLauncher": "Mở trong Ad Launcher"
   },
   "weekly": {
     "title": "Việc tuần này",
@@ -3130,7 +3131,15 @@
     "emptyBody": "Đổi kỳ, bộ lọc hoặc bỏ \"Ẩn đối tượng không chi tiêu\".",
     "askAi": "Hỏi AI về mục đã chọn",
     "dailyBudget": "Ngân sách ngày",
-    "editBudget": "Sửa ngân sách {name}"
+    "editBudget": "Sửa ngân sách {name}",
+    "stageFilter": "Giai đoạn phễu",
+    "stageAll": "Mọi giai đoạn",
+    "stages": {
+      "prospecting": "Tìm khách mới",
+      "re_engagement": "Tương tác lại",
+      "retargeting": "Bám đuổi",
+      "retention": "Giữ chân"
+    }
   },
   "wsFunnels": {
     "subtitle": "Nhận biết → Cân nhắc → Chuyển đổi, tỷ lệ chuyển giữa các bước",
@@ -3593,7 +3602,8 @@
       "results": "Kết quả",
       "select": "Chọn {name}",
       "launch": "Tạo {n} quảng cáo (tạm dừng)",
-      "note": "Không hoàn tác được; muốn bỏ thì tạm dừng / xóa trên Meta."
+      "note": "Không hoàn tác được; muốn bỏ thì tạm dừng / xóa trên Meta.",
+      "adsets": "Nhóm QC (tối đa {max})"
     },
     "aud": {
       "title": "Audience Launcher",
@@ -3612,6 +3622,7 @@
       "KILL_SWITCH_ACTIVE": "Kill switch đang bật.",
       "PLAN_REQUIRED": "Cần gói Growth trở lên.",
       "other": "Không tạo được. Thử lại."
-    }
+    },
+    "adsPartial": "Đã gửi {n}/{total} quảng cáo — phần còn lại bị chặn (vd. hết hạn mức hành động hôm nay)."
   }
 }

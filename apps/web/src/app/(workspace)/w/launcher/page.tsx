@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { creativeLibrary } from '@adxlens/core/recommendation';
 import { launcherSources } from '@adxlens/core/reporting';
-import { canApproveActions } from '@adxlens/core/tenancy';
+import { canApproveActions, listClients } from '@adxlens/core/tenancy';
 import { Banner, Card, EmptyState } from '@adxlens/ui';
 import { WsHeader } from '@/components/workspace/ws-header';
 import { getPageContext, requireFlag } from '@/server/page-context';
@@ -17,13 +17,19 @@ export async function generateMetadata() {
  * Ad / Audience Launcher (Madgicx 3.4, ADR-0023): tạo quảng cáo từ creative tốt nhất vào nhóm QC có sẵn, tạo lookalike
  * từ custom audience. Mọi thao tác là hành động duyệt tay qua Execution Gateway. Cờ P2a kiểm ở server.
  */
-export default async function LauncherPage() {
+export default async function LauncherPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ account?: string; creative?: string }>;
+}) {
+  const sp = await searchParams;
   const pc = await getPageContext();
   await requireFlag(pc, 'p2a_approve');
   const scope = await workspaceScope(pc);
   const t = await getTranslations('wsLauncher');
   const tw = await getTranslations('ws');
-  const account = scope.selected ?? scope.accounts[0] ?? null;
+  // Mở từ Creative ("Mở trong Ad Launcher"): ưu tiên tài khoản trong link nếu người dùng được xem.
+  const account = scope.accounts.find((a) => a.id === sp.account) ?? scope.selected ?? scope.accounts[0] ?? null;
   const header = (
     <WsHeader
       title={tw('nav.launcher')}
@@ -46,10 +52,13 @@ export default async function LauncherPage() {
   const canApprove = account.clientId
     ? canApproveActions(pc.ctx.actor, account.clientId)
     : pc.ctx.actor.role === 'owner';
-  const [sources, creatives] = await Promise.all([
+  const [sources, creatives, clients] = await Promise.all([
     launcherSources(pc.ctx, account.id),
     creativeLibrary(pc.ctx, account.id, scope.cur),
+    listClients(pc.ctx),
   ]);
+  // Tem tên (Madgicx white label "asset name stamp"): tên mặc định bắt đầu bằng tên Client.
+  const clientName = clients.find((c) => c.id === account.clientId)?.name ?? null;
   const top = creatives
     .filter((c) => Number(c.metrics.spend) > 0)
     .sort(
@@ -71,7 +80,7 @@ export default async function LauncherPage() {
   return (
     <>
       {header}
-      {!scope.selected ? (
+      {!scope.selected && !sp.account ? (
         <Banner tone="info" className="mb-3">
           {t('pickAccount', { name: account.name })}
         </Banner>
@@ -88,6 +97,8 @@ export default async function LauncherPage() {
         adsets={sources.adsets}
         audiences={sources.audiences}
         creatives={top}
+        initialCreative={sp.creative ?? null}
+        namePrefix={clientName}
       />
     </>
   );

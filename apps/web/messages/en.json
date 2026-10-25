@@ -2124,7 +2124,8 @@
     "emptyBody": "Creatives appear when the account has spend in the selected period.",
     "noAccounts": "No ad accounts yet",
     "noAccountsBody": "Connect Meta and import accounts to see creatives.",
-    "footnote": "Source: Meta Marketing API, {from} → {to}, in the account time zone. Classes follow public rules; a \"forecast\" is an estimate from the CTR trend, not a conclusion."
+    "footnote": "Source: Meta Marketing API, {from} → {to}, in the account time zone. Classes follow public rules; a \"forecast\" is an estimate from the CTR trend, not a conclusion.",
+    "openInLauncher": "Open in Ad Launcher"
   },
   "weekly": {
     "title": "This week's actions",
@@ -3130,7 +3131,15 @@
     "emptyBody": "Change the period, filters, or untick \"Hide items with no spend\".",
     "askAi": "Ask AI about selected",
     "dailyBudget": "Daily budget",
-    "editBudget": "Edit budget for {name}"
+    "editBudget": "Edit budget for {name}",
+    "stageFilter": "Funnel stage",
+    "stageAll": "All stages",
+    "stages": {
+      "prospecting": "Prospecting",
+      "re_engagement": "Re-engagement",
+      "retargeting": "Retargeting",
+      "retention": "Retention"
+    }
   },
   "wsFunnels": {
     "subtitle": "Awareness → Consideration → Conversion, with step-to-step rates",
@@ -3593,7 +3602,8 @@
       "results": "Results",
       "select": "Select {name}",
       "launch": "Create {n} ads (paused)",
-      "note": "Cannot be undone; pause / delete on Meta to drop them."
+      "note": "Cannot be undone; pause / delete on Meta to drop them.",
+      "adsets": "Ad sets (up to {max})"
     },
     "aud": {
       "title": "Audience Launcher",
@@ -3612,6 +3622,7 @@
       "KILL_SWITCH_ACTIVE": "Kill switch is on.",
       "PLAN_REQUIRED": "Requires Growth plan or higher.",
       "other": "Could not create. Try again."
-    }
+    },
+    "adsPartial": "Sent {n}/{total} ads — the rest were blocked (e.g. daily action limit reached)."
   }
 }
