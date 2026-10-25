@@ -27,6 +27,34 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [117] Mô hình AI của workspace: thêm Google Gemini và DeepSeek, mở rộng danh sách model — 2026-10-25
+
+PM yêu cầu: "tích hợp thêm các model khác nhau của anthropic, gemini, openAi và deepseek".
+
+- **Cài đặt → Tích hợp → Mô hình AI của workspace:**
+  - chọn được 4 nhà cung cấp: Anthropic (Claude), OpenAI (GPT), Google (Gemini), DeepSeek;
+  - mỗi nhà cung cấp có danh sách model gợi ý; gõ được tên model khác mà tài khoản dùng được;
+  - có hướng dẫn chỗ tạo khóa cho từng nhà cung cấp.
+- **Model gợi ý:**
+  - Anthropic: Sonnet / Opus / Haiku 5.5, Fable 5.1, Sonnet 4.5;
+  - OpenAI: GPT-5 / 5 mini / 5 nano, GPT-4.1 / 4.1 mini, o4-mini;
+  - Gemini: 2.5 Pro / Flash / Flash-Lite;
+  - DeepSeek: `deepseek-chat`, `deepseek-reasoner`.
+- **Gemini và DeepSeek** dùng API tương thích OpenAI Chat Completions, có tool calling. Vòng công cụ, kiểm số (quy tắc
+  5) và cách ly khóa giữ nguyên:
+  - khóa chỉ giải mã trong worker;
+  - lỗi chỉ ghi mã HTTP.
+- **Kiểm dạng khóa:**
+  - Gemini: `AIza…`;
+  - DeepSeek: `sk-…`.
+- `packages/db`: hằng `LLM_PROVIDERS` thêm 2 giá trị. Cột là `text`, không có ràng buộc DB, nên **không có migration**
+  (`db:check` khớp).
+
+**Test tự động:** `llm-keys.test.ts`:
+- Gemini / DeepSeek: chặn khóa sai dạng;
+- gọi đúng endpoint với `max_tokens` và Bearer;
+- id tool call rỗng được tự đặt.
+
 ## [116] Cờ tính năng toàn app × gói + ngoại lệ; kết nối là đồng ý cho ghi (ADR-0024) — 2026-10-25
 
 PM yêu cầu ngày 25/10/2026: "đã qua giai đoạn thử nghiệm", quản lý cờ cho toàn app và theo gói; kết nối là đồng ý cho

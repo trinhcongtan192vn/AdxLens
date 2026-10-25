@@ -8,7 +8,14 @@ import { toast } from 'sonner';
 import { Badge, Banner, Button, Card, Field, Input, Select } from '@adxlens/ui';
 import { api } from '@/lib/api-client';
 
-type Provider = 'anthropic' | 'openai';
+const PROVIDERS = ['anthropic', 'openai', 'gemini', 'deepseek'] as const;
+type Provider = (typeof PROVIDERS)[number];
+const KEY_HINT: Record<Provider, string> = {
+  anthropic: 'sk-ant-…',
+  openai: 'sk-…',
+  gemini: 'AIza…',
+  deepseek: 'sk-…',
+};
 export type LlmKeyView = {
   provider: Provider;
   model: string;
@@ -18,7 +25,7 @@ export type LlmKeyView = {
 };
 
 /**
- * Khóa AI tự mang (ADR-0022): AI Agents chạy bằng tài khoản Anthropic / OpenAI của agency. Khóa chỉ gửi lên một lần,
+ * Khóa AI tự mang (ADR-0022): AI Agents chạy bằng tài khoản Anthropic / OpenAI / Gemini / DeepSeek của agency. Khóa chỉ gửi lên một lần,
  * máy chủ mã hóa; trang chỉ hiện 4 ký tự cuối.
  */
 export function LlmKeyCard({
@@ -103,8 +110,11 @@ export function LlmKeyCard({
               setModel(current?.provider === p ? current.model : models[p][0]!);
             }}
           >
-            <option value="anthropic">{t('providers.anthropic')}</option>
-            <option value="openai">{t('providers.openai')}</option>
+            {PROVIDERS.map((p) => (
+              <option key={p} value={p}>
+                {t(`providers.${p}`)}
+              </option>
+            ))}
           </Select>
         </Field>
         <Field label={t('model')}>
@@ -126,14 +136,14 @@ export function LlmKeyCard({
             type="password"
             autoComplete="off"
             value={key}
-            placeholder={sameProvider ? t('keyKeep') : provider === 'anthropic' ? 'sk-ant-…' : 'sk-…'}
+            placeholder={sameProvider ? t('keyKeep') : KEY_HINT[provider]}
             onChange={(e) => setKey(e.target.value)}
             aria-label={t('key')}
           />
         </Field>
       </div>
       <p className="mt-2 text-caption text-fg-tertiary">
-        {t(provider === 'anthropic' ? 'whereAnthropic' : 'whereOpenai')} {t('security')}
+        {t(`where.${provider}`)} {t('modelHint')} {t('security')}
       </p>
       <div className="mt-3 flex gap-2">
         <Button kind="primary" size="m" disabled={pending || !model.trim() || (!key && !sameProvider)} onClick={save}>

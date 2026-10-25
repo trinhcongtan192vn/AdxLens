@@ -88,17 +88,25 @@ const OPENAI_STOP: Record<string, string> = { tool_calls: 'tool_use', stop: 'end
 /**
  * OpenAI Chat Completions có function calling (ADR-0022, khóa workspace tự mang). Cùng giao diện `AgentLlm` nên vòng
  * tool-use, kiểm số và công cụ dùng chung với Anthropic. Không gửi `temperature` (một số model chỉ nhận mặc định).
+ * `baseUrl` + `maxTokensParam` cho các API tương thích OpenAI (Gemini, DeepSeek).
  */
-export function openaiAgentClient(cfg: { apiKey: string; model: string; fetchImpl?: typeof fetch }): AgentLlm {
+export function openaiAgentClient(cfg: {
+  apiKey: string;
+  model: string;
+  fetchImpl?: typeof fetch;
+  baseUrl?: string;
+  maxTokensParam?: 'max_completion_tokens' | 'max_tokens';
+}): AgentLlm {
   const f = cfg.fetchImpl ?? fetch;
+  const base = (cfg.baseUrl ?? 'https://api.openai.com/v1').replace(/\/+$/, '');
   return {
     async chat({ system, messages, tools, maxTokens }) {
-      const res = await f('https://api.openai.com/v1/chat/completions', {
+      const res = await f(`${base}/chat/completions`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `Bearer ${cfg.apiKey}` },
         body: JSON.stringify({
           model: cfg.model,
-          max_completion_tokens: maxTokens,
+          [cfg.maxTokensParam ?? 'max_completion_tokens']: maxTokens,
           messages: toOpenAiMessages(system, messages),
           tools: tools.map((t) => ({
             type: 'function',
@@ -119,7 +127,7 @@ export function openaiAgentClient(cfg: { apiKey: string; model: string; fetchImp
       const choice = data.choices?.[0];
       const content: AgentContentBlock[] = [];
       if (choice?.message?.content) content.push({ type: 'text', text: choice.message.content });
-      for (const c of choice?.message?.tool_calls ?? []) {
+      for (const [i, c] of (choice?.message?.tool_calls ?? []).entries()) {
         let input: Record<string, unknown> = {};
         try {
           const v: unknown = JSON.parse(c.function.arguments || '{}');
@@ -127,10 +135,25 @@ export function openaiAgentClient(cfg: { apiKey: string; model: string; fetchImp
         } catch {
           input = {};
         }
-        content.push({ type: 'tool_use', id: c.id, name: c.function.name, input });
+        // Một số API tương thích (Gemini) có thể trả id rỗng: tự đặt id để ghép tool_result.
+        content.push({ type: 'tool_use', id: c.id || `call_${i}`, name: c.function.name, input });
       }
       const fr = choice?.finish_reason ?? null;
       return { content, stopReason: fr ? (OPENAI_STOP[fr] ?? fr) : null };
     },
   };
+}
+
+/** Google Gemini qua endpoint tương thích OpenAI (khóa AI Studio). */
+export function geminiAgentClient(cfg: { apiKey: string; model: string; fetchImpl?: typeof fetch }): AgentLlm {
+  return openaiAgentClient({
+    ...cfg,
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    maxTokensParam: 'max_tokens',
+  });
+}
+
+/** DeepSeek (API tương thích OpenAI). */
+export function deepseekAgentClient(cfg: { apiKey: string; model: string; fetchImpl?: typeof fetch }): AgentLlm {
+  return openaiAgentClient({ ...cfg, baseUrl: 'https://api.deepseek.com', maxTokensParam: 'max_tokens' });
 }

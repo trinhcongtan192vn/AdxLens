@@ -3435,7 +3435,7 @@
     "proposeOff": "Cần gói có tính năng duyệt hành động.",
     "llm": {
       "title": "Mô hình AI của workspace",
-      "intro": "AI Agents trả lời bằng tài khoản Anthropic (Claude) hoặc OpenAI (GPT) của chính agency: chi phí tính vào tài khoản của bạn ở nhà cung cấp. Số liệu vẫn do AdxLens tính và kiểm tra trước khi hiện.",
+      "intro": "AI Agents trả lời bằng tài khoản AI của chính agency: Anthropic (Claude), OpenAI (GPT), Google (Gemini) hoặc DeepSeek. Chi phí tính vào tài khoản của bạn ở nhà cung cấp. Số liệu vẫn do AdxLens tính và kiểm tra trước khi hiện.",
       "statusOn": "Đang dùng",
       "statusError": "Lỗi",
       "using": "{provider} · {model}",
@@ -3445,13 +3445,13 @@
       "provider": "Nhà cung cấp",
       "providers": {
         "anthropic": "Anthropic (Claude)",
-        "openai": "OpenAI (GPT)"
+        "openai": "OpenAI (GPT)",
+        "gemini": "Google (Gemini)",
+        "deepseek": "DeepSeek"
       },
       "model": "Model",
       "key": "Khóa API",
       "keyKeep": "Để trống để giữ khóa hiện tại",
-      "whereAnthropic": "Tạo khóa ở console.anthropic.com → API Keys.",
-      "whereOpenai": "Tạo khóa ở platform.openai.com → API keys.",
       "security": "Khóa được mã hóa khi lưu, không hiện lại và chỉ dùng để trả lời câu hỏi trong AI Agents.",
       "save": "Lưu khóa",
       "remove": "Gỡ khóa",
@@ -3463,7 +3463,14 @@
         "quota": "Lần gọi gần nhất bị từ chối vì hết hạn mức hoặc hết tiền ở nhà cung cấp.",
         "model": "Lần gọi gần nhất bị từ chối: tài khoản của bạn không dùng được model này. Đổi model.",
         "other": "Lần gọi gần nhất bị lỗi. Thử lại sau ít phút."
-      }
+      },
+      "where": {
+        "anthropic": "Tạo khóa ở console.anthropic.com → API Keys.",
+        "openai": "Tạo khóa ở platform.openai.com → API keys.",
+        "gemini": "Tạo khóa ở aistudio.google.com → Get API key.",
+        "deepseek": "Tạo khóa ở platform.deepseek.com → API keys."
+      },
+      "modelHint": "Chọn từ danh sách gợi ý hoặc gõ tên model khác mà tài khoản của bạn dùng được."
     },
     "connector": {
       "title": "Dùng AdxLens trong Claude / ChatGPT",

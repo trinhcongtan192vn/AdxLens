@@ -12,6 +12,8 @@ afterAll(() => closeTestDb());
 const KEYS = keysFromEnv({ TOKEN_ENC_KEY_V1: Buffer.alloc(32, 5).toString('base64') });
 const ANT = 'sk-ant-api03-AAAAAAAAAAAAAAAAAAAAAAAAwxyz';
 const OAI = 'sk-proj-BBBBBBBBBBBBBBBBBBBBBBBBlmno';
+const GEM = 'AIzaSyCCCCCCCCCCCCCCCCCCCCCCCCCCCCCgemi';
+const DSK = 'sk-0123456789abcdef0123456789abdsk1';
 
 async function setup(name = 'A') {
   const { workspace, owner } = await seedWorkspace(db, name);
@@ -179,5 +181,50 @@ describe('Khóa AI tự mang (ADR-0022)', () => {
       ],
       stopReason: 'end_turn',
     });
+  });
+
+  it('Gemini / DeepSeek: kiểm dạng khóa; worker gọi endpoint tương thích OpenAI với max_tokens', async () => {
+    const { ctx, workspaceId } = await setup();
+    await expect(
+      saveLlmKey(ctx, { provider: 'gemini', model: 'gemini-2.5-flash', apiKey: OAI }, KEYS),
+    ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+    await expect(
+      saveLlmKey(ctx, { provider: 'deepseek', model: 'deepseek-chat', apiKey: ANT }, KEYS),
+    ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+
+    const reply = {
+      status: 200,
+      body: {
+        choices: [
+          {
+            finish_reason: 'tool_calls',
+            message: { content: null, tool_calls: [{ id: '', function: { name: 'account_kpis', arguments: '{}' } }] },
+          },
+        ],
+      },
+    };
+    expect(await saveLlmKey(ctx, { provider: 'gemini', model: 'gemini-2.5-flash', apiKey: GEM }, KEYS)).toMatchObject({
+      provider: 'gemini',
+      keyHint: 'gemi',
+    });
+    const g = fakeFetch(reply);
+    const gem = (await workspaceAgentLlm({ db, workspaceId }, KEYS.keys, { fetchImpl: g.f }))!;
+    expect(gem).toMatchObject({ provider: 'gemini', model: 'gemini-2.5-flash' });
+    // id rỗng từ API tương thích → tự đặt id để ghép tool_result.
+    expect((await gem.llm.chat(input)).content).toEqual([
+      { type: 'tool_use', id: 'call_0', name: 'account_kpis', input: {} },
+    ]);
+    expect(g.calls[0]!.url).toBe('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions');
+    expect(g.calls[0]!.headers.authorization).toBe(`Bearer ${GEM}`);
+    expect(g.calls[0]!.body).toMatchObject({ model: 'gemini-2.5-flash', max_tokens: 100 });
+    expect(g.calls[0]!.body).not.toHaveProperty('max_completion_tokens');
+
+    await saveLlmKey(ctx, { provider: 'deepseek', model: 'deepseek-chat', apiKey: DSK }, KEYS);
+    const d = fakeFetch(reply);
+    const ds = (await workspaceAgentLlm({ db, workspaceId }, KEYS.keys, { fetchImpl: d.f }))!;
+    await ds.llm.chat(input);
+    expect(ds.provider).toBe('deepseek');
+    expect(d.calls[0]!.url).toBe('https://api.deepseek.com/chat/completions');
+    expect(d.calls[0]!.body).toMatchObject({ model: 'deepseek-chat', max_tokens: 100 });
   });
 });
