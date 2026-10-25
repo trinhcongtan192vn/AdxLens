@@ -123,9 +123,7 @@ for (const w of workers) {
   });
 }
 
-// Bản xem trước (WORKER_SCHEDULES=off): không chạy job định kỳ để không trùng worker bản team trên cùng database.
-if (env.WORKER_SCHEDULES === 'on') await registerSchedules(queues);
-else log.info('WORKER_SCHEDULES=off — không đăng ký job định kỳ (bản xem trước)');
+await registerSchedules(queues);
 log.info({ queues: Object.keys(QUEUES), meta_mock: env.META_MOCK }, 'worker đã chạy');
 
 async function shutdown() {
