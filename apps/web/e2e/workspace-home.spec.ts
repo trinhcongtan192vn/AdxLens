@@ -89,7 +89,9 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   // PM 25/10: chi tiết mở ở khung giữa — breadcrumb về trang nguồn, sidebar vẫn sáng Ads Manager.
   await page.getByTestId('am-row-ad').first().locator('a[href^="/accounts/"]').first().click();
   await expect(page.getByTestId('entity-back')).toContainText('Ads Manager');
-  await expect(page.locator('nav a[href="/w/ads-manager"]')).toHaveAttribute('aria-current', 'page');
+  await expect(
+    page.getByRole('navigation', { name: 'Điều hướng chính' }).locator('a[href="/w/ads-manager"]'),
+  ).toHaveAttribute('aria-current', 'page');
   await page.getByTestId('entity-back').click();
   await expect(page).toHaveURL(/\/w\/ads-manager$/);
 

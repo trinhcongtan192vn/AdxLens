@@ -81,6 +81,7 @@ PM góp ý UI/UX #4 (chọn "Trong khung giữa"): bấm vào chi tiết thì nh
 - `lib/entity-origin.test.ts`: nguồn lạ → mặc định; thêm `from=` giữ tham số; sidebar sáng mục nguồn ở trang chi tiết.
 - E2E `workspace-home.spec.ts`: Ads Manager → mở quảng cáo → "← Ads Manager", sidebar sáng Ads Manager → bấm quay lại
   đúng `/w/ads-manager`.
+  - Sửa sau CI 143: selector link sidebar giới hạn trong "Điều hướng chính" (breadcrumb cũng là `nav` có cùng link).
 
 ## [141] Một màn "Thông báo": Hộp thư + Quy tắc cảnh báo — 2026-10-25
 
