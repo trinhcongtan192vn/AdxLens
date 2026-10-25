@@ -615,6 +615,24 @@ export const ROUTE_PROBES: Record<string, Probe> = {
       audienceIds: [],
     }),
   },
+  'GET /api/v1/creative-drafts': {
+    kind: 'workspace',
+    query: (w) => ({ ad_account_id: w.a.adAccount.id }),
+  },
+  'POST /api/v1/creative-drafts': { kind: 'workspace' },
+  'POST /api/v1/launcher/creatives': {
+    kind: 'workspace',
+    body: (w) => ({
+      adAccountId: w.a.adAccount.id,
+      draftId: '00000000-0000-4000-8000-000000000000',
+      pageId: 'page_probe',
+      link: 'https://example.com',
+      message: 'Probe',
+      headline: 'Probe',
+      cta: 'LEARN_MORE',
+      name: 'Probe',
+    }),
+  },
   'POST /api/v1/launcher/audiences': {
     kind: 'workspace',
     body: (w) => ({

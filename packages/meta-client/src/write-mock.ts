@@ -8,6 +8,7 @@ import { MOCK_ACCOUNTS, mockStructure, mockWriteState } from './mock';
 import {
   adSetTargeting,
   type NewAdSetTargeting,
+  type NewCreative,
   customAudienceRule,
   type CustomAudienceSource,
   type MetaObjectType,
@@ -272,6 +273,35 @@ export class MockMetaWrite implements MetaWriteApi {
     });
     if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);
     return { id };
+  }
+
+  async uploadAdImage(_t: string, act: string, bytes: Uint8Array) {
+    this.calls.push({ op: 'uploadAdImage', id: act, value: String(bytes.length) });
+    const fault = this.takeFault();
+    const hash = `hash${mockWriteState.images.size + 1}`;
+    mockWriteState.images.set(hash, { act, size: bytes.length });
+    if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);
+    return { hash, url: `https://scontent.mock/${hash}.png` };
+  }
+
+  async createAdCreative(_t: string, act: string, input: NewCreative) {
+    this.calls.push({ op: 'createAdCreative', id: input.pageId, value: `${input.imageHash}:${input.cta}` });
+    const fault = this.takeFault();
+    const id = `9${mockWriteState.createdCreatives.size + 1}0000777`;
+    mockWriteState.createdCreatives.set(id, {
+      id,
+      name: input.name,
+      image_hash: fault === 'wrong_value' ? 'khac' : input.imageHash,
+      act,
+    });
+    if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);
+    return { id };
+  }
+
+  async getCreative(_t: string, id: string) {
+    const c = mockWriteState.createdCreatives.get(id);
+    if (!c) throw new MetaApiError(400, 100, 33, 'GraphMethodException', 'Object does not exist', null);
+    return { id: c.id, name: c.name, image_hash: c.image_hash };
   }
 
   async getAudience(_t: string, id: string) {

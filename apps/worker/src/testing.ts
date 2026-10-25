@@ -28,6 +28,14 @@ export function testWorkerServices(db: Db, now?: () => Date) {
     uploadReport: async (path, bytes) => {
       uploads.set(path, bytes);
     },
+    readCreativeImage: async (path) => {
+      const b = uploads.get(`creatives/${path}`);
+      if (!b) throw new Error('missing');
+      return b;
+    },
+    saveCreativeImage: async (path, bytes) => {
+      uploads.set(`creatives/${path}`, bytes);
+    },
     sign: (payload, ttl) => signPayload(payload, ttl, 'test-signing-secret-0123456789abcdef'),
     throttleQueue: async (queue, ms) => {
       throttled.push({ queue, ms });

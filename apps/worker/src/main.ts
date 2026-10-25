@@ -70,6 +70,19 @@ const services: WorkerServices = {
       'application/pdf',
     );
   },
+  readCreativeImage: (path) => {
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('Thiếu SUPABASE_SERVICE_ROLE_KEY');
+    return supabaseWorkerStorage(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY).download('creatives', path);
+  },
+  saveCreativeImage: (path, bytes, contentType) => {
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('Thiếu SUPABASE_SERVICE_ROLE_KEY');
+    return supabaseWorkerStorage(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY).upload(
+      'creatives',
+      path,
+      bytes,
+      contentType,
+    );
+  },
   sign: (payload, ttl) => signPayload(payload, ttl, env.INTERNAL_SIGNING_SECRET),
   llm: env.ANTHROPIC_API_KEY ? anthropicClient({ apiKey: env.ANTHROPIC_API_KEY, model: env.ANTHROPIC_MODEL }) : null,
   agentLlm: env.ANTHROPIC_API_KEY

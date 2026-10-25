@@ -39,6 +39,7 @@ export function describeChange(
   if ('name' in a.afterExpected) return `${a.beforeState.name ?? '—'} → ${a.afterExpected.name ?? '—'}`;
   // ADR-0023: tạo mới.
   if ('created_status' in a.afterExpected) return tr.t('createdPaused');
+  if ('created_creative' in a.afterExpected) return tr.t('createdCreative');
   if ('created_subtype' in a.afterExpected) {
     return tr.t(a.afterExpected.created_subtype === 'LOOKALIKE' ? 'createdLookalike' : 'createdAudience');
   }

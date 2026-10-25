@@ -2369,7 +2369,8 @@
       "set_adset_bid": "Change ad set bid",
       "set_campaign_spend_cap": "Change campaign spending limit",
       "create_custom_audience": "Create custom audience",
-      "create_adset": "Create ad set"
+      "create_adset": "Create ad set",
+      "create_creative": "Create creative"
     },
     "state": {
       "ACTIVE": "Active",
@@ -2416,7 +2417,8 @@
     },
     "createdPaused": "Created · paused",
     "createdLookalike": "New lookalike created",
-    "createdAudience": "Audience created"
+    "createdAudience": "Audience created",
+    "createdCreative": "Creative created"
   },
   "killSwitch": {
     "title": "Kill switch",
@@ -3776,6 +3778,40 @@
       "note": "Needs approval; turning it on is a separate action.",
       "queued": "Ad set creation sent. Follow it in the Action log.",
       "tooLarge": "The budget is above what is allowed relative to the template ad set."
+    },
+    "creative": {
+      "title": "New creative",
+      "intro": "Upload an image to make a single-image creative (Page, link, text, headline, button). Creatives never run on their own: create ads from them in the Ad Launcher above (always paused).",
+      "noPage": "No Page synced yet — check permissions in Connections.",
+      "upload": "Upload image",
+      "uploadHint": "PNG, JPEG or WebP, up to 5MB. 1080×1080 recommended.",
+      "uploadFailed": "Could not upload (PNG / JPEG / WebP ≤ 5MB only).",
+      "drafts": "Images",
+      "generating": "Generating",
+      "failed": "Failed",
+      "page": "Page",
+      "link": "Destination link (https)",
+      "headline": "Headline",
+      "cta": "Call to action",
+      "message": "Primary text",
+      "name": "Creative name (blank = automatic)",
+      "defaultName": "Image creative",
+      "launch": "Create creative",
+      "note": "Needs approval; creatives don't spend money.",
+      "queued": "Creative creation sent. Follow it in the Action log; once done it appears in the Ad Launcher.",
+      "ctas": {
+        "LEARN_MORE": "Learn more",
+        "SHOP_NOW": "Shop now",
+        "SIGN_UP": "Sign up",
+        "CONTACT_US": "Contact us",
+        "ORDER_NOW": "Order now",
+        "GET_OFFER": "Get offer",
+        "BOOK_TRAVEL": "Book now",
+        "SUBSCRIBE": "Subscribe",
+        "APPLY_NOW": "Apply now",
+        "DOWNLOAD": "Download",
+        "MESSAGE_PAGE": "Send message"
+      }
     }
   }
 }

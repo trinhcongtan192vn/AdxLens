@@ -31,6 +31,45 @@ export type CustomAudienceSource =
   | { type: 'page' | 'ig_business'; id: string; days: number };
 export const PIXEL_EVENTS = ['PageView', 'ViewContent', 'AddToCart', 'InitiateCheckout', 'Purchase', 'Lead'] as const;
 
+/** ADR-0027: nút CTA cho creative mới (danh sách cố định). */
+export const CREATIVE_CTAS = [
+  'LEARN_MORE',
+  'SHOP_NOW',
+  'SIGN_UP',
+  'CONTACT_US',
+  'ORDER_NOW',
+  'GET_OFFER',
+  'BOOK_TRAVEL',
+  'SUBSCRIBE',
+  'APPLY_NOW',
+  'DOWNLOAD',
+  'MESSAGE_PAGE',
+] as const;
+export type CreativeCta = (typeof CREATIVE_CTAS)[number];
+export type NewCreative = {
+  name: string;
+  pageId: string;
+  imageHash: string;
+  link: string;
+  message: string;
+  headline: string;
+  cta: CreativeCta;
+};
+
+/** `object_story_spec` (JSON) cho creative ảnh đơn với link. */
+export function creativeStorySpec(c: NewCreative): string {
+  return JSON.stringify({
+    page_id: c.pageId,
+    link_data: {
+      image_hash: c.imageHash,
+      link: c.link,
+      message: c.message,
+      name: c.headline,
+      call_to_action: { type: c.cta, value: { link: c.link } },
+    },
+  });
+}
+
 /** ADR-0026: nhắm mục tiêu của nhóm QC mới (tối giản): quốc gia, độ tuổi, custom audience đưa vào. */
 export type NewAdSetTargeting = { countries: string[]; ageMin: number; ageMax: number; audienceIds: string[] };
 
@@ -124,6 +163,12 @@ export interface MetaWriteApi {
     act: string,
     input: { name: string; templateAdSetId: string; dailyBudget: string | null; targeting: NewAdSetTargeting },
   ): Promise<{ id: string }>;
+  /** ADR-0027: tải ảnh lên thư viện ảnh của tài khoản QC; trả `hash` (dùng trong creative) và URL. */
+  uploadAdImage(token: string, act: string, bytes: Uint8Array): Promise<{ hash: string; url: string | null }>;
+  /** ADR-0027: tạo ad creative ảnh đơn (không tự chạy; quảng cáo tạo qua Ad Launcher, luôn PAUSED). */
+  createAdCreative(token: string, act: string, input: NewCreative): Promise<{ id: string }>;
+  /** Đọc lại creative vừa tạo (xác minh). */
+  getCreative(token: string, id: string): Promise<{ id: string; name?: string | null; image_hash?: string | null }>;
   /** Đọc lại audience vừa tạo (xác minh). */
   getAudience(token: string, id: string): Promise<{ id: string; name?: string | null; subtype?: string | null }>;
 }
@@ -136,6 +181,10 @@ const FIELDS: Record<MetaObjectType, string> = {
 const okSchema = z.object({ success: z.boolean().optional() }).passthrough();
 const copySchema = z.object({ copied_adset_id: z.string() }).passthrough();
 const idSchema = z.object({ id: z.string() }).passthrough();
+const adImagesSchema = z.object({
+  images: z.record(z.string(), z.object({ hash: z.string(), url: z.string().nullish() }).passthrough()),
+});
+const creativeReadSchema = z.object({ id: z.string(), name: z.string().nullish(), image_hash: z.string().nullish() });
 const templateSchema = z
   .object({
     campaign_id: z.string(),
@@ -285,6 +334,36 @@ export class HttpMetaWrite implements MetaWriteApi {
       { endpoint: 'adsets/create' },
     );
     return { id: r.id };
+  }
+
+  async uploadAdImage(token: string, act: string, bytes: Uint8Array) {
+    const r = await this.http.request(
+      'POST',
+      `${act}/adimages`,
+      token,
+      { bytes: Buffer.from(bytes).toString('base64') },
+      adImagesSchema,
+      { endpoint: 'adimages/create' },
+    );
+    const first = Object.values(r.images)[0];
+    if (!first?.hash) throw new Error('Meta không trả hash ảnh');
+    return { hash: first.hash, url: first.url ?? null };
+  }
+
+  async createAdCreative(token: string, act: string, input: NewCreative) {
+    const r = await this.http.request(
+      'POST',
+      `${act}/adcreatives`,
+      token,
+      { name: input.name, object_story_spec: creativeStorySpec(input) },
+      idSchema,
+      { endpoint: 'adcreatives/create' },
+    );
+    return { id: r.id };
+  }
+
+  getCreative(token: string, id: string) {
+    return this.http.get(id, token, { fields: 'id,name,image_hash' }, creativeReadSchema);
   }
 
   getAudience(token: string, id: string) {

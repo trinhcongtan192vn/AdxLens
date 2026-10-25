@@ -9,6 +9,7 @@ import { getPageContext, requireFlag } from '@/server/page-context';
 import { workspaceScope } from '@/server/workspace-scope';
 import { CustomAudienceCard } from './custom-audience-card';
 import { NewAdSetCard } from './new-adset-card';
+import { NewCreativeCard } from './new-creative-card';
 import { LauncherView } from './launcher-view';
 
 export async function generateMetadata() {
@@ -109,6 +110,14 @@ export default async function LauncherPage({
         initialCreative={sp.creative ?? null}
         namePrefix={clientName}
       />
+      <div className="mt-4">
+        <NewCreativeCard
+          adAccountId={account.id}
+          canApprove={canApprove}
+          pages={asset('page')}
+          namePrefix={clientName}
+        />
+      </div>
       <div className="mt-4">
         <NewAdSetCard
           adAccountId={account.id}
