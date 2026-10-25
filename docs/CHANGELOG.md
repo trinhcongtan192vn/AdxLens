@@ -27,6 +27,31 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [131] Kết nối Google Analytics 4 (Google OAuth): phiên / chuyển đổi theo Client ở Business (ADR-0029) — 2026-10-25
+
+Bước 2 của kết nối cửa hàng / analytics (bước 1: Shopify [130]). PM chọn Google OAuth.
+
+- **Kết nối → "Cửa hàng & Analytics" → GA4:**
+  - nhập **Property ID** + chọn Client → **Kết nối Google Analytics** → đăng nhập Google, đồng ý quyền
+    `analytics.readonly` (chỉ đọc);
+  - AdxLens kiểm quyền đọc đúng property đó (không có quyền → `?store=noaccess`), lưu **refresh token mã hóa**, đồng bộ
+    30 ngày; hằng ngày 03:00 giờ property → 3 ngày.
+- **`store-client` → GA4:** URL OAuth (offline + consent), đổi code (thiếu refresh token → lỗi rõ), làm mới access token,
+  đọc property (tên, tiền tệ, múi giờ), Data API `runReport` theo ngày (sessions, keyEvents); lỗi chỉ mã HTTP.
+- **Business Dashboard** (nội bộ + link công khai): thêm ô **Phiên (GA4)**, **Chuyển đổi (GA4)**. Doanh thu GA4 **không**
+  cộng vào doanh thu cửa hàng, để tránh tính trùng với Shopify.
+- **Runbook** `docs/runbooks/store-connectors.md` mục 3: tạo OAuth client Google Cloud, bật API, test users / verification,
+  redirect URI, sự cố (refresh token hết hạn sau 7 ngày khi app ở chế độ Testing).
+
+**Vùng bảo vệ:** không đổi schema (dùng bảng của [130]); token dùng `core/connections/secrets`.
+
+**Test tự động:**
+- `store-client/ga4.test.ts`: URL OAuth (scope chỉ đọc, offline, consent); thiếu refresh token → lỗi; `runReport` → theo
+  ngày; property id sai dạng bị chặn.
+- `core/stores/stores.test.ts`: refresh token không plaintext; đồng bộ phiên / chuyển đổi; doanh thu cửa hàng không đổi
+  khi có GA4.
+- Bộ cách ly: `GET /api/v1/stores/ga4/authorize`, `callback`.
+
 ## [130] Kết nối Shopify: doanh thu / số đơn cửa hàng theo Client ở Business Dashboard (ADR-0029) — 2026-10-25
 
 PM chọn: Shopify qua app OAuth Partner; GA4 qua Google OAuth (bước 131); mỗi shop / property gắn một Client; hiện ở

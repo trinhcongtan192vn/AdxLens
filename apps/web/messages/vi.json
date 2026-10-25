@@ -3852,7 +3852,7 @@
   },
   "stores": {
     "title": "Cửa hàng & Analytics",
-    "intro": "Kết nối Shopify của khách để Business Dashboard có doanh thu thật của cửa hàng, số đơn, AOV và MER (doanh thu cửa hàng / chi tiêu quảng cáo). Mỗi shop gắn với một Client; AdxLens chỉ đọc đơn hàng.",
+    "intro": "Kết nối Shopify và Google Analytics 4 của khách để Business Dashboard có doanh thu thật của cửa hàng, số đơn, AOV, MER (doanh thu cửa hàng / chi tiêu quảng cáo), phiên và chuyển đổi. Mỗi shop / property gắn với một Client; AdxLens chỉ đọc.",
     "providers": {
       "shopify": "Shopify",
       "ga4": "Google Analytics 4"
@@ -3878,6 +3878,10 @@
       "mer": "MER",
       "sessions": "Phiên (GA4)",
       "conversions": "Chuyển đổi (GA4)"
-    }
+    },
+    "property": "GA4 Property ID",
+    "propertyHint": "GA4 → Quản trị → Cài đặt property (dãy số).",
+    "connectGa4": "Kết nối Google Analytics",
+    "ga4NotConfigured": "Chưa cấu hình Google OAuth cho GA4 (xem docs/runbooks/store-connectors.md)."
   }
 }

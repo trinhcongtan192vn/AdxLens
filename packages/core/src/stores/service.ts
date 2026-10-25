@@ -1,8 +1,8 @@
 import { and, eq, gte, inArray, isNotNull, lte, sql } from 'drizzle-orm';
 import type { Db } from '@adxlens/db';
 import { schema } from '@adxlens/db';
-import { HttpShopify, type ShopifyApi } from '@adxlens/store-client';
-import { MockShopify } from '@adxlens/store-client/mock';
+import { HttpGoogleAnalytics, HttpShopify, type GoogleAnalyticsApi, type ShopifyApi } from '@adxlens/store-client';
+import { MockGoogleAnalytics, MockShopify } from '@adxlens/store-client/mock';
 import { decryptSecret, encryptSecret, type TokenKeys } from '@adxlens/core/connections';
 import {
   addDays,
@@ -150,7 +150,7 @@ export async function disconnectStore(ctx: ActorCtx, id: string): Promise<void> 
 export async function runStoreSync(
   ctx: WorkspaceCtx,
   input: { connectionId: string; from?: string; to?: string; days?: number },
-  deps: { shopify: ShopifyApi; keys: TokenKeys; clock?: Clock },
+  deps: { shopify: ShopifyApi; ga4?: GoogleAnalyticsApi; keys: TokenKeys; clock?: Clock },
 ): Promise<{ status: 'ok' | 'skipped' | 'failed'; days?: number; code?: string }> {
   const [c] = await ctx.db
     .select()
@@ -163,7 +163,32 @@ export async function runStoreSync(
   const from = input.from ?? addDays(to, -((input.days ?? STORE_DAILY_DAYS) - 1));
   try {
     const token = decryptSecret(c.tokenCiphertext, c.tokenKeyVersion, deps.keys);
-    if (c.provider !== 'shopify') return { status: 'skipped' };
+    if (c.provider === 'ga4') {
+      // Token lưu là refresh token; doanh thu GA4 không ghi (tránh tính trùng với doanh thu cửa hàng).
+      if (!deps.ga4) return { status: 'skipped' };
+      const access = await deps.ga4.accessToken(token);
+      const days = await deps.ga4.daily(access, c.externalId, { from, to });
+      for (const r of days) {
+        await ctx.db
+          .insert(storeDaily)
+          .values({
+            workspaceId: ctx.workspaceId,
+            connectionId: c.id,
+            date: r.date,
+            sessions: r.sessions,
+            conversions: r.conversions,
+          })
+          .onConflictDoUpdate({
+            target: [storeDaily.connectionId, storeDaily.date],
+            set: { sessions: r.sessions, conversions: r.conversions, updatedAt: new Date() },
+          });
+      }
+      await ctx.db
+        .update(storeConnections)
+        .set({ status: 'active', lastSyncedAt: new Date(), lastError: null })
+        .where(and(eq(storeConnections.workspaceId, ctx.workspaceId), eq(storeConnections.id, c.id)));
+      return { status: 'ok', days: days.length };
+    }
     const rows = await deps.shopify.dailyOrders(c.externalId, token, { from, to }, tz);
     for (const r of rows) {
       await ctx.db
@@ -288,4 +313,15 @@ export function shopifyApi(cfg: {
         clientSecret: cfg.clientSecret ?? '',
         apiVersion: cfg.apiVersion,
       });
+}
+
+/** Google Analytics thật hoặc giả (STORE_MOCK). */
+export function googleAnalyticsApi(cfg: {
+  mock: boolean;
+  clientId?: string;
+  clientSecret?: string;
+}): GoogleAnalyticsApi {
+  return cfg.mock
+    ? new MockGoogleAnalytics()
+    : new HttpGoogleAnalytics({ clientId: cfg.clientId ?? '', clientSecret: cfg.clientSecret ?? '' });
 }

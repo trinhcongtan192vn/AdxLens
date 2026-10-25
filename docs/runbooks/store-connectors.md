@@ -52,4 +52,42 @@ Nếu bản team đã có `.env.local` riêng, sửa thêm ở
 | Doanh thu khác báo cáo Shopify | AdxLens tính theo ngày tạo đơn (múi giờ shop), bỏ đơn hủy và đơn test, dùng `current_total_price` (sau hoàn / sửa đơn). |
 
 ## 3. GA4 (Google OAuth)
-Làm ở bước 131 — mục này sẽ được bổ sung.
+
+### 3.1 Tạo OAuth client trên Google Cloud
+1. Vào <https://console.cloud.google.com> → tạo / chọn project (vd. `adxlens`).
+2. **APIs & Services → Library** → bật **Google Analytics Data API** và **Google Analytics Admin API**.
+3. **OAuth consent screen:**
+   - User type **External**; điền tên app, email hỗ trợ.
+   - **Scopes:** thêm `https://www.googleapis.com/auth/analytics.readonly`.
+   - **Test users:** thêm email Google của người sẽ kết nối khi thử nghiệm. Khi app còn ở chế độ *Testing*, chỉ test
+     users đăng nhập được, và refresh token hết hạn sau 7 ngày.
+4. **Credentials → Create credentials → OAuth client ID** → loại **Web application**:
+   - **Authorized redirect URIs:** `https://<tên miền app>/api/v1/stores/ga4/callback`
+     (vd. `https://adxlens-dev.sctech.io.vn/api/v1/stores/ga4/callback`).
+5. Ra production: gửi **Verification** cho scope `analytics.readonly` (Google duyệt vài ngày đến vài tuần). Trước khi
+   duyệt xong, app chỉ dùng được với test users.
+
+### 3.2 Điền vào `.env.local`
+```
+GOOGLE_CLIENT_ID=<Client ID>.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=<Client secret>
+STORE_MOCK=0
+```
+Khởi động lại app và worker (bản team: chạy `node scripts/team.mjs`).
+
+### 3.3 Kết nối một property
+1. Lấy **Property ID** (dãy số) ở GA4 → **Quản trị → Cài đặt property**.
+2. Ở **Kết nối → Cửa hàng & Analytics**, nhập Property ID, chọn Client → **Kết nối Google Analytics**.
+3. Đăng nhập Google bằng tài khoản có quyền **Viewer** trở lên trên property đó → **Cho phép**.
+4. AdxLens kiểm quyền đọc property:
+   - không có quyền → quay về `?store=noaccess`;
+   - có quyền → lưu refresh token (mã hóa) và đồng bộ 30 ngày phiên / chuyển đổi.
+5. Business Dashboard hiện **Phiên (GA4)** và **Chuyển đổi (GA4)**. Doanh thu GA4 không cộng vào doanh thu cửa hàng,
+   để tránh tính trùng với Shopify.
+
+### 3.4 Sự cố
+| Hiện tượng | Nguyên nhân / cách xử lý |
+|---|---|
+| Google báo `redirect_uri_mismatch` | URI ở mục 3.1 bước 4 phải trùng từng ký tự với địa chỉ app công khai. |
+| `?store=noaccess` | Tài khoản Google đăng nhập không có quyền trên property, hoặc nhập sai Property ID. |
+| Kết nối hiện "Cần kết nối lại" sau ~7 ngày | App OAuth đang ở chế độ *Testing*: refresh token hết hạn sau 7 ngày. Kết nối lại, hoặc chuyển app sang *In production*. |

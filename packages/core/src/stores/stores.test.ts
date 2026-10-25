@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { schema } from '@adxlens/db';
 import { closeTestDb, seedClient, seedMember, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
-import { MockShopify } from '@adxlens/store-client/mock';
+import { MockGoogleAnalytics, MockShopify } from '@adxlens/store-client/mock';
 import { keysFromEnv } from '@adxlens/core/connections';
 import { resolveActor } from '@adxlens/core/tenancy';
 import {
@@ -104,5 +104,36 @@ describe('kết nối cửa hàng (ADR-0029)', () => {
       { workspaceId: a.workspaceId, connectionId: id },
     ]);
     expect(await dueStoreSyncs(db, new Date('2026-10-25T03:00:00Z'))).toEqual([]);
+  });
+
+  it('GA4: refresh token mã hóa; đồng bộ phiên / chuyển đổi; không cộng doanh thu GA4 vào doanh thu cửa hàng', async () => {
+    const s = await setup();
+    await saveStoreConnection(s.ctx, shop(s.client.id), KEYS);
+    const { id } = await saveStoreConnection(
+      s.ctx,
+      {
+        ...shop(s.client.id),
+        provider: 'ga4',
+        externalId: '123456789',
+        name: 'GA4 Sao Mai',
+        token: '1//refresh_bi_mat',
+      },
+      KEYS,
+    );
+    const deps = { shopify: new MockShopify(), ga4: new MockGoogleAnalytics(), keys: KEYS.keys, clock };
+    for (const c of await listStoreConnections(s.wctx)) {
+      expect((await runStoreSync(s.wctx, { connectionId: c.id, days: 30 }, deps)).status).toBe('ok');
+    }
+    const sum = await storeSummary(s.wctx, [s.client.id], { from: '2026-10-22', to: '2026-10-24' });
+    // Mock GA4: phiên = 400 + ngày×3, chuyển đổi = 20 + ngày%4 → 22..24: 1407 phiên, 22 + 23 + 20 = 65 chuyển đổi.
+    expect(sum).toMatchObject({
+      connections: 2,
+      orders: 33,
+      revenue: '14850000.0000',
+      sessions: 1407,
+      conversions: 65,
+    });
+    const [raw] = await db.select().from(schema.storeConnections).where(eq(schema.storeConnections.id, id));
+    expect(raw!.tokenCiphertext!.toString('utf8')).not.toContain('refresh_bi_mat');
   });
 });
