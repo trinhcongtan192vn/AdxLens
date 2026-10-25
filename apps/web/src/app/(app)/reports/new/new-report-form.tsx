@@ -14,7 +14,7 @@ export function NewReportForm({
   defaultClient,
   presets,
 }: {
-  clients: { id: string; name: string; locale: 'vi' | 'en' | null }[];
+  clients: { id: string; name: string; locale: 'vi' | 'en' | null; template?: 'general' | 'ecommerce' | 'leadgen' }[];
   defaultClient: string | null;
   presets: Record<'last7' | 'last30' | 'lastMonth', Range>;
 }) {
@@ -29,13 +29,14 @@ export function NewReportForm({
   const [preset, setPreset] = useState<'last7' | 'last30' | 'lastMonth' | 'custom'>('last7');
   const [range, setRange] = useState<Range>(presets.last7);
   const [locale, setLocale] = useState<'vi' | 'en'>(initial.locale ?? 'vi');
+  const [template, setTemplate] = useState<'general' | 'ecommerce' | 'leadgen'>(initial.template ?? 'general');
 
   const submit = () =>
     start(async () => {
       try {
         const r = await api<{ report_id: string }>('reports', {
           method: 'POST',
-          body: { client_id: clientId, kind, date_from: range.from, date_to: range.to, locale },
+          body: { client_id: clientId, kind, date_from: range.from, date_to: range.to, locale, template },
         });
         router.push(`/reports/${r.report_id}`);
       } catch {
@@ -59,6 +60,7 @@ export function NewReportForm({
             setClientId(e.target.value);
             const c = clients.find((x) => x.id === e.target.value);
             if (c?.locale) setLocale(c.locale);
+            if (c?.template) setTemplate(c.template);
           }}
         >
           {clients.map((c) => (
@@ -110,6 +112,19 @@ export function NewReportForm({
             {range.from} → {range.to}
           </p>
         )}
+      </Field>
+      <Field label={t('template')} htmlFor="report-template" hint={t(`templateHelp.${template}`)}>
+        <Select
+          id="report-template"
+          value={template}
+          onChange={(e) => setTemplate(e.target.value as 'general' | 'ecommerce' | 'leadgen')}
+        >
+          {(['general', 'ecommerce', 'leadgen'] as const).map((k) => (
+            <option key={k} value={k}>
+              {t(`templates.${k}`)}
+            </option>
+          ))}
+        </Select>
       </Field>
       <Field label={t('locale')} htmlFor="report-locale">
         <Select id="report-locale" value={locale} onChange={(e) => setLocale(e.target.value as 'vi' | 'en')}>

@@ -100,6 +100,33 @@ describe('mẫu báo cáo', () => {
     expect(h).toContain('1,85%');
   });
 
+  it('mẫu theo ngành: E-commerce có Doanh thu / Giá trị đơn TB / Lượt mua; Lead gen có CPL; mặc định như cũ', () => {
+    const shop = {
+      ...content,
+      accounts: [
+        {
+          ...content.accounts[0]!,
+          kpis: { ...k('1500000', 30), conversionValue: '4500000', roas: '3.0000' },
+          prevKpis: { ...k('1000000', 20), conversionValue: '2000000', roas: '2.0000' },
+        },
+      ],
+    };
+    const e = html(shop, { template: 'ecommerce' });
+    expect(e).toContain('data-testid="report-kpi-conversionValue"');
+    expect(e).toContain('Giá trị đơn TB');
+    expect(e).toContain('Lượt mua');
+    // AOV = 4.500.000 / 30 = 150.000.
+    expect(e).toMatch(/150\.000/);
+    expect(e).not.toContain('data-testid="report-kpi-impressions"');
+    const l = html(content, { template: 'leadgen' });
+    expect(l).toContain('CPL');
+    expect(l).toContain('Khách tiềm năng');
+    expect(l).toContain('data-testid="report-kpi-cpm"');
+    const g = html(content);
+    expect(g).toContain('data-testid="report-kpi-roas"');
+    expect(g).not.toContain('data-testid="report-kpi-aov"');
+  });
+
   it('báo cáo tiếng Anh dùng nhãn tiếng Anh', () => {
     const h = html({ ...content, locale: 'en' });
     expect(h).toContain('Performance report');

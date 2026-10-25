@@ -9,6 +9,7 @@ export const HIGHER_IS_BETTER: Record<string, boolean> = {
   ctr: true,
   roas: true,
   conversionValue: true,
+  aov: true,
   cpa: false,
   cpm: false,
 };

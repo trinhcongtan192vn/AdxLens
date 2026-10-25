@@ -39,6 +39,7 @@ export const PATCH = route({
     hiddenSections: z
       .array(z.enum(['kpis', 'trend', 'campaigns', 'audience', 'creatives', 'findings', 'workDone', 'nextSteps']))
       .optional(),
+    template: z.enum(['general', 'ecommerce', 'leadgen']).optional(),
   }),
   handler: async (ctx, { body }) => ({ edits: await updateReportEdits(ctx, uuidParam(ctx, 'id'), body) }),
 });

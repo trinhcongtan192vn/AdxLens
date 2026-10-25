@@ -1035,7 +1035,10 @@
       "cpa": "Chi phí/kết quả",
       "roas": "ROAS",
       "ctr": "CTR",
-      "impressions": "Hiển thị"
+      "impressions": "Hiển thị",
+      "conversionValue": "Doanh thu",
+      "aov": "Giá trị đơn TB",
+      "cpm": "CPM"
     },
     "cols": {
       "campaign": "Chiến dịch",
@@ -1132,6 +1135,16 @@
       "better": "Tốt hơn mục tiêu {pct}",
       "worse": "Kém mục tiêu {pct}",
       "previous": "Kỳ trước: {value}"
+    },
+    "kpiTpl": {
+      "ecommerce": {
+        "results": "Lượt mua",
+        "cpa": "Chi phí / lượt mua"
+      },
+      "leadgen": {
+        "results": "Khách tiềm năng",
+        "cpa": "CPL"
+      }
     }
   },
   "reports": {
@@ -1179,6 +1192,17 @@
       "locales": {
         "vi": "Tiếng Việt",
         "en": "English"
+      },
+      "template": "Mẫu báo cáo",
+      "templates": {
+        "general": "Chung",
+        "ecommerce": "E-commerce (bán hàng)",
+        "leadgen": "Lead gen (khách tiềm năng)"
+      },
+      "templateHelp": {
+        "general": "Chi tiêu, kết quả, chi phí / kết quả, ROAS, CTR, hiển thị.",
+        "ecommerce": "Doanh thu, ROAS, lượt mua, chi phí / lượt mua, giá trị đơn TB.",
+        "leadgen": "Khách tiềm năng, CPL, CTR, CPM, hiển thị."
       }
     },
     "view": {

@@ -1,4 +1,5 @@
 import { getNow, getTranslations } from 'next-intl/server';
+import { listClientGoals, suggestReportTemplate } from '@adxlens/core/reporting';
 import { listClients } from '@adxlens/core/tenancy';
 import { Card, EmptyState, PageHeader } from '@adxlens/ui';
 import { periodRange } from '@/lib/period';
@@ -18,7 +19,7 @@ export default async function NewReportPage({ searchParams }: { searchParams: Pr
   requirePermission(pc, 'reports.manage');
   const t = await getTranslations('reports');
   const now = await getNow();
-  const clients = await listClients(pc.ctx);
+  const [clients, goals] = await Promise.all([listClients(pc.ctx), listClientGoals(pc.ctx)]);
   const tz = 'Asia/Ho_Chi_Minh';
   const presets = {
     last7: periodRange('last7', now, tz),
@@ -37,6 +38,8 @@ export default async function NewReportPage({ searchParams }: { searchParams: Pr
               id: c.id,
               name: c.name,
               locale: (c.reportLocale as 'vi' | 'en' | null) ?? null,
+              // Mẫu gợi ý theo mục tiêu chính của Client (ADR-0017).
+              template: suggestReportTemplate(goals.get(c.id)?.primaryMetric),
             }))}
             defaultClient={(await searchParams).client ?? null}
             presets={presets}
