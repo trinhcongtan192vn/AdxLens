@@ -2,6 +2,28 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [100] Top Audiences (Workspace) — 2026-10-25
+
+Theo Madgicx Top Audiences / Audience Studio, phần chỉ đọc.
+
+- **Đồng bộ đọc thêm** interest / behavior trong targeting nhóm QC (`flexible_spec`, chỉ id + tên), vẫn chỉ quyền
+  `ads_read`. Mỗi nhóm QC lưu `attrs.audiences`: lookalike / custom audience (theo loại Meta trả), sở thích, hoặc
+  "Rộng" khi không có gì.
+- Trang mới **Workspace › Audiences** (`/w/audiences`):
+  - mỗi audience có loại, số nhóm QC, chi tiêu, kết quả, CPA, ROAS, CTR; sắp theo chi tiêu;
+  - trang ghi rõ: nhóm QC dùng nhiều audience được tính cho mỗi audience.
+- Chưa làm:
+  - ước tính quy mô audience (reach estimate);
+  - Audience mixer;
+  - gợi ý interest.
+  Hai mục đầu cần API khác; mục cuối thuộc nhóm tạo audience (ghi Meta).
+
+**Test tự động:**
+- `reporting/audiences.test.ts`: tách audience theo loại; đủ 4 loại từ dữ liệu giả; sắp theo chi tiêu; buyer không
+  thấy gì.
+- E2E: trang Audiences.
+- **Đổi test (quy tắc 8):** `lib/workspace-nav.test.ts` thêm `audiences` vào menu mong đợi, vì menu có mục mới.
+
 ## [099] Creative: xu hướng theo tuần của từng định dạng — 2026-10-25
 
 Theo Madgicx Creative Insights (weekly trend). Cảnh báo "thiếu định dạng" đã có từ 087.

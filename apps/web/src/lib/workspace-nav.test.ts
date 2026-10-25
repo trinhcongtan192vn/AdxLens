@@ -13,6 +13,7 @@ describe('điều hướng giao diện Workspace (W3)', () => {
       'funnels',
       'geography',
       'scale',
+      'audiences',
     ]);
     expect(visibleWNav(W_NAV, { ...off, p1_recommendations: true }).map((i) => i.key)).toContain('agents');
     expect(visibleWNav(W_NAV_BOTTOM, off).map((i) => i.key)).toEqual(['alerts']);

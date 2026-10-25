@@ -14,6 +14,7 @@ import {
   Rows3,
   Settings,
   TrendingUp,
+  UsersRound,
   type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -31,6 +32,7 @@ const ICONS: Record<WNavKey, LucideIcon> = {
   funnels: Filter,
   geography: Globe,
   scale: ChartColumnBig,
+  audiences: UsersRound,
   alerts: Bell,
 };
 

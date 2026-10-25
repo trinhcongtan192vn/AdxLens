@@ -78,6 +78,15 @@ export const adsetSchema = z.object({
     .object({
       custom_audiences: z.array(z.object({ id: z.string(), name: z.string().nullish() })).nullish(),
       excluded_custom_audiences: z.array(z.object({ id: z.string(), name: z.string().nullish() })).nullish(),
+      /** Sở thích / hành vi (Top Audiences); chỉ id + tên. */
+      flexible_spec: z
+        .array(
+          z.object({
+            interests: z.array(z.object({ id: z.string(), name: z.string().nullish() })).nullish(),
+            behaviors: z.array(z.object({ id: z.string(), name: z.string().nullish() })).nullish(),
+          }),
+        )
+        .nullish(),
     })
     .nullish(),
 });
