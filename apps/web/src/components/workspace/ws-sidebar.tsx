@@ -11,6 +11,7 @@ import {
   LayoutGrid,
   LayoutPanelLeft,
   Plus,
+  Rocket,
   Rows3,
   Settings,
   TrendingUp,
@@ -33,6 +34,7 @@ const ICONS: Record<WNavKey, LucideIcon> = {
   geography: Globe,
   scale: ChartColumnBig,
   audiences: UsersRound,
+  launcher: Rocket,
   alerts: Bell,
 };
 

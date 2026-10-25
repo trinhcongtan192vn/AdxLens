@@ -31,6 +31,20 @@ export interface MetaWriteApi {
   setDailyBudget(token: string, adsetId: string, amount: string): Promise<void>;
   /** Nhân bản sâu ad set, bản sao luôn PAUSED (ADR-0011). */
   copyAdSet(token: string, adsetId: string): Promise<{ copiedAdSetId: string }>;
+  /** ADR-0023: tạo quảng cáo từ creative có sẵn, luôn PAUSED. `act` dạng `act_<id>`. */
+  createAd(
+    token: string,
+    act: string,
+    input: { name: string; adsetId: string; creativeId: string },
+  ): Promise<{ id: string }>;
+  /** ADR-0023: tạo lookalike từ custom audience có sẵn; `ratio` 0.01–0.10, `country` mã ISO 2 chữ. */
+  createLookalike(
+    token: string,
+    act: string,
+    input: { name: string; originAudienceId: string; country: string; ratio: string },
+  ): Promise<{ id: string }>;
+  /** Đọc lại audience vừa tạo (xác minh). */
+  getAudience(token: string, id: string): Promise<{ id: string; name?: string | null; subtype?: string | null }>;
 }
 
 const FIELDS: Record<MetaObjectType, string> = {
@@ -39,6 +53,8 @@ const FIELDS: Record<MetaObjectType, string> = {
 };
 const okSchema = z.object({ success: z.boolean().optional() }).passthrough();
 const copySchema = z.object({ copied_adset_id: z.string() }).passthrough();
+const idSchema = z.object({ id: z.string() }).passthrough();
+const audienceSchema = z.object({ id: z.string(), name: z.string().nullish(), subtype: z.string().nullish() });
 
 export class HttpMetaWrite implements MetaWriteApi {
   private readonly http: MetaHttp;
@@ -71,5 +87,47 @@ export class HttpMetaWrite implements MetaWriteApi {
       { endpoint: 'adset/copies' },
     );
     return { copiedAdSetId: r.copied_adset_id };
+  }
+
+  async createAd(token: string, act: string, input: { name: string; adsetId: string; creativeId: string }) {
+    const r = await this.http.request(
+      'POST',
+      `${act}/ads`,
+      token,
+      {
+        name: input.name,
+        adset_id: input.adsetId,
+        creative: JSON.stringify({ creative_id: input.creativeId }),
+        status: 'PAUSED',
+      },
+      idSchema,
+      { endpoint: 'ads/create' },
+    );
+    return { id: r.id };
+  }
+
+  async createLookalike(
+    token: string,
+    act: string,
+    input: { name: string; originAudienceId: string; country: string; ratio: string },
+  ) {
+    const r = await this.http.request(
+      'POST',
+      `${act}/customaudiences`,
+      token,
+      {
+        name: input.name,
+        subtype: 'LOOKALIKE',
+        origin_audience_id: input.originAudienceId,
+        lookalike_spec: JSON.stringify({ ratio: Number(input.ratio), country: input.country }),
+      },
+      idSchema,
+      { endpoint: 'customaudiences/create' },
+    );
+    return { id: r.id };
+  }
+
+  getAudience(token: string, id: string) {
+    return this.http.get(id, token, { fields: 'id,name,subtype' }, audienceSchema);
   }
 }

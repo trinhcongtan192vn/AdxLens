@@ -82,6 +82,13 @@ test('P2a: quyền ghi → duyệt → thực hiện + xác minh → hoàn tác 
   await expect(page.getByRole('dialog').getByLabel('Ngân sách ngày mới')).toBeVisible();
   await page.keyboard.press('Escape');
 
+  // Ad Launcher (ADR-0023): chọn creative → tạo quảng cáo (tạm dừng) qua Execution Gateway.
+  await page.goto('/w/launcher');
+  await page.getByTestId('ad-launcher').getByRole('checkbox').first().check();
+  await page.getByTestId('launch-ads').click();
+  await expect(page.getByTestId('launcher-done')).toBeVisible();
+  await expect(page.getByTestId('audience-launcher')).toContainText('Audience Launcher');
+
   // P205 kill switch → banner X04.
   await page.goto('/settings/guardrails');
   await page.getByRole('button', { name: 'Bật kill switch' }).click();

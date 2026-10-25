@@ -72,9 +72,14 @@ function accountNum(act: string): string {
 export const mockWriteState = {
   overrides: new Map<string, { status?: string; daily_budget?: string }>(),
   copies: new Map<string, MetaAdSet>(),
+  /** ADR-0023: quảng cáo / audience tạo qua Meta giả. */
+  createdAds: new Map<string, MetaAd & { act: string }>(),
+  createdAudiences: new Map<string, { id: string; name: string; subtype: string; act: string }>(),
   reset(): void {
     this.overrides.clear();
     this.copies.clear();
+    this.createdAds.clear();
+    this.createdAudiences.clear();
   },
 };
 
@@ -92,7 +97,8 @@ function applyOverride<T extends { id: string; status?: string | null; effective
 export function mockStructure(act: string): Structure {
   const s = structure(act);
   const copies = [...mockWriteState.copies.values()].filter((c) => s.campaigns.some((x) => x.id === c.campaign_id));
-  return { ...s, adsets: [...s.adsets, ...copies].map(applyOverride), ads: s.ads.map(applyOverride) };
+  const created = [...mockWriteState.createdAds.values()].filter((a) => a.act === act).map(({ act: _a, ...ad }) => ad);
+  return { ...s, adsets: [...s.adsets, ...copies].map(applyOverride), ads: [...s.ads, ...created].map(applyOverride) };
 }
 
 function structure(act: string): Structure {

@@ -120,6 +120,9 @@ export const ACTION_TYPES = [
   'resume_adset',
   'set_adset_budget',
   'duplicate_adset',
+  // ADR-0023: tạo mới (chỉ duyệt tay).
+  'create_ad',
+  'create_lookalike',
 ] as const;
 export type ActionType = (typeof ACTION_TYPES)[number];
 
@@ -163,6 +166,8 @@ export function checkGuardrails(input: {
     // PRD 11.2.6 / ADR-0009, ADR-0011: không tự bật lại, không tự nhân bản.
     if (input.actionType === 'resume_ad' || input.actionType === 'resume_adset') v.push({ code: 'no_auto_resume' });
     if (input.actionType === 'duplicate_adset') v.push({ code: 'no_auto_duplicate' });
+    // ADR-0023: tạo quảng cáo / audience không bao giờ tự chạy.
+    if (input.actionType === 'create_ad' || input.actionType === 'create_lookalike') v.push({ code: 'no_auto_create' });
   }
   if (input.actionType === 'set_adset_budget') {
     const cur = input.currentDailyBudget;

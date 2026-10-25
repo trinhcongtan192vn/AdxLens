@@ -2302,7 +2302,9 @@
       "resume_adset": "Resume ad set",
       "set_adset_budget": "Change ad set daily budget",
       "duplicate_adset": "Duplicate ad set",
-      "suggest_resume": "Suggest turning back on"
+      "suggest_resume": "Suggest turning back on",
+      "create_ad": "Create ad",
+      "create_lookalike": "Create lookalike"
     },
     "state": {
       "ACTIVE": "Active",
@@ -2346,7 +2348,9 @@
       "FORBIDDEN": "You cannot approve this action, or the connection has no write access.",
       "CONFLICT": "The action is already running or no longer applies.",
       "NOT_FOUND": "Item not found."
-    }
+    },
+    "createdPaused": "Created · paused",
+    "createdLookalike": "New lookalike created"
   },
   "killSwitch": {
     "title": "Kill switch",
@@ -2876,7 +2880,8 @@
       "settings": "Settings",
       "classic": "Classic interface",
       "business": "Business",
-      "audiences": "Audiences"
+      "audiences": "Audiences",
+      "launcher": "Launcher"
     },
     "create": {
       "button": "Create",
@@ -3534,5 +3539,48 @@
     "emptyBody": "Audiences appear after the next sync (read from ad set targeting).",
     "note": "Each audience sums the ad sets using it; an ad set with several audiences counts for each, so rows can add up to more than the account total.",
     "noData": "{n} ad sets with spend have no audience info yet (waiting for sync)."
+  },
+  "wsLauncher": {
+    "subtitle": "Launch ads from your best creatives and create lookalikes — every step goes through approval and the Execution Gateway",
+    "noAccount": "No ad account yet",
+    "pickAccount": "Using account {name}. Pick another in the scope selector.",
+    "noPermission": "You cannot approve actions for this client.",
+    "paused": "paused",
+    "adsQueued": "Sent {n} ads to create",
+    "audiencesQueued": "Sent {n} lookalikes to create",
+    "doneBody": "{n} actions are running through the Execution Gateway.",
+    "openLog": "Open the action log",
+    "ads": {
+      "title": "Ad Launcher",
+      "intro": "Pick an existing ad set and up to 5 creatives (sorted by ROAS for the selected period). Each creative becomes a new ad in PAUSED state; turn it on when ready.",
+      "adset": "Ad set",
+      "name": "Ad name",
+      "nameHint": "Several creatives → adds #1, #2…",
+      "pick": "Pick creatives (up to {max})",
+      "creative": "Creative",
+      "spend": "Spend",
+      "results": "Results",
+      "select": "Select {name}",
+      "launch": "Create {n} ads (paused)",
+      "note": "Cannot be undone; pause / delete on Meta to drop them."
+    },
+    "aud": {
+      "title": "Audience Launcher",
+      "intro": "Create lookalikes from the account's existing custom audiences (buyers, website, lists). Does not touch ads or budgets.",
+      "none": "The account has no custom audiences (or they are not synced yet).",
+      "origin": "Source audience",
+      "country": "Country",
+      "countryHint": "2-letter code, e.g. VN",
+      "ratios": "Ratios (up to 3)",
+      "launch": "Create {n} lookalikes",
+      "note": "Meta needs a few hours to populate the audience."
+    },
+    "errors": {
+      "GUARDRAIL_VIOLATION": "Over today's action limit or the item is excluded.",
+      "FORBIDDEN": "No permission or the connection has no write access.",
+      "KILL_SWITCH_ACTIVE": "Kill switch is on.",
+      "PLAN_REQUIRED": "Requires Growth plan or higher.",
+      "other": "Could not create. Try again."
+    }
   }
 }

@@ -34,6 +34,9 @@ export function describeChange(
     return `${show(a.beforeState.daily_budget)} → ${show(a.afterExpected.daily_budget)}`;
   }
   if ('copy_status' in a.afterExpected) return tr.t('copyPaused');
+  // ADR-0023: tạo mới.
+  if ('created_status' in a.afterExpected) return tr.t('createdPaused');
+  if ('created_subtype' in a.afterExpected) return tr.t('createdLookalike');
   const s = (v: string | null | undefined) => (v ? tr.t(`state.${v}`) : '—');
   return `${s(a.beforeState.status)} → ${s(a.afterExpected.status)}`;
 }
