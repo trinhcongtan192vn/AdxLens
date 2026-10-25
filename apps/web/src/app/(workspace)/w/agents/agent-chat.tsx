@@ -18,6 +18,8 @@ type Proposal = {
   targetMetaId: string;
   targetName: string | null;
   newDailyBudget?: string | null;
+  newName?: string | null;
+  newValue?: string | null;
   reason?: string;
 };
 type Message = {
@@ -328,6 +330,9 @@ export function AgentChat({
                           <p className="text-small text-fg">
                             {t(`actions.${p.actionType}`, { name: p.targetName ?? p.targetMetaId })}
                           </p>
+                          {p.newName ? (
+                            <p className="text-caption text-fg-secondary">{t('newName', { name: p.newName })}</p>
+                          ) : null}
                           {p.reason ? <p className="text-caption text-fg-secondary">{p.reason}</p> : null}
                           <Button
                             kind="primary"
@@ -422,8 +427,11 @@ export function AgentChat({
             {
               adAccountId: dialog.adAccountId,
               metaId: dialog.targetMetaId,
-              name: dialog.targetName ?? dialog.targetMetaId,
+              // Đổi tên: ô tên điền sẵn tên đề xuất; giá thầu / giới hạn chi: ô số điền sẵn giá trị đề xuất.
+              name: dialog.newName ?? dialog.targetName ?? dialog.targetMetaId,
               dailyBudget: dialog.newDailyBudget ?? null,
+              bidAmount: dialog.actionType === 'set_adset_bid' ? (dialog.newValue ?? null) : null,
+              spendCap: dialog.actionType === 'set_campaign_spend_cap' ? (dialog.newValue ?? null) : null,
             },
           ]}
         />

@@ -27,6 +27,41 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [136] AI agent: công cụ đọc mới và đề xuất đủ loại thay đổi đã có — 2026-10-25
+
+PM yêu cầu "nâng cấp bộ công cụ cho AI agent". Công cụ dùng chung cho chat AI Agents và MCP (ADR-0020).
+
+- **Công cụ đọc mới:**
+  - `account_structure`: chiến dịch / nhóm QC theo bản chụp (trạng thái, ngân sách ngày, giá thầu, giới hạn chi, mục tiêu
+    tối ưu, chiến dịch cha). Agent tìm đúng đối tượng trước khi đề xuất.
+  - `launch_assets`: nhóm QC làm mẫu, audience, Page, ảnh sẵn sàng trong thư viện creative, creative đã có. Chuẩn bị cho
+    kế hoạch tạo quảng cáo (ADR-0031).
+  - `store_summary`: doanh thu thật từ Shopify / Shopee / TikTok Shop, phiên / chuyển đổi GA4, chi tiêu và **MER tính
+    sẵn trong code**. Agent trả lời được "MER tuần này của Client X?".
+- **`propose_action` thêm loại** (vẫn chỉ tạo thẻ, người dùng xem trước và tự duyệt):
+  - tạm dừng / bật lại chiến dịch;
+  - đổi tên quảng cáo / nhóm QC / chiến dịch;
+  - đổi giá thầu nhóm QC, đổi giới hạn chi tiêu chiến dịch.
+  - Thiếu tham số (tên mới, giá trị mới) hoặc sai cấp đối tượng → lỗi công cụ.
+- **Thẻ đề xuất trong chat:** hiện tên mới; hộp thoại duyệt điền sẵn tên / giá thầu / giới hạn chi đề xuất; xem trước
+  trước → sau và guardrails như bảng chiến dịch.
+- Kết quả `propose_action` nhắc lại tham số đề xuất, để câu trả lời nói đúng giá trị trên thẻ mà vẫn qua bộ kiểm số.
+  Bộ kiểm số không đổi.
+
+**Vùng bảo vệ:** không (agent chỉ đọc + tạo thẻ; ghi vẫn qua Execution Gateway khi người dùng duyệt).
+
+**Test tự động:** `core/agent/tools.test.ts`:
+- `account_structure`: giá thầu 40000 / giới hạn chi 60000000 từ dữ liệu mẫu, tên bọc «», tài khoản workspace khác → lỗi;
+- `launch_assets`: chỉ ảnh `ready`;
+- `store_summary`: doanh thu, đơn, MER = doanh thu / chi tiêu; buyer không có Client → không có số, Client lạ → lỗi;
+- `propose_action`: thiếu tham số / sai cấp → lỗi; đổi tên, giá thầu → thẻ đúng, không tạo hành động; cờ P2a tắt → không
+  có công cụ ghi.
+
+Test cũ (`agent.test.ts`, `mcp.test.ts`) giữ nguyên.
+
+**PM kiểm tra:** AI Agents → "Đổi tên chiến dịch X thành Sale 11.11" → thẻ đề xuất có tên mới → "Xem & duyệt" điền sẵn
+tên; "MER 7 ngày của Client Y?" khi Client có kết nối cửa hàng.
+
 ## [135] Cài đặt → Tích hợp: nhiều khóa AI và chọn model cho từng việc (ADR-0030) — 2026-10-25
 
 Giao diện cho AI router (134).
