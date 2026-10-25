@@ -79,6 +79,11 @@ export function RuleBuilder({
   const [match, setMatch] = useState<'all' | 'any'>('all');
   const [action, setAction] = useState<Action>(first.action);
   const [maxPerDay, setMaxPerDay] = useState('');
+  // Lịch chạy theo ngày / giờ trong tuần (giờ tài khoản); tắt = chạy mọi lúc ngoài giờ yên tĩnh.
+  const [schedOn, setSchedOn] = useState(false);
+  const [days, setDays] = useState<number[]>([1, 2, 3, 4, 5]);
+  const [startHour, setStartHour] = useState(8);
+  const [endHour, setEndHour] = useState(20);
   const [backtest, setBacktest] = useState<
     { date: string; name: string | null; metaId: string; newDailyBudget: string | null }[] | null
   >(null);
@@ -124,7 +129,10 @@ export function RuleBuilder({
     match,
     condition: conds,
     action,
-    guardrails: maxPerDay ? { maxActionsPerDay: Number(maxPerDay) } : {},
+    guardrails: {
+      ...(maxPerDay ? { maxActionsPerDay: Number(maxPerDay) } : {}),
+      ...(schedOn ? { schedule: { days, startHour, endHour } } : {}),
+    },
   });
   const showError = (e: unknown) => {
     const code = e instanceof ApiError ? e.code : 'INTERNAL';
@@ -357,6 +365,57 @@ export function RuleBuilder({
               </Select>
             </Field>
           ) : null}
+          <fieldset className="rounded-lg border border-line p-3" data-testid="rule-schedule">
+            <label className="flex items-center gap-2 text-small font-medium text-fg">
+              <input type="checkbox" checked={schedOn} onChange={(e) => setSchedOn(e.target.checked)} />
+              {t('schedule.title')}
+            </label>
+            {schedOn ? (
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <div className="flex gap-1" role="group" aria-label={t('schedule.days')}>
+                  {[1, 2, 3, 4, 5, 6, 0].map((d) => (
+                    <Button
+                      key={d}
+                      kind={days.includes(d) ? 'primary' : 'secondary'}
+                      size="s"
+                      onClick={() =>
+                        setDays(days.includes(d) ? days.filter((x) => x !== d) : [...days, d].sort((a, b) => a - b))
+                      }
+                      aria-pressed={days.includes(d)}
+                    >
+                      {t(`schedule.day.${d}` as never)}
+                    </Button>
+                  ))}
+                </div>
+                <Select
+                  aria-label={t('schedule.from')}
+                  value={startHour}
+                  onChange={(e) => setStartHour(Number(e.target.value))}
+                  className="w-24"
+                >
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <option key={h} value={h}>
+                      {String(h).padStart(2, '0')}:00
+                    </option>
+                  ))}
+                </Select>
+                <span className="text-small text-fg-secondary">→</span>
+                <Select
+                  aria-label={t('schedule.to')}
+                  value={endHour}
+                  onChange={(e) => setEndHour(Number(e.target.value))}
+                  className="w-24"
+                >
+                  {Array.from({ length: 24 }, (_, h) => h + 1).map((h) => (
+                    <option key={h} value={h}>
+                      {String(h).padStart(2, '0')}:00
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            ) : null}
+            <p className="mt-1 text-caption text-fg-tertiary">{t('schedule.hint')}</p>
+          </fieldset>
           <Field label={t('fields.maxPerDay')} htmlFor="rule-maxday" hint={t('maxPerDayHint')}>
             <Input
               id="rule-maxday"

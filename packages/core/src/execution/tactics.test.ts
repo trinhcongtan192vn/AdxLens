@@ -20,6 +20,7 @@ import { dueReverts } from '@adxlens/core/ops';
 import { resolveActor } from '@adxlens/core/tenancy';
 import {
   createRule,
+  inRuleSchedule,
   executeAction,
   liveEvaluate,
   nextLocalHour,
@@ -350,5 +351,30 @@ describe('kiểm tra hợp lệ của tactic (ADR-0021)', () => {
     expect(t.surf_winner!.action.revert).toEqual({ kind: 'restore_budget', hour: 21 });
     expect(t.sunset_loser!.requiresFloorDailyBudget).toBe(true);
     expect(t.stop_loss_no_clicks!.action.revert).toEqual({ kind: 'suggest_undo', hour: 7 });
+  });
+});
+
+describe('lịch chạy theo ngày / giờ trong tuần', () => {
+  it('đúng ngày + khung giờ theo giờ tài khoản; không đặt lịch = luôn chạy', () => {
+    const fri10 = new Date('2026-10-23T03:00:00Z'); // T6 10:00 giờ VN
+    const sched = { days: [1, 2, 3, 4, 5], startHour: 8, endHour: 20 };
+    expect(inRuleSchedule(undefined, fri10, 'Asia/Ho_Chi_Minh')).toBe(true);
+    expect(inRuleSchedule(sched, fri10, 'Asia/Ho_Chi_Minh')).toBe(true);
+    expect(inRuleSchedule({ ...sched, startHour: 11 }, fri10, 'Asia/Ho_Chi_Minh')).toBe(false);
+    expect(inRuleSchedule(sched, new Date('2026-10-24T03:00:00Z'), 'Asia/Ho_Chi_Minh')).toBe(false); // T7
+    // Cùng thời điểm ở New York là T5 23:00.
+    expect(inRuleSchedule(sched, fri10, 'America/New_York')).toBe(false);
+  });
+
+  it('ngoài lịch → không đánh giá, không tạo hành động; trong lịch → chạy', async () => {
+    const s = await setup();
+    const r = await s.rule({ guardrails: { maxActionsPerDay: 1, schedule: { days: [6], startHour: 8, endHour: 20 } } });
+    expect(await liveEvaluate(s.wctx, r.id, { enqueue: s.enqueue, clock })).toEqual({ status: 'outside_schedule' });
+    expect(await actionsOf(r.id)).toEqual([]);
+    const sat = at('2026-10-24T03:00:00Z');
+    expect(await liveEvaluate(s.wctx, r.id, { enqueue: s.enqueue, clock: sat })).toEqual({
+      status: 'evaluated',
+      created: 1,
+    });
   });
 });

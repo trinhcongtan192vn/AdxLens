@@ -2,6 +2,20 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [107] Rule chạy theo lịch: ngày / giờ trong tuần — 2026-10-25
+
+Theo Madgicx Custom automation: lịch theo ngày / giờ trong tuần.
+
+- Rule builder có ô **Chỉ chạy theo lịch**: chọn ngày (T2…CN) và khung giờ (giờ tài khoản).
+- Ngoài lịch thì rule **không đánh giá**, cả shadow lẫn live (`outside_schedule`).
+- Chỉ làm rule chạy ít đi. Giờ yên tĩnh 22:00–06:00 vẫn áp dụng. Vùng `execution`: thêm `inRuleSchedule`, kiểm ở đầu
+  `shadowEvaluate` / `liveEvaluate`.
+- Không làm rule cấp chiến dịch: ADR-0015 không cho rule tự tạm dừng cả chiến dịch.
+
+**Test tự động:** `execution/tactics.test.ts`:
+- đúng ngày + khung giờ theo múi giờ (VN vs New York), không lịch thì luôn chạy;
+- ngoài lịch → không tạo hành động; trong lịch → chạy.
+
 ## [106] Ad Launcher + Audience Launcher (ADR-0023) — 2026-10-25
 
 Theo Madgicx 3.4 (Ad Launcher, Audience Launcher). Đây là hai hành động ghi Meta mới; PM đã duyệt ngày 25/10/2026.

@@ -2590,7 +2590,23 @@
     "floorRequired": "Required for Sunsetting: the budget never goes below this.",
     "floorHint": "Optional: the budget never goes below this.",
     "revertRestoreHint": "Account time, outside quiet hours. The restore passes all guardrails; retried later if blocked temporarily.",
-    "revertSuggestHint": "Account time, next morning. Owners / Managers get a notification with an Undo button."
+    "revertSuggestHint": "Account time, next morning. Owners / Managers get a notification with an Undo button.",
+    "schedule": {
+      "title": "Run on a schedule (days / hours of week)",
+      "days": "Days of week",
+      "from": "From",
+      "to": "To",
+      "hint": "Account time. Outside the schedule the rule is not evaluated; quiet hours 22:00–06:00 still apply.",
+      "day": {
+        "0": "Sun",
+        "1": "Mon",
+        "2": "Tue",
+        "3": "Wed",
+        "4": "Thu",
+        "5": "Fri",
+        "6": "Sat"
+      }
+    }
   },
   "entity": {
     "title": "Object detail",

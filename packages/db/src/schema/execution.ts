@@ -153,7 +153,12 @@ export const automationRules = app.table(
     match: text('match', { enum: RULE_MATCHES }).notNull().default('all'),
     action: jsonb('action').$type<RuleAction>().notNull(),
     guardrails: jsonb('guardrails')
-      .$type<{ maxActionsPerDay?: number; excludeMetaIds?: string[]; cooldownHours?: number }>()
+      .$type<{
+        maxActionsPerDay?: number;
+        excludeMetaIds?: string[];
+        cooldownHours?: number;
+        schedule?: { days: number[]; startHour: number; endHour: number };
+      }>()
       .notNull(),
     mode: text('mode', { enum: RULE_MODES }).notNull().default('shadow'),
     shadowStartedAt: tsz('shadow_started_at'),

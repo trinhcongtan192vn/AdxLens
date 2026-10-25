@@ -70,10 +70,14 @@ Ràng buộc chung:
 - `cooldownHours` của rule chỉ được ≥ 24 (chặt hơn).
 - Revive không bao giờ đề xuất bật lại đối tượng người dùng tự dừng (PRD 11.2.6), và tối đa 1 đề xuất / hành động.
 
-### 5. Chưa làm
+### 5. Lịch chạy (bổ sung 107)
+
+`guardrails.schedule` = ngày trong tuần + khung giờ (giờ tài khoản). Ngoài lịch thì rule không đánh giá (cả shadow lẫn
+live). Chỉ làm rule chạy ít đi; giờ yên tĩnh vẫn áp dụng.
+
+### 6. Chưa làm
 
 - Rule cấp chiến dịch: cần hành động trạng thái chiến dịch (ADR-0015, chưa duyệt).
-- Lịch theo ngày / giờ trong tuần.
 - Chạy theo dữ liệu trong ngày (cần đồng bộ nhiều lần / ngày).
 
 ## Rủi ro

@@ -89,6 +89,18 @@ export const ruleInputSchema = z.object({
         .optional(),
       /** ADR-0021: khoảng cách tối thiểu giữa 2 lần rule thao tác cùng đối tượng; chỉ được ≥ 24 giờ (chặt hơn). */
       cooldownHours: z.number().int().min(24).max(720).optional(),
+      /**
+       * Lịch chạy (Madgicx "theo ngày / giờ trong tuần"): chỉ đánh giá trong các ngày (0 = CN … 6 = T7) và khung giờ
+       * [startHour, endHour) theo giờ tài khoản. Chỉ làm rule chạy ít đi — giờ yên tĩnh vẫn áp dụng.
+       */
+      schedule: z
+        .object({
+          days: z.array(z.number().int().min(0).max(6)).min(1).max(7),
+          startHour: z.number().int().min(0).max(23),
+          endHour: z.number().int().min(1).max(24),
+        })
+        .refine((s) => s.startHour < s.endHour, { message: 'startHour < endHour' })
+        .optional(),
     })
     .default({}),
 });
@@ -673,6 +685,21 @@ export async function evaluateRule(ctx: WorkspaceCtx, rule: RuleRow, clock: Cloc
   };
 }
 
+/** Lịch chạy của rule có cho đánh giá lúc `now` (giờ tài khoản) không. Không đặt lịch = luôn được. */
+export function inRuleSchedule(
+  schedule: { days: number[]; startHour: number; endHour: number } | undefined,
+  now: Date,
+  timeZone: string,
+): boolean {
+  if (!schedule) return true;
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'short', hour: '2-digit', hourCycle: 'h23' })
+    .formatToParts(now)
+    .reduce<Record<string, string>>((o, p) => ({ ...o, [p.type]: p.value }), {});
+  const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(parts.weekday ?? '');
+  const hour = Number(parts.hour);
+  return schedule.days.includes(day) && hour >= schedule.startHour && hour < schedule.endHour;
+}
+
 /** Shadow mode (P2-13): ghi `would_do` mỗi ngày dữ liệu một lần; không tạo hành động. */
 export async function shadowEvaluate(ctx: WorkspaceCtx, ruleId: string, clock: Clock = systemClock) {
   const [rule] = await ctx.db
@@ -682,6 +709,8 @@ export async function shadowEvaluate(ctx: WorkspaceCtx, ruleId: string, clock: C
   if (!rule || rule.mode !== 'shadow') return { status: 'skipped' as const };
   const ev = await evaluateRule(ctx, rule, clock);
   if (!ev) return { status: 'skipped' as const };
+  if (!inRuleSchedule(rule.guardrails.schedule, clock.now(), ev.timezone))
+    return { status: 'outside_schedule' as const };
   const [dup] = await ctx.db
     .select({ id: ruleEvaluations.id })
     .from(ruleEvaluations)
@@ -753,6 +782,8 @@ export async function liveEvaluate(ctx: WorkspaceCtx, ruleId: string, deps: { en
   if (!rule || rule.mode !== 'live') return { status: 'skipped' as const };
   const ev = await evaluateRule(ctx, rule, clock);
   if (!ev) return { status: 'skipped' as const };
+  if (!inRuleSchedule(rule.guardrails.schedule, clock.now(), ev.timezone))
+    return { status: 'outside_schedule' as const };
   const created: string[] = [];
   const wouldDo: { metaId: string; actionType: string; newDailyBudget?: string | null; blockedBy?: string | null }[] =
     [];
