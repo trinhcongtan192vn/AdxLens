@@ -63,3 +63,23 @@ export function isClientNavActive(item: ClientNavItem, pathname: string, search:
   if (want.has('tab')) return (have.get('tab') ?? 'campaigns') === want.get('tab');
   return true;
 }
+
+/**
+ * Phạm vi Workspace (PM 25/10: chọn Client ở một nơi): Client đang xem (lạ / không được xem → mọi Client) → tài khoản
+ * trong Client; tài khoản đang chọn phải thuộc Client đó; không chọn tài khoản → các tài khoản cùng tiền tệ chính (không
+ * cộng khác tiền tệ).
+ */
+export function pickScope<A extends { id: string; clientId: string | null; currency: string }>(
+  visible: A[],
+  wantClient: string | undefined,
+  wantAccount: string | undefined,
+) {
+  const clientId = visible.some((a) => a.clientId !== null && a.clientId === wantClient) ? wantClient! : null;
+  const accounts = clientId ? visible.filter((a) => a.clientId === clientId) : visible;
+  const selected = accounts.find((a) => a.id === wantAccount) ?? null;
+  const count = new Map<string, number>();
+  for (const a of accounts) count.set(a.currency, (count.get(a.currency) ?? 0) + 1);
+  const main = [...count].sort((x, y) => y[1] - x[1])[0]?.[0] ?? null;
+  const inScope = selected ? [selected] : accounts.filter((a) => a.currency === main);
+  return { clientId, accounts, selected, inScope, main };
+}

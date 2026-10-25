@@ -72,7 +72,7 @@
       "vi": "Tiếng Việt",
       "en": "English"
     },
-    "switchClient": "Choose client",
+    "switchClient": "Client in view",
     "allClients": "All clients",
     "clientFilter": "Client: {name}",
     "clearClient": "Show all clients",
@@ -3022,7 +3022,7 @@
       }
     },
     "scope": {
-      "label": "Scope",
+      "label": "Ad account",
       "agency": "All accounts ({n})"
     },
     "periodLabel": "Period",

@@ -27,6 +27,33 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [139] Chọn client ở một nơi, sidebar luôn một bộ menu — 2026-10-25
+
+PM góp ý UI/UX #2 và #4: hai dropdown chọn khách gây rối; mở chi tiết thì sidebar đổi sang menu của client.
+
+- **Bộ chọn client duy nhất** ở đầu sidebar ("Tất cả client" / một client):
+  - lưu theo người dùng (cookie `w_client`);
+  - **chỉ lọc dữ liệu**: ở nguyên trang, không chuyển sang trang client;
+  - đổi client → bỏ chọn tài khoản cũ.
+- **Ô ở đầu trang Workspace** thành bộ lọc **tài khoản QC** trong client đang xem; client chỉ có 1 tài khoản thì ẩn.
+  Tài khoản đã chọn mà không thuộc client đang xem → bỏ qua.
+- **Sidebar:**
+  - luôn 3 nhóm Phân tích · Khách & báo cáo · Thực thi;
+  - bỏ chế độ "menu của client" (trước đây tự bật khi mở `/clients/…` hoặc chi tiết chiến dịch);
+  - trang client vẫn mở từ mục Clients, đủ tab chiến dịch / đối chiếu / báo cáo / cài đặt.
+
+**Vùng bảo vệ:** không.
+
+**Test tự động:**
+- `lib/scope.test.ts` (`pickScope`):
+  - client lọc tài khoản; client lạ → mọi client;
+  - tài khoản ngoài client bị bỏ;
+  - không chọn tài khoản → cùng tiền tệ chính.
+- E2E `workspace-home.spec.ts`: chọn client ở sidebar → vẫn `/w`, sidebar giữ nguyên, không có bộ chọn tài khoản (client
+  1 tài khoản); chọn lại "Tất cả client".
+
+**PM kiểm tra:** chọn một client ở sidebar → trang chủ, Ads Manager, Phễu… chỉ còn số của client đó; menu không đổi.
+
 ## [138] Tạo quảng cáo qua chat: agent viết nội dung + soạn kế hoạch, người dùng duyệt một lần trong chat (ADR-0030 / 0031) — 2026-10-25
 
 PM hỏi "ra lệnh cho agent qua chat để tạo ads". Agent chỉ đề xuất; tạo trên Meta chỉ khi người dùng duyệt thẻ kế hoạch.

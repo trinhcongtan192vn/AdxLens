@@ -52,7 +52,8 @@ export function WsHeader({
           <FileDown className="size-4" aria-hidden />
           {t('exportPdf')}
         </Button>
-        {hideScope ? null : (
+        {/* Bộ lọc tài khoản QC trong Client đang chọn (Client chọn ở sidebar); 1 tài khoản thì không cần. */}
+        {hideScope || (accounts.length <= 1 && !selectedId) ? null : (
           <Select
             className="w-64"
             value={selectedId ?? 'all'}

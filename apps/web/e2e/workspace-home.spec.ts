@@ -122,4 +122,16 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page.getByTestId('page-toolbar')).toBeVisible();
   await page.goto('/w');
   await expect(page.getByTestId('page-toolbar')).toHaveCount(0);
+
+  // PM 25/10: chọn Client ở MỘT nơi (sidebar) — chỉ lọc dữ liệu: vẫn trang này, sidebar không đổi; Client có 1 tài
+  // khoản → không có bộ chọn tài khoản ở đầu trang.
+  const switcher = page.getByTestId('client-switcher');
+  const firstClient = await switcher.locator('option').nth(1).getAttribute('value');
+  await switcher.selectOption(firstClient!);
+  await expect(switcher).toHaveValue(firstClient!);
+  await expect(page).toHaveURL(/\/w$/);
+  await expect(page.getByTestId('agency-nav')).toBeVisible();
+  await expect(page.getByTestId('ws-scope')).toHaveCount(0);
+  await switcher.selectOption('');
+  await expect(switcher).toHaveValue('');
 });
