@@ -47,14 +47,21 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page.getByTestId('ws-kpi-ctr')).toBeVisible();
   await expect(page.getByTestId('ws-kpi-roas')).toHaveCount(0);
 
-  // Cảnh báo: tạo từ trang Cảnh báo, có gợi ý trung bình 7 ngày.
+  // PM 25/10: Thông báo + Cảnh báo là một màn — tab Hộp thư (sự kiện, lọc theo loại) và Quy tắc cảnh báo.
   // Link sidebar có kèm số thông báo chưa đọc trong tên → chọn theo đường dẫn.
   await page.locator('nav a[href="/w/alerts"]').click();
-  // Chờ sang hẳn trang Cảnh báo (trang chủ cũng có nút "Tạo cảnh báo" ở khối gợi ý).
   await expect(page).toHaveURL(/\/w\/alerts$/);
-  await expect(page.getByRole('heading', { name: 'Cảnh báo', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Thông báo', level: 1 })).toBeVisible();
+  await expect(page.getByTestId('inbox-filters')).toBeVisible();
+  await page.getByRole('button', { name: 'Báo cáo', exact: true }).click();
+  await expect(page.getByTestId('inbox')).toHaveCount(0);
   // Trang không lọc theo ngày → không có bộ lọc kỳ.
   await expect(page.getByTestId('period-filter')).toHaveCount(0);
+  // Đường dẫn cũ /notifications về màn chung.
+  await page.goto('/notifications');
+  await expect(page).toHaveURL(/\/w\/alerts$/);
+  await page.getByRole('tab', { name: 'Quy tắc cảnh báo' }).click();
+  await expect(page).toHaveURL(/tab=rules/);
   await page.getByRole('button', { name: 'Tạo cảnh báo' }).first().click();
   await page.getByRole('dialog').getByLabel('Chỉ số').selectOption({ label: 'CPM' });
   await expect(page.getByRole('dialog').getByText(/^Trung bình 7 ngày qua: /)).toBeVisible();
