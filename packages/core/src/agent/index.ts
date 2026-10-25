@@ -6,3 +6,4 @@ export * from './mcp';
 export * from './llm-keys';
 export * from './oauth-grants';
 export * from './creative-image';
+export * from './router';

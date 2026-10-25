@@ -615,6 +615,12 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     }),
   },
   'DELETE /api/v1/llm-key': { kind: 'workspace' },
+  'GET /api/v1/llm-routes': { kind: 'workspace' },
+  'PUT /api/v1/llm-routes': {
+    kind: 'workspace',
+    body: () => ({ task: 'copywriting', provider: 'anthropic', model: 'claude-haiku-5-5' }),
+  },
+  'DELETE /api/v1/llm-routes': { kind: 'workspace', query: () => ({ task: 'copywriting' }) },
   'POST /api/v1/launcher/ads': {
     kind: 'workspace',
     body: (w) => ({

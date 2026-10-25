@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, gte, sql } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import type { Enqueue } from '@adxlens/jobs';
 import {
@@ -10,10 +10,13 @@ import {
   type CreativeDraft,
 } from '@adxlens/core/execution';
 import { isEnabled } from '@adxlens/core/flags';
-import { AppError, type ActorCtx, type WorkspaceCtx } from '@adxlens/core/shared';
+import { AppError, systemClock, type ActorCtx, type Clock, type WorkspaceCtx } from '@adxlens/core/shared';
+import { canGenerateImages } from './router';
 
 /** Tối đa ảnh AI đang tạo cùng lúc mỗi workspace (ADR-0027: chặn chi phí AI ngoài ý muốn). */
 export const AI_IMAGE_MAX_PENDING = 3;
+/** Tối đa ảnh AI / workspace / 24 giờ (ADR-0030 mục 5). */
+export const AI_IMAGE_DAILY_LIMIT = 20;
 
 export type ImageGenerator = { generate(prompt: string): Promise<Uint8Array> };
 
@@ -39,28 +42,37 @@ export function openaiImageClient(cfg: { apiKey: string; model?: string; fetchIm
   };
 }
 
-/** Nhà cung cấp khóa AI của workspace (không lộ gì về khóa) — UI ẩn "AI tạo ảnh" khi không phải OpenAI. */
-export async function workspaceLlmProvider(ctx: WorkspaceCtx): Promise<string | null> {
-  const [row] = await ctx.db
-    .select({ provider: schema.llmKeys.provider })
-    .from(schema.llmKeys)
-    .where(eq(schema.llmKeys.workspaceId, ctx.workspaceId));
-  return row?.provider ?? null;
+async function aiImagesToday(ctx: WorkspaceCtx, clock: Clock): Promise<number> {
+  const since = new Date(clock.now().getTime() - 86_400_000);
+  const [r] = await ctx.db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(schema.creativeDrafts)
+    .where(
+      and(
+        eq(schema.creativeDrafts.workspaceId, ctx.workspaceId),
+        eq(schema.creativeDrafts.source, 'ai'),
+        gte(schema.creativeDrafts.createdAt, since),
+      ),
+    );
+  return r?.n ?? 0;
 }
 
 /** Người dùng yêu cầu tạo ảnh: bản nháp `generating` + job worker. Cần khóa OpenAI của workspace. */
 export async function requestAiImage(
   ctx: ActorCtx,
   input: { adAccountId: string; prompt: string },
-  deps: { enqueue: Enqueue },
+  deps: { enqueue: Enqueue; clock?: Clock },
 ): Promise<CreativeDraft> {
-  if ((await workspaceLlmProvider(ctx)) !== 'openai') {
+  if (!(await canGenerateImages(ctx))) {
     throw new AppError('CONFLICT', 'Cần khóa OpenAI của workspace', { reason: 'no_openai_key' });
   }
   const prompt = input.prompt.trim();
   if (prompt.length < 5 || prompt.length > 1000) throw new AppError('VALIDATION_FAILED', 'Mô tả 5–1000 ký tự');
   if ((await generatingDraftCount(ctx)) >= AI_IMAGE_MAX_PENDING) {
     throw new AppError('CONFLICT', 'Đang tạo nhiều ảnh, chờ xong rồi thử lại', { reason: 'too_many' });
+  }
+  if ((await aiImagesToday(ctx, deps.clock ?? systemClock)) >= AI_IMAGE_DAILY_LIMIT) {
+    throw new AppError('RATE_LIMITED', `Tối đa ${AI_IMAGE_DAILY_LIMIT} ảnh AI mỗi ngày`, { reason: 'daily_limit' });
   }
   const draft = await addCreativeDraft(ctx, {
     adAccountId: input.adAccountId,
