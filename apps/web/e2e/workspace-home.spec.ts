@@ -99,6 +99,7 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page.getByTestId('business-accounts')).toContainText('VND');
   await page.getByRole('link', { name: 'Audiences', exact: true }).click();
   await expect(page.getByTestId('audiences-table')).toContainText('Lookalike');
+  await expect(page.getByTestId('interest-suggestions')).toContainText('Chăm sóc da');
   // Xuất PDF (in): khi in, sidebar + bộ chọn ẩn, dòng phạm vi / kỳ hiện.
   await expect(page.getByTestId('ws-export-pdf')).toBeVisible();
   await page.emulateMedia({ media: 'print' });

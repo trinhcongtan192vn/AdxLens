@@ -8,6 +8,7 @@ import {
   campaignSchema,
   creativeSchema,
   customAudienceSchema,
+  interestSuggestionSchema,
   DEFAULT_ATTRIBUTION,
   insightSchema,
   meSchema,
@@ -20,6 +21,7 @@ import {
   type MetaCampaign,
   type MetaCreative,
   type MetaCustomAudience,
+  type MetaInterestSuggestion,
   type MetaInsight,
   type MetaPage,
   type MetaPixel,
@@ -61,6 +63,8 @@ export interface MetaReadApi {
   listBusinesses(token: string): Promise<MetaBusiness[]>;
   /** Custom audience (id, tên, loại) — phân loại giai đoạn phễu của nhóm QC. */
   listCustomAudiences(token: string, act: string): Promise<MetaCustomAudience[]>;
+  /** Madgicx Audience Studio "Discover Similar": interest gợi ý từ danh sách tên interest đang dùng. */
+  suggestInterests(token: string, names: string[]): Promise<MetaInterestSuggestion[]>;
 }
 
 export const AD_ACCOUNT_FIELDS = 'id,name,currency,timezone_name,account_status';
@@ -134,6 +138,17 @@ export class HttpMetaRead implements MetaReadApi {
         account: act,
       },
     );
+  }
+
+  async suggestInterests(token: string, names: string[]) {
+    if (!names.length) return [];
+    const r = await this.http.get(
+      'search',
+      token,
+      { type: 'adinterestsuggestion', interest_list: JSON.stringify(names.slice(0, 10)), limit: 50 },
+      z.object({ data: z.array(interestSuggestionSchema) }),
+    );
+    return r.data;
   }
 
   listCustomAudiences(token: string, act: string) {

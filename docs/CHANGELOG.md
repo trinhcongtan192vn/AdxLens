@@ -27,6 +27,32 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [114] Sửa: bấm "Kết nối Meta" báo "Thiếu workspace (header X-Workspace-Id)" — 2026-10-25
+
+- **Lỗi** (PM báo trên bản team): link điều hướng `GET /api/v1/connections/meta/authorize` trả 400 khi trình duyệt chưa có
+  cookie chọn workspace `ws`, vd. chưa từng chuyển workspace hoặc trình duyệt mới. Trang thì vẫn hiện bình thường vì
+  `getPageContext` tự lấy workspace đầu tiên.
+- **Sửa:** `route()` dùng cùng quy tắc với trang. Không có header / cookie thì dùng workspace đầu tiên của người dùng (theo
+  tên, như trang). Người dùng không thuộc workspace nào vẫn trả 400. Header / cookie của workspace không phải thành viên
+  vẫn trả 403.
+- **Đổi test (quy tắc 8):** `server/route.test.ts`, test "400 khi thiếu workspace" nay kiểm hành vi mới: thiếu workspace
+  → workspace đầu tiên; không có workspace → 400; không phải thành viên → 403. Assertion không giảm; thêm ca không có
+  workspace. Bộ cách ly workspace giữ nguyên và vẫn qua.
+
+## [113] Audiences: interest gợi ý (Madgicx Audience Studio "Discover Similar") — 2026-10-25
+
+- **Khi đồng bộ cấu trúc**, worker lấy tối đa 10 interest đang dùng nhiều nhất của tài khoản và hỏi Meta gợi ý
+  (`search?type=adinterestsuggestion`, chỉ đọc, quyền `ads_read`).
+  - Lưu tối đa 30 gợi ý chưa dùng làm entity `interest`: tên, nhóm, quy mô Meta ước tính, gợi ý từ interest nào.
+  - Lỗi / thiếu quyền thì bỏ qua, không chặn đồng bộ.
+  - Token chỉ giải mã trong worker (quy tắc 2), nên web chỉ đọc bản đã lưu.
+- **Workspace › Audiences** có thêm bảng **Interest gợi ý**: gộp trùng giữa tài khoản, sắp theo quy mô.
+
+**Test tự động:**
+- `reporting/audiences.test.ts`: gợi ý được lưu khi đồng bộ, bỏ interest đang dùng, sắp theo quy mô, ghi nguồn; buyer
+  không thấy.
+- E2E: bảng gợi ý trên trang Audiences.
+
 ## [112] Gap giao diện so với Madgicx: lọc giai đoạn phễu, Mở trong Ad Launcher, nhiều nhóm QC, tem tên — 2026-10-25
 
 Từ đối chiếu gap (`docs/research/madgicx-2026-10.md` mục 7).

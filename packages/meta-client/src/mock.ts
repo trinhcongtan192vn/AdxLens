@@ -400,6 +400,29 @@ export class MockMetaRead implements MetaReadApi {
     ];
   }
 
+  /** Gợi ý interest giả, xác định theo tên đầu vào (không gợi ý lại chính các tên đó). */
+  async suggestInterests(_t: string, names: string[]) {
+    const pool = [
+      { id: '6003020834693', name: 'Chăm sóc da', path: ['Sở thích', 'Làm đẹp'], size: 4_200_000 },
+      { id: '6003456388203', name: 'Trang điểm', path: ['Sở thích', 'Làm đẹp'], size: 3_100_000 },
+      { id: '6003348604581', name: 'Mua sắm trực tuyến', path: ['Hành vi mua sắm'], size: 9_800_000 },
+      { id: '6003107902433', name: 'Thời trang nữ', path: ['Sở thích', 'Thời trang'], size: 5_600_000 },
+      { id: '6003139266461', name: 'Mỹ phẩm', path: ['Sở thích', 'Làm đẹp'], size: 6_000_000 },
+    ];
+    return names.length
+      ? pool
+          .filter((p) => !names.includes(p.name))
+          .map((p) => ({
+            id: p.id,
+            name: p.name,
+            audience_size_lower_bound: Math.round(p.size * 0.9),
+            audience_size_upper_bound: Math.round(p.size * 1.1),
+            path: p.path,
+            topic: p.path[p.path.length - 1] ?? null,
+          }))
+      : [];
+  }
+
   async listCustomAudiences(_t: string, act: string) {
     const n = accountNum(act);
     return [

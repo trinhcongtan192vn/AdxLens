@@ -178,6 +178,27 @@ async function syncStructure(ctx: WorkspaceCtx, adAccountId: string, act: string
   const audienceTypes = audienceList ? new Map(audienceList.map((a) => [a.id, a.subtype ?? null])) : null;
   const base = { workspaceId: ctx.workspaceId, adAccountId };
   const money = (v: string | null | undefined) => (v ? toDecimal(v) : null);
+  // Madgicx Audience Studio "Discover Similar": gợi ý interest từ interest đang dùng nhiều nhất (chỉ đọc). Lỗi / thiếu
+  // quyền → bỏ qua, không chặn đồng bộ.
+  const usedInterests = new Map<string, { name: string; n: number }>();
+  for (const s of adsets) {
+    for (const f of s.targeting?.flexible_spec ?? []) {
+      for (const i of f.interests ?? []) {
+        const cur = usedInterests.get(i.id);
+        usedInterests.set(i.id, { name: i.name ?? cur?.name ?? i.id, n: (cur?.n ?? 0) + 1 });
+      }
+    }
+  }
+  const seedNames = [...usedInterests.values()]
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 10)
+    .map((x) => x.name);
+  const suggestions = seedNames.length
+    ? await meta.suggestInterests(token, seedNames).catch((e: unknown) => {
+        if (e instanceof MetaApiError && e.isTokenInvalid) throw e;
+        return [];
+      })
+    : [];
   const rows: (typeof entities.$inferInsert)[] = [
     ...campaigns.map((c) => ({
       ...base,
@@ -255,7 +276,39 @@ async function syncStructure(ctx: WorkspaceCtx, adAccountId: string, act: string
       learningStage: null,
       attrs: { subtype: a.subtype ?? null },
     })),
+    ...suggestions
+      .filter((x) => !usedInterests.has(x.id))
+      .slice(0, 30)
+      .map((x) => ({
+        ...base,
+        entityType: 'interest' as const,
+        metaId: x.id,
+        parentMetaId: null,
+        name: x.name,
+        status: null,
+        objective: null,
+        dailyBudget: null,
+        learningStage: null,
+        attrs: {
+          audience_low: x.audience_size_lower_bound ?? null,
+          audience_high: x.audience_size_upper_bound ?? null,
+          path: x.path ?? [],
+          from: seedNames.slice(0, 3),
+        },
+      })),
   ];
+  // Gợi ý interest là ảnh chụp mới nhất: xóa gợi ý cũ của tài khoản trước khi ghi lại.
+  if (suggestions.length || !seedNames.length) {
+    await ctx.db
+      .delete(entities)
+      .where(
+        and(
+          eq(entities.workspaceId, ctx.workspaceId),
+          eq(entities.adAccountId, adAccountId),
+          eq(entities.entityType, 'interest'),
+        ),
+      );
+  }
   for (let i = 0; i < rows.length; i += 500) {
     await ctx.db
       .insert(entities)

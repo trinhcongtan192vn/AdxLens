@@ -2,8 +2,11 @@ import { bigint, date, index, integer, jsonb, primaryKey, text, uuid } from 'dri
 import { analytics, app, createdAt, money, ratio, tsz, updatedAt } from './_common';
 import { adAccounts } from './connections';
 
-/** `audience`: custom audience của tài khoản (Audience Launcher, ADR-0023) — chỉ id, tên, loại. */
-export const ENTITY_TYPES = ['campaign', 'adset', 'ad', 'creative', 'audience'] as const;
+/**
+ * `audience`: custom audience của tài khoản (Audience Launcher, ADR-0023) — chỉ id, tên, loại. `interest`: gợi ý interest
+ * của Meta (Audience Studio) — chỉ id, tên, quy mô, đường dẫn.
+ */
+export const ENTITY_TYPES = ['campaign', 'adset', 'ad', 'creative', 'audience', 'interest'] as const;
 export type EntityType = (typeof ENTITY_TYPES)[number];
 
 /** Cấu trúc tài khoản (L3 5.2): campaign / ad set / ad / creative, cập nhật mỗi lần đồng bộ. */

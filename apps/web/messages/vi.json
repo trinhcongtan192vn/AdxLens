@@ -3578,7 +3578,16 @@
     "emptyTitle": "Chưa có dữ liệu audience",
     "emptyBody": "Danh sách audience có sau lần đồng bộ kế tiếp (đọc từ targeting của nhóm QC).",
     "note": "Số của mỗi audience = tổng các nhóm QC dùng audience đó; nhóm QC dùng nhiều audience được tính cho mỗi audience, nên tổng các dòng có thể lớn hơn tổng tài khoản.",
-    "noData": "{n} nhóm QC có chi tiêu chưa có thông tin audience (chờ đồng bộ)."
+    "noData": "{n} nhóm QC có chi tiêu chưa có thông tin audience (chờ đồng bộ).",
+    "discover": {
+      "title": "Interest gợi ý (Discover)",
+      "intro": "Meta gợi ý từ các interest bạn đang dùng nhiều nhất. Cập nhật mỗi lần đồng bộ.",
+      "interest": "Interest",
+      "path": "Nhóm",
+      "size": "Quy mô (Meta ước tính)",
+      "from": "Gợi ý từ",
+      "note": "Quy mô do Meta ước tính. Chưa dùng trong nhóm QC nào của bạn; thêm vào targeting trong Ads Manager."
+    }
   },
   "wsLauncher": {
     "subtitle": "Tạo quảng cáo từ creative tốt nhất và tạo lookalike — mỗi thao tác qua duyệt và Execution Gateway",

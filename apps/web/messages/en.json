@@ -3578,7 +3578,16 @@
     "emptyTitle": "No audience data yet",
     "emptyBody": "Audiences appear after the next sync (read from ad set targeting).",
     "note": "Each audience sums the ad sets using it; an ad set with several audiences counts for each, so rows can add up to more than the account total.",
-    "noData": "{n} ad sets with spend have no audience info yet (waiting for sync)."
+    "noData": "{n} ad sets with spend have no audience info yet (waiting for sync).",
+    "discover": {
+      "title": "Suggested interests (Discover)",
+      "intro": "Meta suggests these from the interests you use most. Refreshed on every sync.",
+      "interest": "Interest",
+      "path": "Category",
+      "size": "Size (Meta estimate)",
+      "from": "Suggested from",
+      "note": "Size is estimated by Meta. Not yet used in any of your ad sets; add it to targeting in Ads Manager."
+    }
   },
   "wsLauncher": {
     "subtitle": "Launch ads from your best creatives and create lookalikes — every step goes through approval and the Execution Gateway",

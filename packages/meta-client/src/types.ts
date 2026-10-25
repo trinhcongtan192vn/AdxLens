@@ -137,6 +137,17 @@ export const customAudienceSchema = z.object({
 });
 export type MetaCustomAudience = z.infer<typeof customAudienceSchema>;
 
+/** Gợi ý interest của Meta (`search?type=adinterestsuggestion`) — chỉ đọc. */
+export const interestSuggestionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  audience_size_lower_bound: z.coerce.number().nullish(),
+  audience_size_upper_bound: z.coerce.number().nullish(),
+  path: z.array(z.string()).nullish(),
+  topic: z.string().nullish(),
+});
+export type MetaInterestSuggestion = z.infer<typeof interestSuggestionSchema>;
+
 export type MetaCampaign = z.infer<typeof campaignSchema>;
 export type MetaAdSet = z.infer<typeof adsetSchema>;
 export type MetaAd = z.infer<typeof adSchema>;

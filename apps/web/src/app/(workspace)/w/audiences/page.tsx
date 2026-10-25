@@ -1,5 +1,5 @@
 import { getLocale, getTranslations } from 'next-intl/server';
-import { topAudiences } from '@adxlens/core/reporting';
+import { interestSuggestions, topAudiences } from '@adxlens/core/reporting';
 import { Badge, Card, EmptyState, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
 import { WsHeader } from '@/components/workspace/ws-header';
 import { formatMetric } from '@/lib/metric-format';
@@ -20,7 +20,11 @@ export default async function AudiencesPage() {
   const t = await getTranslations('wsAudiences');
   const tw = await getTranslations('ws');
   const locale = await getLocale();
-  const { rows, adsetsWithoutData } = await topAudiences(pc.ctx, scope.ids, scope.cur);
+  const [{ rows, adsetsWithoutData }, interests] = await Promise.all([
+    topAudiences(pc.ctx, scope.ids, scope.cur),
+    interestSuggestions(pc.ctx, scope.ids),
+  ]);
+  const n = new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 });
   const money = (v: string | null) => formatMetric('spend', v, scope.currency, locale);
   return (
     <>
@@ -75,6 +79,39 @@ export default async function AudiencesPage() {
           </p>
         </>
       )}
+      {interests.length ? (
+        <Card className="mt-4 overflow-x-auto p-0" data-testid="interest-suggestions">
+          <div className="px-4 pt-3">
+            <h2 className="text-h4 font-semibold text-fg">{t('discover.title')}</h2>
+            <p className="text-caption text-fg-tertiary">{t('discover.intro')}</p>
+          </div>
+          <Table className="mt-2">
+            <THead>
+              <tr>
+                <TH>{t('discover.interest')}</TH>
+                <TH>{t('discover.path')}</TH>
+                <TH numeric>{t('discover.size')}</TH>
+                <TH>{t('discover.from')}</TH>
+              </tr>
+            </THead>
+            <TBody>
+              {interests.map((x) => (
+                <TR key={x.metaId}>
+                  <TD>{x.name ?? x.metaId}</TD>
+                  <TD muted>{x.path.join(' › ') || '—'}</TD>
+                  <TD numeric>
+                    {x.audienceLow != null && x.audienceHigh != null
+                      ? `${n.format(x.audienceLow)} – ${n.format(x.audienceHigh)}`
+                      : '—'}
+                  </TD>
+                  <TD muted>{x.from.join(', ') || '—'}</TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+          <p className="px-4 py-2 text-caption text-fg-tertiary">{t('discover.note')}</p>
+        </Card>
+      ) : null}
     </>
   );
 }
