@@ -10,7 +10,13 @@ import {
 } from '@adxlens/core/connections';
 import { isEnabled } from '@adxlens/core/flags';
 import { MetaApiError } from '@adxlens/meta-client';
-import { adSetTargeting, PIXEL_EVENTS, type MetaWriteApi, type WritableObject } from '@adxlens/meta-client/write';
+import {
+  adSetTargeting,
+  CREATIVE_CTAS,
+  PIXEL_EVENTS,
+  type MetaWriteApi,
+  type WritableObject,
+} from '@adxlens/meta-client/write';
 import { notify } from '@adxlens/core/notification';
 import { openIncident } from '@adxlens/core/ops';
 import {
@@ -49,6 +55,7 @@ const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'campaign' | 'account'> =
   create_lookalike: 'account',
   create_custom_audience: 'account',
   create_adset: 'campaign',
+  create_creative: 'account',
   pause_campaign: 'campaign',
   resume_campaign: 'campaign',
   rename_ad: 'ad',
@@ -58,7 +65,13 @@ const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'campaign' | 'account'> =
   set_campaign_spend_cap: 'campaign',
 };
 
-const LAUNCH_TYPES = new Set<ActionType>(['create_ad', 'create_lookalike', 'create_custom_audience', 'create_adset']);
+const LAUNCH_TYPES = new Set<ActionType>([
+  'create_ad',
+  'create_lookalike',
+  'create_custom_audience',
+  'create_adset',
+  'create_creative',
+]);
 
 /** Hoàn tác được hay không (ADR-0009..0011). */
 export const UNDOABLE: Record<ActionType, boolean> = {
@@ -72,6 +85,7 @@ export const UNDOABLE: Record<ActionType, boolean> = {
   create_lookalike: false,
   create_custom_audience: false,
   create_adset: false,
+  create_creative: false,
   pause_campaign: true,
   resume_campaign: true,
   rename_ad: true,
@@ -491,7 +505,14 @@ function snapshot(obj: WritableObject): State {
   };
 }
 
-export type ExecuteDeps = { writer: MetaWriteApi; keys: TokenKeys; clock?: Clock; enqueue?: Enqueue };
+export type ExecuteDeps = {
+  writer: MetaWriteApi;
+  keys: TokenKeys;
+  clock?: Clock;
+  enqueue?: Enqueue;
+  /** ADR-0027: đọc ảnh bản nháp từ bucket private `creatives` (worker). */
+  readCreativeImage?: (path: string) => Promise<Uint8Array>;
+};
 
 /**
  * Worker thực thi (L3 7.4, ADR-0008): giành quyền chạy (pending → executing), kiểm lại an toàn + guardrails
@@ -793,6 +814,18 @@ type LaunchInput =
       ageMin: number;
       ageMax: number;
       audienceIds: string[];
+    }
+  | {
+      /** ADR-0027: creative ảnh đơn từ bản nháp (tải lên / AI), Page của workspace, link https. */
+      kind: 'create_creative';
+      adAccountId: string;
+      draftId: string;
+      pageId: string;
+      link: string;
+      message: string;
+      headline: string;
+      cta: (typeof CREATIVE_CTAS)[number];
+      name: string;
     };
 
 /**
@@ -841,6 +874,43 @@ export async function requestLaunch(
     targetName = adset.name;
     params = { creative_id: input.creativeId, name };
     parents = [input.adsetId, adset.parent, adset.campaign].filter((x): x is string => !!x);
+  } else if (input.kind === 'create_creative') {
+    const [draft] = await ctx.db
+      .select()
+      .from(schema.creativeDrafts)
+      .where(and(eq(schema.creativeDrafts.workspaceId, ctx.workspaceId), eq(schema.creativeDrafts.id, input.draftId)));
+    if (!draft || draft.adAccountId !== account.id) throw new AppError('NOT_FOUND', 'Không tìm thấy bản nháp');
+    if (draft.status !== 'ready' || !draft.storagePath) throw new AppError('CONFLICT', 'Ảnh chưa sẵn sàng');
+    const page = (await listAssets(ctx, 'page')).find((p) => p.metaId === input.pageId);
+    if (!page) throw new AppError('NOT_FOUND', 'Không tìm thấy Page');
+    let link: URL;
+    try {
+      link = new URL(input.link);
+    } catch {
+      throw new AppError('VALIDATION_FAILED', 'Link đích không hợp lệ');
+    }
+    if (link.protocol !== 'https:' || input.link.length > 1000) {
+      throw new AppError('VALIDATION_FAILED', 'Link đích phải là https');
+    }
+    if (!CREATIVE_CTAS.includes(input.cta)) throw new AppError('VALIDATION_FAILED', 'Nút CTA không hợp lệ');
+    const message = input.message.trim();
+    const headline = input.headline.trim();
+    if (!message || message.length > 2000 || !headline || headline.length > 255) {
+      throw new AppError('VALIDATION_FAILED', 'Nội dung chính (≤ 2000) và tiêu đề (≤ 255) là bắt buộc');
+    }
+    targetType = 'account';
+    targetMetaId = account.metaAccountId;
+    targetName = account.name;
+    params = {
+      draft_id: draft.id,
+      storage_path: draft.storagePath,
+      page_id: page.metaId,
+      link: input.link,
+      message,
+      headline,
+      cta: input.cta,
+      name,
+    };
   } else if (input.kind === 'create_adset') {
     const tpl = await targetEntity(ctx, account.id, 'adset', input.templateAdsetId);
     if (!tpl || !tpl.parent) throw new AppError('NOT_FOUND', 'Không tìm thấy nhóm QC mẫu');
@@ -955,9 +1025,11 @@ export async function requestLaunch(
   const after: Record<string, string | null> =
     input.kind === 'create_ad' || input.kind === 'create_adset'
       ? { created_status: 'PAUSED' }
-      : input.kind === 'create_custom_audience'
-        ? { created_subtype: input.source.type === 'pixel' ? 'WEBSITE' : 'ENGAGEMENT' }
-        : { created_subtype: 'LOOKALIKE' };
+      : input.kind === 'create_creative'
+        ? { created_creative: 'ready' }
+        : input.kind === 'create_custom_audience'
+          ? { created_subtype: input.source.type === 'pixel' ? 'WEBSITE' : 'ENGAGEMENT' }
+          : { created_subtype: 'LOOKALIKE' };
   const [row] = await ctx.db
     .insert(actions)
     .values({
@@ -1021,8 +1093,21 @@ async function executeLaunch(
     .where(and(eq(adAccounts.workspaceId, ctx.workspaceId), eq(adAccounts.id, account.id)));
   const act = acc!.metaAccountId;
   const done = (after: Record<string, string | null>) => ({ kind: 'success' as const, after });
+  // ADR-0027: đọc ảnh trước khi mở token (không có ảnh → không gọi Meta).
+  let image: Uint8Array | null = null;
+  if (a.actionType === 'create_creative') {
+    if (!deps.readCreativeImage)
+      return finish('failed', 'no_storage', { errorMessage: 'Worker chưa cấu hình lưu trữ ảnh' });
+    try {
+      image = await deps.readCreativeImage(a.params.storage_path!);
+    } catch {
+      return finish('failed', 'image_missing', { errorMessage: 'Không đọc được ảnh bản nháp' });
+    }
+  }
+  let imageUrl: string | null = null;
   const outcome = await withConnectionToken(ctx, account.connectionId, deps.keys, async (token) => {
     let createdId: string;
+    let imageHash = '';
     try {
       createdId =
         a.actionType === 'create_ad'
@@ -1033,47 +1118,65 @@ async function executeLaunch(
                 creativeId: a.params.creative_id!,
               })
             ).id
-          : a.actionType === 'create_adset'
-            ? (
-                await deps.writer.createAdSet(token, act, {
-                  name: a.params.name!,
-                  templateAdSetId: a.params.template_id!,
-                  dailyBudget: a.params.daily_budget || null,
-                  targeting: {
-                    countries: a.params.countries!.split(','),
-                    ageMin: Number(a.params.age_min),
-                    ageMax: Number(a.params.age_max),
-                    audienceIds: a.params.audience_ids ? a.params.audience_ids.split(',') : [],
-                  },
-                })
-              ).id
-            : a.actionType === 'create_custom_audience'
-              ? (
-                  await deps.writer.createCustomAudience(token, act, {
+          : a.actionType === 'create_creative'
+            ? await (async () => {
+                const img = await deps.writer.uploadAdImage(token, act, image!);
+                imageHash = img.hash;
+                imageUrl = img.url;
+                await log(ctx, a.id, 'image_uploaded', { hash: img.hash });
+                return (
+                  await deps.writer.createAdCreative(token, act, {
                     name: a.params.name!,
-                    source:
-                      a.params.source_type === 'pixel'
-                        ? {
-                            type: 'pixel',
-                            id: a.params.source_id!,
-                            event: a.params.event as 'all',
-                            days: Number(a.params.days),
-                          }
-                        : {
-                            type: a.params.source_type as 'page' | 'ig_business',
-                            id: a.params.source_id!,
-                            days: Number(a.params.days),
-                          },
-                  })
-                ).id
-              : (
-                  await deps.writer.createLookalike(token, act, {
-                    name: a.params.name!,
-                    originAudienceId: a.params.origin_audience_id!,
-                    country: a.params.country!,
-                    ratio: a.params.ratio!,
+                    pageId: a.params.page_id!,
+                    imageHash: img.hash,
+                    link: a.params.link!,
+                    message: a.params.message!,
+                    headline: a.params.headline!,
+                    cta: a.params.cta as (typeof CREATIVE_CTAS)[number],
                   })
                 ).id;
+              })()
+            : a.actionType === 'create_adset'
+              ? (
+                  await deps.writer.createAdSet(token, act, {
+                    name: a.params.name!,
+                    templateAdSetId: a.params.template_id!,
+                    dailyBudget: a.params.daily_budget || null,
+                    targeting: {
+                      countries: a.params.countries!.split(','),
+                      ageMin: Number(a.params.age_min),
+                      ageMax: Number(a.params.age_max),
+                      audienceIds: a.params.audience_ids ? a.params.audience_ids.split(',') : [],
+                    },
+                  })
+                ).id
+              : a.actionType === 'create_custom_audience'
+                ? (
+                    await deps.writer.createCustomAudience(token, act, {
+                      name: a.params.name!,
+                      source:
+                        a.params.source_type === 'pixel'
+                          ? {
+                              type: 'pixel',
+                              id: a.params.source_id!,
+                              event: a.params.event as 'all',
+                              days: Number(a.params.days),
+                            }
+                          : {
+                              type: a.params.source_type as 'page' | 'ig_business',
+                              id: a.params.source_id!,
+                              days: Number(a.params.days),
+                            },
+                    })
+                  ).id
+                : (
+                    await deps.writer.createLookalike(token, act, {
+                      name: a.params.name!,
+                      originAudienceId: a.params.origin_audience_id!,
+                      country: a.params.country!,
+                      ratio: a.params.ratio!,
+                    })
+                  ).id;
       await log(ctx, a.id, 'meta_call', { ok: true, created_id: createdId });
     } catch (err) {
       const e = scrub(err);
@@ -1081,6 +1184,18 @@ async function executeLaunch(
       return { kind: 'failed' as const, code: 'meta_error_check_manually', error: e };
     }
     try {
+      if (a.actionType === 'create_creative') {
+        const c = await deps.writer.getCreative(token, createdId);
+        const ok = c.id === createdId && (!c.image_hash || c.image_hash === imageHash);
+        await log(ctx, a.id, 'verify', { ok, after: { created_id: createdId } });
+        return ok
+          ? done({ created_id: createdId, created_creative: 'ready' })
+          : {
+              kind: 'failed' as const,
+              code: 'verify_mismatch',
+              error: { code: 'verify_mismatch', message: 'Creative mới không khớp ảnh đã tải lên' },
+            };
+      }
       if (a.actionType === 'create_adset') {
         const s = await deps.writer.getObject(token, createdId, 'adset');
         const ok = s.status === 'PAUSED' && s.campaign_id === a.params.campaign_id;
@@ -1122,6 +1237,21 @@ async function executeLaunch(
   const ts = clock.now();
   if (outcome.kind === 'success') {
     await recordSuccess(ctx, account.id);
+    // ADR-0027: creative mới vào bản chụp cấu trúc ngay (chọn được ở Ad Launcher trước lần đồng bộ kế tiếp).
+    if (a.actionType === 'create_creative' && outcome.after.created_id) {
+      await ctx.db
+        .insert(entities)
+        .values({
+          workspaceId: ctx.workspaceId,
+          adAccountId: account.id,
+          entityType: 'creative',
+          metaId: outcome.after.created_id,
+          name: a.params.name ?? null,
+          attrs: { image_url: imageUrl, thumbnail_url: imageUrl, page_id: a.params.page_id ?? null, from: 'adxlens' },
+          updatedAt: ts,
+        })
+        .onConflictDoNothing();
+    }
     const r = await finish('success', 'ok', {
       afterState: outcome.after,
       executedAt: ts,

@@ -27,6 +27,42 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [127] Creative mới: tải ảnh lên → tạo ad creative qua Execution Gateway (ADR-0027) — 2026-10-25
+
+Gap "Upload creative + AI tạo ảnh" (PM chọn; AI dùng khóa OpenAI của workspace). Bước 1: tải ảnh lên + tạo creative.
+Bước 2 (AI tạo ảnh) làm ở PR sau.
+
+- **ADR-0027** (chấp nhận).
+- **Bảng mới `app.creative_drafts`** (migration 0079–0080, RLS theo workspace): bản nháp ảnh theo tài khoản QC (tải lên /
+  AI), trạng thái `generating` / `ready` / `failed`.
+- **`/w/launcher` → thẻ "Creative mới":**
+  - tải ảnh PNG / JPEG / WebP ≤ 5MB (kiểm theo byte đầu file, không tin đuôi file); ảnh lưu ở bucket **private**
+    `creatives`, xem qua URL ký 1 giờ;
+  - chọn ảnh, Page (tài sản đã đồng bộ), link đích **https**, nội dung chính (≤ 2000), tiêu đề (≤ 255), nút CTA (danh
+    sách cố định), tên (tự gợi ý) → **Tạo creative** (duyệt tay).
+- **Worker:** tải ảnh từ bucket → `POST /act_x/adimages` (lấy hash) → `POST /act_x/adcreatives` (`object_story_spec`
+  ảnh + link + CTA) → đọc lại xác minh.
+  - Creative mới vào bản chụp cấu trúc ngay, nên chọn được ở Ad Launcher để tạo quảng cáo (luôn PAUSED).
+  - Worker không có kho ảnh / không đọc được ảnh → thất bại rõ ràng, không gọi Meta.
+- Creative không tự tiêu tiền; không hoàn tác. Rule tự động không bao giờ tạo (`no_auto_create`).
+
+**Vùng bảo vệ:**
+- `packages/db` (bảng + RLS);
+- `packages/core/execution`;
+- `packages/meta-client/write` (`uploadAdImage`, `createAdCreative`, `getCreative`).
+- **Cần PM chạy integration test trên staging trước khi merge `main`.**
+
+**Test tự động:**
+- `launch.test.ts`:
+  - nhận diện ảnh theo byte; bản nháp ngoài workspace bị chặn;
+  - link http / Page lạ / ảnh chưa sẵn sàng / thiếu nội dung → chặn;
+  - thiếu kho ảnh → `no_storage`, không gọi Meta;
+  - đủ luồng: upload ảnh → creative → vào bản chụp.
+- `api/v1/creative-drafts`:
+  - PNG vào bucket theo workspace; URL ký; file lạ / > 5MB → 422;
+  - cờ tắt / buyer chưa gán / workspace khác → 404.
+- Bộ cách ly: thêm `GET/POST /api/v1/creative-drafts`, `POST /api/v1/launcher/creatives`.
+
 ## [126] Launcher: tạo nhóm QC mới (luôn tạm dừng) từ nhóm QC mẫu (ADR-0026) — 2026-10-25
 
 Bước 2 của gap "Audience pixel + nhóm QC mới" (bước 1: [125]).

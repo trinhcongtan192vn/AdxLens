@@ -20,6 +20,7 @@ import { startBackfill, syncRange } from '@adxlens/core/ingestion';
 import { launcherSources } from '@adxlens/core/reporting';
 import { resolveActor } from '@adxlens/core/tenancy';
 import {
+  addCreativeDraft,
   checkGuardrails,
   executeAction,
   GUARDRAIL_DEFAULTS,
@@ -27,6 +28,7 @@ import {
   requestAutoAction,
   requestLaunch,
   saveGuardrails,
+  sniffCreativeImage,
 } from './index';
 
 const db = testDb();
@@ -411,5 +413,86 @@ describe('Audience Launcher (ADR-0023)', () => {
         dataDays: 30,
       }).map((v) => v.code),
     ).toContain('no_auto_create');
+  });
+
+  it('ADR-0027 creative mới: bản nháp → upload ảnh + tạo creative, vào bản chụp; nguồn / link sai bị chặn; thiếu kho ảnh → lỗi', async () => {
+    const s = await setup();
+    await refreshAssets(s.wctx, s.connectionId, 'mock-token', ['act_100000001'], {
+      meta: new MockMetaRead(clock.now),
+      clock,
+    });
+    const page = (await listAssets(s.wctx, 'page'))[0]!;
+    const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3]);
+    expect(sniffCreativeImage(PNG)).toBe('image/png');
+    expect(sniffCreativeImage(new TextEncoder().encode('<svg onload=x>'))).toBeNull();
+    await expect(
+      addCreativeDraft(s.ctx, { adAccountId: s.adAccountId, source: 'upload', storagePath: 'khac/anh.png' }),
+    ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+    const path = `${s.workspaceId}/${s.adAccountId}/a.png`;
+    const draft = await addCreativeDraft(s.ctx, {
+      adAccountId: s.adAccountId,
+      source: 'upload',
+      storagePath: path,
+      contentType: 'image/png',
+    });
+    const pending = await addCreativeDraft(s.ctx, {
+      adAccountId: s.adAccountId,
+      source: 'ai',
+      status: 'generating',
+      prompt: 'x',
+    });
+    const deps = { enqueue: s.enqueue, clock };
+    const base = {
+      kind: 'create_creative' as const,
+      adAccountId: s.adAccountId,
+      draftId: draft.id,
+      pageId: page.metaId,
+      link: 'https://shop.example.vn/sale',
+      message: 'Giảm 30% cuối tuần',
+      headline: 'Sale cuối tuần',
+      cta: 'SHOP_NOW' as const,
+      name: 'Sale T10 · ảnh 1',
+    };
+    await expect(requestLaunch(s.ctx, { ...base, link: 'http://shop.example.vn' }, deps)).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+    });
+    await expect(requestLaunch(s.ctx, { ...base, pageId: '999' }, deps)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(requestLaunch(s.ctx, { ...base, draftId: pending.id }, deps)).rejects.toMatchObject({
+      code: 'CONFLICT',
+    });
+    await expect(requestLaunch(s.ctx, { ...base, message: ' ' }, deps)).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+    });
+
+    // Worker chưa có kho ảnh → thất bại rõ ràng, không gọi Meta.
+    const noStore = await requestLaunch(s.ctx, base, deps);
+    expect(await s.run(noStore.id)).toMatchObject({ status: 'failed', resultCode: 'no_storage' });
+    expect(writer.calls).toEqual([]);
+
+    const a = await requestLaunch(s.ctx, { ...base, name: 'Sale T10 · ảnh 2' }, deps);
+    expect(a).toMatchObject({
+      actionType: 'create_creative',
+      targetType: 'account',
+      params: { storage_path: path, cta: 'SHOP_NOW' },
+    });
+    const r = await executeAction(s.wctx, a.id, {
+      writer,
+      keys: KEYS.keys,
+      clock,
+      enqueue: s.enqueue,
+      readCreativeImage: async (p) => {
+        expect(p).toBe(path);
+        return PNG;
+      },
+    });
+    expect(r).toEqual({ status: 'success', resultCode: 'ok' });
+    expect(writer.calls.map((c) => c.op)).toEqual(['uploadAdImage', 'createAdCreative']);
+    const [row] = await db.select().from(schema.actions).where(eq(schema.actions.id, a.id));
+    const created = row!.afterState!.created_id!;
+    const [e] = await db
+      .select({ name: schema.entities.name, attrs: schema.entities.attrs })
+      .from(schema.entities)
+      .where(and(eq(schema.entities.entityType, 'creative'), eq(schema.entities.metaId, created)));
+    expect(e).toMatchObject({ name: 'Sale T10 · ảnh 2', attrs: { from: 'adxlens' } });
   });
 });

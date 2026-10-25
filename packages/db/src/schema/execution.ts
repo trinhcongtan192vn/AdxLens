@@ -223,3 +223,35 @@ export const scheduledReverts = app.table(
   },
   (t) => [index().on(t.status, t.dueAt), index().on(t.workspaceId), uniqueIndex().on(t.actionId, t.kind)],
 );
+
+export const CREATIVE_DRAFT_SOURCES = ['upload', 'ai'] as const;
+export const CREATIVE_DRAFT_STATUSES = ['generating', 'ready', 'failed'] as const;
+
+/**
+ * ADR-0027: bản nháp ảnh cho creative mới (tải lên hoặc AI tạo bằng khóa OpenAI của workspace). Ảnh ở bucket private
+ * `creatives`; tạo creative trên Meta đi qua Execution Gateway (`create_creative`).
+ */
+export const creativeDrafts = app.table(
+  'creative_drafts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    adAccountId: uuid('ad_account_id')
+      .notNull()
+      .references(() => adAccounts.id, { onDelete: 'cascade' }),
+    source: text('source', { enum: CREATIVE_DRAFT_SOURCES }).notNull(),
+    status: text('status', { enum: CREATIVE_DRAFT_STATUSES }).notNull().default('ready'),
+    storagePath: text('storage_path'),
+    contentType: text('content_type'),
+    /** Prompt AI (nguồn `ai`). */
+    prompt: text('prompt'),
+    /** Mã lỗi (không nội dung từ nhà cung cấp). */
+    error: text('error'),
+    createdBy: uuid('created_by'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index().on(t.workspaceId, t.adAccountId, t.createdAt)],
+);

@@ -2369,7 +2369,8 @@
       "set_adset_bid": "Đổi giá thầu nhóm QC",
       "set_campaign_spend_cap": "Đổi giới hạn chi chiến dịch",
       "create_custom_audience": "Tạo custom audience",
-      "create_adset": "Tạo nhóm QC mới"
+      "create_adset": "Tạo nhóm QC mới",
+      "create_creative": "Tạo creative"
     },
     "state": {
       "ACTIVE": "Đang chạy",
@@ -2416,7 +2417,8 @@
     },
     "createdPaused": "Tạo mới · tạm dừng",
     "createdLookalike": "Tạo lookalike mới",
-    "createdAudience": "Đã tạo audience"
+    "createdAudience": "Đã tạo audience",
+    "createdCreative": "Đã tạo creative"
   },
   "killSwitch": {
     "title": "Kill switch",
@@ -3776,6 +3778,40 @@
       "note": "Cần duyệt; bật chạy là một hành động riêng.",
       "queued": "Đã gửi tạo nhóm QC. Theo dõi ở Nhật ký hành động.",
       "tooLarge": "Ngân sách vượt mức cho phép so với nhóm QC mẫu."
+    },
+    "creative": {
+      "title": "Creative mới",
+      "intro": "Tải ảnh lên làm creative ảnh đơn (Page, link, nội dung, tiêu đề, nút). Creative không tự chạy: tạo quảng cáo từ nó ở Ad Launcher phía trên (luôn tạm dừng).",
+      "noPage": "Chưa có Page nào được đồng bộ — kiểm tra quyền ở Kết nối.",
+      "upload": "Tải ảnh lên",
+      "uploadHint": "PNG, JPEG hoặc WebP, tối đa 5MB. Nên dùng 1080×1080.",
+      "uploadFailed": "Không tải được ảnh (chỉ PNG / JPEG / WebP ≤ 5MB).",
+      "drafts": "Ảnh đã có",
+      "generating": "Đang tạo",
+      "failed": "Lỗi",
+      "page": "Page",
+      "link": "Link đích (https)",
+      "headline": "Tiêu đề",
+      "cta": "Nút kêu gọi",
+      "message": "Nội dung chính",
+      "name": "Tên creative (để trống = tự đặt)",
+      "defaultName": "Creative ảnh",
+      "launch": "Tạo creative",
+      "note": "Cần duyệt; creative không tự tiêu tiền.",
+      "queued": "Đã gửi tạo creative. Theo dõi ở Nhật ký hành động; xong sẽ chọn được ở Ad Launcher.",
+      "ctas": {
+        "LEARN_MORE": "Tìm hiểu thêm",
+        "SHOP_NOW": "Mua ngay",
+        "SIGN_UP": "Đăng ký",
+        "CONTACT_US": "Liên hệ",
+        "ORDER_NOW": "Đặt hàng ngay",
+        "GET_OFFER": "Nhận ưu đãi",
+        "BOOK_TRAVEL": "Đặt ngay",
+        "SUBSCRIBE": "Theo dõi",
+        "APPLY_NOW": "Ứng tuyển ngay",
+        "DOWNLOAD": "Tải xuống",
+        "MESSAGE_PAGE": "Gửi tin nhắn"
+      }
     }
   }
 }

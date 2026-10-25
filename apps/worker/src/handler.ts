@@ -31,6 +31,9 @@ export type WorkerServices = {
   renderPdf: (url: string) => Promise<Uint8Array>;
   /** Lưu tệp báo cáo (bucket `reports`). */
   uploadReport: (path: string, bytes: Uint8Array) => Promise<void>;
+  /** ADR-0027: đọc / ghi ảnh bản nháp creative (bucket private `creatives`). */
+  readCreativeImage: (path: string) => Promise<Uint8Array>;
+  saveCreativeImage: (path: string, bytes: Uint8Array, contentType: string) => Promise<void>;
   /** Ký payload cho URL nội bộ (cùng secret với web). */
   sign: (payload: Record<string, unknown>, ttlSeconds: number) => string;
   /** Hoãn xử lý một queue trong `ms` (playbook `meta_rate_limited`). */

@@ -3,7 +3,8 @@ import { chromium, type Browser } from 'playwright';
 
 /** Lưu tệp vào Supabase Storage bằng service role (worker-render, L3 9). */
 export type WorkerStorage = {
-  upload(bucket: 'reports', path: string, bytes: Uint8Array, contentType: string): Promise<void>;
+  upload(bucket: 'reports' | 'creatives', path: string, bytes: Uint8Array, contentType: string): Promise<void>;
+  download(bucket: 'creatives', path: string): Promise<Uint8Array>;
 };
 
 export function supabaseWorkerStorage(url: string, serviceKey: string): WorkerStorage {
@@ -12,6 +13,11 @@ export function supabaseWorkerStorage(url: string, serviceKey: string): WorkerSt
     async upload(bucket, path, bytes, contentType) {
       const { error } = await sb.storage.from(bucket).upload(path, bytes, { contentType, upsert: true });
       if (error) throw new Error(`Upload thất bại: ${error.message}`);
+    },
+    async download(bucket, path) {
+      const { data, error } = await sb.storage.from(bucket).download(path);
+      if (error || !data) throw new Error('Không tải được tệp');
+      return new Uint8Array(await data.arrayBuffer());
     },
   };
 }

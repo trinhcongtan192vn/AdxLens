@@ -127,6 +127,8 @@ export const ACTION_TYPES = [
   'create_custom_audience',
   // ADR-0026: nhóm QC mới, luôn PAUSED (chỉ duyệt tay).
   'create_adset',
+  // ADR-0027: creative mới từ ảnh (chỉ duyệt tay).
+  'create_creative',
   // ADR-0015: trạng thái chiến dịch (chỉ duyệt tay).
   'pause_campaign',
   'resume_campaign',
@@ -207,7 +209,8 @@ export function checkGuardrails(input: {
       input.actionType === 'create_ad' ||
       input.actionType === 'create_lookalike' ||
       input.actionType === 'create_custom_audience' ||
-      input.actionType === 'create_adset'
+      input.actionType === 'create_adset' ||
+      input.actionType === 'create_creative'
     ) {
       v.push({ code: 'no_auto_create' });
     }

@@ -77,11 +77,16 @@ export const mockWriteState = {
   copies: new Map<string, MetaAdSet>(),
   /** ADR-0023: quảng cáo / audience tạo qua Meta giả. */
   createdAds: new Map<string, MetaAd & { act: string }>(),
+  /** ADR-0027: ảnh / creative tạo qua ghi giả. */
+  images: new Map<string, { act: string; size: number }>(),
+  createdCreatives: new Map<string, { id: string; name: string; image_hash: string; act: string }>(),
   createdAudiences: new Map<string, { id: string; name: string; subtype: string; act: string }>(),
   reset(): void {
     this.overrides.clear();
     this.copies.clear();
     this.createdAds.clear();
+    this.images.clear();
+    this.createdCreatives.clear();
     this.createdAudiences.clear();
   },
 };
