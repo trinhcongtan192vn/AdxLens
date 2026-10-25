@@ -257,6 +257,14 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     reason: 'Staff superadmin: ma trận gói, không thuộc workspace (ADR-0024, admin.test.ts)',
   },
   'GET /api/v1/admin/flags/history': { kind: 'exempt', reason: 'Staff: nhật ký cờ toàn app / gói (ADR-0024)' },
+  'POST /api/v1/admin/workspaces/[id]/delete': {
+    kind: 'exempt',
+    reason: 'Staff superadmin: xóa workspace từ trang admin (core/ops, admin-delete.test.ts)',
+  },
+  'POST /api/v1/admin/users/[id]/delete': {
+    kind: 'exempt',
+    reason: 'Staff superadmin: xóa tài khoản người dùng (core/ops, admin-delete.test.ts)',
+  },
   'GET /api/v1/notifications': { kind: 'workspace' },
   'POST /api/v1/notifications': { kind: 'workspace' },
   'POST /api/v1/notifications/[id]/read': {

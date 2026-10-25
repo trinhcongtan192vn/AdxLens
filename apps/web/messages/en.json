@@ -1584,6 +1584,20 @@
         "syncRuns": "Syncs",
         "incidents": "Incidents ({count})",
         "deletions": "Deletions ({count})"
+      },
+      "danger": {
+        "title": "Danger zone",
+        "workspaceBody": "Permanently delete the workspace and all its data: members, clients, Meta connections (tokens deleted), ad accounts, metrics, reports, actions. The admin audit log is kept.",
+        "deleteWorkspace": "Delete workspace",
+        "deleteWorkspaceTitle": "Delete workspace {workspace}",
+        "workspaceIntro": "This can't be undone. Members' login accounts remain (delete them separately if needed).",
+        "typeName": "Type the workspace name to confirm: {workspace}",
+        "workspaceDeleted": "Workspace deleted",
+        "deleteUser": "Delete account",
+        "deleteUserTitle": "Delete account {email}",
+        "deleteUserIntro": "Removes the user from every workspace and deletes their login. This can't be undone.",
+        "typeEmail": "Type the email to confirm: {email}",
+        "userDeleted": "Account deleted"
       }
     },
     "operations": {

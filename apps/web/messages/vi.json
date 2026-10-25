@@ -1584,6 +1584,20 @@
         "syncRuns": "Đồng bộ",
         "incidents": "Sự cố ({count})",
         "deletions": "Xóa dữ liệu ({count})"
+      },
+      "danger": {
+        "title": "Vùng nguy hiểm",
+        "workspaceBody": "Xóa vĩnh viễn workspace cùng toàn bộ dữ liệu: thành viên, Client, kết nối Meta (token bị xóa), tài khoản QC, số liệu, báo cáo, hành động. Nhật ký admin được giữ lại.",
+        "deleteWorkspace": "Xóa workspace",
+        "deleteWorkspaceTitle": "Xóa workspace {workspace}",
+        "workspaceIntro": "Không hoàn tác được. Tài khoản đăng nhập của thành viên vẫn còn (xóa riêng nếu cần).",
+        "typeName": "Gõ đúng tên workspace để xác nhận: {workspace}",
+        "workspaceDeleted": "Đã xóa workspace",
+        "deleteUser": "Xóa tài khoản",
+        "deleteUserTitle": "Xóa tài khoản {email}",
+        "deleteUserIntro": "Xóa người dùng khỏi mọi workspace và xóa tài khoản đăng nhập. Không hoàn tác được.",
+        "typeEmail": "Gõ đúng email để xác nhận: {email}",
+        "userDeleted": "Đã xóa tài khoản"
       }
     },
     "operations": {

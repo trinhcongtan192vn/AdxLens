@@ -155,6 +155,7 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
               <TH>{t('cols.email')}</TH>
               <TH>{t('cols.name')}</TH>
               <TH>{t('cols.role')}</TH>
+              {staff.role === 'superadmin' ? <TH /> : null}
             </tr>
           </THead>
           <TBody>
@@ -163,6 +164,23 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
                 <TD>{m.email}</TD>
                 <TD muted>{m.fullName ?? '—'}</TD>
                 <TD>{m.role}</TD>
+                {staff.role === 'superadmin' ? (
+                  <TD>
+                    {/* Owner: xóa workspace hoặc chuyển quyền Owner trước (core chặn lại ở server). */}
+                    {m.role === 'owner' ? null : (
+                      <AdminAction
+                        testId={`delete-user-${m.userId}`}
+                        kind="danger"
+                        label={t('danger.deleteUser')}
+                        title={t('danger.deleteUserTitle', { email: m.email })}
+                        intro={t('danger.deleteUserIntro')}
+                        path={`admin/users/${m.userId}/delete`}
+                        done={t('danger.userDeleted')}
+                        fields={[{ name: 'confirm', label: t('danger.typeEmail', { email: m.email }), kind: 'text' }]}
+                      />
+                    )}
+                  </TD>
+                ) : null}
               </TR>
             ))}
           </TBody>
@@ -312,6 +330,26 @@ export default async function AdminWorkspaceDetailPage({ params }: { params: Pro
           </ul>
         </Section>
       </div>
+
+      {staff.role === 'superadmin' ? (
+        <Card className="mb-4 border-danger" id="danger">
+          <CardHeader title={t('danger.title')} />
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-4">
+            <p className="max-w-2xl text-body text-fg-secondary">{t('danger.workspaceBody')}</p>
+            <AdminAction
+              testId="delete-workspace"
+              kind="danger"
+              label={t('danger.deleteWorkspace')}
+              title={t('danger.deleteWorkspaceTitle', { workspace: d.workspace.name })}
+              intro={t('danger.workspaceIntro')}
+              path={`admin/workspaces/${d.workspace.id}/delete`}
+              done={t('danger.workspaceDeleted')}
+              redirectTo="/admin/workspaces"
+              fields={[{ name: 'confirm', label: t('danger.typeName', { workspace: d.workspace.name }), kind: 'text' }]}
+            />
+          </div>
+        </Card>
+      ) : null}
     </>
   );
 }
