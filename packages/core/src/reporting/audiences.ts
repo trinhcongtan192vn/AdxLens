@@ -98,3 +98,42 @@ export async function topAudiences(
   });
   return { rows: rows.sort((a, b) => Number(b.spend) - Number(a.spend)), adsetsWithoutData: missing };
 }
+
+export type InterestSuggestion = {
+  metaId: string;
+  name: string | null;
+  path: string[];
+  audienceLow: number | null;
+  audienceHigh: number | null;
+  from: string[];
+};
+
+/**
+ * Interest gợi ý (Madgicx Audience Studio "Discover Similar"): worker lấy từ Meta khi đồng bộ cấu trúc, dựa trên các
+ * interest đang dùng nhiều nhất; ở đây chỉ đọc bản đã lưu. Bỏ interest đang dùng; gộp trùng giữa các tài khoản.
+ */
+export async function interestSuggestions(ctx: ActorCtx, adAccountIds: string[]): Promise<InterestSuggestion[]> {
+  const allowed = new Set((await listAdAccounts(ctx)).map((a) => a.id));
+  const ids = adAccountIds.filter((id) => allowed.has(id));
+  if (!ids.length) return [];
+  const rows = await ctx.db.execute<{
+    meta_id: string;
+    name: string | null;
+    attrs: { audience_low?: number | null; audience_high?: number | null; path?: string[]; from?: string[] };
+  }>(sql`
+    select meta_id, name, attrs from analytics.entities
+    where workspace_id = ${ctx.workspaceId} and ad_account_id in ${ids} and entity_type = 'interest'`);
+  const out = new Map<string, InterestSuggestion>();
+  for (const r of rows) {
+    if (out.has(r.meta_id)) continue;
+    out.set(r.meta_id, {
+      metaId: r.meta_id,
+      name: r.name,
+      path: r.attrs.path ?? [],
+      audienceLow: r.attrs.audience_low ?? null,
+      audienceHigh: r.attrs.audience_high ?? null,
+      from: r.attrs.from ?? [],
+    });
+  }
+  return [...out.values()].sort((a, b) => (b.audienceHigh ?? 0) - (a.audienceHigh ?? 0));
+}

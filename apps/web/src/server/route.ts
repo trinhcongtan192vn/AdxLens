@@ -4,7 +4,14 @@ import { z, ZodError } from 'zod';
 import type { Db } from '@adxlens/db';
 import { assertEnabled, type FlagKey } from '@adxlens/core/flags';
 import { AppError, isAppError, scopedLogger, type Actor, type Logger } from '@adxlens/core/shared';
-import { assertCan, isStaff, resolveActor, type Permission, type StaffInfo } from '@adxlens/core/tenancy';
+import {
+  assertCan,
+  isStaff,
+  listWorkspacesForUser,
+  resolveActor,
+  type Permission,
+  type StaffInfo,
+} from '@adxlens/core/tenancy';
 import type { EmailSender } from '@adxlens/core/notification';
 import type { Enqueue } from '@adxlens/jobs';
 import { getAuthUser, type AuthUser } from './auth';
@@ -145,7 +152,9 @@ export function route<
           ctx = { ...ctx, staff };
         }
         if (spec.auth === 'workspace') {
-          const wsId = requestedWorkspaceId(req);
+          // Không có header / cookie `ws` (chưa từng chọn workspace, trình duyệt mới): dùng cùng quy tắc với trang
+          // (`getPageContext`) — workspace đầu tiên của người dùng — để link điều hướng như Kết nối Meta không lỗi 400.
+          const wsId = requestedWorkspaceId(req) ?? (await listWorkspacesForUser(db, user.id))[0]?.id ?? null;
           if (!wsId || !UUID.safeParse(wsId).success) {
             throw new AppError('BAD_REQUEST', 'Thiếu workspace (header X-Workspace-Id)');
           }

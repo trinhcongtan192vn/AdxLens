@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { enableFlag } from '@adxlens/core/flags';
 import { AppError } from '@adxlens/core/shared';
-import { closeTestDb, seedMember, seedStaff, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
+import { closeTestDb, seedMember, seedStaff, seedUser, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
 import { asUser, call, installTestServer, uninstallTestServer } from '../test-utils';
 import { route } from './route';
 
@@ -27,11 +27,13 @@ describe('route()', () => {
     expect(r.body).toMatchObject({ error: { code: 'UNAUTHENTICATED' } });
   });
 
-  it('400 khi thiếu workspace; 403 khi không phải thành viên', async () => {
+  it('thiếu workspace → workspace đầu tiên của người dùng (như trang); không có workspace nào → 400; không phải thành viên → 403', async () => {
     const a = await seedWorkspace(db);
     const b = await seedWorkspace(db);
     const u = asUser(a.owner);
-    expect((await call(echo, { user: u, body: { n: 1 } })).status).toBe(400);
+    expect(await call(echo, { user: u, body: { n: 1 } })).toMatchObject({ status: 200, body: { ws: a.workspace.id } });
+    const lonely = await seedUser(db);
+    expect((await call(echo, { user: asUser(lonely), body: { n: 1 } })).status).toBe(400);
     expect((await call(echo, { user: u, workspaceId: b.workspace.id, body: { n: 1 } })).status).toBe(403);
   });
 

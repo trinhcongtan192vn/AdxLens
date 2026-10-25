@@ -5,7 +5,7 @@ import { MOCK_ACCOUNTS, MockMetaRead } from '@adxlens/meta-client/mock';
 import { importAccounts, keysFromEnv, saveConnection } from '@adxlens/core/connections';
 import { adsetAudiences, startBackfill, syncRange } from '@adxlens/core/ingestion';
 import { resolveActor } from '@adxlens/core/tenancy';
-import { entityMetricValues, topAudiences } from './index';
+import { entityMetricValues, interestSuggestions, topAudiences } from './index';
 
 const db = testDb();
 beforeEach(() => truncateAll(db));
@@ -63,8 +63,17 @@ describe('Top Audiences (Madgicx Audience Studio)', () => {
     expect(broad.adsets).toBeGreaterThan(0);
     expect(Number(broad.spend)).toBeLessThanOrEqual([...m.values()].reduce((s, v) => s + Number(v.spend ?? 0), 0));
 
+    // Interest gợi ý (Discover): lưu khi đồng bộ, bỏ interest đang dùng, sắp theo quy mô, ghi gợi ý từ đâu.
+    const sug = await interestSuggestions(ctx, [a!.adAccountId]);
+    expect(sug.length).toBeGreaterThan(0);
+    expect(sug.map((x) => x.metaId)).not.toContain('6003139266461');
+    expect(sug.map((x) => x.audienceHigh)).toEqual(
+      [...sug.map((x) => x.audienceHigh)].sort((p, q) => (q ?? 0) - (p ?? 0)),
+    );
+    expect(sug[0]!.from).toEqual(expect.arrayContaining(['Mỹ phẩm']));
     const buyer = await seedMember(db, workspace.id, 'buyer');
     const bctx = { ...ctx, actor: (await resolveActor(db, workspace.id, buyer.id))! };
     expect((await topAudiences(bctx, [a!.adAccountId], cur)).rows).toEqual([]);
+    expect(await interestSuggestions(bctx, [a!.adAccountId])).toEqual([]);
   });
 });
