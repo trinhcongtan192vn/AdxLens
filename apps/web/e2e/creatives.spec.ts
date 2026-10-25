@@ -36,6 +36,7 @@ test('P103 creative library → P104 so sánh (sau cờ Gợi ý)', async ({ pag
   await page.getByRole('link', { name: 'Creative', exact: true }).click();
   await expect(page).toHaveURL(/\/creatives/);
   await expect(page.getByTestId('creative-class').first()).toBeVisible();
+  await expect(page.getByTestId('creative-trend')).toContainText('Xu hướng theo tuần');
   const boxes = page.getByRole('checkbox');
   await boxes.nth(0).check();
   await boxes.nth(1).check();

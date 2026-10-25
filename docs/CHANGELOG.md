@@ -2,6 +2,19 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [099] Creative: xu hướng theo tuần của từng định dạng — 2026-10-25
+
+Theo Madgicx Creative Insights (weekly trend). Cảnh báo "thiếu định dạng" đã có từ 087.
+
+- Trang **Creative** (cổ điển) thêm khối **Xu hướng theo tuần**: 8 tuần gần nhất (thứ Hai → Chủ nhật), mỗi ô là tỷ trọng
+  chi tiêu của định dạng trong tuần, kèm ROAS khi có doanh thu.
+- `reporting.creativeFormatTrend`: chỉ tài khoản người dùng được xem; số do code tính.
+
+**Test tự động:**
+- `reporting/creative-trend.test.ts`: tuần tăng dần; tỷ trọng mỗi tuần ~100%; tổng chi = insight trong kỳ; buyer không
+  thấy gì.
+- E2E `creatives.spec.ts`: khối xu hướng hiện với dữ liệu mẫu.
+
 ## [098] Địa lý: Quốc gia · Tier 1–4 + khu vực / quốc gia đang lên — 2026-10-25
 
 Theo Madgicx Geo & Demo: International scaling và Trending countries.
