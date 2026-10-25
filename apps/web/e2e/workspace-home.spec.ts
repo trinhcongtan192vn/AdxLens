@@ -98,6 +98,12 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page.getByTestId('business-accounts')).toContainText('VND');
   await page.getByRole('link', { name: 'Audiences', exact: true }).click();
   await expect(page.getByTestId('audiences-table')).toContainText('Lookalike');
+  // Xuất PDF (in): khi in, sidebar + bộ chọn ẩn, dòng phạm vi / kỳ hiện.
+  await expect(page.getByTestId('ws-export-pdf')).toBeVisible();
+  await page.emulateMedia({ media: 'print' });
+  await expect(page.getByRole('navigation', { name: 'Điều hướng Workspace' })).toBeHidden();
+  await expect(page.getByText(/· 7 ngày/)).toBeVisible();
+  await page.emulateMedia({ media: 'screen' });
 
   // W9: AI Agents sau cờ P1 (workspace mới chưa bật) → không có menu, trang chặn ở server, không có ô hỏi nổi.
   await expect(page.getByRole('link', { name: 'AI Agents' })).toHaveCount(0);

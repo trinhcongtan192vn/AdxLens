@@ -2880,7 +2880,8 @@
       "last30": "30 days"
     },
     "coming": "Being built in this release.",
-    "switchNew": "New interface"
+    "switchNew": "New interface",
+    "exportPdf": "Export PDF"
   },
   "wsHome": {
     "greeting": "Hi {name}",

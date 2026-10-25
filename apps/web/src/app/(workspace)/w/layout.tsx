@@ -30,8 +30,10 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
         unread={extras.unread}
       />
       <div className="min-w-0 flex-1">
-        {extras.banner}
-        <main className="mx-auto max-w-[1400px] px-6 pb-20 pt-5">{children}</main>
+        <div className="print:hidden">{extras.banner}</div>
+        <main className="mx-auto max-w-[1400px] px-6 pb-20 pt-5 print:max-w-none print:px-0 print:pb-0">
+          {children}
+        </main>
       </div>
       {pc.flags.p1_recommendations ? <WsAskBar /> : null}
     </div>

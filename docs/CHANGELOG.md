@@ -2,6 +2,20 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [102] Xuất PDF các trang phân tích Workspace — 2026-10-25
+
+Theo Madgicx 360° Audit "Export PDF".
+
+- Mọi trang Workspace (Trang chủ, Business, Quảng cáo, Ads Manager, Phễu, Địa lý, Mở rộng, Audiences) có nút **Xuất PDF**.
+  Nút mở hộp in của trình duyệt (Lưu thành PDF).
+- Bản in:
+  - ẩn sidebar, ô hỏi AI, banner, bộ chọn phạm vi / kỳ và các nút;
+  - thêm một dòng ghi **phạm vi + kỳ** (vd. "Tất cả tài khoản (3) · 7 ngày");
+  - nội dung giãn hết khổ giấy.
+- Báo cáo gửi khách vẫn dùng PDF dựng ở worker như trước (có kiểm toàn vẹn).
+
+**Test tự động:** E2E `workspace-home.spec.ts`: nút Xuất PDF; ở chế độ in, sidebar ẩn và dòng phạm vi / kỳ hiện.
+
 ## [101] Báo cáo theo mẫu ngành: E-commerce / Lead gen — 2026-10-25
 
 Theo Madgicx One-Click Report templates.

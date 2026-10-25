@@ -2880,7 +2880,8 @@
       "last30": "30 ngày"
     },
     "coming": "Đang được dựng trong đợt này.",
-    "switchNew": "Giao diện mới"
+    "switchNew": "Giao diện mới",
+    "exportPdf": "Xuất PDF"
   },
   "wsHome": {
     "greeting": "Chào {name}",
