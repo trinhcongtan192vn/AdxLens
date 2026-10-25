@@ -3110,7 +3110,8 @@
         "retention": "Danh sách khách hàng",
         "unknown": "Chưa đọc được loại audience"
       },
-      "note": "Phân loại theo custom audience trong targeting của nhóm QC (đọc từ Meta khi đồng bộ)."
+      "note": "Phân loại theo custom audience trong targeting của nhóm QC (đọc từ Meta khi đồng bộ).",
+      "chartTitle": "Tỷ trọng chi tiêu × ROAS theo giai đoạn"
     },
     "landing": {
       "ads": "Quảng cáo",
