@@ -27,6 +27,38 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [133] Kết nối TikTok Shop: đơn / doanh thu người bán trên TikTok theo Client (ADR-0029 phụ lục) — 2026-10-25
+
+PM yêu cầu: "tích hợp thêm tiktok để lấy số khách bán trên tiktok". Đây là **TikTok Shop** (đơn bán), không phải TikTok
+Ads (PM: chưa cần).
+
+- **Kết nối → "Cửa hàng & Analytics" → Kết nối TikTok Shop:**
+  - chọn Client → người bán ủy quyền trên Seller Center;
+  - mỗi shop được ủy quyền thành một kết nối gắn Client đó;
+  - đồng bộ 30 ngày đơn; hằng ngày 3 ngày.
+- **`store-client` → TikTok Shop Open API 202309:**
+  - chữ ký HMAC, URL ủy quyền (service id), đổi / làm mới token, danh sách shop (vùng → tiền tệ, múi giờ);
+  - `orders/search` phân trang, bỏ đơn hủy, cộng tiền bằng decimal;
+  - lỗi token → `TIKTOK_HTTP_401` → "Cần kết nối lại".
+- **Token:**
+  - lưu refresh token + `shop_cipher` (mã hóa);
+  - refresh token dùng chung giữa các shop của một lần ủy quyền → khi TikTok đổi token, worker cập nhật mọi kết nối đang
+    giữ token cũ (không làm hỏng shop còn lại).
+- **Business Dashboard:** doanh thu / đơn / AOV / MER cộng chung web + sàn (Shopify, Shopee, TikTok Shop) của cùng Client.
+- **Env mới:** `TIKTOK_SHOP_APP_KEY`, `TIKTOK_SHOP_APP_SECRET`, `TIKTOK_SHOP_SERVICE_ID`.
+  - **Hướng dẫn tạo app:** `docs/runbooks/store-connectors.md` mục 5.
+
+**Vùng bảo vệ:** không đổi schema (`provider` thêm `tiktok_shop`, cột text); token dùng `core/connections/secrets`.
+
+**Test tự động:**
+- `store-client/tiktok-shop.test.ts`:
+  - chữ ký đúng chuẩn (bỏ sign / access_token, có body);
+  - phân trang `page_token`; bỏ đơn hủy; ngày theo múi giờ vùng; lỗi token → 401.
+- `core/stores/stores.test.ts`:
+  - 2 shop chung token: đồng bộ shop 1 xoay token thì shop 2 vẫn đồng bộ được;
+  - doanh thu cộng chung; token không plaintext.
+- Bộ cách ly: `GET /api/v1/stores/tiktok/authorize`, `callback`.
+
 ## [132] Kết nối Shopee: doanh thu / số đơn theo Client ở Business Dashboard (ADR-0029 phụ lục) — 2026-10-25
 
 PM yêu cầu: sau Facebook, Google, Shopify thì tích hợp luôn Shopee (TikTok Ads chưa cần).

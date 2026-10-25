@@ -1,4 +1,4 @@
-# Runbook: kết nối cửa hàng / analytics (Shopify, Shopee, GA4)
+# Runbook: kết nối cửa hàng / analytics (Shopify, Shopee, TikTok Shop, GA4)
 
 ADR-0029. Dùng khi cài AdxLens ở môi trường mới (local / staging) hoặc khi PM tạo app thật.
 
@@ -128,4 +128,40 @@ STORE_MOCK=0
 | `?store=failed` | Sai Partner ID / Key, hoặc sai host (sandbox ↔ live). |
 | "Cần kết nối lại" | Refresh token hết hạn (worker không chạy hơn 30 ngày) hoặc chủ shop hủy ủy quyền (Shopee yêu cầu ủy quyền lại mỗi năm). Kết nối lại. |
 | Doanh thu khác Seller Center | AdxLens tính theo ngày tạo đơn, bỏ đơn hủy, dùng `total_amount` (tổng người mua trả). |
+
+## 5. TikTok Shop (Partner Center)
+
+### 5.1 Tạo app
+1. Đăng ký tại <https://partner.tiktokshop.com> (TikTok Shop Partner Center) với tư cách **App developer**, xác minh doanh
+   nghiệp.
+2. **App & Service → Create app:** loại **Custom app** (dùng cho các shop của khách agency), chọn thị trường **Vietnam**.
+3. **Redirect URL:** `https://<tên miền app>/api/v1/stores/tiktok/callback`.
+4. **API scopes:** chỉ cần **Order Information** (đọc đơn) và **Shop Authorized Information** (danh sách shop).
+5. Lấy **App key**, **App secret** và **Service ID** (trong trang app, dùng cho link ủy quyền).
+
+### 5.2 Điền vào `.env.local`
+```
+TIKTOK_SHOP_APP_KEY=<App key>
+TIKTOK_SHOP_APP_SECRET=<App secret>
+TIKTOK_SHOP_SERVICE_ID=<Service ID>
+STORE_MOCK=0
+```
+
+### 5.3 Kết nối
+1. Ở **Kết nối → Cửa hàng & Analytics**, chọn Client → **Kết nối TikTok Shop**.
+2. Người bán đăng nhập **TikTok Shop Seller Center** → **Authorize**.
+3. Mỗi shop được ủy quyền thành một kết nối gắn Client đã chọn. Lưu refresh token + `shop_cipher` (mã hóa), đồng bộ 30
+   ngày đơn; hằng ngày 3 ngày gần nhất.
+   - Các shop của cùng một lần ủy quyền dùng chung refresh token. Khi TikTok đổi token, AdxLens cập nhật mọi shop liên
+     quan.
+4. Business Dashboard: đơn và doanh thu TikTok Shop **cộng chung** với Shopify / Shopee của cùng Client (cùng tiền tệ).
+
+### 5.4 Sự cố
+| Hiện tượng | Nguyên nhân / cách xử lý |
+|---|---|
+| `?store=invalid` | Phiên quá 10 phút hoặc Redirect URL không khớp. |
+| `?store=failed` | Sai App key / secret, hoặc app chưa được duyệt cho thị trường của shop. |
+| `?store=noaccess` | Người bán không chọn shop nào khi ủy quyền. |
+| "Cần kết nối lại" | Người bán hủy ủy quyền hoặc refresh token hết hạn. Kết nối lại. |
+| Doanh thu khác Seller Center | AdxLens tính theo ngày tạo đơn (múi giờ vùng), bỏ đơn hủy, dùng `payment.total_amount`. |
 

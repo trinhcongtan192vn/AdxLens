@@ -3852,11 +3852,12 @@
   },
   "stores": {
     "title": "Stores & Analytics",
-    "intro": "Connect the client's Shopify, Shopee and Google Analytics 4 so the Business Dashboard shows real store revenue, orders, AOV, MER (store revenue / ad spend), sessions and conversions. Each store / property maps to one client; AdxLens only reads.",
+    "intro": "Connect the client's Shopify, Shopee, TikTok Shop and Google Analytics 4 so the Business Dashboard shows real store revenue, orders, AOV, MER (store revenue / ad spend), sessions and conversions. Each store / property maps to one client; AdxLens only reads.",
     "providers": {
       "shopify": "Shopify",
       "ga4": "Google Analytics 4",
-      "shopee": "Shopee"
+      "shopee": "Shopee",
+      "tiktok_shop": "TikTok Shop"
     },
     "cols": {
       "store": "Store",
@@ -3873,7 +3874,7 @@
     "connectShopify": "Connect Shopify",
     "notConfigured": "The Shopify app is not configured (see docs/runbooks/store-connectors.md).",
     "tiles": {
-      "revenue": "Store revenue (Shopify + Shopee)",
+      "revenue": "Store revenue (web + marketplaces)",
       "orders": "Orders",
       "aov": "Store AOV",
       "mer": "MER",
@@ -3886,6 +3887,9 @@
     "ga4NotConfigured": "Google OAuth for GA4 is not configured (see docs/runbooks/store-connectors.md).",
     "shopeeHint": "The shop owner signs in to Shopee Seller and picks the shop to authorize.",
     "connectShopee": "Connect Shopee",
-    "shopeeNotConfigured": "The Shopee Open Platform app is not configured (see docs/runbooks/store-connectors.md)."
+    "shopeeNotConfigured": "The Shopee Open Platform app is not configured (see docs/runbooks/store-connectors.md).",
+    "tiktokHint": "The seller signs in to TikTok Shop Seller Center and authorizes; every shop selected maps to this client.",
+    "connectTiktok": "Connect TikTok Shop",
+    "tiktokNotConfigured": "The TikTok Shop app is not configured (see docs/runbooks/store-connectors.md)."
   }
 }

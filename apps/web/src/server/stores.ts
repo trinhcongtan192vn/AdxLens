@@ -1,6 +1,6 @@
 import 'server-only';
 import { getEnv } from '@adxlens/config/env';
-import { googleAnalyticsApi, shopeeApi, shopifyApi } from '@adxlens/core/stores';
+import { googleAnalyticsApi, shopeeApi, shopifyApi, tiktokShopApi } from '@adxlens/core/stores';
 import type { RequestLike } from '@/lib/public-url';
 import { appBaseUrl } from './public-base';
 
@@ -67,4 +67,26 @@ export function shopee() {
 /** Địa chỉ Shopee chuyển về (khai báo Redirect URL Domain trong app Shopee, xem runbook). */
 export function shopeeRedirectUri(req: RequestLike): string {
   return `${appBaseUrl(req)}/api/v1/stores/shopee/callback`;
+}
+
+/** ADR-0029 (phụ lục TikTok Shop): cấu hình app Partner Center; `enabled` = có app (hoặc STORE_MOCK). */
+export function tiktokConfig() {
+  const env = getEnv();
+  return {
+    mock: env.STORE_MOCK,
+    enabled:
+      env.STORE_MOCK || Boolean(env.TIKTOK_SHOP_APP_KEY && env.TIKTOK_SHOP_APP_SECRET && env.TIKTOK_SHOP_SERVICE_ID),
+    appKey: env.TIKTOK_SHOP_APP_KEY,
+    appSecret: env.TIKTOK_SHOP_APP_SECRET,
+    serviceId: env.TIKTOK_SHOP_SERVICE_ID,
+  };
+}
+
+export function tiktok() {
+  return tiktokShopApi(tiktokConfig());
+}
+
+/** Redirect URL khai báo trong app TikTok Shop (xem runbook). */
+export function tiktokRedirectUri(req: RequestLike): string {
+  return `${appBaseUrl(req)}/api/v1/stores/tiktok/callback`;
 }

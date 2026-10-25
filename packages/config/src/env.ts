@@ -59,6 +59,10 @@ export const storeEnvSchema = z.object({
   SHOPEE_PARTNER_KEY: optionalString,
   /** Live: https://partner.shopeemobile.com · Sandbox: https://partner.test-stable.shopeemobile.com */
   SHOPEE_HOST: z.string().url().default('https://partner.shopeemobile.com'),
+  TIKTOK_SHOP_APP_KEY: optionalString,
+  TIKTOK_SHOP_APP_SECRET: optionalString,
+  /** Service ID của app trong TikTok Shop Partner Center (dùng cho URL ủy quyền). */
+  TIKTOK_SHOP_SERVICE_ID: optionalString,
   GOOGLE_CLIENT_ID: optionalString,
   GOOGLE_CLIENT_SECRET: optionalString,
   /** Chỉ local/test: Shopify / GA4 giả (không cần app thật). */

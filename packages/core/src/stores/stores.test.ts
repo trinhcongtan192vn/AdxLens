@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { schema } from '@adxlens/db';
 import { closeTestDb, seedClient, seedMember, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
-import { MockGoogleAnalytics, MockShopee, MockShopify } from '@adxlens/store-client/mock';
+import { MockGoogleAnalytics, MockShopee, MockShopify, MockTiktokShop } from '@adxlens/store-client/mock';
 import { keysFromEnv } from '@adxlens/core/connections';
 import { resolveActor } from '@adxlens/core/tenancy';
 import {
@@ -13,6 +13,7 @@ import {
   runStoreSync,
   saveStoreConnection,
   storeSummary,
+  tiktokTokenPayload,
 } from './index';
 
 const db = testDb();
@@ -174,5 +175,38 @@ describe('kết nối cửa hàng (ADR-0029)', () => {
       status: 'failed',
       code: 'SHOPEE_HTTP_401',
     });
+  });
+
+  it('TikTok Shop: 2 shop chung refresh token — đồng bộ shop 1 xoay token thì shop 2 vẫn đồng bộ được; doanh thu cộng chung', async () => {
+    const s = await setup();
+    const tt = (id: string, cipher: string) => ({
+      ...shop(s.client.id),
+      provider: 'tiktok_shop' as const,
+      externalId: id,
+      name: `TikTok ${id}`,
+      token: tiktokTokenPayload('tts_refresh_goc', cipher),
+    });
+    const a = await saveStoreConnection(s.ctx, tt('7001', 'ROW_c1'), KEYS);
+    const b = await saveStoreConnection(s.ctx, tt('7002', 'ROW_c2'), KEYS);
+    // Mock giống TikTok thật: token cũ hết hiệu lực sau khi làm mới.
+    const used = new Set<string>();
+    const api = new MockTiktokShop();
+    const tiktok = {
+      ...api,
+      refresh: async (r: string) => {
+        if (used.has(r)) throw new Error('TIKTOK_HTTP_401');
+        used.add(r);
+        return api.refresh(r);
+      },
+      dailyOrders: api.dailyOrders.bind(api),
+    };
+    const deps = { shopify: new MockShopify(), tiktok: tiktok as never, keys: KEYS.keys, clock };
+    expect((await runStoreSync(s.wctx, { connectionId: a.id, days: 30 }, deps)).status).toBe('ok');
+    expect((await runStoreSync(s.wctx, { connectionId: b.id, days: 30 }, deps)).status).toBe('ok');
+    const sum = await storeSummary(s.wctx, [s.client.id], { from: '2026-10-22', to: '2026-10-24' });
+    // 2 shop × 3 ngày × 15 đơn × 120.000đ.
+    expect(sum).toMatchObject({ connections: 2, orders: 90, revenue: '10800000.0000' });
+    const [raw] = await db.select().from(schema.storeConnections).where(eq(schema.storeConnections.id, b.id));
+    expect(raw!.tokenCiphertext!.toString('utf8')).not.toContain('ROW_c2');
   });
 });

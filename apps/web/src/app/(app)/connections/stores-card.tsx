@@ -10,7 +10,7 @@ import { api } from '@/lib/api-client';
 
 type Item = {
   id: string;
-  provider: 'shopify' | 'ga4' | 'shopee';
+  provider: 'shopify' | 'ga4' | 'shopee' | 'tiktok_shop';
   name: string;
   externalId: string;
   clientId: string | null;
@@ -29,12 +29,14 @@ export function StoresCard({
   shopifyEnabled,
   ga4Enabled,
   shopeeEnabled,
+  tiktokEnabled,
 }: {
   items: Item[];
   clients: { id: string; name: string }[];
   shopifyEnabled: boolean;
   ga4Enabled: boolean;
   shopeeEnabled: boolean;
+  tiktokEnabled: boolean;
 }) {
   const t = useTranslations('stores');
   const format = useFormatter();
@@ -47,6 +49,11 @@ export function StoresCard({
   const connectShopee = () => {
     const q = new URLSearchParams(shopeeClient ? { client_id: shopeeClient } : {});
     window.location.href = `/api/v1/stores/shopee/authorize?${q.toString()}`;
+  };
+  const [tiktokClient, setTiktokClient] = useState(clients[0]?.id ?? '');
+  const connectTiktok = () => {
+    const q = new URLSearchParams(tiktokClient ? { client_id: tiktokClient } : {});
+    window.location.href = `/api/v1/stores/tiktok/authorize?${q.toString()}`;
   };
   const connectGa4 = () => {
     const q = new URLSearchParams({ property_id: property.trim(), ...(gaClient ? { client_id: gaClient } : {}) });
@@ -180,6 +187,27 @@ export function StoresCard({
         </div>
       ) : (
         <p className="mt-2 text-small text-fg-tertiary">{t('shopeeNotConfigured')}</p>
+      )}
+
+      {tiktokEnabled ? (
+        <div className="mt-4 grid max-w-3xl gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <p className="self-center text-small text-fg-secondary">{t('tiktokHint')}</p>
+          <Field label={t('cols.client')} htmlFor="st-tiktok-client">
+            <Select id="st-tiktok-client" value={tiktokClient} onChange={(e) => setTiktokClient(e.target.value)}>
+              <option value="">{t('noClient')}</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button kind="secondary" size="m" onClick={connectTiktok} data-testid="connect-tiktok">
+            {t('connectTiktok')}
+          </Button>
+        </div>
+      ) : (
+        <p className="mt-2 text-small text-fg-tertiary">{t('tiktokNotConfigured')}</p>
       )}
 
       {ga4Enabled ? (

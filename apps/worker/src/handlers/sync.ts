@@ -26,11 +26,11 @@ export const syncHandlers: HandlerMap = {
     ),
 
   // ADR-0029: số liệu cửa hàng / GA4 của một kết nối (token giải mã trong runStoreSync, chỉ ở worker).
-  'sync:store_daily': async (p, { db, shopify, ga4, shopee, tokenKeys, log }) => {
+  'sync:store_daily': async (p, { db, shopify, ga4, shopee, tiktok, tokenKeys, log }) => {
     const r = await runStoreSync(
       { db, workspaceId: p.workspaceId },
       { connectionId: p.connectionId, days: p.days },
-      { shopify, ga4, shopee, keys: tokenKeys },
+      { shopify, ga4, shopee, tiktok, keys: tokenKeys },
     );
     log.info({ connection_id: p.connectionId, ...r }, 'store sync');
     return r;
