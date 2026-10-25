@@ -71,6 +71,8 @@ export const AD_ACCOUNT_FIELDS = 'id,name,currency,timezone_name,account_status'
 const CAMPAIGN_FIELDS = 'id,name,status,effective_status,objective,daily_budget,lifetime_budget';
 const ADSET_FIELDS =
   'id,name,campaign_id,status,effective_status,optimization_goal,daily_budget,lifetime_budget,learning_stage_info,promoted_object,targeting{custom_audiences,excluded_custom_audiences,flexible_spec}';
+/** Cạnh ảnh thumbnail xin từ Meta (px). */
+export const THUMB_PX = 720;
 const AD_FIELDS = 'id,name,adset_id,campaign_id,status,effective_status,creative{id}';
 const CREATIVE_FIELDS =
   'id,name,thumbnail_url,image_url,object_type,video_id,body,title,link_url,call_to_action_type,object_story_spec{link_data{link,message,name},video_data{message,title,call_to_action}}';
@@ -114,9 +116,16 @@ export class HttpMetaRead implements MetaReadApi {
   }
 
   listCreatives(token: string, act: string) {
-    return this.http.paginate(`${act}/adcreatives`, token, { fields: CREATIVE_FIELDS, limit: 500 }, creativeSchema, {
-      account: act,
-    });
+    // `thumbnail_url` mặc định của Meta chỉ ~64×64 (ảnh mờ khi hiện thẻ lớn) → xin bản 720×720.
+    return this.http.paginate(
+      `${act}/adcreatives`,
+      token,
+      { fields: CREATIVE_FIELDS, limit: 500, thumbnail_width: THUMB_PX, thumbnail_height: THUMB_PX },
+      creativeSchema,
+      {
+        account: act,
+      },
+    );
   }
 
   listPages(token: string) {

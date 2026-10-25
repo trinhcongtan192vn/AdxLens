@@ -102,7 +102,7 @@ export async function topAds(
       group by ad_account_id, meta_id
       having sum(spend) > 0
     )
-    select m.meta_id, ad.name, cr.attrs->>'thumbnail_url' as thumbnail_url, m.spend::text, m.results::text,
+    select m.meta_id, ad.name, coalesce(nullif(cr.attrs->>'image_url', ''), cr.attrs->>'thumbnail_url') as thumbnail_url, m.spend::text, m.results::text,
       m.link_clicks::text, m.impressions::text
     from m
     left join analytics.entities ad on ad.workspace_id = ${ctx.workspaceId} and ad.ad_account_id = m.ad_account_id

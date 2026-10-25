@@ -64,7 +64,7 @@ export async function adsGrid(
     }>(sql`
       select a.ad_account_id, a.meta_id, a.name, a.status, a.parent_meta_id as adset_id,
         a.attrs->>'campaign_id' as campaign_id, c.name as campaign_name, c.objective,
-        cr.attrs->>'thumbnail_url' as thumbnail_url, cr.attrs->>'format' as object_type, cr.attrs->>'video_id' as video_id
+        coalesce(nullif(cr.attrs->>'image_url', ''), cr.attrs->>'thumbnail_url') as thumbnail_url, cr.attrs->>'format' as object_type, cr.attrs->>'video_id' as video_id
       from analytics.entities a
       left join analytics.entities c
         on c.workspace_id = a.workspace_id and c.ad_account_id = a.ad_account_id and c.entity_type = 'campaign'

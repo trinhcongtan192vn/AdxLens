@@ -214,7 +214,7 @@ async function loadCreatives(ctx: ActorCtx, adAccountId: string) {
     format: string | null;
     ad_count: string;
   }>(sql`
-    select c.meta_id, c.name, c.attrs->>'thumbnail_url' as thumbnail_url, c.attrs->>'format' as format,
+    select c.meta_id, c.name, coalesce(nullif(c.attrs->>'image_url', ''), c.attrs->>'thumbnail_url') as thumbnail_url, c.attrs->>'format' as format,
       (select count(*) from analytics.entities a where a.workspace_id = c.workspace_id
         and a.ad_account_id = c.ad_account_id and a.entity_type = 'ad' and a.attrs->>'creative_id' = c.meta_id)::text as ad_count
     from analytics.entities c
