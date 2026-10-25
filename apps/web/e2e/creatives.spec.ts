@@ -55,6 +55,20 @@ test('P103 creative library → P104 so sánh (sau cờ Gợi ý)', async ({ pag
   // ADR-0022: Tích hợp có khóa AI tự mang + connector MCP; luồng OAuth đầy đủ như claude.ai.
   await page.goto('/settings/integrations');
   await expect(page.getByTestId('llm-key-card')).toContainText('Mô hình AI của workspace');
+  // ADR-0030: hai khóa cùng lúc → mỗi việc có model; tạo ảnh mặc định OpenAI.
+  const card = page.getByTestId('llm-key-card');
+  for (const [provider, key] of [
+    ['anthropic', 'sk-ant-api03-e2eAAAAAAAAAAAAAAAAAAAAAAAAant'],
+    ['openai', 'sk-proj-e2eBBBBBBBBBBBBBBBBBBBBBBBBBoai'],
+  ] as const) {
+    await card.getByRole('combobox', { name: 'Nhà cung cấp', exact: true }).selectOption(provider);
+    await card.getByLabel('Khóa API').fill(key);
+    await card.getByRole('button', { name: 'Lưu khóa' }).click();
+    await expect(page.getByText('Đã lưu khóa AI').first()).toBeVisible();
+  }
+  await expect(page.getByTestId('llm-key-current')).toHaveCount(2);
+  await expect(page.getByTestId('llm-route-image')).toContainText('gpt-image-1');
+  await expect(page.getByTestId('llm-route-analysis')).toContainText('Mặc định');
   const mcpUrl = (await page.getByTestId('mcp-connector-url').textContent())!.trim();
   const origin = new URL(mcpUrl).origin;
   const meta = await (await page.request.get(`${origin}/.well-known/oauth-authorization-server`)).json();
