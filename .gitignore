@@ -12,3 +12,5 @@ coverage/
 *.tsbuildinfo
 test-results/
 playwright-report/
+.adxlens-preview.json
+.adxlens-preview-app.json

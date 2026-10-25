@@ -2,6 +2,28 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [109] Bản xem trước cho PM: test trước khi đưa lên team — 2026-10-25
+
+PM yêu cầu được test trước khi đưa lên team.
+
+- **`Xem-truoc-AdxLens.cmd`** (`pnpm preview`): chạy `origin/develop` mới nhất ở **http://localhost:3100**, thư mục riêng
+  `…-preview`, chỉ máy PM thấy.
+- **`Cap-nhat-AdxLens.cmd`** nay đưa lên team **đúng commit PM đã xem trước** (`.adxlens-preview.json`). Chưa xem trước thì
+  lấy develop mới nhất như cũ.
+- **An toàn khi chung database với bản team:**
+  - Redis db 1 riêng;
+  - worker xem trước không đăng ký job định kỳ (`WORKER_SCHEDULES=off`, biến mới): không chạy đồng bộ hằng ngày, rule,
+    lịch hẹn → không làm trùng / không ghi Meta 2 lần.
+- Runbook: `docs/runbooks/dev-public.md` mục 8.
+
+**Test tự động:** `scripts/lib/team.test.ts`:
+- thư mục / cổng / env xem trước;
+- chọn commit đưa lên team: commit đã xem trước nếu còn trong develop, không thì develop mới nhất.
+
+**PM kiểm tra:**
+1. Double-click `Xem-truoc-AdxLens.cmd` → mở http://localhost:3100 → test.
+2. Bấm `Cap-nhat-AdxLens.cmd` → cửa sổ ghi "Đưa lên team bản anh đã xem trước: …".
+
 ## [108] Tạm dừng / bật lại chiến dịch ngay trong AdxLens (ADR-0015) — 2026-10-25
 
 PM duyệt ngày 25/10/2026 ("Phần có ghi Meta thì cũng làm luôn"). ADR-0015 chuyển sang **Chấp nhận**.

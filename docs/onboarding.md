@@ -216,3 +216,6 @@ Mọi thao tác ghi đều bắt buộc lý do và ghi vào `/admin/audit`. Tạ
 - **Tactic tự động** (ADR-0021): mẫu Stop-loss / Surf / Sunsetting / Revive trong `execution/rules.ts`; lịch hẹn ở
   `execution/reverts.ts` (bảng `scheduled_reverts`, job `maintenance:reverts_tick` 15 phút). Guardrail `no_auto_resume`
   giữ nguyên: bật lại luôn là đề xuất + Hoàn tác.
+- **Bản xem trước của PM** (`Xem-truoc-AdxLens.cmd`, cổng 3100): worker chạy với `WORKER_SCHEDULES=off`. Job định kỳ mới
+  phải đăng ký trong `apps/worker/src/schedules.ts` để bản xem trước tự bỏ qua. Không bao giờ chạy job định kỳ ở chỗ
+  khác.
