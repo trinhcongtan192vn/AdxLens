@@ -2456,7 +2456,8 @@
       "match": "Kiểu khớp điều kiện",
       "floorDailyBudget": "Sàn ngân sách ngày (đơn vị nhỏ nhất)",
       "revertRestore": "Trả ngân sách cũ lúc",
-      "revertSuggest": "Đề xuất bật lại lúc"
+      "revertSuggest": "Đề xuất bật lại lúc",
+      "valueKind": "Kiểu giá trị"
     },
     "levels": {
       "ad": "quảng cáo",
@@ -2476,7 +2477,11 @@
       "results_1d": "Kết quả (ngày gần nhất)",
       "link_clicks_1d": "Click (ngày gần nhất)",
       "cpa_1d": "Chi phí / kết quả (ngày gần nhất)",
-      "roas_1d": "ROAS (ngày gần nhất)"
+      "roas_1d": "ROAS (ngày gần nhất)",
+      "spend_3d": "Chi tiêu (3 ngày)",
+      "results_3d": "Kết quả (3 ngày)",
+      "cpa_3d": "Chi phí / kết quả (3 ngày)",
+      "roas_3d": "ROAS (3 ngày)"
     },
     "remove": "Bỏ",
     "addCondition": "+ Thêm điều kiện",
@@ -2608,7 +2613,12 @@
         "5": "T6",
         "6": "T7"
       }
-    }
+    },
+    "valueKind": {
+      "fixed": "(cố định)",
+      "account_avg": "× trung bình tài khoản"
+    },
+    "pauseAtFloor": "Đã ở sàn mà vẫn kém → tạm dừng hẳn nhóm QC"
   },
   "entity": {
     "title": "Chi tiết đối tượng",

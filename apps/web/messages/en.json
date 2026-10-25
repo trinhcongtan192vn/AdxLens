@@ -2456,7 +2456,8 @@
       "match": "Condition matching",
       "floorDailyBudget": "Daily budget floor (minor units)",
       "revertRestore": "Restore old budget at",
-      "revertSuggest": "Suggest turning back on at"
+      "revertSuggest": "Suggest turning back on at",
+      "valueKind": "Value type"
     },
     "levels": {
       "ad": "ad",
@@ -2476,7 +2477,11 @@
       "results_1d": "Results (latest day)",
       "link_clicks_1d": "Clicks (latest day)",
       "cpa_1d": "Cost per result (latest day)",
-      "roas_1d": "ROAS (latest day)"
+      "roas_1d": "ROAS (latest day)",
+      "spend_3d": "Spend (3 days)",
+      "results_3d": "Results (3 days)",
+      "cpa_3d": "Cost per result (3 days)",
+      "roas_3d": "ROAS (3 days)"
     },
     "remove": "Remove",
     "addCondition": "+ Add condition",
@@ -2608,7 +2613,12 @@
         "5": "Fri",
         "6": "Sat"
       }
-    }
+    },
+    "valueKind": {
+      "fixed": "(fixed)",
+      "account_avg": "× account average"
+    },
+    "pauseAtFloor": "Already at the floor and still poor → pause the ad set"
   },
   "entity": {
     "title": "Object detail",

@@ -2,6 +2,31 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [110] Rule: giá trị động so với trung bình tài khoản, cửa sổ 3 ngày, Sunsetting dừng hẳn — 2026-10-25
+
+Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md` mục 7): Strategies và Sunsetting.
+
+- **Giá trị động**:
+  - với chỉ số dạng tỷ lệ (CPA, CTR, tần suất, ROAS ở cửa sổ 7 / 3 / 1 ngày), chọn **"× trung bình tài khoản"**, vd.
+    "ROAS 3 ngày ≥ 1,2 × trung bình tài khoản";
+  - mốc tính trên cả tài khoản trong cùng cửa sổ, cả trong backtest từng ngày;
+  - thiếu mốc thì không khớp.
+- **Cửa sổ 3 ngày**: chi tiêu, kết quả, CPA, ROAS 3 ngày gần nhất.
+- **Sunsetting dừng hẳn**: tùy chọn "Đã ở sàn mà vẫn kém → tạm dừng hẳn nhóm QC". Tạm dừng là hành động auto được phép;
+  guardrail không đổi.
+- `entityMetrics` gom phần tính chỉ số vào `deriveMetrics`, dùng chung cho đối tượng và tài khoản (`accountBaseline`).
+
+**Vùng bảo vệ:** `packages/core/execution/rules.ts`. Không đổi guardrails / gateway. ADR-0021 cập nhật mục 6.
+
+**Test tự động:**
+- `execution/rule-insights.test.ts`:
+  - mốc tài khoản;
+  - ngưỡng = hệ số × mốc, thiếu mốc thì không khớp;
+  - 3 ngày = tổng 3 ngày;
+  - backtest dùng mốc từng ngày;
+  - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
+- `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
+
 ## [109] Bản xem trước cho PM: test trước khi đưa lên team — 2026-10-25
 
 PM yêu cầu được test trước khi đưa lên team.
