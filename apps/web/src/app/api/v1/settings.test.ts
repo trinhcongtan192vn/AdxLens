@@ -185,20 +185,11 @@ describe('workspace (ST01, A07)', () => {
     );
   });
 
-  it('xóa workspace: chỉ owner, phải nhập đúng tên', async () => {
-    const { ws, owner } = await setup();
-    const m = asUser(await seedMember(db, ws, 'manager'));
-    expect(
-      (await call(wsRoute.DELETE, { user: m, workspaceId: ws, body: { confirmName: 'Agency Sao Mai' } })).status,
-    ).toBe(403);
-    expect((await call(wsRoute.DELETE, { user: owner, workspaceId: ws, body: { confirmName: 'sai' } })).status).toBe(
-      422,
-    );
-    expect(
-      (await call(wsRoute.DELETE, { user: owner, workspaceId: ws, body: { confirmName: 'Agency Sao Mai' } })).status,
-    ).toBe(204);
+  it('không có API xóa workspace cho người dùng (PM 25/10/2026: xóa dữ liệu qua Ngắt kết nối)', async () => {
+    const { ws } = await setup();
+    expect('DELETE' in wsRoute).toBe(false);
     const left = await db.execute(sql`select id from app.workspaces where id = ${ws}`);
-    expect(left).toHaveLength(0);
+    expect(left).toHaveLength(1);
   });
 });
 

@@ -398,13 +398,7 @@
     "reportFromEmail": "Report sender email",
     "domainUnverified": "The domain {domain} has no verified SPF/DKIM yet, so report emails may land in spam.",
     "invalid": "Invalid value.",
-    "save": "Save changes",
-    "deleteTitle": "Delete workspace",
-    "deleteBody": "Permanently delete the workspace with its connections, reports and data. Public reports will stop working. Only the owner can do this.",
-    "deleteButton": "Delete workspace…",
-    "deleteConfirmHint": "Type \"{name}\" exactly to confirm. This cannot be undone.",
-    "deleteConfirmLabel": "Workspace name",
-    "deleteForever": "Delete permanently"
+    "save": "Save changes"
   },
   "settingsMembers": {
     "title": "Members & roles",
@@ -571,6 +565,15 @@
       "catalog": "{n} catalogs",
       "missing": "Not granted: {scopes}. Some features (default Page / pixel, leads, catalogs) will have no data.",
       "regrant": "Reconnect to grant"
+    },
+    "resync": {
+      "button": "Re-sync",
+      "aria": "Re-sync {name}",
+      "title": "Re-sync {name}",
+      "body": "Fetch metrics from Meta again for the chosen range (up to yesterday in the account's time zone), then reconcile with Ads Manager again. Today's numbers keep updating automatically.",
+      "days": "{n} days",
+      "confirm": "Run sync",
+      "queued": "Re-sync queued; numbers update in a few minutes."
     }
   },
   "placeholder": {

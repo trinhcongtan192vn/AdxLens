@@ -130,7 +130,13 @@ export async function startManualSync(
   ctx: WorkspaceCtx,
   adAccountId: string,
   range: { from: string; to: string },
-  deps: { enqueue: Enqueue; clock?: Clock; delayMs?: number },
+  deps: {
+    enqueue: Enqueue;
+    clock?: Clock;
+    delayMs?: number;
+    /** Người bấm (khách / staff): đang có lần đồng bộ chưa xong → 409. Playbook tự động (có độ trễ) không chặn. */
+    rejectIfBusy?: boolean;
+  },
 ): Promise<{ syncRunId: string }> {
   const account = await getAccount(ctx, adAccountId);
   const yesterday = addDays(localDate((deps.clock ?? systemClock).now(), account.timezone), -1);
@@ -139,6 +145,22 @@ export async function startManualSync(
   if (days < 1 || days > MAX_RESYNC_DAYS) {
     throw new AppError('VALIDATION_FAILED', 'Khoảng ngày không hợp lệ', { max_days: MAX_RESYNC_DAYS });
   }
+  // Đang có lần đồng bộ chưa xong (backfill / chạy lại) → không xếp thêm (tránh bấm trùng tốn quota Meta).
+  const [busy] = !deps.rejectIfBusy
+    ? []
+    : await ctx.db
+        .select({ id: syncRuns.id })
+        .from(syncRuns)
+        .where(
+          and(
+            eq(syncRuns.workspaceId, ctx.workspaceId),
+            eq(syncRuns.adAccountId, adAccountId),
+            inArray(syncRuns.kind, ['backfill', 'manual']),
+            inArray(syncRuns.status, ['queued', 'running']),
+          ),
+        )
+        .limit(1);
+  if (busy) throw new AppError('CONFLICT', 'Tài khoản đang đồng bộ, thử lại sau khi xong', { sync_run_id: busy.id });
   const batches = planBatches(range.from, to);
   const [run] = await ctx.db
     .insert(syncRuns)

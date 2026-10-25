@@ -3,7 +3,6 @@ import { getWorkspace } from '@adxlens/core/tenancy';
 import { deps } from '@/server/deps';
 import { requirePermission } from '@/server/guards';
 import { getPageContext } from '@/server/page-context';
-import { DeleteWorkspace } from './delete';
 import { WorkspaceForm } from './form';
 
 export async function generateMetadata() {
@@ -11,7 +10,7 @@ export async function generateMetadata() {
   return { title: t('workspace') };
 }
 
-/** ST01 Workspace (chỉ owner). */
+/** ST01 Workspace (chỉ owner). Không có xóa workspace (PM 25/10/2026): xóa dữ liệu qua Ngắt kết nối. */
 export default async function WorkspaceSettingsPage() {
   const pc = await getPageContext();
   requirePermission(pc, 'workspace.manage');
@@ -29,7 +28,6 @@ export default async function WorkspaceSettingsPage() {
           logoUrl: ws.brand.logo_path ? storage.publicUrl('brand', ws.brand.logo_path) : null,
         }}
       />
-      <DeleteWorkspace name={ws.name} />
     </div>
   );
 }

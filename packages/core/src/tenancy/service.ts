@@ -152,27 +152,6 @@ export async function updateWorkspace(
   return ws;
 }
 
-/**
- * Xóa vĩnh viễn workspace (ST01 "Xóa workspace", chỉ owner). Phải nhập đúng tên để xác nhận. Dữ
- * liệu con xóa theo khóa ngoại cascade; token Meta bị xóa cùng kết nối (feature 014 bổ sung thu hồi).
- */
-export async function deleteWorkspace(ctx: ActorCtx, confirmName: string): Promise<void> {
-  if (ctx.actor.role !== 'owner') throw forbidden('Chỉ Owner xóa được workspace');
-  const ws = await getWorkspace(ctx);
-  if (confirmName.trim() !== ws.name) {
-    throw new AppError('VALIDATION_FAILED', 'Tên xác nhận không khớp', { field: 'confirmName' });
-  }
-  for (const hook of workspaceDeleteHooks) await hook(ctx.db, ctx.workspaceId);
-  await ctx.db.delete(workspaces).where(eq(workspaces.id, ctx.workspaceId));
-}
-
-type DeleteHook = (db: DbOrTx, workspaceId: string) => Promise<void>;
-const workspaceDeleteHooks: DeleteHook[] = [];
-/** Module khác đăng ký việc dọn dẹp trước khi xóa workspace (ví dụ thu hồi token Meta). */
-export function onWorkspaceDelete(hook: DeleteHook): void {
-  workspaceDeleteHooks.push(hook);
-}
-
 // ---------- Thành viên ----------
 
 export async function listMembers(ctx: ActorCtx) {

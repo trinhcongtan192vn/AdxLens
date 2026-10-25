@@ -10,7 +10,10 @@ export const POST = route({
   permission: 'connections.manage',
   body: z.object({ from: isoDate, to: isoDate }),
   handler: async (ctx, { body }) => {
-    const r = await startManualSync(ctx, uuidParam(ctx, 'id'), body, { enqueue: ctx.enqueue });
+    const r = await startManualSync(ctx, uuidParam(ctx, 'id'), body, {
+      enqueue: ctx.enqueue,
+      rejectIfBusy: true,
+    });
     return { sync_run_id: r.syncRunId };
   },
 });

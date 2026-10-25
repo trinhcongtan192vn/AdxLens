@@ -43,7 +43,6 @@ export const ROUTE_PROBES: Record<string, Probe> = {
   },
   'GET /api/v1/workspace': { kind: 'workspace' },
   'PATCH /api/v1/workspace': { kind: 'workspace', body: () => ({ name: 'Alpha 2' }) },
-  'DELETE /api/v1/workspace': { kind: 'workspace', body: () => ({ confirmName: 'sai-ten' }) },
   'POST /api/v1/workspace/logo': { kind: 'workspace' },
   'GET /api/v1/members': { kind: 'workspace' },
   'POST /api/v1/members/invitations': {

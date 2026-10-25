@@ -76,7 +76,7 @@ export async function adminResync(
   if (a.connectionStatus === 'revoked') throw new AppError('CONFLICT', 'Kết nối đã ngắt, dữ liệu đang chờ xóa');
   const yesterday = addDays(localDate((deps.clock ?? systemClock).now(), a.timezone), -1);
   const range = { from: addDays(yesterday, -(input.days - 1)), to: yesterday };
-  const r = await startManualSync({ db, workspaceId: a.workspaceId }, a.id, range, deps);
+  const r = await startManualSync({ db, workspaceId: a.workspaceId }, a.id, range, { ...deps, rejectIfBusy: true });
   await recordAdminAction(db, {
     actorUserId: actor.userId,
     action: 'sync.resync',

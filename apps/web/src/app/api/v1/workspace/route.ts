@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { deleteWorkspace, getWorkspace, updateWorkspace } from '@adxlens/core/tenancy';
+import { getWorkspace, updateWorkspace } from '@adxlens/core/tenancy';
 import { canonicalTimeZone, isValidTimeZone } from '@/lib/timezone';
-import { route, WORKSPACE_COOKIE } from '@/server/route';
+import { route } from '@/server/route';
 
 /** Thông tin workspace hiện tại (ST01). */
 export const GET = route({
@@ -44,17 +44,5 @@ export const PATCH = route({
       ...(body.reportFromEmail !== undefined ? { reportFromEmail: body.reportFromEmail } : {}),
     });
     return { id: ws.id, name: ws.name };
-  },
-});
-
-/** ST01 "Xóa workspace": chỉ owner, nhập đúng tên để xác nhận. */
-export const DELETE = route({
-  auth: 'workspace',
-  body: z.object({ confirmName: z.string() }),
-  handler: async (ctx, { body }) => {
-    await deleteWorkspace(ctx, body.confirmName);
-    const res = new Response(null, { status: 204 });
-    res.headers.append('set-cookie', `${WORKSPACE_COOKIE}=; Path=/; Max-Age=0`);
-    return res;
   },
 });
