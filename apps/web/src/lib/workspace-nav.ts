@@ -4,6 +4,8 @@ import { visibleNav, type NavKey } from './nav';
 
 /** Khung Workspace — khung duy nhất của app (bố cục theo Madgicx Workspace). */
 export const W_SCOPE_COOKIE = 'w_scope';
+/** Client đang xem ("all" hoặc id Client) — chọn ở MỘT nơi: đầu sidebar. Lọc mọi trang Workspace. */
+export const W_CLIENT_COOKIE = 'w_client';
 /** 4 KPI trang chủ, nối bằng dấu chấm. */
 export const W_KPIS_COOKIE = 'w_kpis';
 export const W_BASE = '/w';

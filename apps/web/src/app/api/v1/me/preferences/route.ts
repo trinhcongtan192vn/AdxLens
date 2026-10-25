@@ -3,7 +3,7 @@ import { METRIC_KEYS } from '@adxlens/core/reporting';
 import { updateProfile } from '@adxlens/core/tenancy';
 import { LOCALE_COOKIE, LOCALES } from '@/i18n/locale';
 import { PERIOD_COOKIE, PERIODS } from '@/lib/period';
-import { W_KPIS_COOKIE, W_SCOPE_COOKIE } from '@/lib/workspace-nav';
+import { W_CLIENT_COOKIE, W_KPIS_COOKIE, W_SCOPE_COOKIE } from '@/lib/workspace-nav';
 import { json, route } from '@/server/route';
 
 /** Ngôn ngữ giao diện (lưu vào hồ sơ + cookie), kỳ thời gian toàn cục (cookie, Gate 1 #2), phạm vi Workspace. */
@@ -14,6 +14,8 @@ export const POST = route({
     period: z.enum(PERIODS).optional(),
     /** Giao diện Workspace: phạm vi "all" (agency) hoặc id tài khoản QC — server kiểm lại khi đọc. */
     wScope: z.union([z.literal('all'), z.string().uuid()]).optional(),
+    /** Client đang xem ("all" hoặc id Client) — server kiểm lại khi đọc. Đổi Client thì bỏ chọn tài khoản. */
+    wClient: z.union([z.literal('all'), z.string().uuid()]).optional(),
     /** 4 KPI trang chủ Workspace ("Customize" như Madgicx). */
     wKpis: z.array(z.enum(METRIC_KEYS)).length(4).optional(),
   }),
@@ -25,6 +27,10 @@ export const POST = route({
     if (body.locale) cookie(LOCALE_COOKIE, body.locale);
     if (body.period) cookie(PERIOD_COOKIE, body.period);
     if (body.wScope) cookie(W_SCOPE_COOKIE, body.wScope);
+    if (body.wClient) {
+      cookie(W_CLIENT_COOKIE, body.wClient);
+      if (!body.wScope) cookie(W_SCOPE_COOKIE, 'all');
+    }
     if (body.wKpis) cookie(W_KPIS_COOKIE, body.wKpis.join('.'));
     return res;
   },

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clientNav, clientScopeOf, isClientNavActive } from './scope';
+import { clientNav, clientScopeOf, isClientNavActive, pickScope } from './scope';
 
 const C = '11111111-1111-4111-8111-111111111111';
 const A = '22222222-2222-4222-8222-222222222222';
@@ -31,5 +31,20 @@ describe('phạm vi Client (G3)', () => {
     expect(isClientNavActive(campaigns, `/clients/${C}`, '?tab=ads')).toBe(false);
     const weekly = all.find((i) => i.key === 'weeklyActions')!;
     expect(isClientNavActive(weekly, '/weekly-actions', `?client=${C}`)).toBe(true);
+  });
+});
+
+describe('pickScope (một bộ chọn Client)', () => {
+  const acc = (id: string, clientId: string | null, currency = 'VND') => ({ id, clientId, currency });
+  const all = [acc('a1', 'c1'), acc('a2', 'c1', 'USD'), acc('a3', 'c2'), acc('a4', null)];
+  it('Client đang xem lọc tài khoản; Client lạ → mọi Client', () => {
+    expect(pickScope(all, 'c1', undefined).accounts.map((a) => a.id)).toEqual(['a1', 'a2']);
+    expect(pickScope(all, 'c9', undefined)).toMatchObject({ clientId: null });
+    expect(pickScope(all, undefined, undefined).accounts).toHaveLength(4);
+  });
+  it('tài khoản chọn phải thuộc Client đang xem; không chọn → cùng tiền tệ chính', () => {
+    expect(pickScope(all, 'c1', 'a3').selected).toBeNull();
+    expect(pickScope(all, 'c1', 'a2').inScope.map((a) => a.id)).toEqual(['a2']);
+    expect(pickScope(all, undefined, undefined).inScope.map((a) => a.id)).toEqual(['a1', 'a3', 'a4']);
   });
 });

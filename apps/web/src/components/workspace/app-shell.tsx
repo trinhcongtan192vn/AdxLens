@@ -1,10 +1,9 @@
 import { cookies } from 'next/headers';
 import type { ReactNode } from 'react';
-import { listAdAccounts } from '@adxlens/core/connections';
 import { listClients } from '@adxlens/core/tenancy';
 import { toLocale } from '@/i18n/locale';
 import { PERIOD_COOKIE, toPeriod } from '@/lib/period';
-import { shellNav } from '@/lib/workspace-nav';
+import { shellNav, W_CLIENT_COOKIE } from '@/lib/workspace-nav';
 import { getPageContext } from '@/server/page-context';
 import { getShellExtras } from '@/server/shell-extras';
 import { PageToolbar } from './page-toolbar';
@@ -20,10 +19,10 @@ export async function AppShell({ children }: { children: ReactNode }) {
   const store = await cookies();
   const extras = await getShellExtras(pc);
   const manage = pc.actor.role !== 'buyer';
-  // G3: danh sách khách cho bộ chọn + bản đồ tài khoản → Client để biết đang ở phạm vi khách nào.
-  const [clientRows, accountRows] = await Promise.all([listClients(pc.ctx), listAdAccounts(pc.ctx)]);
-  const clients = clientRows.filter((c) => !c.archivedAt).map((c) => ({ id: c.id, name: c.name }));
-  const accountClients = Object.fromEntries(accountRows.map((a) => [a.id, a.clientId]));
+  // Client đang xem: chọn ở MỘT nơi (đầu sidebar), lưu cookie, lọc mọi trang Workspace.
+  const clients = (await listClients(pc.ctx)).filter((c) => !c.archivedAt).map((c) => ({ id: c.id, name: c.name }));
+  const wantClient = store.get(W_CLIENT_COOKIE)?.value;
+  const currentClient = clients.some((c) => c.id === wantClient) ? wantClient! : null;
   const { groups, bottom } = shellNav(pc.flags, pc.actor.role);
   const create: CreateItem[] = [
     ...(pc.flags.p0_reports && manage ? [{ key: 'report' as const, href: '/reports/new' }] : []),
@@ -44,9 +43,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
         locale={toLocale(pc.user.locale)}
         unread={extras.unread}
         clients={clients}
-        accountClients={accountClients}
-        flags={pc.flags}
-        role={pc.actor.role}
+        currentClient={currentClient}
       />
       <div className="min-w-0 flex-1">
         <div className="print:hidden">{extras.banner}</div>

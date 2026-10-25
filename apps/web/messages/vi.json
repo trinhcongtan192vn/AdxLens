@@ -72,8 +72,8 @@
       "vi": "Tiếng Việt",
       "en": "English"
     },
-    "switchClient": "Chọn khách",
-    "allClients": "Tất cả khách",
+    "switchClient": "Client đang xem",
+    "allClients": "Tất cả client",
     "clientFilter": "Khách: {name}",
     "clearClient": "Xem mọi khách",
     "workspaces": "Workspace của bạn",
@@ -3022,7 +3022,7 @@
       }
     },
     "scope": {
-      "label": "Phạm vi",
+      "label": "Tài khoản QC",
       "agency": "Tất cả tài khoản ({n})"
     },
     "periodLabel": "Kỳ",

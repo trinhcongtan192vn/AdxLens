@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  ArrowLeft,
   Bell,
   Bot,
   Briefcase,
@@ -11,35 +10,29 @@ import {
   ChevronsUpDown,
   FileText,
   Filter,
-  GitCompareArrows,
   Globe,
   History,
   House,
   Image,
-  Layers,
   LayoutGrid,
   Lightbulb,
-  Megaphone,
   Plug,
   Plus,
   Rocket,
   Rows3,
   Settings,
-  SlidersHorizontal,
   TrendingUp,
   UsersRound,
   Zap,
   type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useTransition } from 'react';
 import { cn, Menu, Select } from '@adxlens/ui';
-import type { FlagKey } from '@adxlens/core/flags';
 import type { Role } from '@adxlens/core/shared';
 import { api } from '@/lib/api-client';
-import { clientNav, clientScopeOf, isClientNavActive, type ClientNavKey } from '@/lib/scope';
 import { isWActive, type ShellGroup, type ShellItem } from '@/lib/workspace-nav';
 
 const ICONS: Record<string, LucideIcon> = {
@@ -63,18 +56,6 @@ const ICONS: Record<string, LucideIcon> = {
   connections: Plug,
   settings: Settings,
 };
-const CLIENT_ICONS: Record<ClientNavKey, LucideIcon> = {
-  campaigns: Megaphone,
-  adsets: Layers,
-  ads: Image,
-  reconciliation: GitCompareArrows,
-  reports: FileText,
-  weeklyActions: Lightbulb,
-  creatives: Image,
-  automation: Zap,
-  actionLog: History,
-  clientSettings: SlidersHorizontal,
-};
 
 export type CreateItem = { key: 'report' | 'manageAds' | 'agent' | 'alert' | 'rule'; href: string };
 type Ws = { id: string; name: string; role?: Role };
@@ -93,7 +74,7 @@ const itemClass = (active: boolean) =>
 
 /**
  * Sidebar duy nhất của app (bố cục Madgicx Workspace, thương hiệu AdxLens). Đầu: chọn workspace, chọn khách, nút Tạo.
- * Giữa: 3 nhóm (Phân tích · Khách & báo cáo · Thực thi), hoặc menu của một Client khi đang xem Client (G3). Đáy: Cảnh
+ * Giữa: 3 nhóm (Phân tích · Khách & báo cáo · Thực thi) — luôn một bộ menu, chọn Client chỉ lọc dữ liệu. Đáy: Cảnh
  * báo, Kết nối, Cài đặt, menu tài khoản (hồ sơ, thông báo, ngôn ngữ, đăng xuất).
  */
 export function WsSidebar({
@@ -106,9 +87,7 @@ export function WsSidebar({
   locale,
   unread,
   clients,
-  accountClients,
-  flags,
-  role,
+  currentClient,
 }: {
   groups: ShellGroup[];
   bottom: ShellItem[];
@@ -119,17 +98,13 @@ export function WsSidebar({
   locale: 'vi' | 'en';
   unread: number;
   clients: { id: string; name: string }[];
-  accountClients: Record<string, string | null>;
-  flags: Record<FlagKey, boolean>;
-  role: Role;
+  /** Client đang xem (cookie `w_client`); null = mọi Client. */
+  currentClient: string | null;
 }) {
   const t = useTranslations();
   const pathname = usePathname() ?? '/w';
-  const search = useSearchParams()?.toString() ?? '';
   const router = useRouter();
   const [pending, start] = useTransition();
-  const clientId = clientScopeOf(pathname, search, accountClients);
-  const client = clientId ? clients.find((c) => c.id === clientId) : null;
   const current = workspaces.find((w) => w.id === currentWorkspaceId);
 
   const setPref = (body: Record<string, string>) =>
@@ -200,11 +175,12 @@ export function WsSidebar({
         </Menu.Content>
       </Menu.Root>
 
+      {/* Chọn Client ở MỘT nơi: lọc dữ liệu mọi trang, sidebar không đổi (PM 25/10). */}
       {clients.length ? (
         <Select
           className="mt-3 w-full"
-          value={clientId ?? ''}
-          onChange={(e) => router.push(e.target.value ? `/clients/${e.target.value}` : '/w')}
+          value={currentClient ?? ''}
+          onChange={(e) => setPref({ wClient: e.target.value || 'all' })}
           aria-label={t('shell.switchClient')}
           data-testid="client-switcher"
         >
@@ -240,47 +216,16 @@ export function WsSidebar({
       <nav
         className="-mx-1 mt-3 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-1"
         aria-label={t('nav.mainNav')}
-        data-testid={client ? 'client-nav' : 'agency-nav'}
+        data-testid="agency-nav"
       >
-        {client ? (
-          <>
-            <Link href="/w" className={itemClass(false)}>
-              <ArrowLeft className="size-4 shrink-0" aria-hidden />
-              <span className="truncate">{t('nav.allClients')}</span>
-            </Link>
-            <Link
-              href={`/clients/${client.id}`}
-              className="mx-3 mb-1 mt-2 truncate text-small font-semibold uppercase text-fg-tertiary hover:text-fg"
-              title={client.name}
-            >
-              {client.name}
-            </Link>
-            {clientNav(client.id, flags, role).map((item) => {
-              const Icon = CLIENT_ICONS[item.key];
-              const active = isClientNavActive(item, pathname, search ? `?${search}` : '');
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  className={itemClass(active)}
-                  aria-current={active ? 'page' : undefined}
-                >
-                  <Icon className="size-4 shrink-0" aria-hidden />
-                  <span className="truncate">{t(`nav.client.${item.key}`)}</span>
-                </Link>
-              );
-            })}
-          </>
-        ) : (
-          groups.map((g, gi) => (
-            <div key={g.key} className={cn('flex flex-col gap-0.5', gi > 0 && 'mt-3')}>
-              <p className="px-3 pb-1 text-caption font-semibold uppercase text-fg-tertiary">
-                {t(`ws.navGroups.${g.key}`)}
-              </p>
-              {g.items.map(link)}
-            </div>
-          ))
-        )}
+        {groups.map((g, gi) => (
+          <div key={g.key} className={cn('flex flex-col gap-0.5', gi > 0 && 'mt-3')}>
+            <p className="px-3 pb-1 text-caption font-semibold uppercase text-fg-tertiary">
+              {t(`ws.navGroups.${g.key}`)}
+            </p>
+            {g.items.map(link)}
+          </div>
+        ))}
       </nav>
 
       <nav className="mt-3 flex shrink-0 flex-col gap-0.5 border-t border-line pt-3" aria-label={t('ws.nav.more')}>
