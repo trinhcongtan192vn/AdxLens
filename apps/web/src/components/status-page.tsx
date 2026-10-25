@@ -22,7 +22,7 @@ export function StatusPage({
       <h1 className="text-h1 font-semibold text-fg">{title}</h1>
       <p className="max-w-md text-body text-fg-secondary">{body}</p>
       {extra}
-      <Link href="/overview" className={buttonVariants({ kind: 'primary', size: 'm' })}>
+      <Link href="/w" className={buttonVariants({ kind: 'primary', size: 'm' })}>
         {homeLabel}
       </Link>
     </div>

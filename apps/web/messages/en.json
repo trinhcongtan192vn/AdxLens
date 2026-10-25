@@ -2948,10 +2948,10 @@
       "scale": "Scale",
       "alerts": "Alerts",
       "settings": "Settings",
-      "classic": "Classic interface",
       "business": "Business",
       "audiences": "Audiences",
-      "launcher": "Launcher"
+      "launcher": "Launcher",
+      "more": "More"
     },
     "create": {
       "button": "Create",
@@ -2987,8 +2987,12 @@
       "last30": "30 days"
     },
     "coming": "Being built in this release.",
-    "switchNew": "New interface",
-    "exportPdf": "Export PDF"
+    "exportPdf": "Export PDF",
+    "navGroups": {
+      "analysis": "Analysis",
+      "clients": "Clients & reports",
+      "execution": "Execution"
+    }
   },
   "wsHome": {
     "greeting": "Hi {name}",

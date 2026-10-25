@@ -2948,10 +2948,10 @@
       "scale": "Mở rộng",
       "alerts": "Cảnh báo",
       "settings": "Cài đặt",
-      "classic": "Giao diện cổ điển",
       "business": "Business",
       "audiences": "Audiences",
-      "launcher": "Launcher"
+      "launcher": "Launcher",
+      "more": "Khác"
     },
     "create": {
       "button": "Tạo mới",
@@ -2987,8 +2987,12 @@
       "last30": "30 ngày"
     },
     "coming": "Đang được dựng trong đợt này.",
-    "switchNew": "Giao diện mới",
-    "exportPdf": "Xuất PDF"
+    "exportPdf": "Xuất PDF",
+    "navGroups": {
+      "analysis": "Phân tích",
+      "clients": "Khách & báo cáo",
+      "execution": "Thực thi"
+    }
   },
   "wsHome": {
     "greeting": "Chào {name}",

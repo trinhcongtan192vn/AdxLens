@@ -41,7 +41,7 @@ export function DeleteWorkspace({ name }: { name: string }) {
                 start(async () => {
                   try {
                     await api('workspace', { method: 'DELETE', body: { confirmName: confirm } });
-                    router.push('/overview');
+                    router.push('/w');
                     router.refresh();
                   } catch {
                     toast.error(tc('errorGeneric'));

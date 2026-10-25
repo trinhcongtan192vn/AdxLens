@@ -125,7 +125,7 @@ export function SyncProgress({ accounts }: { accounts: Row[] }) {
           </Link>
         ) : (
           // Không bắt chờ: vào trang chủ ngay, đồng bộ tiếp ở nền và số liệu hiện dần.
-          <Link href="/overview" className={buttonVariants({ kind: 'primary', size: 'm' })}>
+          <Link href="/w" className={buttonVariants({ kind: 'primary', size: 'm' })}>
             {t('continueBackground')}
           </Link>
         )}

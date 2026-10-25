@@ -27,6 +27,46 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [118] Một giao diện duy nhất: gộp giao diện cổ điển vào khung Workspace — 2026-10-25
+
+PM báo lỗi: đang ở giao diện mới, mở chi tiết chiến dịch / nhóm QC / QC / bài post thì quay về sidebar cũ. PM chọn:
+- trang chủ là `/w`, có thêm khối "Cần chú ý" của agency;
+- các điều khiển của thanh trên cũ gộp vào sidebar.
+
+- **Khung chung** (`components/workspace/app-shell.tsx`):
+  - mọi trang trong app (`/w/*` và khoảng 35 trang có từ giao diện cổ điển) dùng cùng sidebar;
+  - URL không đổi, nên link cũ, bookmark và link trong email / báo cáo vẫn chạy;
+  - không bỏ trang hay tính năng nào.
+- **Sidebar mới:**
+  - logo + chọn workspace (vai trò, "Tạo workspace mới");
+  - chọn khách; nút Tạo;
+  - 3 nhóm:
+    - **Phân tích:** Trang chủ, Business, Quảng cáo, Ads Manager, Phễu, Địa lý, Mở rộng, Audiences;
+    - **Khách & báo cáo:** Clients, Báo cáo, Việc tuần này, Creative;
+    - **Thực thi:** AI Agents, Launcher, Rule tự động, Nhật ký hành động;
+  - đáy: Cảnh báo, Kết nối, Cài đặt, menu tài khoản (hồ sơ, thông báo, ngôn ngữ, đăng xuất);
+  - đang xem một Client thì sidebar chuyển sang menu của Client đó (G3) như trước;
+  - cờ và vai trò ẩn mục như trước.
+- **Trang có từ giao diện cũ** có dòng đầu trang: breadcrumb + chọn kỳ (Tháng này / Tháng trước giữ nguyên).
+- **Trang chủ:**
+  - `/overview` chuyển về `/w`;
+  - `/w` thêm khối "Khách cần chú ý" (lệch đối chiếu, lỗi đồng bộ, phát hiện mức cao, ngân sách, sức khỏe);
+  - `/w` thêm banner "tài khoản chưa gán Client";
+  - màn chào mừng buyer mới chuyển sang `/w`.
+- Bỏ nút "Giao diện cổ điển" / "Thử giao diện mới"; xóa `components/shell/sidebar.tsx` và `top-bar.tsx`.
+
+**Test tự động:**
+- `workspace-nav.test.ts`:
+  - `shellNav` gom đủ mục của 2 giao diện cũ;
+  - cờ tắt thì nhóm Thực thi ẩn;
+  - buyer không có Báo cáo / Kết nối;
+  - nhãn đúng namespace.
+- **Đổi test (quy tắc 8)**, vì đúng hành vi PM vừa chọn (bỏ giao diện cổ điển, `/overview` chuyển về `/w`):
+  - E2E `workspace-home`: bỏ bước bấm "Thử giao diện mới" / "Giao diện cổ điển"; thêm kiểm tra mở Clients vẫn cùng
+    khung;
+  - E2E `helpers`, `auth-workspace`: URL sau đăng ký / nhận lời mời là `/w`;
+  - E2E `clients-assign`: kiểm tra khối "Cần chú ý" ở `/w`; Client vừa gán kiểm ở `/clients`.
+
 ## [117] Mô hình AI của workspace: thêm Google Gemini và DeepSeek, mở rộng danh sách model — 2026-10-25
 
 PM yêu cầu: "tích hợp thêm các model khác nhau của anthropic, gemini, openAi và deepseek".
