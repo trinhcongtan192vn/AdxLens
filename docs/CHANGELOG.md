@@ -2,6 +2,17 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [105] Ads Manager mới: sửa ngân sách ngày ngay trong bảng — 2026-10-25
+
+Theo Madgicx Ads Manager 2.0: sửa ngân sách trực tiếp.
+
+- **Workspace › Ads Manager** thêm cột **Ngân sách ngày** cho nhóm QC (theo tiền tệ tài khoản).
+- Khi được duyệt hành động (cờ P2a + quyền duyệt Client), mỗi dòng có nút bút chì. Nút mở hộp duyệt như giao diện cổ
+  điển: xem trước, guardrails ±15%, thực hiện qua Execution Gateway, hoàn tác được.
+- Không có đường ghi mới: dùng lại `set_adset_budget` và `ActionDialog` (G4).
+
+**Test tự động:** E2E `p2a.spec.ts`: Ads Manager mới → chế độ nhóm QC → bút chì → hộp duyệt có ô "Ngân sách ngày mới".
+
 ## [104] Tactic tự động kiểu Madgicx: Stop-loss, Surf, Sunsetting, Revive (ADR-0021) — 2026-10-25
 
 PM duyệt "Phần có ghi Meta thì cũng làm luôn". ADR-0021 chuyển sang **Chấp nhận**.

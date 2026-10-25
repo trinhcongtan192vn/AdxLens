@@ -75,6 +75,13 @@ test('P2a: quyền ghi → duyệt → thực hiện + xác minh → hoàn tác 
   await expect(page.getByTestId('action-row')).toHaveCount(2);
   await expect(page.getByTestId('action-row').filter({ hasText: 'Đã hoàn tác' })).toHaveCount(1);
 
+  // Ads Manager mới: sửa ngân sách nhóm QC ngay trong bảng → hộp duyệt qua Execution Gateway.
+  await page.goto('/w/ads-manager');
+  await page.getByRole('button', { name: 'Nhóm QC', exact: true }).click();
+  await page.getByTestId('am-edit-budget').first().click();
+  await expect(page.getByRole('dialog').getByLabel('Ngân sách ngày mới')).toBeVisible();
+  await page.keyboard.press('Escape');
+
   // P205 kill switch → banner X04.
   await page.goto('/settings/guardrails');
   await page.getByRole('button', { name: 'Bật kill switch' }).click();

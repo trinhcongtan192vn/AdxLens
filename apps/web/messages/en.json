@@ -3092,7 +3092,9 @@
     "resume": "Resume",
     "emptyTitle": "Nothing to show",
     "emptyBody": "Change the period, filters, or untick \"Hide items with no spend\".",
-    "askAi": "Ask AI about selected"
+    "askAi": "Ask AI about selected",
+    "dailyBudget": "Daily budget",
+    "editBudget": "Edit budget for {name}"
   },
   "wsFunnels": {
     "subtitle": "Awareness → Consideration → Conversion, with step-to-step rates",
