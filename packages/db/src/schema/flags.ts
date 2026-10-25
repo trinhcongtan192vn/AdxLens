@@ -62,3 +62,45 @@ export const flagChangeLog = app.table(
   },
   (t) => [index().on(t.workspaceId, t.flagKey)],
 );
+
+/**
+ * ADR-0024: cờ TOÀN APP. Tính năng chạy cho workspace khi cờ toàn app bật VÀ gói của workspace có tính năng đó (bảng
+ * `plan_flags`), trừ khi workspace có ngoại lệ (`feature_flags`). Mặc định tắt; chỉ đổi qua packages/core/flags.
+ */
+export const flagGlobal = app.table('flag_global', {
+  flagKey: text('flag_key', { enum: FLAG_KEYS }).primaryKey(),
+  enabled: boolean('enabled').notNull().default(false),
+  changedBy: uuid('changed_by'),
+  changedAt: tsz('changed_at'),
+  reason: text('reason'),
+});
+
+/** ADR-0024: gói nào có tính năng nào (superadmin sửa ở /admin/flags). Không có dòng = mặc định trong code. */
+export const planFlags = app.table(
+  'plan_flags',
+  {
+    planKey: text('plan_key').notNull(),
+    flagKey: text('flag_key', { enum: FLAG_KEYS }).notNull(),
+    enabled: boolean('enabled').notNull(),
+    changedBy: uuid('changed_by'),
+    changedAt: tsz('changed_at'),
+  },
+  (t) => [primaryKey({ columns: [t.planKey, t.flagKey] })],
+);
+
+/** Nhật ký đổi cờ toàn app / theo gói — chỉ thêm. */
+export const flagScopeLog = app.table(
+  'flag_scope_log',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    scope: text('scope', { enum: ['global', 'plan'] }).notNull(),
+    planKey: text('plan_key'),
+    flagKey: text('flag_key', { enum: FLAG_KEYS }).notNull(),
+    oldValue: boolean('old_value').notNull(),
+    newValue: boolean('new_value').notNull(),
+    changedBy: uuid('changed_by').notNull(),
+    reason: text('reason').notNull(),
+    at: tsz('at').notNull().defaultNow(),
+  },
+  (t) => [index().on(t.at)],
+);

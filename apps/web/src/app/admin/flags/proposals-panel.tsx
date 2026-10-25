@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useFormatter, useTranslations } from 'next-intl';
 import { useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import { Badge, Button, Card, CardHeader, Checkbox, Dialog, Field, Textarea } from '@adxlens/ui';
+import { Badge, Button, Card, CardHeader, Dialog, Field, Textarea } from '@adxlens/ui';
 import { api, ApiError } from '@/lib/api-client';
 import { FLAG_LABEL } from '@/lib/admin';
 
@@ -30,14 +30,12 @@ export function ProposalsPanel({ items, canDecide }: { items: Proposal[]; canDec
   const [target, setTarget] = useState<{ p: Proposal; decision: Decision } | null>(null);
   const [checks, setChecks] = useState<Check[] | null>(null);
   const [note, setNote] = useState('');
-  const [override, setOverride] = useState(false);
   const [pending, start] = useTransition();
   const flagName = (k: string) => (FLAG_LABEL[k] ? t(`names.${FLAG_LABEL[k]}`) : k);
 
   useEffect(() => {
     setChecks(null);
     setNote('');
-    setOverride(false);
     if (target?.decision !== 'approve') return;
     api<{ items: Check[] }>(`admin/workspaces/${target.p.workspaceId}/flags/${target.p.flag}/checklist`)
       .then((r) => setChecks(r.items))
@@ -47,10 +45,7 @@ export function ProposalsPanel({ items, canDecide }: { items: Proposal[]; canDec
   if (!items.length) return null;
   const allPassed = checks?.every((c) => c.passed) ?? false;
   const parentFailed = checks?.some((c) => c.id === 'parent_enabled' && !c.passed) ?? false;
-  const canSubmit =
-    target?.decision === 'approve'
-      ? checks !== null && !parentFailed && (allPassed || override)
-      : note.trim().length >= 5;
+  const canSubmit = target?.decision === 'approve' ? checks !== null && !parentFailed : note.trim().length >= 5;
 
   const submit = () =>
     start(async () => {
@@ -155,12 +150,7 @@ export function ProposalsPanel({ items, canDecide }: { items: Proposal[]; canDec
                 ))}
               </ul>
             )}
-            {checks && !allPassed && !parentFailed ? (
-              <label className="mt-3 flex items-center gap-2 text-body">
-                <Checkbox checked={override} onChange={(e) => setOverride(e.target.checked)} />
-                {t('dialog.override')}
-              </label>
-            ) : null}
+            {/* ADR-0024: checklist chỉ để tham khảo, không chặn duyệt. */}
           </>
         ) : null}
         <Field

@@ -5,7 +5,7 @@
 ## Sản phẩm trong 5 dòng
 - AdxLens giúp agency gửi khách **báo cáo Meta Ads có bằng chứng, số liệu khớp Ads Manager (lệch ≤ 1%)**, mang thương hiệu agency.
 - Leo theo thang tin cậy: P0 đọc & báo cáo → P1 gợi ý → P2a thực thi có duyệt → P2b tự chạy có phanh.
-- Mọi giai đoạn sau P0 nằm sau **cờ tính năng theo workspace**; chỉ PM bật.
+- Mọi giai đoạn nằm sau **cờ tính năng: toàn app × gói, kèm ngoại lệ theo workspace** (ADR-0024); chỉ staff / PM đổi ở `/admin/flags`.
 - Người dùng: agency (owner, manager, buyer). Khách của agency xem báo cáo qua link công khai.
 - Tài liệu gốc: `docs/prd.md`, `docs/architecture/L1|L2|L3`. Khi tài liệu và code mâu thuẫn, hỏi PM; không tự chọn.
 - Thiết kế: Penpot "AdxLens Design" (link và cách dùng trong `docs/design/design-system.md`); danh mục màn và mã màn ở `docs/design/ux-requirements.md`.

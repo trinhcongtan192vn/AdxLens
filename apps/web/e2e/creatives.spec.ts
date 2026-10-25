@@ -1,19 +1,6 @@
 import { createHash } from 'node:crypto';
-import { expect, test, type Page } from '@playwright/test';
-import { generateWeeklyNow, makeStaff, signUpAndCreateWorkspace } from './helpers';
-
-async function enableWithOverride(page: Page, ws: string, flagName: string) {
-  await page.goto(`/admin/flags?q=${encodeURIComponent(ws)}`);
-  await page.getByRole('button', { name: `${flagName} · ${ws}` }).click();
-  // Dữ liệu mẫu có ngày lệch số liệu → checklist chưa đạt; PM vượt qua (được ghi log).
-  const checklist = page.getByTestId('flag-checklist');
-  await expect(checklist.getByText(/Đạt|Chưa đạt/).first()).toBeVisible();
-  const override = page.getByLabel('Vượt checklist chưa đạt (được ghi log)');
-  if (await override.count()) await override.check();
-  await page.getByLabel('Lý do (bắt buộc, ≥ 5 ký tự)').fill('E2E creative library');
-  await page.getByRole('button', { name: 'Bật cờ' }).click();
-  await expect(page.getByRole('button', { name: `${flagName} · ${ws}` })).toContainText('Bật');
-}
+import { expect, test } from '@playwright/test';
+import { forceFlagOn, generateWeeklyNow, makeStaff, signUpAndCreateWorkspace } from './helpers';
 
 /** P103/P104 (P1-01..03): cờ tắt → không có mục Creative; PM bật cờ → thư viện creative → so sánh 2 creative. */
 test('P103 creative library → P104 so sánh (sau cờ Gợi ý)', async ({ page }) => {
@@ -29,8 +16,8 @@ test('P103 creative library → P104 so sánh (sau cờ Gợi ý)', async ({ pag
   await expect(page).toHaveURL(/\/feature-unavailable/);
 
   await makeStaff(email, true);
-  await enableWithOverride(page, ws, 'Báo cáo');
-  await enableWithOverride(page, ws, 'Gợi ý');
+  await forceFlagOn(page, ws, 'Báo cáo', 'E2E creative library');
+  await forceFlagOn(page, ws, 'Gợi ý', 'E2E creative library');
 
   await page.goto('/overview');
   await page.getByRole('link', { name: 'Creative', exact: true }).click();

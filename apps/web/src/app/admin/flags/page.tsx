@@ -1,29 +1,54 @@
 import { getTranslations } from 'next-intl/server';
-import { FLAG_KEYS, listFlagProposals } from '@adxlens/core/flags';
+import { PLAN_KEYS } from '@adxlens/core/billing';
+import { adminFlagStates, FLAG_KEYS, flagScopeHistory, listFlagProposals, readFlagScopes } from '@adxlens/core/flags';
 import { adminWorkspaceMatrix } from '@adxlens/core/ops';
 import { PageHeader } from '@adxlens/ui';
 import { requireStaff } from '@/server/admin-context';
 import { deps } from '@/server/deps';
 import { FlagMatrix } from './flag-matrix';
 import { ProposalsPanel } from './proposals-panel';
+import { ScopePanels } from './scope-panels';
 
 export async function generateMetadata() {
   const t = await getTranslations('admin.flags');
   return { title: t('title') };
 }
 
-/** AD01 Ma trận workspace × cờ (L3 18.2). */
+/** AD01 (ADR-0024): cờ toàn app + ma trận gói + ngoại lệ theo workspace. */
 export default async function AdminFlagsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { staff, user } = await requireStaff();
   const t = await getTranslations('admin.flags');
   const q = (await searchParams).q ?? '';
-  const [rows, proposals] = await Promise.all([
-    adminWorkspaceMatrix(deps().db, { q }),
-    listFlagProposals(deps().db, { status: 'pending' }),
+  const db = deps().db;
+  const [rows, proposals, scopes, scopeLog] = await Promise.all([
+    adminWorkspaceMatrix(db, { q }),
+    listFlagProposals(db, { status: 'pending' }),
+    readFlagScopes(db),
+    flagScopeHistory(db, 30),
   ]);
+  const states = await adminFlagStates(
+    db,
+    rows.map((r) => r.id),
+  );
   return (
     <>
       <PageHeader title={t('title')} />
+      <ScopePanels
+        flagKeys={[...FLAG_KEYS]}
+        planKeys={[...PLAN_KEYS]}
+        global={scopes.global}
+        plans={scopes.plans}
+        canEdit={staff.role === 'superadmin'}
+        history={scopeLog.map((h) => ({
+          scope: h.scope,
+          plan: h.planKey,
+          flag: h.flagKey,
+          old_value: h.oldValue,
+          new_value: h.newValue,
+          reason: h.reason,
+          at: h.at.toISOString(),
+        }))}
+      />
       <ProposalsPanel
         canDecide={staff.role === 'superadmin'}
         items={proposals.map((p) => ({
@@ -39,7 +64,7 @@ export default async function AdminFlagsPage({ searchParams }: { searchParams: P
       />
       <FlagMatrix
         q={q}
-        canEnable={staff.canEnableFlags}
+        canEnable={staff.role === 'superadmin'}
         flagKeys={[...FLAG_KEYS]}
         rows={rows.map((r) => ({
           id: r.id,
@@ -47,7 +72,9 @@ export default async function AdminFlagsPage({ searchParams }: { searchParams: P
           ownerEmail: r.ownerEmail,
           accounts: r.accounts,
           createdAt: r.createdAt.toISOString(),
-          flags: Object.fromEntries(FLAG_KEYS.map((k) => [k, r.flags[k]?.enabled ?? false])),
+          plan: states.get(r.id)?.plan ?? 'free',
+          flags: Object.fromEntries(FLAG_KEYS.map((k) => [k, states.get(r.id)?.effective[k] ?? false])),
+          overrides: states.get(r.id)?.overrides ?? {},
         }))}
       />
     </>

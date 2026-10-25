@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { makeStaff, signUpAndCreateWorkspace } from './helpers';
+import { forceFlagOn, makeStaff, signUpAndCreateWorkspace } from './helpers';
 
 /**
  * B3 + AD01/AD02 (META_MOCK=1): đồng bộ 1 tài khoản khớp số liệu → PM bật cờ `p0_reports` qua trang nội bộ
@@ -30,15 +30,9 @@ test('PM bật cờ → báo cáo → chia sẻ → trang công khai → PDF →
   // Cờ tắt: không có mục Báo cáo; /reports → trang "tính năng chưa bật".
   await expect(page.getByRole('link', { name: 'Báo cáo', exact: true })).toHaveCount(0);
 
-  // PM bật cờ qua AD01/AD02: checklist kỹ thuật đạt hết.
+  // PM bật thêm cờ cho workspace (ADR-0024: ngoại lệ, checklist không còn chặn).
   await makeStaff(email, true);
-  await page.goto(`/admin/flags?q=${encodeURIComponent(ws)}`);
-  await page.getByRole('button', { name: `Báo cáo · ${ws}` }).click();
-  const checklist = page.getByTestId('flag-checklist');
-  await expect(checklist.getByText('Đạt')).toHaveCount(3);
-  await page.getByLabel('Lý do (bắt buộc, ≥ 5 ký tự)').fill('Design partner E2E');
-  await page.getByRole('button', { name: 'Bật cờ' }).click();
-  await expect(page.getByRole('button', { name: `Báo cáo · ${ws}` })).toContainText('Bật');
+  await forceFlagOn(page, ws, 'Báo cáo', 'Design partner E2E');
 
   // R02 → R03: worker dựng báo cáo.
   await page.goto('/reports');

@@ -1,10 +1,11 @@
 import { and, desc, eq } from 'drizzle-orm';
 import type { Db, DbOrTx } from '@adxlens/db';
 import { schema } from '@adxlens/db';
+import { currentPlanKey, PLAN_KEYS, type PlanKey } from '@adxlens/core/billing';
 import { AppError, forbidden, systemClock, type Clock, type WorkspaceCtx } from '@adxlens/core/shared';
 import { checksFor, disabledHandlersFor, type ChecklistItemResult, type FlagKey } from './registry';
 
-const { featureFlags, flagChangeLog, staff, workspaces } = schema;
+const { featureFlags, flagChangeLog, flagGlobal, planFlags, flagScopeLog, staff, workspaces } = schema;
 
 export const FLAG_KEYS = schema.FLAG_KEYS;
 
@@ -46,20 +47,79 @@ export function setFlagCache(c: FlagCache | null): void {
   cache = c;
 }
 
-async function readFlag(db: DbOrTx, workspaceId: string, key: FlagKey): Promise<boolean> {
+/** Ngoại lệ của workspace (ADR-0024): true = bật thêm, false = tắt riêng, null = theo toàn app × gói. */
+async function readOverride(db: DbOrTx, workspaceId: string, key: FlagKey): Promise<boolean | null> {
   const [row] = await db
     .select({ enabled: featureFlags.enabled })
     .from(featureFlags)
     .where(and(eq(featureFlags.workspaceId, workspaceId), eq(featureFlags.flagKey, key)));
-  return row?.enabled ?? false;
+  return row ? row.enabled : null;
 }
 
-/** Cờ có đang bật cho workspace không. Mặc định tắt khi chưa có bản ghi. */
+/** Ma trận gói mặc định (ADR-0024) = bảng giá hiện tại; superadmin sửa ở /admin/flags (bảng `plan_flags`). */
+export const DEFAULT_PLAN_FLAGS: Record<PlanKey, readonly FlagKey[]> = {
+  free: ['p0_reports'],
+  starter: ['p0_reports', 'p1_recommendations'],
+  growth: ['p0_reports', 'p1_recommendations', 'p2a_approve', 'p2b_auto'],
+  scale: ['p0_reports', 'p1_recommendations', 'p2a_approve', 'p2b_auto'],
+};
+
+export type FlagScopes = {
+  global: Record<FlagKey, boolean>;
+  plans: Record<PlanKey, Record<FlagKey, boolean>>;
+};
+
+/** Cờ toàn app + ma trận gói (thiếu dòng = mặc định: toàn app tắt, gói theo DEFAULT_PLAN_FLAGS). */
+export async function readFlagScopes(db: DbOrTx): Promise<FlagScopes> {
+  const [g, p] = await Promise.all([db.select().from(flagGlobal), db.select().from(planFlags)]);
+  const global = Object.fromEntries(FLAG_KEYS.map((k) => [k, false])) as Record<FlagKey, boolean>;
+  for (const r of g) global[r.flagKey] = r.enabled;
+  const plans = Object.fromEntries(
+    PLAN_KEYS.map((pk) => [pk, Object.fromEntries(FLAG_KEYS.map((k) => [k, DEFAULT_PLAN_FLAGS[pk].includes(k)]))]),
+  ) as FlagScopes['plans'];
+  for (const r of p) {
+    if ((PLAN_KEYS as readonly string[]).includes(r.planKey)) plans[r.planKey as PlanKey][r.flagKey] = r.enabled;
+  }
+  return { global, plans };
+}
+
+/**
+ * Giá trị hiệu lực (ADR-0024): ngoại lệ của workspace nếu có; không thì cờ toàn app VÀ gói của workspace. Cờ con chỉ
+ * bật khi cờ cha có hiệu lực (L3 18.1).
+ */
+async function computeFlags(db: DbOrTx, workspaceId: string, plan: PlanKey): Promise<Record<FlagKey, boolean>> {
+  const [scopes, overrides] = await Promise.all([
+    readFlagScopes(db),
+    db
+      .select({ key: featureFlags.flagKey, enabled: featureFlags.enabled })
+      .from(featureFlags)
+      .where(eq(featureFlags.workspaceId, workspaceId)),
+  ]);
+  const ov = new Map(overrides.map((o) => [o.key, o.enabled]));
+  const out = {} as Record<FlagKey, boolean>;
+  for (const k of FLAG_KEYS) {
+    const own = ov.has(k) ? ov.get(k)! : scopes.global[k] && scopes.plans[plan][k];
+    const parent = FLAG_PARENT[k];
+    out[k] = own && (parent ? out[parent] : true);
+  }
+  return out;
+}
+
+async function workspaceFlags(ctx: WorkspaceCtx): Promise<Record<FlagKey, boolean>> {
+  return computeFlags(ctx.db, ctx.workspaceId, await currentPlanKey(ctx));
+}
+
+/** Giá trị hiệu lực không qua cache (dùng trong transaction đổi cờ). */
+async function effectiveNow(db: DbOrTx, workspaceId: string, key: FlagKey): Promise<boolean> {
+  return (await workspaceFlags({ db: db as Db, workspaceId }))[key];
+}
+
+/** Cờ có hiệu lực cho workspace không (toàn app × gói, hoặc ngoại lệ). */
 export async function isEnabled(ctx: WorkspaceCtx, key: FlagKey): Promise<boolean> {
   const ck = cacheKey(ctx.workspaceId, key);
   const cached = cache ? await cache.get(ck) : undefined;
   if (cached !== undefined) return cached;
-  const value = await readFlag(ctx.db, ctx.workspaceId, key);
+  const value = (await workspaceFlags(ctx))[key];
   await cache?.set(ck, value, FLAG_CACHE_TTL_SECONDS);
   return value;
 }
@@ -75,13 +135,7 @@ export async function assertEnabled(ctx: WorkspaceCtx, key: FlagKey): Promise<vo
 }
 
 export async function getFlags(ctx: WorkspaceCtx): Promise<Record<FlagKey, boolean>> {
-  const rows = await ctx.db
-    .select({ key: featureFlags.flagKey, enabled: featureFlags.enabled })
-    .from(featureFlags)
-    .where(eq(featureFlags.workspaceId, ctx.workspaceId));
-  const out = Object.fromEntries(FLAG_KEYS.map((k) => [k, false])) as Record<FlagKey, boolean>;
-  for (const r of rows) out[r.key] = r.enabled;
-  return out;
+  return workspaceFlags(ctx);
 }
 
 // ---------- Thay đổi cờ: chỉ staff, qua đây (L3 18.2) ----------
@@ -98,7 +152,7 @@ export async function runChecklist(db: DbOrTx, workspaceId: string, key: FlagKey
     out.push({
       id: 'parent_enabled',
       label: `Cờ phụ thuộc ${parent} đang bật`,
-      passed: await readFlag(db, workspaceId, parent),
+      passed: await effectiveNow(db, workspaceId, parent),
     });
   }
   for (const c of checksFor(key)) {
@@ -140,12 +194,10 @@ export async function enableFlag(db: Db, input: EnableFlagInput, clock: Clock = 
     const parentFailed = checklist.some((c) => c.id === 'parent_enabled' && !c.passed);
     // Không vượt được phụ thuộc giữa cờ: bật cờ con khi cờ cha tắt là trạng thái không hợp lệ.
     if (parentFailed) throw new AppError('CONFLICT', 'Cờ phụ thuộc chưa bật', { checklist });
+    // ADR-0024: checklist chỉ để tham khảo (ghi nhật ký), không chặn — PM bỏ bước duyệt sau giai đoạn thử nghiệm.
     const allPassed = checklist.every((c) => c.passed);
-    if (!allPassed && !input.override) {
-      throw new AppError('CONFLICT', 'Checklist kỹ thuật chưa đạt', { checklist });
-    }
 
-    const old = await readFlag(tx, input.workspaceId, input.key);
+    const old = (await readOverride(tx, input.workspaceId, input.key)) ?? false;
     const now = clock.now();
     await tx
       .insert(featureFlags)
@@ -189,17 +241,26 @@ export async function disableFlag(
 
   const turnedOff: FlagKey[] = [];
   await db.transaction(async (tx) => {
+    // Trạng thái hiệu lực TRƯỚC khi đổi (tắt cờ cha làm cờ con mất hiệu lực ngay trong vòng lặp).
+    const initial = await workspaceFlags({ db: tx as unknown as Db, workspaceId: input.workspaceId });
     for (const key of [input.key, ...dependentsOf(input.key)]) {
-      const old = await readFlag(tx, input.workspaceId, key);
-      if (!old) continue;
+      // Tắt riêng (ngoại lệ false) — kể cả khi cờ đang bật theo toàn app × gói.
+      const before = initial[key];
+      const ov = await readOverride(tx, input.workspaceId, key);
+      // Cờ chính: luôn ghi "tắt riêng" (chặn cả khi toàn app bật sau này). Cờ con: chỉ khi đang bật.
+      if (key === input.key ? ov === false : !before) continue;
+      const old = before;
       await tx
-        .update(featureFlags)
-        .set({ enabled: false, reason })
-        .where(and(eq(featureFlags.workspaceId, input.workspaceId), eq(featureFlags.flagKey, key)));
+        .insert(featureFlags)
+        .values({ workspaceId: input.workspaceId, flagKey: key, enabled: false, reason })
+        .onConflictDoUpdate({
+          target: [featureFlags.workspaceId, featureFlags.flagKey],
+          set: { enabled: false, reason },
+        });
       await tx.insert(flagChangeLog).values({
         workspaceId: input.workspaceId,
         flagKey: key,
-        oldValue: true,
+        oldValue: old,
         newValue: false,
         changedBy: input.staffUserId,
         reason: key === input.key ? reason : `Tắt theo ${input.key}: ${reason}`,
@@ -221,4 +282,170 @@ export async function flagHistory(db: DbOrTx, workspaceId: string, limit = 50) {
     .where(eq(flagChangeLog.workspaceId, workspaceId))
     .orderBy(desc(flagChangeLog.at), desc(flagChangeLog.id))
     .limit(limit);
+}
+
+// ---------- ADR-0024: cờ toàn app, ma trận gói, ngoại lệ ----------
+
+async function assertSuperadmin(db: DbOrTx, userId: string) {
+  const s = await staffOf(db, userId);
+  if (s?.role !== 'superadmin') throw forbidden('Chỉ superadmin được đổi cờ toàn app / theo gói');
+}
+
+const reasonOk = (r: string) => {
+  const t = r.trim();
+  if (t.length < 5) throw new AppError('VALIDATION_FAILED', 'Cần nhập lý do (≥ 5 ký tự)');
+  return t;
+};
+
+/**
+ * Bật / tắt cờ cho TOÀN APP (superadmin). Bật cờ con cần cờ cha toàn app đang bật; tắt cờ cha tắt luôn cờ con. Có
+ * hiệu lực sau tối đa FLAG_CACHE_TTL_SECONDS (cache theo workspace). Hành động ghi đang chờ bị hủy khi worker chạy
+ * (executor kiểm lại cờ).
+ */
+export async function setGlobalFlag(
+  db: Db,
+  input: { key: FlagKey; enabled: boolean; staffUserId: string; reason: string },
+  clock: Clock = systemClock,
+): Promise<FlagKey[]> {
+  const reason = reasonOk(input.reason);
+  await assertSuperadmin(db, input.staffUserId);
+  const changed: FlagKey[] = [];
+  await db.transaction(async (tx) => {
+    const { global } = await readFlagScopes(tx);
+    const parent = FLAG_PARENT[input.key];
+    if (input.enabled && parent && !global[parent]) {
+      throw new AppError('CONFLICT', 'Cờ phụ thuộc chưa bật toàn app', { parent });
+    }
+    const keys = input.enabled ? [input.key] : [input.key, ...dependentsOf(input.key)];
+    const now = clock.now();
+    for (const key of keys) {
+      if (global[key] === input.enabled) continue;
+      await tx
+        .insert(flagGlobal)
+        .values({ flagKey: key, enabled: input.enabled, changedBy: input.staffUserId, changedAt: now, reason })
+        .onConflictDoUpdate({
+          target: flagGlobal.flagKey,
+          set: { enabled: input.enabled, changedBy: input.staffUserId, changedAt: now, reason },
+        });
+      await tx.insert(flagScopeLog).values({
+        scope: 'global',
+        flagKey: key,
+        oldValue: global[key],
+        newValue: input.enabled,
+        changedBy: input.staffUserId,
+        reason: key === input.key ? reason : `Tắt theo ${input.key}: ${reason}`,
+        at: now,
+      });
+      changed.push(key);
+    }
+  });
+  return changed;
+}
+
+/** Gói có / không có tính năng (superadmin). */
+export async function setPlanFlag(
+  db: Db,
+  input: { plan: PlanKey; key: FlagKey; enabled: boolean; staffUserId: string; reason: string },
+  clock: Clock = systemClock,
+): Promise<void> {
+  const reason = reasonOk(input.reason);
+  await assertSuperadmin(db, input.staffUserId);
+  if (!(PLAN_KEYS as readonly string[]).includes(input.plan))
+    throw new AppError('VALIDATION_FAILED', 'Gói không hợp lệ');
+  const { plans } = await readFlagScopes(db);
+  const old = plans[input.plan][input.key];
+  if (old === input.enabled) return;
+  const now = clock.now();
+  await db.transaction(async (tx) => {
+    await tx
+      .insert(planFlags)
+      .values({
+        planKey: input.plan,
+        flagKey: input.key,
+        enabled: input.enabled,
+        changedBy: input.staffUserId,
+        changedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: [planFlags.planKey, planFlags.flagKey],
+        set: { enabled: input.enabled, changedBy: input.staffUserId, changedAt: now },
+      });
+    await tx.insert(flagScopeLog).values({
+      scope: 'plan',
+      planKey: input.plan,
+      flagKey: input.key,
+      oldValue: old,
+      newValue: input.enabled,
+      changedBy: input.staffUserId,
+      reason,
+      at: now,
+    });
+  });
+}
+
+/** Xóa ngoại lệ của workspace → về lại toàn app × gói (mọi staff, có nhật ký). */
+export async function clearFlagOverride(
+  db: Db,
+  input: { workspaceId: string; key: FlagKey; staffUserId: string; reason: string },
+  clock: Clock = systemClock,
+): Promise<void> {
+  const reason = reasonOk(input.reason);
+  if (!(await staffOf(db, input.staffUserId))) throw forbidden('Chỉ đội AdxLens');
+  const ov = await readOverride(db, input.workspaceId, input.key);
+  if (ov === null) return;
+  await db.transaction(async (tx) => {
+    await tx
+      .delete(featureFlags)
+      .where(and(eq(featureFlags.workspaceId, input.workspaceId), eq(featureFlags.flagKey, input.key)));
+    await tx.insert(flagChangeLog).values({
+      workspaceId: input.workspaceId,
+      flagKey: input.key,
+      oldValue: ov,
+      newValue: await effectiveNow(tx, input.workspaceId, input.key),
+      changedBy: input.staffUserId,
+      reason: `Xóa ngoại lệ: ${reason}`,
+      checklistResult: [],
+      at: clock.now(),
+    });
+  });
+  await cache?.del(cacheKey(input.workspaceId, input.key));
+}
+
+/** Nhật ký đổi cờ toàn app / theo gói (mới nhất trước). */
+export async function flagScopeHistory(db: DbOrTx, limit = 50) {
+  return db.select().from(flagScopeLog).orderBy(desc(flagScopeLog.at), desc(flagScopeLog.id)).limit(limit);
+}
+
+/** Ngoại lệ của một workspace (để admin hiện "bật thêm / tắt riêng / theo gói"). */
+export async function flagOverrides(db: DbOrTx, workspaceId: string): Promise<Partial<Record<FlagKey, boolean>>> {
+  const rows = await db
+    .select({ key: featureFlags.flagKey, enabled: featureFlags.enabled })
+    .from(featureFlags)
+    .where(eq(featureFlags.workspaceId, workspaceId));
+  return Object.fromEntries(rows.map((r) => [r.key, r.enabled]));
+}
+
+/**
+ * Cho trang admin (ADR-0024): với mỗi workspace — gói, giá trị hiệu lực và ngoại lệ của từng cờ. Đọc toàn app / ma trận
+ * gói một lần.
+ */
+export async function adminFlagStates(
+  db: Db,
+  workspaceIds: string[],
+): Promise<
+  Map<string, { plan: PlanKey; effective: Record<FlagKey, boolean>; overrides: Partial<Record<FlagKey, boolean>> }>
+> {
+  const out = new Map<
+    string,
+    { plan: PlanKey; effective: Record<FlagKey, boolean>; overrides: Partial<Record<FlagKey, boolean>> }
+  >();
+  for (const workspaceId of workspaceIds) {
+    const plan = await currentPlanKey({ db, workspaceId });
+    out.set(workspaceId, {
+      plan,
+      effective: await computeFlags(db, workspaceId, plan),
+      overrides: await flagOverrides(db, workspaceId),
+    });
+  }
+  return out;
 }

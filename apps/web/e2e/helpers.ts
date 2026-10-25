@@ -179,3 +179,18 @@ export async function seedForeignClient(): Promise<string> {
     await close();
   }
 }
+
+/**
+ * ADR-0024: staff bật THÊM một cờ cho workspace (ngoại lệ) ở /admin/flags — cột cờ theo tên hiển thị, vd. "Báo cáo".
+ */
+export async function forceFlagOn(page: Page, ws: string, name: string, reason = 'E2E bật thêm') {
+  await page.goto(`/admin/flags?q=${encodeURIComponent(ws)}`);
+  await page.getByRole('button', { name: `${name} · ${ws}` }).click();
+  await page
+    .getByTestId('override-choice')
+    .getByLabel(/^Bật thêm/)
+    .check();
+  await page.getByLabel('Lý do (bắt buộc, ≥ 5 ký tự)').fill(reason);
+  await page.getByRole('dialog').getByRole('button', { name: 'Xác nhận' }).click();
+  await expect(page.getByRole('button', { name: `${name} · ${ws}` })).toContainText('Bật');
+}

@@ -65,7 +65,8 @@ async function setup(opts: { write?: boolean } = {}) {
     keys: KEYS.keys,
     clock,
   });
-  if (opts.write !== false) await setWriteEnabled(ctx, connectionId, true);
+  // ADR-0024: kết nối có ads_management được ghi ngay; `write: false` = Owner đã tự tắt quyền ghi.
+  await setWriteEnabled(ctx, connectionId, opts.write !== false);
   const pm = await seedStaff(db, true);
   for (const key of ['p0_reports', 'p1_recommendations', 'p2a_approve'] as const) {
     await enableFlag(db, { workspaceId: workspace.id, key, staffUserId: pm.id, reason: 'test launch', override: true });

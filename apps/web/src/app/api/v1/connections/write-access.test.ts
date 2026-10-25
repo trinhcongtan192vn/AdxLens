@@ -41,7 +41,7 @@ async function enableP2a(ws: string) {
 }
 
 describe('nâng quyền ghi Meta (P201, P2-01)', () => {
-  it('ADR-0016: kết nối cấp sẵn ads_management nhưng quyền ghi vẫn TẮT tới khi Owner bật', async () => {
+  it('ADR-0024: kết nối cấp sẵn ads_management → được ghi ngay (kết nối = đồng ý), Owner vẫn tắt được', async () => {
     const { workspace, owner } = await seedWorkspace(db);
     await enableP2a(workspace.id);
     await oauth(asUser(owner), workspace.id, 'read');
@@ -49,7 +49,7 @@ describe('nâng quyền ghi Meta (P201, P2-01)', () => {
       sql`select write_enabled, scopes from app.meta_connections where workspace_id = ${workspace.id}`,
     );
     expect(c!.scopes).toEqual(expect.arrayContaining(['ads_read', 'ads_management', 'pages_show_list']));
-    expect(c!.write_enabled).toBe(false);
+    expect(c!.write_enabled).toBe(true);
   });
 
   it('cờ duyệt hành động tắt → không mở được OAuth ghi, API quyền ghi 404', async () => {

@@ -108,12 +108,11 @@ describe('đề xuất bật cờ (ADR-0013)', () => {
     const id = (p.body as { id: string }).id;
 
     expect((await call(proposal.POST, { user: op, params: { id }, body: { decision: 'approve' } })).status).toBe(403);
-    // Checklist p0_reports chưa đạt trên workspace mới: duyệt không vượt → 409, đề xuất vẫn chờ.
-    expect((await call(proposal.POST, { user: sa, params: { id }, body: { decision: 'approve' } })).status).toBe(409);
+    // ADR-0024: checklist không chặn nữa — duyệt là bật (ngoại lệ), kết quả checklist chưa đạt vẫn ghi override.
     const ok = await call(proposal.POST, {
       user: sa,
       params: { id },
-      body: { decision: 'approve', note: 'Đã kiểm tay', override: true },
+      body: { decision: 'approve', note: 'Đã kiểm tay' },
     });
     expect(ok.body).toMatchObject({ status: 'approved', override: true });
     const [flag] = await db.select().from(schema.featureFlags).where(eq(schema.featureFlags.workspaceId, workspace.id));

@@ -2,7 +2,6 @@ import { and, desc, eq, gte, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { schema } from '@adxlens/db';
 import type { Enqueue } from '@adxlens/jobs';
-import { hasPlanEntitlement } from '@adxlens/core/billing';
 import { listAdAccounts } from '@adxlens/core/connections';
 import { isEnabled } from '@adxlens/core/flags';
 import {
@@ -378,8 +377,8 @@ export async function liveBlocker(
   rule: RuleRow,
   clock: Clock = systemClock,
 ): Promise<string | null> {
+  // ADR-0024: cờ hiệu lực đã gồm gói.
   if (!(await isEnabled(ctx, 'p2b_auto'))) return 'feature_disabled';
-  if (!(await hasPlanEntitlement(ctx, 'write_actions'))) return 'plan_required';
   const started = rule.shadowStartedAt;
   if (!started || clock.now().getTime() - started.getTime() < SHADOW_MIN_DAYS * 86_400_000) return 'shadow_too_short';
   return null;

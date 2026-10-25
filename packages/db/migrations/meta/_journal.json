@@ -540,6 +540,20 @@
       "when": 1792888885896,
       "tag": "0076_scheduled_reverts_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1792897030053,
+      "tag": "0077_flag_scopes",
+      "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1792897031296,
+      "tag": "0078_flag_scopes_rls",
+      "breakpoints": true
     }
   ]
 }

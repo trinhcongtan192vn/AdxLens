@@ -1333,7 +1333,7 @@
       "today": "Today"
     },
     "flags": {
-      "title": "Feature flag matrix",
+      "title": "Feature flags",
       "search": "Search workspaces…",
       "cols": {
         "workspace": "Workspace",
@@ -1368,7 +1368,7 @@
         "noHistory": "No changes yet.",
         "overrideTag": "override",
         "propose": "Send proposal",
-        "proposeHint": "You are an operator: the proposal goes to a superadmin for approval. The checklist still runs on approval.",
+        "proposeHint": "You are an operator: the force-on request goes to a superadmin for approval.",
         "proposed": "Proposal sent"
       },
       "proposals": {
@@ -1388,7 +1388,45 @@
           "reject": "Proposal rejected",
           "cancel": "Proposal canceled"
         }
-      }
+      },
+      "global": {
+        "title": "App-wide",
+        "intro": "Turn a feature on for every workspace whose plan includes it. Turning off here turns it off for all customers (except forced-on exceptions); pending write actions are canceled.",
+        "turnOn": "Turn on app-wide",
+        "turnOff": "Turn off app-wide",
+        "enableTitle": "Turn {flag} on app-wide",
+        "disableTitle": "Turn {flag} off app-wide",
+        "enableHint": "Every workspace whose plan includes this feature can use it (within 60 seconds). The parent flag must be on.",
+        "disableHint": "Turns it off for every workspace (except forced-on exceptions) and turns off dependent flags."
+      },
+      "plans": {
+        "title": "By plan",
+        "intro": "Which plan includes which feature. Defaults follow the pricing; click a cell to change.",
+        "plan": "Plan",
+        "included": "Yes",
+        "excluded": "No",
+        "addTitle": "Add {flag} to the {plan} plan",
+        "removeTitle": "Remove {flag} from the {plan} plan",
+        "hint": "Applies to every workspace on this plan (except exceptions) within 60 seconds."
+      },
+      "overrides": {
+        "title": "Per-workspace exceptions",
+        "intro": "The value in effect for each workspace. Exceptions win over app-wide × plan: use them for trials, demos or turning off a customer with an issue.",
+        "forcedOn": "forced on",
+        "forcedOff": "forced off",
+        "dialogTitle": "{flag} · {workspace}",
+        "choice": {
+          "on": "Force on",
+          "off": "Force off",
+          "clear": "Follow app-wide × plan"
+        },
+        "choiceHint": {
+          "on": "On for this workspace even if its plan lacks it (the parent flag must still be in effect).",
+          "off": "Off for this workspace even if app-wide and plan are on; also turns off child flags.",
+          "clear": "Remove the exception; the workspace follows the app-wide flag and its plan."
+        }
+      },
+      "scopeHistory": "App-wide / plan flag change log"
     },
     "killSwitch": {
       "nav": "Kill switch",

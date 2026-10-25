@@ -43,13 +43,8 @@ describe('API admin cờ (AD01, AD02)', () => {
 
     const cl = await call(checklist.GET, { user: pm, params });
     expect((cl.body as { items: { passed: boolean }[] }).items.some((c) => !c.passed)).toBe(true);
-    const blocked = await call(toggle.POST, { user: pm, params, body: { enabled: true, reason: 'design partner' } });
-    expect(blocked.status).toBe(409);
-    const ok = await call(toggle.POST, {
-      user: pm,
-      params,
-      body: { enabled: true, reason: 'design partner', override: true },
-    });
+    // ADR-0024: checklist chưa đạt không chặn — bật thẳng (ngoại lệ), nhật ký ghi override.
+    const ok = await call(toggle.POST, { user: pm, params, body: { enabled: true, reason: 'design partner' } });
     expect(ok.body).toMatchObject({ enabled: true, override: true });
 
     const m = await call(matrix.GET, { user: pm });

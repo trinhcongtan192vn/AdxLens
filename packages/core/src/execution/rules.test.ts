@@ -13,7 +13,7 @@ import {
   truncateAll,
 } from '@adxlens/db/testing';
 import { setSubscription } from '@adxlens/core/billing';
-import { enableFlag } from '@adxlens/core/flags';
+import { setGlobalFlag } from '@adxlens/core/flags';
 import { addDays } from '@adxlens/core/shared';
 import { resolveActor } from '@adxlens/core/tenancy';
 import {
@@ -176,17 +176,12 @@ describe('vòng đời rule: shadow → live (ADR-0012 mục 4)', () => {
       details: { reason: 'feature_disabled' },
     });
     const pm = await seedStaff(db, true);
+    // ADR-0024: cờ toàn app bật, nhưng gói Free không có P2b → cờ hiệu lực tắt (gói nằm trong cờ).
     for (const key of ['p0_reports', 'p1_recommendations', 'p2a_approve', 'p2b_auto'] as const) {
-      await enableFlag(db, {
-        workspaceId: s.workspaceId,
-        key,
-        staffUserId: pm.id,
-        reason: 'test rule',
-        override: true,
-      });
+      await setGlobalFlag(db, { key, enabled: true, staffUserId: pm.id, reason: 'mở toàn app' });
     }
     await expect(setRuleMode(s.ctx, r.id, 'live', clock)).rejects.toMatchObject({
-      details: { reason: 'plan_required' },
+      details: { reason: 'feature_disabled' },
     });
     await setSubscription(s.ctx, { planKey: 'growth' });
     await expect(setRuleMode(s.ctx, r.id, 'live', clock)).rejects.toMatchObject({

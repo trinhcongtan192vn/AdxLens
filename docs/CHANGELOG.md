@@ -27,6 +27,60 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [116] Cờ tính năng toàn app × gói + ngoại lệ; kết nối là đồng ý cho ghi (ADR-0024) — 2026-10-25
+
+PM yêu cầu ngày 25/10/2026: "đã qua giai đoạn thử nghiệm", quản lý cờ cho toàn app và theo gói; kết nối là đồng ý cho
+app quyền kiểm soát tài khoản.
+
+- **Quy tắc mới:** tính năng chạy khi **cờ toàn app bật VÀ gói của workspace có**, trừ ngoại lệ của workspace (bật thêm /
+  tắt riêng). Thứ tự cha → con giữ nguyên.
+- **`/admin/flags`** làm lại thành 3 phần:
+  - **Toàn app**: bật / tắt từng cờ, superadmin, bắt buộc lý do; tắt cờ cha tắt luôn cờ con;
+  - **Theo gói**: ma trận gói × tính năng, mặc định theo bảng giá, superadmin sửa;
+  - **Ngoại lệ theo workspace**: mỗi ô hiện giá trị hiệu lực + nhãn "bật thêm / tắt riêng"; bấm để chọn Bật thêm / Tắt
+    riêng / Theo toàn app × gói;
+  - nhật ký thay đổi toàn app / gói.
+- **Checklist** chỉ để tham khảo, không chặn bật cờ hay duyệt đề xuất nữa.
+- **Quyền ghi Meta:**
+  - kết nối có `ads_management` được ghi ngay, bỏ bước "Cấp quyền ghi";
+  - Owner vẫn tắt được; kết nối lại không ghi đè lựa chọn đã tắt;
+  - kết nối hiện có (chưa từng chỉnh) được bật theo quyết định này.
+- Execution Gateway / rule không kiểm gói riêng nữa: gói đã nằm trong cờ hiệu lực, nên ngoại lệ "bật thêm" hoạt động.
+- **Chuyển đổi:**
+  - cờ toàn app khởi tạo **tắt** (không tự bật cờ, quy tắc 7);
+  - cờ đang bật theo workspace giữ thành "bật thêm";
+  - dòng "tắt" cũ bị xóa.
+- `CLAUDE.md`: câu mô tả cờ ở mục "Sản phẩm" sửa theo ADR-0024.
+
+**Vùng bảo vệ:**
+- `packages/core/flags`;
+- `packages/db` (migration 0077–0078: bảng mới + chuyển đổi dữ liệu);
+- `packages/core/connections` (mặc định quyền ghi);
+- `packages/core/execution` (bỏ `plan_required`).
+- **Cần PM chạy integration test trên staging trước khi merge `main`.**
+
+**Test tự động:**
+- `flags.test.ts`:
+  - mặc định toàn app tắt; ma trận gói theo bảng giá;
+  - bật toàn app × gói (Free chỉ P0, Growth đủ); sửa ma trận;
+  - tắt cờ cha toàn app tắt cờ con; nhật ký;
+  - ngoại lệ bật thêm / tắt riêng / bỏ; chỉ superadmin đổi toàn app / gói.
+- `api/v1/admin/flag-scopes.test.ts`: API toàn app / gói / bỏ ngoại lệ / nhật ký, quyền operator.
+- **Đổi test (quy tắc 8)**, vì đúng hành vi PM vừa đổi:
+  - `flags.test.ts`: 2 test "checklist chưa đạt thì chặn" thành "không chặn, vẫn ghi nhật ký";
+  - `admin.test.ts`, `admin-roles.test.ts`: bỏ bước "vượt checklist";
+  - `gateway.test.ts`: "gói Free → 402" thành "toàn app bật nhưng gói Free không có P2a → 404";
+  - `gateway.test.ts`, `launch.test.ts`: `write: false` nghĩa là Owner tự tắt quyền ghi;
+  - `rules.test.ts`: `plan_required` thành `feature_disabled` qua toàn app × gói;
+  - `write-access.test.ts`: kết nối có `ads_management` → được ghi ngay.
+  - Không bỏ kiểm tra an toàn nào: kill switch, guardrail, quyền theo Client, `no_write_access` khi Owner tắt vẫn được
+    test.
+- E2E: helper `forceFlagOn` thay luồng checklist; bỏ bước "Cấp quyền ghi".
+
+**PM làm sau khi cập nhật:**
+1. Vào `/admin/flags` → **Toàn app** → bật lần lượt Báo cáo → Gợi ý → Duyệt 1 click → Tự động hóa.
+2. Xem / sửa ma trận **Theo gói**.
+
 ## [115] Sửa: ảnh creative mờ — 2026-10-25
 
 - **Lỗi** (PM báo): ảnh ở Workspace › Quảng cáo, thư viện Creative và báo cáo rất mờ. Meta mặc định trả `thumbnail_url`
