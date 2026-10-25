@@ -27,6 +27,28 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [140] Bộ lọc kỳ đặt đúng vùng dữ liệu, không còn ở đầu mọi trang — 2026-10-25
+
+PM góp ý UI/UX #3: bộ lọc ngày ở header hầu hết các màn, kể cả màn không lọc theo ngày được.
+
+- **Trang chủ:** bộ lọc 7 / 14 / 30 ngày chuyển vào khối **Hiệu suất**. Sức khỏe, Tracking, Cần chú ý không theo kỳ.
+- **AI Agents, Cảnh báo, Launcher:** bỏ bộ lọc kỳ (không có số theo kỳ).
+- **Ads Manager, Quảng cáo, Phễu, Địa lý, Mở rộng, Business, Audiences:** giữ bộ lọc ở đầu trang. Mọi khối của các
+  trang này theo kỳ.
+- **Trang cổ điển:** thanh trên chỉ hiện bộ chọn kỳ ở trang có số theo kỳ (tài khoản / chi tiết chiến dịch, trang
+  client, Creative). Bỏ ở Clients, Báo cáo, Kết nối, Cài đặt, Thông báo, Nhật ký…
+- Khi in / xuất PDF vẫn ghi kỳ trên dòng phạm vi.
+- Component `PeriodFilter` dùng chung.
+
+**Vùng bảo vệ:** không.
+
+**Test tự động:**
+- `lib/period.test.ts` (`periodApplies`): trang có / không có số theo kỳ.
+- E2E `workspace-home.spec.ts`:
+  - trang chủ có đúng 1 bộ lọc kỳ (khối Hiệu suất);
+  - Cảnh báo không có bộ lọc;
+  - Clients không có bộ chọn kỳ.
+
 ## [139] Chọn client ở một nơi, sidebar luôn một bộ menu — 2026-10-25
 
 PM góp ý UI/UX #2 và #4: hai dropdown chọn khách gây rối; mở chi tiết thì sidebar đổi sang menu của client.

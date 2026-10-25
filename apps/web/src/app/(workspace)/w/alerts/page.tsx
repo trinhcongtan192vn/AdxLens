@@ -38,7 +38,6 @@ export default async function AlertsPage({ searchParams }: { searchParams: Promi
         subtitle={t('subtitle')}
         accounts={scope.accounts}
         selectedId={scope.selected?.id ?? null}
-        period={scope.period}
         hideScope
       />
       <AlertsManager

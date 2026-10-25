@@ -57,7 +57,6 @@ export default async function AgentsPage({
         subtitle={t('subtitle')}
         accounts={scope.accounts}
         selectedId={scope.selected?.id ?? null}
-        period={scope.period}
         hideScope
       />
       {!getEnv().ANTHROPIC_API_KEY && !(await hasWorkspaceLlmKey(pc.ctx)) ? (

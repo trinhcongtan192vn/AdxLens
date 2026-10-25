@@ -41,7 +41,6 @@ export default async function LauncherPage({
       subtitle={t('subtitle')}
       accounts={scope.accounts}
       selectedId={scope.selected?.id ?? null}
-      period={scope.period}
     />
   );
   if (!account) {

@@ -29,7 +29,8 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page.getByTestId('ws-attention')).toBeVisible();
   await expect(page.getByTestId('ws-alert-suggestions')).toBeVisible();
 
-  // Kỳ 30 ngày → độ phủ theo 30 ngày.
+  // Kỳ 30 ngày → độ phủ theo 30 ngày. PM 25/10: bộ lọc kỳ nằm trong khối Hiệu suất (một bộ duy nhất trên trang).
+  await expect(page.getByTestId('period-filter')).toHaveCount(1);
   await page.getByRole('button', { name: '30 ngày' }).click();
   await expect(page.getByTestId('ws-coverage')).toHaveText(/Dữ liệu \d+\/30 ngày/);
 
@@ -52,6 +53,8 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   // Chờ sang hẳn trang Cảnh báo (trang chủ cũng có nút "Tạo cảnh báo" ở khối gợi ý).
   await expect(page).toHaveURL(/\/w\/alerts$/);
   await expect(page.getByRole('heading', { name: 'Cảnh báo', level: 1 })).toBeVisible();
+  // Trang không lọc theo ngày → không có bộ lọc kỳ.
+  await expect(page.getByTestId('period-filter')).toHaveCount(0);
   await page.getByRole('button', { name: 'Tạo cảnh báo' }).first().click();
   await page.getByRole('dialog').getByLabel('Chỉ số').selectOption({ label: 'CPM' });
   await expect(page.getByRole('dialog').getByText(/^Trung bình 7 ngày qua: /)).toBeVisible();
@@ -120,6 +123,7 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page).toHaveURL(/\/clients$/);
   await expect(page.getByTestId('ws-create')).toBeVisible();
   await expect(page.getByTestId('page-toolbar')).toBeVisible();
+  await expect(page.getByTestId('page-toolbar').getByRole('combobox')).toHaveCount(0);
   await page.goto('/w');
   await expect(page.getByTestId('page-toolbar')).toHaveCount(0);
 

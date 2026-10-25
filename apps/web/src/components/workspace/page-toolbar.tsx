@@ -6,7 +6,7 @@ import { useTransition } from 'react';
 import { Select } from '@adxlens/ui';
 import { api } from '@/lib/api-client';
 import { breadcrumbFor } from '@/lib/breadcrumb';
-import { PERIODS, type Period } from '@/lib/period';
+import { periodApplies, PERIODS, type Period } from '@/lib/period';
 
 /**
  * Đầu trang cho các trang có từ giao diện cổ điển (trong khung chung): breadcrumb + chọn kỳ. Trang `/w/*` tự có đầu
@@ -29,23 +29,25 @@ export function PageToolbar({ period }: { period: Period }) {
           </span>
         ))}
       </nav>
-      <Select
-        className="w-50"
-        value={period}
-        onChange={(e) =>
-          start(async () => {
-            await api('me/preferences', { method: 'POST', body: { period: e.target.value } });
-            router.refresh();
-          })
-        }
-        aria-label={t('shell.period')}
-      >
-        {PERIODS.map((p) => (
-          <option key={p} value={p}>
-            {t(`shell.periods.${p}`)}
-          </option>
-        ))}
-      </Select>
+      {periodApplies(pathname) ? (
+        <Select
+          className="w-50"
+          value={period}
+          onChange={(e) =>
+            start(async () => {
+              await api('me/preferences', { method: 'POST', body: { period: e.target.value } });
+              router.refresh();
+            })
+          }
+          aria-label={t('shell.period')}
+        >
+          {PERIODS.map((p) => (
+            <option key={p} value={p}>
+              {t(`shell.periods.${p}`)}
+            </option>
+          ))}
+        </Select>
+      ) : null}
     </div>
   );
 }

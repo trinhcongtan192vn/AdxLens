@@ -57,3 +57,11 @@ export function previousRange(r: DateRange): DateRange {
   const len = Math.round((Date.parse(r.to) - Date.parse(r.from)) / 86_400_000) + 1;
   return { from: addDays(r.from, -len), to: addDays(r.from, -1) };
 }
+
+/**
+ * Trang (giao diện cổ điển) có số theo kỳ → hiện bộ chọn kỳ ở thanh trên (PM 25/10: không hiện ở trang không lọc theo
+ * ngày được). Trang Workspace `/w/*` tự đặt bộ lọc kỳ cạnh vùng dữ liệu.
+ */
+export function periodApplies(pathname: string): boolean {
+  return /^\/(accounts\/[^/]+|clients\/[0-9a-f-]{36}$|creatives(\/|$))/.test(pathname);
+}
