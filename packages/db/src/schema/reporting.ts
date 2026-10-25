@@ -162,3 +162,31 @@ export const clientBudgets = app.table(
   },
   (t) => [unique().on(t.clientId, t.month), index().on(t.workspaceId, t.month)],
 );
+
+/**
+ * ADR-0028: link Business Dashboard công khai theo Client (số liệu sống 7 / 30 ngày tới hôm qua). Khóa như link báo cáo
+ * khi chưa toàn vẹn / ngắt kết nối / dữ liệu mẫu.
+ */
+export const businessLinks = app.table(
+  'business_links',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    clientId: uuid('client_id')
+      .notNull()
+      .references(() => clients.id, { onDelete: 'cascade' }),
+    token: text('token').notNull().unique(),
+    periodDays: smallint('period_days').notNull(),
+    passwordHash: text('password_hash'),
+    showBadge: boolean('show_badge').notNull().default(true),
+    expiresAt: tsz('expires_at'),
+    revokedAt: tsz('revoked_at'),
+    viewCount: integer('view_count').notNull().default(0),
+    lastViewedAt: tsz('last_viewed_at'),
+    createdBy: uuid('created_by').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index().on(t.workspaceId, t.clientId)],
+);

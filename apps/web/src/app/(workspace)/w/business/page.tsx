@@ -1,18 +1,19 @@
 import { getLocale, getTranslations } from 'next-intl/server';
-import { BUSINESS_METRICS, businessDashboard, type BusinessBlock } from '@adxlens/core/reporting';
-import { Card, cn } from '@adxlens/ui';
+import { businessDashboard, listBusinessLinks, type BusinessBlock } from '@adxlens/core/reporting';
+import { can, listClients } from '@adxlens/core/tenancy';
+import { Card } from '@adxlens/ui';
+import { BusinessTiles, type BusinessTileKey } from '@/components/business-tiles';
 import { WsHeader } from '@/components/workspace/ws-header';
-import { formatMetric, formatPct, LOWER_IS_BETTER } from '@/lib/metric-format';
 import { getPageContext } from '@/server/page-context';
+import { appBaseUrl, currentRequest } from '@/server/public-base';
 import { workspaceScope } from '@/server/workspace-scope';
-import { CopyLinkButton } from './copy-link-button';
+import { BusinessShare } from './business-share';
 
 export async function generateMetadata() {
   const t = await getTranslations('ws');
   return { title: t('nav.business') };
 }
 
-const KEYS = [...BUSINESS_METRICS, 'aov'] as const;
 /** Ô cần nguồn đơn hàng ngoài Meta (Shopify / web) — chưa kết nối nên chỉ giải thích. */
 const NEEDS_STORE = ['netProfit', 'mer', 'cac', 'ltv'] as const;
 
@@ -28,33 +29,14 @@ export default async function BusinessPage() {
   const tm = await getTranslations('metrics');
   const locale = await getLocale();
   const data = await businessDashboard(pc.ctx, scope.ids, scope.cur, scope.prev);
-  const label = (k: (typeof KEYS)[number]) => (k === 'aov' ? t('aov') : tm(`${k}.name`));
-  const metricKey = (k: (typeof KEYS)[number]) => (k === 'aov' ? 'purchase_value' : k);
+  const label = (k: BusinessTileKey) => (k === 'aov' ? t('aov') : tm(`${k}.name`));
 
   const tiles = (b: BusinessBlock, currency: string | null, testid?: string) => (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-7" data-testid={testid}>
-      {KEYS.map((k) => {
-        const ch = b.changes[k];
-        const good = ch == null ? null : LOWER_IS_BETTER.has(metricKey(k)) ? ch < 0 : ch > 0;
-        return (
-          <div key={k} className="rounded-lg border border-line bg-surface p-3">
-            <p className="text-caption text-fg-tertiary">{label(k)}</p>
-            <p className="num mt-1 text-h4 font-semibold text-fg">
-              {formatMetric(metricKey(k), b.values[k], currency, locale, { compact: true })}
-            </p>
-            <p
-              className={cn(
-                'num text-caption',
-                good == null ? 'text-fg-tertiary' : good ? 'text-success' : 'text-danger',
-              )}
-            >
-              {formatPct(ch, locale)}
-            </p>
-          </div>
-        );
-      })}
-    </div>
+    <BusinessTiles block={b} currency={currency} locale={locale} label={label} testid={testid} />
   );
+  const canShare = can(pc.actor.role, 'reports.manage');
+  const [clients, links] = canShare ? await Promise.all([listClients(pc.ctx), listBusinessLinks(pc.ctx)]) : [[], []];
+  const base = `${appBaseUrl(await currentRequest())}/b`;
 
   return (
     <>
@@ -68,7 +50,22 @@ export default async function BusinessPage() {
       <Card>
         <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-h4 font-semibold text-fg">{t('blended')}</h2>
-          <CopyLinkButton label={t('share')} copied={t('copied')} />
+          {canShare ? (
+            <BusinessShare
+              base={base}
+              clients={clients.filter((c) => !c.archivedAt).map((c) => ({ id: c.id, name: c.name }))}
+              links={links.map((l) => ({
+                id: l.id,
+                clientId: l.clientId,
+                token: l.token,
+                periodDays: l.periodDays,
+                hasPassword: Boolean(l.passwordHash),
+                expiresAt: l.expiresAt?.toISOString() ?? null,
+                revoked: Boolean(l.revokedAt),
+                views: l.viewCount,
+              }))}
+            />
+          ) : null}
         </div>
         {tiles(data.blended, scope.currency, 'business-blended')}
         {scope.excludedOtherCurrency ? (

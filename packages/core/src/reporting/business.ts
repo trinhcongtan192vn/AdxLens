@@ -35,12 +35,16 @@ export async function businessDashboard(
   blendedIds: string[],
   cur: DateRange,
   prev: DateRange,
+  /** Chỉ các tài khoản này (link công khai theo Client, ADR-0028); mặc định mọi tài khoản người dùng được xem. */
+  onlyIds?: string[],
 ): Promise<{
   blended: BusinessBlock;
   accounts: { id: string; name: string; currency: string; clientName: string | null; block: BusinessBlock }[];
 }> {
   const [bc, bp] = await Promise.all([metricValues(ctx, blendedIds, cur), metricValues(ctx, blendedIds, prev)]);
-  const all = (await listAdAccounts(ctx)).filter((a) => a.connectionStatus !== 'revoked');
+  const all = (await listAdAccounts(ctx)).filter(
+    (a) => a.connectionStatus !== 'revoked' && (!onlyIds || onlyIds.includes(a.id)),
+  );
   const accounts = await Promise.all(
     all.map(async (a) => {
       const [c, p] = await Promise.all([metricValues(ctx, [a.id], cur), metricValues(ctx, [a.id], prev)]);

@@ -12,6 +12,7 @@ const PUBLIC_PREFIXES = [
   '/auth',
   '/invite',
   '/r/',
+  '/b/',
   '/api/',
   '/pricing',
   '/privacy',

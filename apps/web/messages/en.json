@@ -3642,8 +3642,6 @@
   "wsBusiness": {
     "subtitle": "Blended from Meta, {from} → {to}",
     "blended": "Blended summary",
-    "share": "Share",
-    "copied": "Link copied (recipients need workspace access)",
     "aov": "Avg order value (Meta)",
     "otherCurrency": "{n} accounts in other currencies are not added to the total; see each account below.",
     "store": {
@@ -3653,7 +3651,27 @@
       "ltv": "LTV / LTV:CAC"
     },
     "needsStore": "Needs an order source (Shopify / web) — not connected. Meta numbers are not enough.",
-    "byAccount": "By ad account"
+    "byAccount": "By ad account",
+    "shareLink": {
+      "button": "Share with client",
+      "title": "Public Business link",
+      "intro": "Your client sees their ads overview (7 or 30 days to yesterday) without logging in. The page locks itself while numbers are being reconciled, an account isn't confirmed or the connection is disconnected.",
+      "client": "Client",
+      "period": "Period",
+      "days": "{n} days",
+      "expiry": "Expires",
+      "never": "Never",
+      "password": "Password (optional, ≥ 6 characters)",
+      "create": "Create link and copy",
+      "noClient": "No clients yet.",
+      "copied": "Link copied",
+      "copy": "Copy link",
+      "revoke": "Revoke",
+      "revoked": "Link revoked",
+      "protected": "Password",
+      "revokedBadge": "Revoked",
+      "views": "{n} views"
+    }
   },
   "wsAudiences": {
     "subtitle": "Which audiences work: lookalikes, customers, interests, broad",
@@ -3824,5 +3842,12 @@
         "addKey": "Settings → Integrations"
       }
     }
+  },
+  "publicBusiness": {
+    "period": "{from} to {to} · vs previous period",
+    "lockedTitle": "Numbers are being updated",
+    "lockedBody": "Numbers are being reconciled with Ads Manager. Please check back later.",
+    "footnote": "Data from Meta Ads, reconciled with Ads Manager (≤ 1% difference). Revenue is as reported by Meta.",
+    "poweredBy": "Report by AdxLens"
   }
 }

@@ -27,6 +27,42 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [129] Link Business Dashboard công khai cho khách (ADR-0028) — 2026-10-25
+
+Gap "Link Business công khai" (PM chọn sau khi đối chiếu Madgicx Academy).
+
+- **`/w/business` → "Chia sẻ với khách"** (thay nút sao chép link nội bộ):
+  - tạo link công khai theo **Client**, kỳ 7 hoặc 30 ngày tới hôm qua (so với kỳ trước), mật khẩu và hạn
+    (7 / 30 / 90 ngày) tùy chọn;
+  - link được sao chép ngay;
+  - danh sách link: lượt xem, thu hồi.
+  - Cần quyền báo cáo (`reports.manage`) và quyền xem Client.
+- **Trang công khai `/b/<token>`** (không cần đăng nhập, không index, mobile-first):
+  - logo agency, tên khách, khối tổng hợp (khi các tài khoản cùng tiền tệ) và từng tài khoản QC;
+  - cùng ô chỉ số như trang nội bộ; số do code tính từ snapshot.
+- **Khóa như link báo cáo** (ADR-0007, P0-22 / 23): trong kỳ có tài khoản chưa xác nhận Client, ngày đối chiếu lệch
+  > 1%, kết nối đã ngắt hoặc dữ liệu mẫu → trang hiện "Số liệu đang được cập nhật", không hiện số. Hết lý do → tự mở lại.
+- **Bảo mật:**
+  - token 32 byte;
+  - mật khẩu scrypt + cookie ký 12 giờ cho đúng link;
+  - thu hồi có hiệu lực ngay;
+  - badge "Báo cáo bởi AdxLens" theo gói.
+- **Bảng mới `app.business_links`** (migration 0081–0082, RLS theo workspace). Tra token ở `core/ops` (xuyên
+  workspace có chủ đích, như link báo cáo).
+- Ô chỉ số Business tách thành component dùng chung (`components/business-tiles.tsx`).
+
+**Vùng bảo vệ:** `packages/db` (bảng + RLS).
+
+**Test tự động:**
+- `reporting/business-share.test.ts`:
+  - buyer không tạo được; mật khẩu ngắn → 422;
+  - trang công khai đúng kỳ 30 ngày tới hôm qua; đếm lượt xem;
+  - mật khẩu → `password` / mở khóa → `ok`; thu hồi → `revoked`;
+  - đối chiếu lệch trong kỳ / tài khoản chưa xác nhận → `locked`; hết hạn → `expired`.
+- Bộ cách ly:
+  - `GET/POST /api/v1/business-links`, `DELETE /api/v1/business-links/[id]` (Client của workspace khác → 404);
+  - `POST /api/v1/public/business/[token]/unlock` (miễn trừ: trang công khai).
+
 ## [128] AI tạo ảnh cho creative bằng khóa OpenAI của workspace (ADR-0027) — 2026-10-25
 
 Bước 2 của gap "Upload creative + AI tạo ảnh" (bước 1: [127]).
