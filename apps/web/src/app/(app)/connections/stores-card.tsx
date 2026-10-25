@@ -27,16 +27,24 @@ export function StoresCard({
   items,
   clients,
   shopifyEnabled,
+  ga4Enabled,
 }: {
   items: Item[];
   clients: { id: string; name: string }[];
   shopifyEnabled: boolean;
+  ga4Enabled: boolean;
 }) {
   const t = useTranslations('stores');
   const format = useFormatter();
   const router = useRouter();
   const [shop, setShop] = useState('');
   const [clientId, setClientId] = useState(clients[0]?.id ?? '');
+  const [property, setProperty] = useState('');
+  const [gaClient, setGaClient] = useState(clients[0]?.id ?? '');
+  const connectGa4 = () => {
+    const q = new URLSearchParams({ property_id: property.trim(), ...(gaClient ? { client_id: gaClient } : {}) });
+    window.location.href = `/api/v1/stores/ga4/authorize?${q.toString()}`;
+  };
   const [pending, start] = useTransition();
   const connect = () => {
     const q = new URLSearchParams({ shop: shop.trim(), ...(clientId ? { client_id: clientId } : {}) });
@@ -144,6 +152,41 @@ export function StoresCard({
         </div>
       ) : (
         <p className="mt-3 text-small text-fg-tertiary">{t('notConfigured')}</p>
+      )}
+
+      {ga4Enabled ? (
+        <div className="mt-4 grid max-w-3xl gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <Field label={t('property')} htmlFor="st-ga4" hint={t('propertyHint')}>
+            <Input
+              id="st-ga4"
+              value={property}
+              inputMode="numeric"
+              placeholder="123456789"
+              onChange={(e) => setProperty(e.target.value)}
+            />
+          </Field>
+          <Field label={t('cols.client')} htmlFor="st-ga4-client">
+            <Select id="st-ga4-client" value={gaClient} onChange={(e) => setGaClient(e.target.value)}>
+              <option value="">{t('noClient')}</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button
+            kind="secondary"
+            size="m"
+            disabled={!/^\d{5,15}$/.test(property.trim())}
+            onClick={connectGa4}
+            data-testid="connect-ga4"
+          >
+            {t('connectGa4')}
+          </Button>
+        </div>
+      ) : (
+        <p className="mt-2 text-small text-fg-tertiary">{t('ga4NotConfigured')}</p>
       )}
     </Card>
   );

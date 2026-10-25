@@ -1,6 +1,6 @@
 import 'server-only';
 import { getEnv } from '@adxlens/config/env';
-import { shopifyApi } from '@adxlens/core/stores';
+import { googleAnalyticsApi, shopifyApi } from '@adxlens/core/stores';
 import type { RequestLike } from '@/lib/public-url';
 import { appBaseUrl } from './public-base';
 
@@ -26,4 +26,24 @@ export function shopify() {
 /** redirect_uri của Shopify OAuth (khai báo trong app Partner, xem docs/runbooks/store-connectors.md). */
 export function shopifyRedirectUri(req: RequestLike): string {
   return `${appBaseUrl(req)}/api/v1/stores/shopify/callback`;
+}
+
+/** ADR-0029: cấu hình Google OAuth (GA4); `enabled` = có client OAuth (hoặc STORE_MOCK ở local / test). */
+export function ga4Config() {
+  const env = getEnv();
+  return {
+    mock: env.STORE_MOCK,
+    enabled: env.STORE_MOCK || Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
+    clientId: env.GOOGLE_CLIENT_ID,
+    clientSecret: env.GOOGLE_CLIENT_SECRET,
+  };
+}
+
+export function ga4() {
+  return googleAnalyticsApi(ga4Config());
+}
+
+/** redirect_uri của Google OAuth (khai báo trong Google Cloud, xem docs/runbooks/store-connectors.md). */
+export function ga4RedirectUri(req: RequestLike): string {
+  return `${appBaseUrl(req)}/api/v1/stores/ga4/callback`;
 }

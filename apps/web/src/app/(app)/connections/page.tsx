@@ -30,7 +30,7 @@ import { requirePermission } from '@/server/guards';
 import { getPageContext } from '@/server/page-context';
 import { listStoreConnections } from '@adxlens/core/stores';
 import { listClients } from '@adxlens/core/tenancy';
-import { shopifyConfig } from '@/server/stores';
+import { ga4Config, shopifyConfig } from '@/server/stores';
 import { ConnectionList } from './connection-list';
 import { StoresCard } from './stores-card';
 import { ResyncButton } from './resync-button';
@@ -218,6 +218,7 @@ export default async function ConnectionsPage({ searchParams }: { searchParams: 
       )}
       <StoresCard
         shopifyEnabled={shopifyConfig().enabled}
+        ga4Enabled={ga4Config().enabled}
         clients={clientRows.filter((c) => !c.archivedAt).map((c) => ({ id: c.id, name: c.name }))}
         items={stores.map((s) => ({
           id: s.id,

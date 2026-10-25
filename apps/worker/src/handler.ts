@@ -1,4 +1,4 @@
-import type { ShopifyApi } from '@adxlens/store-client';
+import type { GoogleAnalyticsApi, ShopifyApi } from '@adxlens/store-client';
 import type { AgentLlm } from '@adxlens/core/agent';
 import type { TokenKeys } from '@adxlens/core/connections';
 import type { MetaWriter } from '@adxlens/core/execution';
@@ -19,6 +19,7 @@ export type WorkerServices = {
   metaWriter: MetaWriter;
   /** ADR-0029: Shopify (chỉ đọc). */
   shopify: ShopifyApi;
+  ga4: GoogleAnalyticsApi;
   email: EmailSender;
   /** URL gốc của web app (link trong email). */
   appUrl: string;
