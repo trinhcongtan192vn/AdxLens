@@ -2,6 +2,24 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [097] Business Dashboard (Workspace) — 2026-10-25
+
+Theo Madgicx Business Dashboard, mục 3.3 trong tài liệu nghiên cứu.
+
+- Trang mới **Workspace › Business** (`/w/business`):
+  - **Tổng hợp (Blended)** của phạm vi đang chọn, 7 ô có % so kỳ trước: Chi tiêu, Doanh thu, ROAS, Lượt mua, CTR, CPC,
+    Giá trị đơn TB (Meta);
+  - **khối theo từng tài khoản QC** người dùng được xem, mỗi khối theo tiền tệ của tài khoản đó;
+  - nút **Chia sẻ**: sao chép link trang, người nhận cần quyền trong workspace.
+- Các ô Lợi nhuận ròng / MER / CAC / LTV ghi rõ **"cần nguồn đơn hàng (Shopify / web) — chưa kết nối"**. AdxLens không
+  ước lượng các số này từ dữ liệu Meta.
+
+**Test tự động:**
+- `reporting/business.test.ts`: tổng hợp = tổng insight; tổng các khối = tổng hợp; AOV; buyer chưa được gán khách thì
+  không thấy gì.
+- E2E `workspace-home.spec.ts`: mở trang Business.
+- **Đổi test (quy tắc 8):** `lib/workspace-nav.test.ts` thêm `business` vào danh sách menu mong đợi, vì menu có mục mới. Assertion vẫn so khớp toàn bộ danh sách.
+
 ## [096] Chọn đối tượng trong bảng làm ngữ cảnh cho AI + nút Dừng — 2026-10-25
 
 Theo Madgicx roadmap chat, mục 3.5 trong tài liệu nghiên cứu.

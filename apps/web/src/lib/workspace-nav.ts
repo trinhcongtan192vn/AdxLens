@@ -6,13 +6,15 @@ export const W_SCOPE_COOKIE = 'w_scope';
 export const W_KPIS_COOKIE = 'w_kpis';
 export const W_BASE = '/w';
 
-export type WNavKey = 'home' | 'agents' | 'ads' | 'adsManager' | 'funnels' | 'geography' | 'scale' | 'alerts';
+export type WNavKey =
+  'home' | 'agents' | 'business' | 'ads' | 'adsManager' | 'funnels' | 'geography' | 'scale' | 'alerts';
 
 export type WNavItem = { key: WNavKey; href: string; flag?: FlagKey };
 
 export const W_NAV: WNavItem[] = [
   { key: 'home', href: '/w' },
   { key: 'agents', href: '/w/agents', flag: 'p1_recommendations' },
+  { key: 'business', href: '/w/business' },
   { key: 'ads', href: '/w/ads' },
   { key: 'adsManager', href: '/w/ads-manager' },
   { key: 'funnels', href: '/w/funnels' },

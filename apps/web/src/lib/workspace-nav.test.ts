@@ -7,6 +7,7 @@ describe('điều hướng giao diện Workspace (W3)', () => {
   it('cờ P1 tắt → ẩn Agents; các trang đọc số (P0) luôn hiện', () => {
     expect(visibleWNav(W_NAV, off).map((i) => i.key)).toEqual([
       'home',
+      'business',
       'ads',
       'adsManager',
       'funnels',
