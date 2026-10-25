@@ -27,6 +27,27 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [121] AI Agents: hiển thị câu trả lời dạng markdown — 2026-10-25
+
+PM yêu cầu "pretify câu trả lời từ AI": câu trả lời đang hiện chữ thô với dấu `**`.
+
+- Câu trả lời của agent hiển thị dạng markdown:
+  - **đậm**, *nghiêng*, `code`;
+  - tiêu đề;
+  - danh sách gạch đầu dòng / đánh số (kể cả dòng tiếp nối);
+  - bảng `| … |`;
+  - xuống dòng trong đoạn.
+- **Bộ đọc markdown tự viết, tối giản** (`lib/mini-markdown.ts`):
+  - dựng thành phần tử React, không dùng HTML thô, nên nội dung LLM không chèn được thẻ / script;
+  - không thêm thư viện mới.
+- Dấu `*` trong phép nhân / số (vd. `2 * 3`) không bị hiểu nhầm là chữ nghiêng.
+
+**Test tự động:** `lib/mini-markdown.test.ts`:
+- trong dòng: đậm / nghiêng / code;
+- câu trả lời thật của agent (đoạn + danh sách + kết luận);
+- tiêu đề, danh sách đánh số, bảng;
+- thẻ HTML chỉ là chữ.
+
 ## [120] Script dọn dữ liệu test / mock trong DB local (`pnpm purge:test-data`) — 2026-10-25
 
 PM yêu cầu "xóa hết dữ liệu mock ở trang admin". PM chọn: xóa dữ liệu test + mock, giữ workspace thật; làm bằng script
