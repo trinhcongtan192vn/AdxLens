@@ -21,7 +21,7 @@ Theo Madgicx 360° Audit "Export PDF".
   Nút mở hộp in của trình duyệt (Lưu thành PDF).
 - Bản in:
   - ẩn sidebar, ô hỏi AI, banner, bộ chọn phạm vi / kỳ và các nút;
-  - thêm một dòng ghi **phạm vi + kỳ** (vd. "Tất cả tài khoản (3) · 7 ngày");
+  - thêm một dòng ghi **phạm vi + kỳ** (vd. "Tất cả tài khoản (3) · 30 ngày");
   - nội dung giãn hết khổ giấy.
 - Báo cáo gửi khách vẫn dùng PDF dựng ở worker như trước (có kiểm toàn vẹn).
 
