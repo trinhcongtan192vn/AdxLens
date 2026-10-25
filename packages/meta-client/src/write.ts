@@ -27,6 +27,8 @@ export interface MetaWriteApi {
   /** Đọc trạng thái hiện tại của đối tượng (dùng trước khi ghi và để xác minh sau khi ghi). */
   getObject(token: string, id: string, type: MetaObjectType): Promise<WritableObject>;
   setStatus(token: string, id: string, status: 'ACTIVE' | 'PAUSED'): Promise<void>;
+  /** ADR-0025: đổi tên ad / ad set / chiến dịch. */
+  setName(token: string, id: string, name: string): Promise<void>;
   /** `amount` là số nguyên đơn vị nhỏ nhất của tiền tệ, dạng chuỗi (không float). */
   setDailyBudget(token: string, adsetId: string, amount: string): Promise<void>;
   /** Nhân bản sâu ad set, bản sao luôn PAUSED (ADR-0011). */
@@ -71,6 +73,10 @@ export class HttpMetaWrite implements MetaWriteApi {
 
   async setStatus(token: string, id: string, status: 'ACTIVE' | 'PAUSED') {
     await this.http.request('POST', id, token, { status }, okSchema, { endpoint: 'object/status' });
+  }
+
+  async setName(token: string, id: string, name: string) {
+    await this.http.request('POST', id, token, { name }, okSchema, { endpoint: 'object/name' });
   }
 
   async setDailyBudget(token: string, adsetId: string, amount: string) {

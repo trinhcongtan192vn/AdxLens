@@ -76,20 +76,25 @@ export class MockMetaWrite implements MetaWriteApi {
     return f.obj;
   }
 
-  private apply(id: string, patch: { status?: string; daily_budget?: string }) {
+  private apply(id: string, patch: { status?: string; daily_budget?: string; name?: string }) {
     const fault = this.fault;
     this.fault = null;
     if (fault === 'error_before')
       throw new MetaApiError(500, 2, null, 'OAuthException', 'Service temporarily unavailable', null);
     const wrong = fault === 'wrong_value';
     const value = wrong
-      ? { status: patch.status ? 'ARCHIVED' : undefined, daily_budget: patch.daily_budget ? '1' : undefined }
+      ? {
+          status: patch.status ? 'ARCHIVED' : undefined,
+          daily_budget: patch.daily_budget ? '1' : undefined,
+          name: patch.name ? `${patch.name} (sai)` : undefined,
+        }
       : patch;
     const cur = mockWriteState.overrides.get(id) ?? {};
     mockWriteState.overrides.set(id, {
       ...cur,
       ...(value.status ? { status: value.status } : {}),
       ...(value.daily_budget ? { daily_budget: value.daily_budget } : {}),
+      ...(value.name ? { name: value.name } : {}),
     });
     if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);
   }
@@ -98,6 +103,12 @@ export class MockMetaWrite implements MetaWriteApi {
     if (!this.find(id)) throw new MetaApiError(400, 100, 33, 'GraphMethodException', 'Object does not exist', null);
     this.calls.push({ op: 'setStatus', id, value: status });
     this.apply(id, { status });
+  }
+
+  async setName(_t: string, id: string, name: string) {
+    if (!this.find(id)) throw new MetaApiError(400, 100, 33, 'GraphMethodException', 'Object does not exist', null);
+    this.calls.push({ op: 'setName', id, value: name });
+    this.apply(id, { name });
   }
 
   async setDailyBudget(_t: string, adsetId: string, amount: string) {

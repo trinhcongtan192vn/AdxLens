@@ -2345,7 +2345,10 @@
       "create_ad": "Tạo quảng cáo",
       "create_lookalike": "Tạo lookalike",
       "pause_campaign": "Tạm dừng chiến dịch",
-      "resume_campaign": "Bật lại chiến dịch"
+      "resume_campaign": "Bật lại chiến dịch",
+      "rename_ad": "Đổi tên quảng cáo",
+      "rename_adset": "Đổi tên nhóm QC",
+      "rename_campaign": "Đổi tên chiến dịch"
     },
     "state": {
       "ACTIVE": "Đang chạy",
@@ -2437,7 +2440,8 @@
       "invalid_budget": "Ngân sách mới không hợp lệ.",
       "quiet_hours": "Ngoài giờ cho phép.",
       "no_auto_resume": "Không tự bật lại.",
-      "no_auto_duplicate": "Không tự nhân bản."
+      "no_auto_duplicate": "Không tự nhân bản.",
+      "no_auto_edit": "Rule tự động không được đổi tên / giá thầu / giới hạn chi (chỉ duyệt tay)."
     },
     "bulkButton": "Xem trước & duyệt ({count})",
     "bulkTitle": "Duyệt {count} gợi ý",
@@ -2703,7 +2707,10 @@
       "resume_adset": "Bật lại {count} nhóm QC",
       "set_adset_budget": "Đổi ngân sách ngày",
       "pause_campaign": "Tạm dừng {count} chiến dịch",
-      "resume_campaign": "Bật lại {count} chiến dịch"
+      "resume_campaign": "Bật lại {count} chiến dịch",
+      "rename_ad": "Đổi tên quảng cáo",
+      "rename_adset": "Đổi tên nhóm quảng cáo",
+      "rename_campaign": "Đổi tên chiến dịch"
     },
     "confirm": "Thực hiện {count} hành động",
     "note": "Mỗi hành động được kiểm guardrails, thực hiện qua Meta rồi xác minh lại; chỉ gửi đối tượng không vi phạm. Theo dõi kết quả ở",
@@ -2719,7 +2726,9 @@
     },
     "failed": "{count} hành động không thực hiện được — xem lý do từng đối tượng.",
     "sent": "Đã gửi",
-    "campaignNote": "Tạm dừng chiến dịch sẽ dừng mọi nhóm QC bên dưới. Bật lại chỉ bật chiến dịch, không bật nhóm QC đang tắt."
+    "campaignNote": "Tạm dừng chiến dịch sẽ dừng mọi nhóm QC bên dưới. Bật lại chỉ bật chiến dịch, không bật nhóm QC đang tắt.",
+    "newName": "Tên mới",
+    "rename": "Đổi tên"
   },
   "goals": {
     "title": "Mục tiêu và onboarding",
@@ -3181,7 +3190,8 @@
       "re_engagement": "Tương tác lại",
       "retargeting": "Bám đuổi",
       "retention": "Giữ chân"
-    }
+    },
+    "rename": "Đổi tên {name}"
   },
   "wsFunnels": {
     "subtitle": "Nhận biết → Cân nhắc → Chuyển đổi, tỷ lệ chuyển giữa các bước",

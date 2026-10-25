@@ -23,7 +23,7 @@ import {
   THead,
   TR,
 } from '@adxlens/ui';
-import { ActionDialog, type ActionTarget, type GridActionType } from '@/components/entity-actions';
+import { ActionDialog, renameType, type ActionTarget, type GridActionType } from '@/components/entity-actions';
 import { Sparkline } from '@/components/workspace/sparkline';
 import { ZERO_DECIMAL } from '@/lib/actions';
 import { formatMetric, formatPct, LOWER_IS_BETTER } from '@/lib/metric-format';
@@ -257,6 +257,22 @@ export function AdsManagerView({
               >
                 {r.name ?? r.metaId}
               </Link>
+              {canAct ? (
+                <button
+                  type="button"
+                  className="rounded p-0.5 text-fg-tertiary hover:bg-hover hover:text-fg"
+                  aria-label={t('rename', { name: r.name ?? r.metaId })}
+                  data-testid="am-rename"
+                  onClick={() =>
+                    setDialog({
+                      type: renameType(r.level),
+                      targets: [{ adAccountId: r.adAccountId, metaId: r.metaId, name: r.name ?? r.metaId }],
+                    })
+                  }
+                >
+                  <Pencil className="size-3.5" aria-hidden />
+                </button>
+              ) : null}
               <Badge tone="neutral" className="ml-1">
                 {t(`levels.${r.level}`)}
               </Badge>

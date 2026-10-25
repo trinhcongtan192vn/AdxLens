@@ -11,7 +11,19 @@ import { api, ApiError } from '@/lib/api-client';
 
 export type ActionTarget = { adAccountId: string; metaId: string; name: string; dailyBudget?: string | null };
 export type GridActionType =
-  'pause_ad' | 'resume_ad' | 'pause_adset' | 'resume_adset' | 'set_adset_budget' | 'pause_campaign' | 'resume_campaign';
+  | 'pause_ad'
+  | 'resume_ad'
+  | 'pause_adset'
+  | 'resume_adset'
+  | 'set_adset_budget'
+  | 'pause_campaign'
+  | 'resume_campaign'
+  | 'rename_ad'
+  | 'rename_adset'
+  | 'rename_campaign';
+
+/** ADR-0025: loại đổi tên theo cấp. */
+export const renameType = (level: 'ad' | 'adset' | 'campaign'): GridActionType => `rename_${level}`;
 
 type Preview = {
   target_name: string | null;
@@ -22,11 +34,12 @@ type Preview = {
   undoable: boolean;
 };
 
-const body = (t: ActionTarget, type: GridActionType, budget?: string) => ({
+const body = (t: ActionTarget, type: GridActionType, value?: string) => ({
   ad_account_id: t.adAccountId,
   action_type: type,
   target_meta_id: t.metaId,
-  ...(type === 'set_adset_budget' ? { new_daily_budget: budget } : {}),
+  ...(type === 'set_adset_budget' ? { new_daily_budget: value } : {}),
+  ...(type.startsWith('rename_') ? { new_name: value } : {}),
 });
 
 /**
@@ -59,7 +72,11 @@ export function ActionDialog({
   const [failures, setFailures] = useState<Record<string, string>>({});
   const [sent, setSent] = useState<Set<string>>(new Set());
   const key = (x: ActionTarget) => `${x.adAccountId}:${x.metaId}`;
-  const isBudget = type === 'set_adset_budget';
+  const isRename = type.startsWith('rename_');
+  const [name, setName] = useState(targets[0]?.name ?? '');
+  // Hộp thoại có ô nhập (ngân sách / tên mới): xem trước sau khi nhập.
+  const isBudget = type === 'set_adset_budget' || isRename;
+  const value = isRename ? name : budget;
 
   const load = () => {
     setPreviews(null);
@@ -67,7 +84,7 @@ export function ActionDialog({
     setSent(new Set());
     Promise.all(
       targets.map((x) =>
-        api<Preview>('actions/preview', { method: 'POST', body: body(x, type, budget) })
+        api<Preview>('actions/preview', { method: 'POST', body: body(x, type, value) })
           .then((p) => [key(x), p] as const)
           .catch((e: unknown) => [key(x), { error: e instanceof ApiError ? e.message : tc('errorGeneric') }] as const),
       ),
@@ -90,7 +107,7 @@ export function ActionDialog({
       try {
         const r = await api<{ requested: number; items: { key: string; ok: boolean; message?: string }[] }>(
           'actions/bulk',
-          { method: 'POST', body: { items: ready.map((x) => body(x, type, budget)) } },
+          { method: 'POST', body: { items: ready.map((x) => body(x, type, value)) } },
         );
         const failed = r.items.filter((i) => !i.ok);
         if (failed.length) {
@@ -147,7 +164,16 @@ export function ActionDialog({
           <Banner tone="warning">{t('campaignNote')}</Banner>
         </div>
       ) : null}
-      {isBudget ? (
+      {isRename ? (
+        <div className="mb-3 flex items-end gap-2">
+          <Field label={t('newName')} htmlFor="grid-name" className="flex-1">
+            <Input id="grid-name" value={name} maxLength={400} onChange={(e) => setName(e.target.value)} />
+          </Field>
+          <Button kind="secondary" size="m" disabled={!name.trim() || name.trim() === targets[0]?.name} onClick={load}>
+            {t('preview')}
+          </Button>
+        </div>
+      ) : isBudget ? (
         <div className="mb-3 flex items-end gap-2">
           <Field label={t('newBudget')} htmlFor="grid-budget" className="flex-1">
             <Input

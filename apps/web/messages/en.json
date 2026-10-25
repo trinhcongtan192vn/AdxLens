@@ -2345,7 +2345,10 @@
       "create_ad": "Create ad",
       "create_lookalike": "Create lookalike",
       "pause_campaign": "Pause campaign",
-      "resume_campaign": "Resume campaign"
+      "resume_campaign": "Resume campaign",
+      "rename_ad": "Rename ad",
+      "rename_adset": "Rename ad set",
+      "rename_campaign": "Rename campaign"
     },
     "state": {
       "ACTIVE": "Active",
@@ -2437,7 +2440,8 @@
       "invalid_budget": "The new budget is invalid.",
       "quiet_hours": "Outside allowed hours.",
       "no_auto_resume": "No automatic resume.",
-      "no_auto_duplicate": "No automatic duplicate."
+      "no_auto_duplicate": "No automatic duplicate.",
+      "no_auto_edit": "Automated rules never rename or change bids / spending limits (manual approval only)."
     },
     "bulkButton": "Preview & approve ({count})",
     "bulkTitle": "Approve {count} suggestions",
@@ -2703,7 +2707,10 @@
       "resume_adset": "Resume {count} ad sets",
       "set_adset_budget": "Change daily budget",
       "pause_campaign": "Pause {count} campaigns",
-      "resume_campaign": "Resume {count} campaigns"
+      "resume_campaign": "Resume {count} campaigns",
+      "rename_ad": "Rename ad",
+      "rename_adset": "Rename ad set",
+      "rename_campaign": "Rename campaign"
     },
     "confirm": "Run {count} actions",
     "note": "Each action is checked against guardrails, executed on Meta and verified; only objects without violations are sent. Follow results in the",
@@ -2719,7 +2726,9 @@
     },
     "failed": "{count} actions could not be submitted — see the reason on each item.",
     "sent": "Submitted",
-    "campaignNote": "Pausing a campaign stops every ad set under it. Resuming only turns the campaign on, not ad sets you turned off."
+    "campaignNote": "Pausing a campaign stops every ad set under it. Resuming only turns the campaign on, not ad sets you turned off.",
+    "newName": "New name",
+    "rename": "Rename"
   },
   "goals": {
     "title": "Goals and onboarding",
@@ -3181,7 +3190,8 @@
       "re_engagement": "Re-engagement",
       "retargeting": "Retargeting",
       "retention": "Retention"
-    }
+    },
+    "rename": "Rename {name}"
   },
   "wsFunnels": {
     "subtitle": "Awareness → Consideration → Conversion, with step-to-step rates",

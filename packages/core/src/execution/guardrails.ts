@@ -126,8 +126,24 @@ export const ACTION_TYPES = [
   // ADR-0015: trạng thái chiến dịch (chỉ duyệt tay).
   'pause_campaign',
   'resume_campaign',
+  // ADR-0025: đổi tên (chỉ duyệt tay).
+  'rename_ad',
+  'rename_adset',
+  'rename_campaign',
 ] as const;
 export type ActionType = (typeof ACTION_TYPES)[number];
+
+/** ADR-0025: hành động sửa thuộc tính (tên…) — chỉ duyệt tay, rule không bao giờ tạo. */
+export const EDIT_TYPES: ReadonlySet<ActionType> = new Set<ActionType>([
+  'rename_ad',
+  'rename_adset',
+  'rename_campaign',
+]);
+export const RENAME_TYPES: ReadonlySet<ActionType> = new Set<ActionType>([
+  'rename_ad',
+  'rename_adset',
+  'rename_campaign',
+]);
 
 export type GuardrailViolation = { code: string; params?: Record<string, string | number> };
 
@@ -175,6 +191,7 @@ export function checkGuardrails(input: {
     if (input.actionType === 'pause_campaign' || input.actionType === 'resume_campaign') {
       v.push({ code: 'no_auto_campaign' });
     }
+    if (EDIT_TYPES.has(input.actionType)) v.push({ code: 'no_auto_edit' });
   }
   if (input.actionType === 'set_adset_budget') {
     const cur = input.currentDailyBudget;
