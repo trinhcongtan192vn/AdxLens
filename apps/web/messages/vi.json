@@ -3092,7 +3092,9 @@
     "resume": "Bật lại",
     "emptyTitle": "Không có đối tượng",
     "emptyBody": "Đổi kỳ, bộ lọc hoặc bỏ \"Ẩn đối tượng không chi tiêu\".",
-    "askAi": "Hỏi AI về mục đã chọn"
+    "askAi": "Hỏi AI về mục đã chọn",
+    "dailyBudget": "Ngân sách ngày",
+    "editBudget": "Sửa ngân sách {name}"
   },
   "wsFunnels": {
     "subtitle": "Nhận biết → Cân nhắc → Chuyển đổi, tỷ lệ chuyển giữa các bước",

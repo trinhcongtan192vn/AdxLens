@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, ChevronRight, Columns3, Search, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronRight, Columns3, Pencil, Search, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
@@ -24,6 +24,7 @@ import {
 } from '@adxlens/ui';
 import { ActionDialog, type ActionTarget, type GridActionType } from '@/components/entity-actions';
 import { Sparkline } from '@/components/workspace/sparkline';
+import { ZERO_DECIMAL } from '@/lib/actions';
 import { formatMetric, formatPct, LOWER_IS_BETTER } from '@/lib/metric-format';
 
 type Values = Record<string, string | null>;
@@ -135,6 +136,15 @@ export function AdsManagerView({
       return n;
     });
   const sel = [...selected.values()];
+  // Ngân sách Meta theo đơn vị nhỏ nhất (VND… = 1, USD… = cent).
+  const budgetText = (v: string, currency: string) => {
+    const div = ZERO_DECIMAL.has(currency) ? 1 : 100;
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: div === 1 ? 0 : 2,
+    }).format(Number(v) / div);
+  };
   // Hỏi AI về các mục đã chọn: cùng một cấp (cấp của mục chọn đầu), tối đa 20.
   const askHref = () => {
     const lvl = sel[0]?.level ?? 'campaign';
@@ -247,6 +257,38 @@ export function AdsManagerView({
               </Badge>
             </div>
           </TD>
+          <TD numeric data-testid={r.level === 'adset' ? 'am-budget' : undefined}>
+            {r.level === 'adset' && r.dailyBudget ? (
+              <span className="inline-flex items-center gap-1">
+                {budgetText(r.dailyBudget, r.currency)}
+                {canAct ? (
+                  <button
+                    type="button"
+                    className="rounded p-0.5 text-fg-tertiary hover:bg-hover hover:text-fg"
+                    aria-label={t('editBudget', { name: r.name ?? r.metaId })}
+                    data-testid="am-edit-budget"
+                    onClick={() =>
+                      setDialog({
+                        type: 'set_adset_budget',
+                        targets: [
+                          {
+                            adAccountId: r.adAccountId,
+                            metaId: r.metaId,
+                            name: r.name ?? r.metaId,
+                            dailyBudget: r.dailyBudget,
+                          },
+                        ],
+                      })
+                    }
+                  >
+                    <Pencil className="size-3.5" aria-hidden />
+                  </button>
+                ) : null}
+              </span>
+            ) : (
+              <span className="text-fg-tertiary">—</span>
+            )}
+          </TD>
           {cols.map((c) => cell(r, c))}
         </TR>
         {expanded ? kids.map((c) => line(c, depth + 1)) : null}
@@ -315,6 +357,7 @@ export function AdsManagerView({
               <tr>
                 <TH className="w-8" />
                 <TH>{t(`views.${view}`)}</TH>
+                <TH numeric>{t('dailyBudget')}</TH>
                 {cols.map((c) => (
                   <TH key={c} numeric>
                     {tm(`${c}.name`)}
@@ -326,6 +369,7 @@ export function AdsManagerView({
               <TR className="bg-subtle font-semibold" data-testid="am-total">
                 <TD />
                 <TD className="text-small">{t('total')}</TD>
+                <TD />
                 {cols.map((c) => cell({ metrics: total, prev: totalPrev, currency: currency ?? 'VND' }, c))}
               </TR>
               {top.map((r) => line(r, 0))}
