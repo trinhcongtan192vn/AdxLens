@@ -1,0 +1,10 @@
+# Cấu hình quét bí mật (L3 mục 11). Dùng toàn bộ luật mặc định của gitleaks.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "File test dùng chuỗi giả (tên cờ, khóa sinh ngẫu nhiên lúc chạy); không chứa bí mật thật"
+paths = ['''\.test\.tsx?$''']
+# Commit a8941d2 từng chứa khóa giả cố định cho CI (32 byte 0x00..0x1f, không dùng ở đâu khác);
+# khóa CI nay được sinh ngẫu nhiên mỗi lần chạy.
+commits = ["a8941d235af2cd9f81ce0d35bfbdc62be966e8e6"]

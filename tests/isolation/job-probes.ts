@@ -1,0 +1,361 @@
+import { schema, type Db } from '@adxlens/db';
+import { importAccounts, keysFromEnv, saveConnection } from '@adxlens/core/connections';
+import { startBackfill } from '@adxlens/core/ingestion';
+import { recordingEnqueue } from '@adxlens/jobs';
+import { resolveActor } from '@adxlens/core/tenancy';
+import { MOCK_ACCOUNTS } from '@adxlens/meta-client/mock';
+import { TEST_TOKEN_KEY } from '../../apps/worker/src/testing';
+import type { World } from './world';
+
+/**
+ * Probe cách ly cho job theo workspace: `payload` cho workspace A; test băm dữ liệu B trước và sau
+ * khi chạy job, phải không đổi. `prepare` tạo dữ liệu A cần thiết. Khóa có hậu tố "#..." là biến thể
+ * của cùng một job.
+ */
+export type JobProbe = {
+  prepare?: (db: Db, w: World) => Promise<Record<string, string>>;
+  payload: (w: World, prepared?: Record<string, string>) => unknown;
+};
+
+/** Kết nối A với token mã hóa thật (khóa test) để job chạy trọn luồng. */
+async function realConnectionForA(db: Db, w: World) {
+  const actor = (await resolveActor(db, w.a.workspace.id, w.a.owner.id))!;
+  const { connectionId } = await saveConnection(
+    { db, workspaceId: w.a.workspace.id, actor },
+    {
+      token: 'mock-read-probe',
+      expiresAt: null,
+      scopes: ['ads_read'],
+      metaUser: { id: 'meta-alpha' },
+      accounts: MOCK_ACCOUNTS,
+    },
+    keysFromEnv({ TOKEN_ENC_KEY_V1: TEST_TOKEN_KEY }),
+  );
+  return { connectionId };
+}
+
+/** Tài khoản A nhập từ kết nối thật + một lần backfill đã lên lịch (lô đầu). */
+async function backfillForA(db: Db, w: World) {
+  const { connectionId } = await realConnectionForA(db, w);
+  const actor = (await resolveActor(db, w.a.workspace.id, w.a.owner.id))!;
+  const ctx = { db, workspaceId: w.a.workspace.id, actor };
+  const [a] = await importAccounts(ctx, { connectionId, metaAccountIds: ['act_100000001'] });
+  const enqueue = recordingEnqueue();
+  const { syncRunId } = await startBackfill(ctx, a!.adAccountId, { enqueue });
+  const first = enqueue.calls[0]!.payload as { from: string; to: string };
+  return { adAccountId: a!.adAccountId, syncRunId, from: first.from, to: first.to };
+}
+
+export const JOB_PROBES: Record<string, JobProbe> = {
+  'sync:refresh_accounts': {
+    prepare: realConnectionForA,
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, connectionId: p!.connectionId }),
+  },
+  // Workspace A nhưng kết nối của B: phải không tìm thấy (lọc theo workspace_id).
+  'sync:refresh_accounts#cross': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, connectionId: w.b.connection.id }),
+  },
+  'sync:backfill_account': {
+    prepare: backfillForA,
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, ...p }),
+  },
+  // Lần chạy của A nhưng tài khoản QC của B.
+  'sync:backfill_account#cross': {
+    prepare: backfillForA,
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, ...p, adAccountId: w.b.adAccount.id }),
+  },
+  'sync:daily_account': {
+    prepare: backfillForA,
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, date: p!.to }),
+  },
+  'maintenance:purge_connection_data': {
+    prepare: async (db, w) => realConnectionForA(db, w),
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, connectionId: p!.connectionId }),
+  },
+  // Workspace A nhưng kết nối của B: không được xóa gì của B.
+  'maintenance:purge_connection_data#cross': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, connectionId: w.b.connection.id }),
+  },
+  'audit:run': {
+    prepare: backfillForA,
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, snapshotVersion: 'probe' }),
+  },
+  'audit:run#cross': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, adAccountId: w.b.adAccount.id, snapshotVersion: 'probe' }),
+  },
+  'report:build': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, reportId: '00000000-0000-4000-8000-000000000000' }),
+  },
+  // Workspace A nhưng báo cáo của B: không được dựng/ghi báo cáo B.
+  'report:build#cross': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, reportId: w.b.report.id }),
+  },
+  // Workspace A nhưng báo cáo của B: không render/ghi PDF của B.
+  'pdf:render': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, reportId: w.b.report.id, version: '1' }),
+  },
+  // Workspace A nhưng thông báo của B: không gửi/ghi thông báo của B.
+  'notify:send_email': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, notificationId: w.b.notification.id }),
+  },
+  // Workspace A nhưng lịch của B: không dựng/gửi gì của B.
+  'notify:scheduled_report': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, scheduleId: w.b.schedule.id, period: '2026-W43' }),
+  },
+  // Digest của A: chụp health / gửi chỉ trong A (cờ p0 bật cho A trong world).
+  'notify:digest': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, week: '2026-10-26' }),
+  },
+  'execute:action': {
+    // Hành động của A (gói Free, chưa có quyền ghi) → gateway hủy, không gọi Meta; dữ liệu B không đổi.
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [a] = await db
+        .insert(schema.actions)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          actionType: 'pause_ad',
+          targetType: 'ad',
+          targetMetaId: '1',
+          tier: 'approve',
+          params: {},
+          beforeState: { status: 'ACTIVE' },
+          afterExpected: { status: 'PAUSED' },
+          idempotencyKey: 'probe-execute',
+        })
+        .returning();
+      return { actionId: a!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, actionId: p!.actionId }),
+  },
+  // ADR-0031: kế hoạch đã duyệt của A (gói Free, cờ P2a tắt) → dừng ngay, không bước nào chạy; dữ liệu B không đổi.
+  'execute:plan': {
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [p] = await db
+        .insert(schema.actionPlans)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          title: 'probe',
+          source: 'agent',
+          status: 'approved',
+          steps: [{ key: 'ad', kind: 'create_ad', adset: '1', creative: '2', name: 'probe' }],
+          createdBy: w.a.owner.id,
+          approvedBy: w.a.owner.id,
+          expiresAt: new Date(Date.now() + 3_600_000),
+        })
+        .returning();
+      return { planId: p!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, planId: p!.planId }),
+  },
+  // ADR-0021: lịch hẹn của A đến hạn (hành động gốc chưa thành công) → bỏ qua; dữ liệu B không đổi.
+  'execute:revert': {
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [a] = await db
+        .insert(schema.actions)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          actionType: 'set_adset_budget',
+          targetType: 'adset',
+          targetMetaId: '1',
+          tier: 'auto',
+          params: {},
+          beforeState: { daily_budget: '100' },
+          afterExpected: { daily_budget: '110' },
+          idempotencyKey: 'probe-revert',
+        })
+        .returning();
+      const [r] = await db
+        .insert(schema.scheduledReverts)
+        .values({ workspaceId: w.a.workspace.id, actionId: a!.id, kind: 'restore_budget', dueAt: new Date(0) })
+        .returning();
+      return { revertId: r!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, revertId: p!.revertId, tick: 'probe' }),
+  },
+  // Ngữ cảnh A nhưng id lịch hẹn của B → không tìm thấy (truy vấn theo workspace), không chạm B.
+  'execute:revert#cross': {
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [a] = await db
+        .insert(schema.actions)
+        .values({
+          workspaceId: w.b.workspace.id,
+          adAccountId: w.b.adAccount.id,
+          actionType: 'pause_ad',
+          targetType: 'ad',
+          targetMetaId: '2',
+          tier: 'auto',
+          params: {},
+          beforeState: { status: 'ACTIVE' },
+          afterExpected: { status: 'PAUSED' },
+          status: 'success',
+          idempotencyKey: 'probe-revert-b',
+        })
+        .returning();
+      const [r] = await db
+        .insert(schema.scheduledReverts)
+        .values({ workspaceId: w.b.workspace.id, actionId: a!.id, kind: 'suggest_undo', dueAt: new Date(0) })
+        .returning();
+      return { revertId: r!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, revertId: p!.revertId, tick: 'probe' }),
+  },
+  'rules:evaluate': {
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [r] = await db
+        .insert(schema.automationRules)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          name: 'Probe live rule',
+          level: 'ad',
+          condition: [{ metric: 'spend', op: 'gte', value: '0' }],
+          action: { type: 'pause_ad' },
+          guardrails: {},
+          mode: 'live',
+          createdBy: w.a.owner.id,
+        })
+        .returning();
+      return { ruleId: r!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, ruleId: p!.ruleId, tick: 'probe' }),
+  },
+  'rules:shadow_evaluate': {
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [r] = await db
+        .insert(schema.automationRules)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          name: 'Probe rule',
+          level: 'ad',
+          condition: [{ metric: 'spend', op: 'gte', value: '0' }],
+          action: { type: 'pause_ad' },
+          guardrails: {},
+          createdBy: w.a.owner.id,
+          shadowStartedAt: new Date(),
+        })
+        .returning();
+      return { ruleId: r!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, ruleId: p!.ruleId, tick: 'probe' }),
+  },
+  // ADR-0027: bản nháp AI của A (không có khóa OpenAI → failed); dữ liệu B không đổi.
+  'recommend:creative_image': {
+    prepare: async (db, w) => {
+      const [d] = await db
+        .insert(schema.creativeDrafts)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          source: 'ai',
+          status: 'generating',
+          prompt: 'probe',
+        })
+        .returning();
+      return { draftId: d!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, draftId: p!.draftId }),
+  },
+  // Ngữ cảnh A, id bản nháp của B → không tìm thấy (truy vấn theo workspace), không chạm B.
+  'recommend:creative_image#cross': {
+    prepare: async (db, w) => {
+      const [d] = await db
+        .insert(schema.creativeDrafts)
+        .values({
+          workspaceId: w.b.workspace.id,
+          adAccountId: w.b.adAccount.id,
+          source: 'ai',
+          status: 'generating',
+          prompt: 'probe B',
+        })
+        .returning();
+      return { draftId: d!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, draftId: p!.draftId }),
+  },
+  // ADR-0029: kết nối cửa hàng của A (chưa có token → bỏ qua); dữ liệu B không đổi.
+  'sync:store_daily': {
+    prepare: async (db, w) => {
+      const [c] = await db
+        .insert(schema.storeConnections)
+        .values({
+          workspaceId: w.a.workspace.id,
+          provider: 'shopify',
+          externalId: 'probe-a.myshopify.com',
+          name: 'Probe A',
+          createdBy: w.a.owner.id,
+        })
+        .returning();
+      return { connectionId: c!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, connectionId: p!.connectionId, days: 3, tick: 'probe' }),
+  },
+  // Ngữ cảnh A, id kết nối của B → không tìm thấy (truy vấn theo workspace), không chạm B.
+  'sync:store_daily#cross': {
+    prepare: async (db, w) => {
+      const [c] = await db
+        .insert(schema.storeConnections)
+        .values({
+          workspaceId: w.b.workspace.id,
+          provider: 'shopify',
+          externalId: 'probe-b.myshopify.com',
+          name: 'Probe B',
+          createdBy: w.b.owner.id,
+        })
+        .returning();
+      return { connectionId: c!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, connectionId: p!.connectionId, days: 3, tick: 'probe' }),
+  },
+  'recommend:agent_reply': {
+    prepare: async (db, w) => {
+      const [t] = await db
+        .insert(schema.agentThreads)
+        .values({ workspaceId: w.a.workspace.id, userId: w.a.owner.id, title: 'probe' })
+        .returning();
+      const [m] = await db
+        .insert(schema.agentMessages)
+        .values({
+          workspaceId: w.a.workspace.id,
+          threadId: t!.id,
+          userId: w.a.owner.id,
+          role: 'assistant',
+          status: 'pending',
+        })
+        .returning();
+      return { messageId: m!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, messageId: p!.messageId }),
+  },
+  'recommend:agent_reply#cross': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, messageId: w.b.thread.id }),
+  },
+  'recommend:build': {
+    prepare: backfillForA,
+    payload: (w) => ({ workspaceId: w.a.workspace.id, week: '2026-10-19' }),
+  },
+  'reconcile:account': {
+    prepare: backfillForA,
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, adAccountId: p!.adAccountId, from: p!.from, to: p!.to }),
+  },
+  'reconcile:account#cross': {
+    payload: (w) => ({
+      workspaceId: w.a.workspace.id,
+      adAccountId: w.b.adAccount.id,
+      from: '2026-10-20',
+      to: '2026-10-22',
+    }),
+  },
+  'sync:daily_account#cross': {
+    payload: (w) => ({ workspaceId: w.a.workspace.id, adAccountId: w.b.adAccount.id, date: '2026-10-22' }),
+  },
+};

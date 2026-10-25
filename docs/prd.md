@@ -260,7 +260,7 @@ S2 gửi được báo cáo có bằng chứng, khớp số liệu, mang thươn
 |---|---|---|
 | P0-01 | Đăng ký/đăng nhập, tạo Workspace, mời thành viên | must |
 | P0-02 | Demo trên tài khoản mẫu trước khi kết nối (ghi rõ là dữ liệu mẫu) | must |
-| P0-03 | Kết nối ad account qua Meta OAuth, quyền đọc; chọn nhiều tài khoản; màn xin quyền nói rõ "chỉ đọc, không thay đổi quảng cáo" | must |
+| P0-03 | Kết nối ad account qua Meta OAuth; chọn nhiều tài khoản. **Đổi theo ADR-0016 (24/10/2026):** xin bộ quyền rộng một lần (chỉ `ads_read` bắt buộc); màn xin quyền nói rõ từng nhóm quyền dùng để làm gì và "AdxLens không tự thay đổi quảng cáo — ghi cần bật quyền ghi và duyệt" | must |
 | P0-04 | Gợi ý gán tài khoản vào Client; người dùng xác nhận từng gán; tạo/sửa/xóa Client | must |
 | P0-05 | Backfill 90 ngày, đồng bộ hằng ngày; hiển thị trạng thái và thời điểm cập nhật cuối | must |
 

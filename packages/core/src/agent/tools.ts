@@ -1,0 +1,898 @@
+import { and, eq } from 'drizzle-orm';
+import { z } from 'zod';
+import { schema } from '@adxlens/db';
+import { listAdAccounts, listAssets } from '@adxlens/core/connections';
+import { listCreativeDrafts } from '@adxlens/core/execution';
+import { healthScores, topFindings } from '@adxlens/core/insight';
+import {
+  accountKpis,
+  breakdownTable,
+  entityMetricValues,
+  entityNames,
+  entityTable,
+  explainCpaChange,
+  landingPages,
+  launcherSources,
+  stageAnalysis,
+  METRIC_KEYS,
+  metricValues,
+  pctChange,
+  scaleAnalysis,
+  type MetricKey,
+} from '@adxlens/core/reporting';
+import { addDays, AppError, localDate, type ActorCtx } from '@adxlens/core/shared';
+import { storeSummary } from '@adxlens/core/stores';
+import { listClients } from '@adxlens/core/tenancy';
+import {
+  proposeAdPlanInput,
+  proposeAdPlanSpec,
+  runProposeAdPlan,
+  runWriteAdCopy,
+  writeAdCopyInput,
+  writeAdCopySpec,
+  type AdToolContext,
+} from './ad-plan-tools';
+import type { AgentToolSpec } from './llm';
+
+const { entities } = schema;
+
+export const AGENT_PERIODS = ['yesterday', 'last7', 'last14', 'last30'] as const;
+type Period = (typeof AGENT_PERIODS)[number];
+
+export type ToolContext = {
+  ctx: ActorCtx;
+  /** Tài khoản người dùng đang chọn ở giao diện (ngữ cảnh mặc định). */
+  defaultAccountId: string | null;
+  now: Date;
+  /** ADR-0030 / 0031: công cụ viết nội dung + kế hoạch tạo quảng cáo (chỉ có trong `runAgentReply`). */
+  ad?: AdToolContext;
+};
+
+/** Loại thay đổi agent đề xuất được (một đối tượng đã có; tạo mới đi qua kế hoạch ADR-0031). */
+export const PROPOSAL_TYPES = [
+  'pause_ad',
+  'resume_ad',
+  'pause_adset',
+  'resume_adset',
+  'set_adset_budget',
+  'pause_campaign',
+  'resume_campaign',
+  'rename_ad',
+  'rename_adset',
+  'rename_campaign',
+  'set_adset_bid',
+  'set_campaign_spend_cap',
+] as const;
+type ProposalType = (typeof PROPOSAL_TYPES)[number];
+
+export type ProposalOut = {
+  actionType: ProposalType;
+  adAccountId: string;
+  targetMetaId: string;
+  targetName: string | null;
+  newDailyBudget?: string | null;
+  /** ADR-0025: tên mới (`rename_*`). */
+  newName?: string | null;
+  /** ADR-0025: giá thầu / giới hạn chi mới (`set_adset_bid`, `set_campaign_spend_cap`). */
+  newValue?: string | null;
+  reason?: string;
+};
+
+const levelOf = (t: ProposalType): 'ad' | 'adset' | 'campaign' =>
+  t.endsWith('_campaign') || t === 'set_campaign_spend_cap' ? 'campaign' : t.endsWith('_ad') ? 'ad' : 'adset';
+
+export type ToolResult = { data: unknown; proposal?: ProposalOut; planId?: string };
+
+type Tool = {
+  spec: AgentToolSpec;
+  input: z.ZodTypeAny;
+  /** Công cụ đề xuất ghi: chỉ có khi cờ `p2a_approve` bật. */
+  write?: boolean;
+  run: (t: ToolContext, input: never) => Promise<ToolResult>;
+};
+
+const period = z.enum(AGENT_PERIODS).default('last7');
+const accountId = z.string().uuid().optional();
+
+/** Bọc chuỗi do người dùng / Meta đặt (tên chiến dịch, tài khoản) — là dữ liệu, không phải lệnh (quy tắc 10). */
+const data = (s: string | null | undefined) => (s == null ? null : `«${s.replace(/[«»]/g, '')}»`);
+
+async function scope(t: ToolContext, id?: string) {
+  const all = await listAdAccounts(t.ctx);
+  const want = id ?? t.defaultAccountId;
+  if (want) {
+    const a = all.find((x) => x.id === want);
+    if (!a) throw new AppError('NOT_FOUND', 'Không tìm thấy tài khoản QC');
+    return { accounts: [a], currency: a.currency, timezone: a.timezone };
+  }
+  const count = new Map<string, number>();
+  for (const a of all) count.set(a.currency, (count.get(a.currency) ?? 0) + 1);
+  const main = [...count].sort((x, y) => y[1] - x[1])[0]?.[0] ?? null;
+  const accounts = all.filter((a) => a.currency === main);
+  return { accounts, currency: main, timezone: accounts[0]?.timezone ?? 'Asia/Ho_Chi_Minh' };
+}
+
+function ranges(p: Period, tz: string, now: Date) {
+  const y = addDays(localDate(now, tz), -1);
+  const len = p === 'yesterday' ? 1 : p === 'last7' ? 7 : p === 'last14' ? 14 : 30;
+  const cur = { from: addDays(y, -(len - 1)), to: y };
+  return { cur, prev: { from: addDays(cur.from, -len), to: addDays(cur.from, -1) } };
+}
+
+const KPI_KEYS: MetricKey[] = [
+  'spend',
+  'results',
+  'cpa',
+  'ctr',
+  'cpc',
+  'cpm',
+  'roas',
+  'purchases',
+  'cost_per_purchase',
+  'leads',
+  'cpl',
+  'frequency',
+];
+
+export const TOOLS: Record<string, Tool> = {
+  list_accounts: {
+    spec: {
+      name: 'list_accounts',
+      description: 'Danh sách tài khoản quảng cáo người dùng được xem (id, tên, tiền tệ, múi giờ).',
+      input_schema: { type: 'object', properties: {} },
+    },
+    input: z.object({}),
+    run: async (t) => ({
+      data: (await listAdAccounts(t.ctx)).map((a) => ({
+        account_id: a.id,
+        name: data(a.name),
+        currency: a.currency,
+        timezone: a.timezone,
+        client: data(a.clientName),
+      })),
+    }),
+  },
+
+  account_kpis: {
+    spec: {
+      name: 'account_kpis',
+      description:
+        'Chỉ số tổng của một tài khoản (hoặc mọi tài khoản cùng tiền tệ chính khi không truyền account_id) cho kỳ đã chọn, kèm kỳ trước và % thay đổi đã tính sẵn.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          account_id: { type: 'string', description: 'id tài khoản (uuid) từ list_accounts' },
+          period: { type: 'string', enum: [...AGENT_PERIODS] },
+        },
+      },
+    },
+    input: z.object({ account_id: accountId, period }),
+    run: async (t, i: { account_id?: string; period: Period }) => {
+      const s = await scope(t, i.account_id);
+      const { cur, prev } = ranges(i.period, s.timezone, t.now);
+      const ids = s.accounts.map((a) => a.id);
+      const [c, p] = await Promise.all([metricValues(t.ctx, ids, cur), metricValues(t.ctx, ids, prev)]);
+      return {
+        data: {
+          currency: s.currency,
+          accounts: s.accounts.length,
+          period: cur,
+          previous_period: prev,
+          metrics: Object.fromEntries(
+            KPI_KEYS.map((k) => [k, { current: c[k], previous: p[k], change_pct: pctChange(c[k], p[k]) }]),
+          ),
+        },
+      };
+    },
+  },
+
+  top_entities: {
+    spec: {
+      name: 'top_entities',
+      description:
+        'Xếp hạng chiến dịch / nhóm QC / quảng cáo theo một chỉ số trong kỳ (tốt nhất hoặc kém nhất), chỉ đối tượng có chi tiêu.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          level: { type: 'string', enum: ['campaign', 'adset', 'ad'] },
+          metric: { type: 'string', enum: [...METRIC_KEYS] },
+          order: { type: 'string', enum: ['best', 'worst'] },
+          period: { type: 'string', enum: [...AGENT_PERIODS] },
+          account_id: { type: 'string' },
+          limit: { type: 'integer', minimum: 1, maximum: 10 },
+        },
+        required: ['level', 'metric'],
+      },
+    },
+    input: z.object({
+      level: z.enum(['campaign', 'adset', 'ad']),
+      metric: z.enum(METRIC_KEYS),
+      order: z.enum(['best', 'worst']).default('best'),
+      period,
+      account_id: accountId,
+      limit: z.number().int().min(1).max(10).default(5),
+    }),
+    run: async (
+      t,
+      i: {
+        level: 'campaign' | 'adset' | 'ad';
+        metric: MetricKey;
+        order: 'best' | 'worst';
+        period: Period;
+        account_id?: string;
+        limit: number;
+      },
+    ) => {
+      const s = await scope(t, i.account_id);
+      const { cur } = ranges(i.period, s.timezone, t.now);
+      const ids = s.accounts.map((a) => a.id);
+      const [values, names] = await Promise.all([
+        entityMetricValues(t.ctx, ids, i.level, cur),
+        entityNames(t.ctx, ids, i.level),
+      ]);
+      const lowerBetter = ['cpa', 'cpc', 'cpm', 'cost_per_purchase', 'cpl', 'cost_per_add_to_cart'].includes(i.metric);
+      const rows = [...values]
+        .filter(([, m]) => Number(m.spend ?? 0) > 0 && m[i.metric] != null)
+        .sort(([, a], [, b]) => {
+          const d = Number(a[i.metric]) - Number(b[i.metric]);
+          const best = lowerBetter ? d : -d;
+          return i.order === 'best' ? best : -best;
+        })
+        .slice(0, i.limit);
+      const accOf = new Map<string, string>();
+      if (rows.length) {
+        const ents = await t.ctx.db
+          .select({ metaId: entities.metaId, adAccountId: entities.adAccountId })
+          .from(entities)
+          .where(and(eq(entities.workspaceId, t.ctx.workspaceId), eq(entities.entityType, i.level)));
+        for (const e of ents) accOf.set(e.metaId, e.adAccountId);
+      }
+      return {
+        data: {
+          currency: s.currency,
+          period: cur,
+          rows: rows.map(([metaId, m]) => ({
+            meta_id: metaId,
+            account_id: accOf.get(metaId) ?? null,
+            name: data(names.get(metaId)),
+            [i.metric]: m[i.metric],
+            spend: m.spend,
+            results: m.results,
+          })),
+        },
+      };
+    },
+  },
+
+  explain_cpa_change: {
+    spec: {
+      name: 'explain_cpa_change',
+      description:
+        'Phân rã thay đổi chi phí / kết quả (CPA) giữa kỳ này và kỳ trước của một tài khoản thành CPM, CTR, tỷ lệ chuyển đổi và các chiến dịch đóng góp nhiều nhất. null khi không đủ dữ liệu hoặc CPA gần như không đổi.',
+      input_schema: {
+        type: 'object',
+        properties: { account_id: { type: 'string' }, period: { type: 'string', enum: [...AGENT_PERIODS] } },
+      },
+    },
+    input: z.object({ account_id: accountId, period }),
+    run: async (t, i: { account_id?: string; period: Period }) => {
+      const s = await scope(t, i.account_id);
+      const a = s.accounts[0];
+      if (!a) return { data: null };
+      const { cur, prev } = ranges(i.period, s.timezone, t.now);
+      const [kc, kp, cc, cp] = await Promise.all([
+        accountKpis(t.ctx, [a.id], cur),
+        accountKpis(t.ctx, [a.id], prev),
+        entityTable(t.ctx, [a.id], 'campaign', cur),
+        entityTable(t.ctx, [a.id], 'campaign', prev),
+      ]);
+      const r = explainCpaChange(kc.get(a.id)!, kp.get(a.id)!, { current: cc, previous: cp });
+      return {
+        data: r && {
+          account: data(a.name),
+          currency: a.currency,
+          cpa_current: r.current,
+          cpa_previous: r.previous,
+          change_pct: Math.round(r.changePct * 10) / 10,
+          factors: r.factors.map((f) => ({
+            factor: f.key,
+            change_pct: Math.round(f.changePct * 10) / 10,
+            share_of_change_pct: Math.round(f.sharePct * 10) / 10,
+          })),
+          drivers: r.drivers.map((d) => ({
+            campaign: data(d.name),
+            share_of_change_pct: Math.round(d.sharePct * 10) / 10,
+            cpa: d.cpa,
+            previous_cpa: d.previousCpa,
+            spend: d.spend,
+          })),
+        },
+      };
+    },
+  },
+
+  open_findings: {
+    spec: {
+      name: 'open_findings',
+      description:
+        'Vấn đề đang mở do rule audit phát hiện (mức độ, nhóm, đối tượng, tác động ước tính), mức cao trước.',
+      input_schema: {
+        type: 'object',
+        properties: { account_id: { type: 'string' }, limit: { type: 'integer', maximum: 10 } },
+      },
+    },
+    input: z.object({ account_id: accountId, limit: z.number().int().min(1).max(10).default(6) }),
+    run: async (t, i: { account_id?: string; limit: number }) => {
+      const s = await scope(t, i.account_id);
+      const rows = await topFindings(
+        t.ctx,
+        s.accounts.map((a) => a.id),
+        i.limit,
+      );
+      const health = await healthScores(
+        t.ctx,
+        s.accounts.map((a) => a.id),
+      );
+      return {
+        data: {
+          health: [...health].map(([id, h]) => ({ account_id: id, score: h.score })),
+          findings: rows.map((f) => ({
+            rule: f.ruleId,
+            group: f.ruleGroup,
+            severity: f.severity,
+            entity: data(f.entityName),
+            impact_estimate: f.impactEstimate,
+            account_id: f.adAccountId,
+          })),
+        },
+      };
+    },
+  },
+
+  breakdown: {
+    spec: {
+      name: 'breakdown',
+      description: 'Chi tiêu, kết quả, CPA, CTR, tỷ trọng theo tuổi-giới tính, vị trí hiển thị hoặc khu vực.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          kind: { type: 'string', enum: ['age_gender', 'placement', 'region', 'country'] },
+          period: { type: 'string', enum: [...AGENT_PERIODS] },
+          account_id: { type: 'string' },
+        },
+        required: ['kind'],
+      },
+    },
+    input: z.object({ kind: z.enum(['age_gender', 'placement', 'region', 'country']), period, account_id: accountId }),
+    run: async (
+      t,
+      i: { kind: 'age_gender' | 'placement' | 'region' | 'country'; period: Period; account_id?: string },
+    ) => {
+      const s = await scope(t, i.account_id);
+      const { cur } = ranges(i.period, s.timezone, t.now);
+      const rows = await breakdownTable(
+        t.ctx,
+        s.accounts.map((a) => a.id),
+        cur,
+        i.kind,
+        10,
+      );
+      return {
+        data: {
+          currency: s.currency,
+          rows: rows.map((r) => ({
+            ...r,
+            key: data(r.key),
+            ctr_pct: r.ctr == null ? null : Math.round(r.ctr * 10000) / 100,
+            ctr: undefined,
+          })),
+        },
+      };
+    },
+  },
+
+  ad_fatigue: {
+    spec: {
+      name: 'ad_fatigue',
+      description:
+        'Phân loại quảng cáo theo tần suất × CPC (mới và rẻ / đang cạn / đắt từ đầu / vẫn ổn) và các quảng cáo cần làm mới.',
+      input_schema: {
+        type: 'object',
+        properties: { period: { type: 'string', enum: [...AGENT_PERIODS] }, account_id: { type: 'string' } },
+      },
+    },
+    input: z.object({ period, account_id: accountId }),
+    run: async (t, i: { period: Period; account_id?: string }) => {
+      const s = await scope(t, i.account_id);
+      const { cur, prev } = ranges(i.period, s.timezone, t.now);
+      const r = await scaleAnalysis(
+        t.ctx,
+        s.accounts.map((a) => a.id),
+        cur,
+        prev,
+      );
+      const q = (k: string) => r.fatigue.points.filter((p) => p.quadrant === k);
+      return {
+        data: {
+          median_frequency: Math.round(r.fatigue.freqMid * 100) / 100,
+          median_cpc: Math.round(r.fatigue.cpcMid),
+          counts: Object.fromEntries(
+            ['fresh_cheap', 'burning_out', 'expensive_early', 'still_holding'].map((k) => [k, q(k).length]),
+          ),
+          burning_out: q('burning_out')
+            .sort((a, b) => Number(b.spend) - Number(a.spend))
+            .slice(0, 5)
+            .map((p) => ({
+              ad: data(p.name),
+              meta_id: p.metaId,
+              account_id: p.adAccountId,
+              frequency: Math.round(p.frequency * 100) / 100,
+              cpc: Math.round(p.cpc),
+              spend: p.spend,
+            })),
+        },
+      };
+    },
+  },
+
+  funnel_stages: {
+    spec: {
+      name: 'funnel_stages',
+      description:
+        'Chi tiêu, kết quả, chi phí / kết quả, ROAS theo giai đoạn phễu của nhóm QC (prospecting, re_engagement, retargeting, retention), kỳ này và kỳ trước.',
+      input_schema: {
+        type: 'object',
+        properties: { period: { type: 'string', enum: [...AGENT_PERIODS] }, account_id: { type: 'string' } },
+      },
+    },
+    input: z.object({ period, account_id: accountId }),
+    run: async (t, i: { period: Period; account_id?: string }) => {
+      const s = await scope(t, i.account_id);
+      const { cur, prev } = ranges(i.period, s.timezone, t.now);
+      const rows = await stageAnalysis(
+        t.ctx,
+        s.accounts.map((a) => a.id),
+        cur,
+        prev,
+      );
+      return {
+        data: {
+          currency: s.currency,
+          stages: rows.map((r) => ({
+            stage: r.stage,
+            spend: r.metrics.spend,
+            spend_share_pct: r.spendShare,
+            results: r.metrics.results,
+            cpa: r.metrics.cpa,
+            roas: r.metrics.roas,
+            previous_spend: r.prev.spend,
+            previous_cpa: r.prev.cpa,
+            spend_change_pct: pctChange(r.metrics.spend, r.prev.spend),
+            cpa_change_pct: pctChange(r.metrics.cpa, r.prev.cpa),
+          })),
+        },
+      };
+    },
+  },
+
+  landing_pages: {
+    spec: {
+      name: 'landing_pages',
+      description:
+        'Trang đích của quảng cáo (host + đường dẫn): chi tiêu, click, tỷ lệ click → chuyển đổi (%), chi phí / kết quả.',
+      input_schema: {
+        type: 'object',
+        properties: { period: { type: 'string', enum: [...AGENT_PERIODS] }, account_id: { type: 'string' } },
+      },
+    },
+    input: z.object({ period, account_id: accountId }),
+    run: async (t, i: { period: Period; account_id?: string }) => {
+      const s = await scope(t, i.account_id);
+      const { cur } = ranges(i.period, s.timezone, t.now);
+      const rows = await landingPages(
+        t.ctx,
+        s.accounts.map((a) => a.id),
+        cur,
+      );
+      return {
+        data: {
+          currency: s.currency,
+          pages: rows.slice(0, 10).map((p) => ({
+            page: data(p.page),
+            ads: p.ads,
+            spend: p.metrics.spend,
+            link_clicks: p.metrics.link_clicks,
+            click_to_conversion_pct: p.cvr,
+            cpa: p.metrics.cpa,
+          })),
+        },
+      };
+    },
+  },
+
+  entity_details: {
+    spec: {
+      name: 'entity_details',
+      description:
+        'Chỉ số kỳ này và kỳ trước của các chiến dịch / nhóm QC / quảng cáo cụ thể (theo meta_id), kèm % thay đổi. Dùng khi người dùng đã chọn đối tượng làm ngữ cảnh.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          level: { type: 'string', enum: ['campaign', 'adset', 'ad'] },
+          ids: { type: 'array', items: { type: 'string' }, maxItems: 20 },
+          period: { type: 'string', enum: [...AGENT_PERIODS] },
+          account_id: { type: 'string' },
+        },
+        required: ['level', 'ids'],
+      },
+    },
+    input: z.object({
+      level: z.enum(['campaign', 'adset', 'ad']),
+      ids: z
+        .array(z.string().regex(/^\d{1,30}$/))
+        .min(1)
+        .max(20),
+      period,
+      account_id: accountId,
+    }),
+    run: async (t, i: { level: 'campaign' | 'adset' | 'ad'; ids: string[]; period: Period; account_id?: string }) => {
+      const s = await scope(t, i.account_id);
+      const { cur, prev } = ranges(i.period, s.timezone, t.now);
+      const acc = s.accounts.map((a) => a.id);
+      const [now, before, names] = await Promise.all([
+        entityMetricValues(t.ctx, acc, i.level, cur),
+        entityMetricValues(t.ctx, acc, i.level, prev),
+        entityNames(t.ctx, acc, i.level),
+      ]);
+      const pick = ['spend', 'results', 'cpa', 'roas', 'ctr', 'cpm', 'frequency'] as const;
+      return {
+        data: {
+          currency: s.currency,
+          period: cur,
+          previous_period: prev,
+          // Chỉ đối tượng thuộc tài khoản người dùng được xem (entityNames lọc theo quyền).
+          entities: i.ids
+            .filter((id) => names.has(id))
+            .map((id) => {
+              const c = now.get(id);
+              const p = before.get(id);
+              return {
+                meta_id: id,
+                name: data(names.get(id)),
+                metrics: Object.fromEntries(
+                  pick.map((k) => [
+                    k,
+                    {
+                      current: c?.[k] ?? null,
+                      previous: p?.[k] ?? null,
+                      change_pct: pctChange(c?.[k] ?? null, p?.[k] ?? null),
+                    },
+                  ]),
+                ),
+              };
+            }),
+        },
+      };
+    },
+  },
+
+  account_structure: {
+    spec: {
+      name: 'account_structure',
+      description:
+        'Cấu trúc tài khoản theo bản chụp gần nhất: chiến dịch hoặc nhóm QC (id, tên, trạng thái, ngân sách ngày, giá thầu, giới hạn chi, mục tiêu tối ưu, chiến dịch cha). Dùng để tìm đúng đối tượng trước khi đề xuất thay đổi.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          level: { type: 'string', enum: ['campaign', 'adset'] },
+          account_id: { type: 'string' },
+          status: { type: 'string', enum: ['active', 'paused', 'all'] },
+        },
+        required: ['level'],
+      },
+    },
+    input: z.object({
+      level: z.enum(['campaign', 'adset']),
+      account_id: accountId,
+      status: z.enum(['active', 'paused', 'all']).default('all'),
+    }),
+    run: async (t, i: { level: 'campaign' | 'adset'; account_id?: string; status: 'active' | 'paused' | 'all' }) => {
+      const s = await scope(t, i.account_id);
+      const a = s.accounts[0];
+      if (!a) return { data: null };
+      const rows = await t.ctx.db
+        .select({
+          metaId: entities.metaId,
+          name: entities.name,
+          status: entities.status,
+          parent: entities.parentMetaId,
+          dailyBudget: entities.dailyBudget,
+          attrs: entities.attrs,
+        })
+        .from(entities)
+        .where(
+          and(
+            eq(entities.workspaceId, t.ctx.workspaceId),
+            eq(entities.adAccountId, a.id),
+            eq(entities.entityType, i.level),
+          ),
+        );
+      const want = i.status === 'all' ? null : i.status === 'active' ? 'ACTIVE' : 'PAUSED';
+      const attr = (x: unknown, k: string) => {
+        const v = (x as Record<string, unknown> | null)?.[k];
+        return typeof v === 'string' || typeof v === 'number' ? String(v) : null;
+      };
+      return {
+        data: {
+          account: data(a.name),
+          account_id: a.id,
+          currency: a.currency,
+          // Ngân sách / giá thầu / giới hạn chi theo đơn vị nhỏ nhất của tiền tệ (như Meta).
+          money_unit: 'minor',
+          items: rows
+            .filter((r) => (want ? r.status === want : r.status === 'ACTIVE' || r.status === 'PAUSED'))
+            .sort((x, y) => (x.status === y.status ? 0 : x.status === 'ACTIVE' ? -1 : 1))
+            .slice(0, 40)
+            .map((r) => ({
+              meta_id: r.metaId,
+              name: data(r.name),
+              status: r.status,
+              parent_campaign_id: i.level === 'adset' ? r.parent : undefined,
+              daily_budget: r.dailyBudget,
+              bid_amount: attr(r.attrs, 'bid_amount'),
+              bid_strategy: attr(r.attrs, 'bid_strategy'),
+              spend_cap: attr(r.attrs, 'spend_cap'),
+              optimization_goal: attr(r.attrs, 'optimization_goal'),
+            })),
+        },
+      };
+    },
+  },
+
+  launch_assets: {
+    spec: {
+      name: 'launch_assets',
+      description:
+        'Tài sản để tạo quảng cáo của một tài khoản: nhóm QC làm mẫu, audience, Page, ảnh creative sẵn sàng trong thư viện (bản nháp), creative đã có.',
+      input_schema: { type: 'object', properties: { account_id: { type: 'string' } } },
+    },
+    input: z.object({ account_id: accountId }),
+    run: async (t, i: { account_id?: string }) => {
+      const s = await scope(t, i.account_id);
+      const a = s.accounts[0];
+      if (!a) return { data: null };
+      const [src, pages, drafts, creatives] = await Promise.all([
+        launcherSources(t.ctx, a.id),
+        listAssets(t.ctx, 'page'),
+        listCreativeDrafts(t.ctx, a.id, 12),
+        t.ctx.db
+          .select({ metaId: entities.metaId, name: entities.name })
+          .from(entities)
+          .where(
+            and(
+              eq(entities.workspaceId, t.ctx.workspaceId),
+              eq(entities.adAccountId, a.id),
+              eq(entities.entityType, 'creative'),
+            ),
+          )
+          .limit(20),
+      ]);
+      return {
+        data: {
+          account_id: a.id,
+          currency: a.currency,
+          template_adsets: src.adsets.slice(0, 20).map((x) => ({
+            meta_id: x.metaId,
+            name: data(x.name),
+            status: x.status,
+            campaign: data(x.campaignName),
+            daily_budget: x.dailyBudget,
+          })),
+          audiences: src.audiences
+            .slice(0, 30)
+            .map((x) => ({ meta_id: x.metaId, name: data(x.name), subtype: x.subtype })),
+          pages: pages.slice(0, 10).map((x) => ({ page_id: x.metaId, name: data(x.name) })),
+          image_drafts: drafts
+            .filter((d) => d.status === 'ready')
+            .map((d) => ({
+              draft_id: d.id,
+              source: d.source,
+              prompt: data(d.prompt),
+              created_at: d.createdAt.toISOString(),
+            })),
+          creatives: creatives.map((c) => ({ creative_id: c.metaId, name: data(c.name) })),
+        },
+      };
+    },
+  },
+
+  store_summary: {
+    spec: {
+      name: 'store_summary',
+      description:
+        'Doanh thu thật từ cửa hàng / sàn đã kết nối (Shopify, Shopee, TikTok Shop) và phiên / chuyển đổi GA4 của Client trong kỳ, cùng chi tiêu quảng cáo và MER (doanh thu cửa hàng / chi tiêu) đã tính sẵn.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          client_id: { type: 'string', description: 'id Client (uuid); bỏ trống = mọi Client được xem' },
+          period: { type: 'string', enum: [...AGENT_PERIODS] },
+        },
+      },
+    },
+    input: z.object({ client_id: z.string().uuid().optional(), period }),
+    run: async (t, i: { client_id?: string; period: Period }) => {
+      const clients = await listClients(t.ctx);
+      const picked = i.client_id ? clients.filter((c) => c.id === i.client_id) : clients;
+      if (i.client_id && !picked.length) throw new AppError('NOT_FOUND', 'Không tìm thấy Client');
+      const ids = picked.map((c) => c.id);
+      const accounts = (await listAdAccounts(t.ctx)).filter((a) => a.clientId && ids.includes(a.clientId));
+      const tz = accounts[0]?.timezone ?? 'Asia/Ho_Chi_Minh';
+      const { cur } = ranges(i.period, tz, t.now);
+      const store = await storeSummary(t.ctx, ids, cur);
+      const sameCurrency = accounts.filter((a) => a.currency === store.currency);
+      const spend = sameCurrency.length
+        ? (
+            await metricValues(
+              t.ctx,
+              sameCurrency.map((a) => a.id),
+              cur,
+            )
+          ).spend
+        : null;
+      const mer =
+        store.revenue != null && spend != null && Number(spend) > 0
+          ? Math.round((Number(store.revenue) / Number(spend)) * 100) / 100
+          : null;
+      return {
+        data: {
+          period: cur,
+          clients: picked.map((c) => data(c.name)),
+          store_connections: store.connections,
+          currency: store.currency,
+          store_revenue: store.revenue,
+          orders: store.orders,
+          ga4_sessions: store.sessions,
+          ga4_conversions: store.conversions,
+          ad_spend: spend,
+          mer,
+        },
+      };
+    },
+  },
+
+  propose_action: {
+    write: true,
+    spec: {
+      name: 'propose_action',
+      description:
+        'ĐỀ XUẤT một thay đổi trên đối tượng đã có: tạm dừng / bật lại quảng cáo, nhóm QC, chiến dịch; đổi ngân sách ngày hoặc giá thầu nhóm QC; đổi giới hạn chi chiến dịch; đổi tên. KHÔNG thực hiện: người dùng sẽ xem trước, kiểm guardrails và tự duyệt. Chỉ dùng khi người dùng yêu cầu làm việc gì đó.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          action_type: { type: 'string', enum: [...PROPOSAL_TYPES] },
+          account_id: { type: 'string' },
+          target_meta_id: { type: 'string' },
+          new_daily_budget: {
+            type: 'string',
+            description: 'Chỉ với set_adset_budget, cùng đơn vị với daily_budget của account_structure',
+          },
+          new_value: {
+            type: 'string',
+            description: 'Chỉ với set_adset_bid / set_campaign_spend_cap, cùng đơn vị với bid_amount / spend_cap',
+          },
+          new_name: { type: 'string', description: 'Chỉ với rename_*' },
+          reason: { type: 'string' },
+        },
+        required: ['action_type', 'account_id', 'target_meta_id'],
+      },
+    },
+    input: z.object({
+      action_type: z.enum(PROPOSAL_TYPES),
+      account_id: z.string().uuid(),
+      target_meta_id: z.string().regex(/^\d{1,30}$/),
+      new_daily_budget: z
+        .string()
+        .regex(/^\d{1,14}(\.\d{1,2})?$/)
+        .nullish(),
+      new_value: z
+        .string()
+        .regex(/^\d{1,14}(\.\d{1,2})?$/)
+        .nullish(),
+      new_name: z.string().trim().min(1).max(400).nullish(),
+      reason: z.string().max(300).optional(),
+    }),
+    run: async (
+      t,
+      i: {
+        action_type: ProposalType;
+        account_id: string;
+        target_meta_id: string;
+        new_daily_budget?: string | null;
+        new_value?: string | null;
+        new_name?: string | null;
+        reason?: string;
+      },
+    ) => {
+      const s = await scope(t, i.account_id);
+      const level = levelOf(i.action_type);
+      const [e] = await t.ctx.db
+        .select({ name: entities.name })
+        .from(entities)
+        .where(
+          and(
+            eq(entities.workspaceId, t.ctx.workspaceId),
+            eq(entities.adAccountId, s.accounts[0]!.id),
+            eq(entities.entityType, level),
+            eq(entities.metaId, i.target_meta_id),
+          ),
+        );
+      if (!e) throw new AppError('NOT_FOUND', 'Không tìm thấy đối tượng');
+      if (i.action_type === 'set_adset_budget' && !i.new_daily_budget)
+        throw new AppError('VALIDATION_FAILED', 'Cần ngân sách mới');
+      if ((i.action_type === 'set_adset_bid' || i.action_type === 'set_campaign_spend_cap') && !i.new_value)
+        throw new AppError('VALIDATION_FAILED', 'Cần giá trị mới');
+      if (i.action_type.startsWith('rename_') && !i.new_name) throw new AppError('VALIDATION_FAILED', 'Cần tên mới');
+      const proposal: ProposalOut = {
+        actionType: i.action_type,
+        adAccountId: i.account_id,
+        targetMetaId: i.target_meta_id,
+        targetName: e.name,
+        newDailyBudget: i.new_daily_budget ?? null,
+        newValue: i.new_value ?? null,
+        newName: i.new_name ?? null,
+        reason: i.reason,
+      };
+      return {
+        data: {
+          proposed: true,
+          note: 'Đã tạo thẻ đề xuất; người dùng sẽ xem trước và tự duyệt.',
+          // Tham số đề xuất (không phải số liệu): để câu trả lời nhắc lại đúng giá trị trên thẻ.
+          action_type: i.action_type,
+          new_daily_budget: i.new_daily_budget ?? undefined,
+          new_value: i.new_value ?? undefined,
+        },
+        proposal,
+      };
+    },
+  },
+
+  write_ad_copy: {
+    write: true,
+    spec: writeAdCopySpec,
+    input: writeAdCopyInput,
+    run: async (t, i: never) => {
+      if (!t.ad) throw new AppError('NOT_FOUND', 'Không có công cụ write_ad_copy');
+      return { data: await runWriteAdCopy(t.ad, i) };
+    },
+  },
+
+  propose_ad_plan: {
+    write: true,
+    spec: proposeAdPlanSpec,
+    input: proposeAdPlanInput,
+    run: async (t, i: never) => {
+      if (!t.ad) throw new AppError('NOT_FOUND', 'Không có công cụ propose_ad_plan');
+      return runProposeAdPlan(t.ctx, t.ad, i);
+    },
+  },
+};
+
+/** Danh sách công cụ gửi LLM theo cờ (công cụ ghi chỉ khi `p2a_approve` bật — quy tắc 7). */
+export function toolsFor(flags: { p2a_approve: boolean }): AgentToolSpec[] {
+  return Object.values(TOOLS)
+    .filter((t) => !t.write || flags.p2a_approve)
+    .map((t) => t.spec);
+}
+
+export async function runTool(
+  name: string,
+  rawInput: unknown,
+  t: ToolContext,
+  flags: { p2a_approve: boolean },
+): Promise<ToolResult> {
+  const tool = TOOLS[name];
+  if (!tool || (tool.write && !flags.p2a_approve)) throw new AppError('NOT_FOUND', `Không có công cụ ${name}`);
+  const parsed = tool.input.safeParse(rawInput ?? {});
+  if (!parsed.success) throw new AppError('VALIDATION_FAILED', 'Tham số công cụ không hợp lệ');
+  return tool.run(t, parsed.data as never);
+}

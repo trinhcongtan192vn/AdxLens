@@ -1,0 +1,9 @@
+{
+  "extends": "@adxlens/config/tsconfig/next.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] }
+  },
+  "include": ["next-env.d.ts", "src", "messages", "next.config.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", "e2e"]
+}

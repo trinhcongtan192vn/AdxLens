@@ -1,0 +1,249 @@
+'use client';
+
+import { Store } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useFormatter, useTranslations } from 'next-intl';
+import { useState, useTransition } from 'react';
+import { toast } from 'sonner';
+import { Badge, Button, Card, Field, Input, Select, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
+import { api } from '@/lib/api-client';
+
+type Item = {
+  id: string;
+  provider: 'shopify' | 'ga4' | 'shopee' | 'tiktok_shop';
+  name: string;
+  externalId: string;
+  clientId: string | null;
+  status: string;
+  lastSyncedAt: string | null;
+  lastError: string | null;
+};
+
+/**
+ * ADR-0029: cửa hàng / analytics (Shopify; GA4 ở bước sau) — kết nối theo shop, gắn Client, ngắt kết nối (xóa token và
+ * số liệu ngày). Số liệu hiện ở Business Dashboard.
+ */
+export function StoresCard({
+  items,
+  clients,
+  shopifyEnabled,
+  ga4Enabled,
+  shopeeEnabled,
+  tiktokEnabled,
+}: {
+  items: Item[];
+  clients: { id: string; name: string }[];
+  shopifyEnabled: boolean;
+  ga4Enabled: boolean;
+  shopeeEnabled: boolean;
+  tiktokEnabled: boolean;
+}) {
+  const t = useTranslations('stores');
+  const format = useFormatter();
+  const router = useRouter();
+  const [shop, setShop] = useState('');
+  const [clientId, setClientId] = useState(clients[0]?.id ?? '');
+  const [property, setProperty] = useState('');
+  const [gaClient, setGaClient] = useState(clients[0]?.id ?? '');
+  const [shopeeClient, setShopeeClient] = useState(clients[0]?.id ?? '');
+  const connectShopee = () => {
+    const q = new URLSearchParams(shopeeClient ? { client_id: shopeeClient } : {});
+    window.location.href = `/api/v1/stores/shopee/authorize?${q.toString()}`;
+  };
+  const [tiktokClient, setTiktokClient] = useState(clients[0]?.id ?? '');
+  const connectTiktok = () => {
+    const q = new URLSearchParams(tiktokClient ? { client_id: tiktokClient } : {});
+    window.location.href = `/api/v1/stores/tiktok/authorize?${q.toString()}`;
+  };
+  const connectGa4 = () => {
+    const q = new URLSearchParams({ property_id: property.trim(), ...(gaClient ? { client_id: gaClient } : {}) });
+    window.location.href = `/api/v1/stores/ga4/authorize?${q.toString()}`;
+  };
+  const [pending, start] = useTransition();
+  const connect = () => {
+    const q = new URLSearchParams({ shop: shop.trim(), ...(clientId ? { client_id: clientId } : {}) });
+    window.location.href = `/api/v1/stores/shopify/authorize?${q.toString()}`;
+  };
+  const assign = (id: string, c: string) =>
+    start(async () => {
+      await api(`stores/${id}`, { method: 'PATCH', body: { client_id: c || null } });
+      router.refresh();
+    });
+  const remove = (id: string) =>
+    start(async () => {
+      await api(`stores/${id}`, { method: 'DELETE' });
+      toast.success(t('removed'));
+      router.refresh();
+    });
+
+  return (
+    <Card className="mt-4" data-testid="stores-card">
+      <h2 className="flex items-center gap-2 text-h3 font-semibold text-fg">
+        <Store className="size-5 text-fg-tertiary" aria-hidden />
+        {t('title')}
+      </h2>
+      <p className="mt-1 max-w-3xl text-small text-fg-secondary">{t('intro')}</p>
+
+      {items.length ? (
+        <Table className="mt-3">
+          <THead>
+            <tr>
+              <TH>{t('cols.store')}</TH>
+              <TH>{t('cols.client')}</TH>
+              <TH>{t('cols.sync')}</TH>
+              <TH />
+            </tr>
+          </THead>
+          <TBody>
+            {items.map((s) => (
+              <TR key={s.id}>
+                <TD>
+                  <span className="font-medium">{s.name}</span>{' '}
+                  <span className="text-caption text-fg-tertiary">
+                    {t(`providers.${s.provider}`)} · {s.externalId}
+                  </span>
+                </TD>
+                <TD>
+                  <Select
+                    aria-label={t('cols.client')}
+                    value={s.clientId ?? ''}
+                    disabled={pending}
+                    onChange={(e) => assign(s.id, e.target.value)}
+                  >
+                    <option value="">{t('noClient')}</option>
+                    {clients.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </Select>
+                </TD>
+                <TD>
+                  {s.status === 'error' ? (
+                    <Badge tone="danger">{t('reconnect')}</Badge>
+                  ) : s.lastSyncedAt ? (
+                    <span className="text-small text-fg-secondary">
+                      {format.dateTime(new Date(s.lastSyncedAt), { dateStyle: 'short', timeStyle: 'short' })}
+                    </span>
+                  ) : (
+                    <Badge tone="info">{t('syncing')}</Badge>
+                  )}
+                </TD>
+                <TD className="text-right">
+                  <Button kind="ghost" size="s" disabled={pending} onClick={() => remove(s.id)}>
+                    {t('disconnect')}
+                  </Button>
+                </TD>
+              </TR>
+            ))}
+          </TBody>
+        </Table>
+      ) : null}
+
+      {shopifyEnabled ? (
+        <div className="mt-4 grid max-w-3xl gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <Field label={t('shop')} htmlFor="st-shop" hint={t('shopHint')}>
+            <Input
+              id="st-shop"
+              value={shop}
+              placeholder="ten-shop.myshopify.com"
+              onChange={(e) => setShop(e.target.value)}
+            />
+          </Field>
+          <Field label={t('cols.client')} htmlFor="st-client">
+            <Select id="st-client" value={clientId} onChange={(e) => setClientId(e.target.value)}>
+              <option value="">{t('noClient')}</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button kind="primary" size="m" disabled={!shop.trim()} onClick={connect} data-testid="connect-shopify">
+            {t('connectShopify')}
+          </Button>
+        </div>
+      ) : (
+        <p className="mt-3 text-small text-fg-tertiary">{t('notConfigured')}</p>
+      )}
+
+      {shopeeEnabled ? (
+        <div className="mt-4 grid max-w-3xl gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <p className="self-center text-small text-fg-secondary">{t('shopeeHint')}</p>
+          <Field label={t('cols.client')} htmlFor="st-shopee-client">
+            <Select id="st-shopee-client" value={shopeeClient} onChange={(e) => setShopeeClient(e.target.value)}>
+              <option value="">{t('noClient')}</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button kind="secondary" size="m" onClick={connectShopee} data-testid="connect-shopee">
+            {t('connectShopee')}
+          </Button>
+        </div>
+      ) : (
+        <p className="mt-2 text-small text-fg-tertiary">{t('shopeeNotConfigured')}</p>
+      )}
+
+      {tiktokEnabled ? (
+        <div className="mt-4 grid max-w-3xl gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <p className="self-center text-small text-fg-secondary">{t('tiktokHint')}</p>
+          <Field label={t('cols.client')} htmlFor="st-tiktok-client">
+            <Select id="st-tiktok-client" value={tiktokClient} onChange={(e) => setTiktokClient(e.target.value)}>
+              <option value="">{t('noClient')}</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button kind="secondary" size="m" onClick={connectTiktok} data-testid="connect-tiktok">
+            {t('connectTiktok')}
+          </Button>
+        </div>
+      ) : (
+        <p className="mt-2 text-small text-fg-tertiary">{t('tiktokNotConfigured')}</p>
+      )}
+
+      {ga4Enabled ? (
+        <div className="mt-4 grid max-w-3xl gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <Field label={t('property')} htmlFor="st-ga4" hint={t('propertyHint')}>
+            <Input
+              id="st-ga4"
+              value={property}
+              inputMode="numeric"
+              placeholder="123456789"
+              onChange={(e) => setProperty(e.target.value)}
+            />
+          </Field>
+          <Field label={t('cols.client')} htmlFor="st-ga4-client">
+            <Select id="st-ga4-client" value={gaClient} onChange={(e) => setGaClient(e.target.value)}>
+              <option value="">{t('noClient')}</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button
+            kind="secondary"
+            size="m"
+            disabled={!/^\d{5,15}$/.test(property.trim())}
+            onClick={connectGa4}
+            data-testid="connect-ga4"
+          >
+            {t('connectGa4')}
+          </Button>
+        </div>
+      ) : (
+        <p className="mt-2 text-small text-fg-tertiary">{t('ga4NotConfigured')}</p>
+      )}
+    </Card>
+  );
+}

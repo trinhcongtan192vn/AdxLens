@@ -1,0 +1,4016 @@
+{
+  "meta": {
+    "title": "AdxLens",
+    "description": "Evidence-backed Meta Ads reports for agencies"
+  },
+  "common": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Continue",
+    "search": "Search",
+    "loading": "Loading…",
+    "retry": "Retry",
+    "actions": "Actions",
+    "none": "None",
+    "learnMore": "Learn more",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "errorCode": "Error code: {code}"
+  },
+  "nav": {
+    "overview": "Overview",
+    "clients": "Clients",
+    "reports": "Reports",
+    "weeklyActions": "This week",
+    "creatives": "Creatives",
+    "actionLog": "Action log",
+    "automation": "Automation rules",
+    "connections": "Connections",
+    "settings": "Settings",
+    "support": "Support",
+    "mainNav": "Main navigation",
+    "allClients": "All clients",
+    "client": {
+      "campaigns": "Campaigns",
+      "adsets": "Ad sets",
+      "ads": "Ads",
+      "reconciliation": "Reconciliation",
+      "reports": "Reports",
+      "weeklyActions": "To-dos",
+      "creatives": "Creatives",
+      "automation": "Automation rules",
+      "actionLog": "Action log",
+      "clientSettings": "Client settings"
+    }
+  },
+  "shell": {
+    "period": "Period",
+    "periods": {
+      "last7": "Last 7 days",
+      "last14": "Last 14 days",
+      "last30": "Last 30 days",
+      "thisMonth": "This month",
+      "lastMonth": "Last month"
+    },
+    "workspace": "Workspace",
+    "switchWorkspace": "Switch workspace",
+    "notifications": "Notifications",
+    "accountMenu": "Account menu",
+    "profile": "Profile",
+    "notificationSettings": "Notifications",
+    "language": "Language",
+    "languageItem": "Language: {language}",
+    "logout": "Log out",
+    "languages": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    },
+    "switchClient": "Client in view",
+    "allClients": "All clients",
+    "clientFilter": "Client: {name}",
+    "clearClient": "Show all clients",
+    "workspaces": "Your workspaces",
+    "newWorkspace": "Create new workspace",
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "buyer": "Media buyer"
+    }
+  },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you are looking for does not exist or has moved.",
+    "forbiddenTitle": "You don't have access to this page",
+    "forbiddenBody": "Ask your workspace owner to grant you access.",
+    "genericTitle": "Something went wrong",
+    "genericBody": "We have logged the error. If it keeps happening, send the error code below to support.",
+    "goHome": "Go to home",
+    "featureUnavailableTitle": "This feature is not enabled for this workspace",
+    "featureUnavailableBody": "Contact the AdxLens team if you would like to try it."
+  },
+  "settings": {
+    "workspace": "Workspace",
+    "members": "Members",
+    "billing": "Plan & billing",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "guardrails": "Guardrails",
+    "integrations": "Integrations"
+  },
+  "pages": {
+    "notifications": "Notifications",
+    "support": "Support",
+    "onboarding": "Get started"
+  },
+  "marketing": {
+    "nav": {
+      "pricing": "Pricing",
+      "guide": "How it works",
+      "privacy": "Privacy",
+      "login": "Log in"
+    },
+    "cta": {
+      "tryFree": "Try it free"
+    },
+    "footer": {
+      "copyright": "© {year} AdxLens · Read-only Meta Ads data",
+      "terms": "Terms",
+      "dataDeletion": "Data deletion",
+      "support": "Support"
+    },
+    "landing": {
+      "title": "Meta Ads reports with evidence, matching Ads Manager",
+      "subtitle": "Send clients agency-branded reports with numbers within 1% of Ads Manager, ready 10 minutes after you connect.",
+      "sampleReport": "See a sample report",
+      "assurance": "Read-only data · No card required · Connect in minutes",
+      "features": {
+        "match": {
+          "title": "Numbers that match",
+          "body": "Every report carries a reconciliation line against Ads Manager. If the gap is over 1%, we block sending and tell you."
+        },
+        "brand": {
+          "title": "Your agency's brand",
+          "body": "Your logo, colors and email. Clients open a link, no sign-up needed."
+        },
+        "evidence": {
+          "title": "Findings with evidence",
+          "body": "Every finding links to the source numbers so you can check them yourself. No numbers made up by AI."
+        }
+      },
+      "howItWorks": "How it works",
+      "steps": {
+        "connect": "Connect Meta (read-only)",
+        "assign": "Assign accounts to clients",
+        "send": "Check reconciliation and send the report"
+      }
+    },
+    "pricing": {
+      "title": "Pricing",
+      "basis": "Priced per active ad account (spend in the last 30 days), never as a % of ad spend. Extra account: {extra}/month. Pay yearly and save {discount}%. Prices exclude VAT.",
+      "perMonth": "{price}/month",
+      "accounts": "{count, plural, one {# account} other {# accounts}}",
+      "choose": "Choose plan",
+      "contact": "Contact us",
+      "breakEvenLink": "Break-even page: hours saved per account × your hourly rate vs. the monthly fee. See the formula",
+      "plans": {
+        "free": {
+          "name": "Free",
+          "summary": "Reports, public links, PDF. Includes a \"Powered by AdxLens\" label."
+        },
+        "starter": {
+          "name": "Starter",
+          "summary": "Adds weekly recommendations, creative library, detailed reconciliation."
+        },
+        "growth": {
+          "name": "Growth",
+          "summary": "Adds approved actions and automation rules (early access)."
+        },
+        "scale": {
+          "name": "Scale",
+          "summary": "Adds full white-label: remove the \"Powered by\" label, priority support."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "updated": "Updated 22/10/2026",
+      "read": {
+        "title": "Data we read",
+        "body": "Campaign, ad set and ad metrics, spend and results from the ad accounts you authorize. We never write or change anything on Meta."
+      },
+      "store": {
+        "title": "How we store it",
+        "body": "Access tokens are encrypted and used only to sync metrics. We never store your Meta password."
+      },
+      "rights": {
+        "title": "Your rights",
+        "body": "Disconnect at any time and ask us to delete your data. See the <link>data deletion guide</link>."
+      }
+    },
+    "terms": {
+      "title": "Terms of service",
+      "updated": "Updated 22/10/2026",
+      "service": {
+        "title": "1. The service",
+        "body": "AdxLens provides reports and analysis from the Meta Ads data you give it read access to."
+      },
+      "responsibility": {
+        "title": "2. Responsibility to your clients",
+        "body": "You are responsible for the reports you send to your clients. Reports whose numbers differ from Ads Manager by more than 1% cannot be shared."
+      },
+      "billing": {
+        "title": "3. Billing and grace period",
+        "body": "Fees are per active account. If a payment fails, data keeps syncing during the grace period."
+      }
+    },
+    "deletion": {
+      "title": "Data deletion guide",
+      "intro": "There are two ways to ask us to delete the data AdxLens stored from your Meta account.",
+      "inApp": {
+        "title": "Option 1: In AdxLens",
+        "body": "Connections › choose the connection › \"Disconnect and delete data\". We email you a confirmation once deletion is complete."
+      },
+      "fromFacebook": {
+        "title": "Option 2: From Facebook",
+        "body": "Settings › Apps and websites › AdxLens › Remove. Meta forwards the request to us and we delete the data within 30 days."
+      },
+      "track": {
+        "title": "Track a request",
+        "body": "Enter your confirmation code to see the deletion status.",
+        "code": "Confirmation code",
+        "submit": "Check status",
+        "notFound": "No request found for this code. Check the code in your confirmation email.",
+        "status": {
+          "pending": "Request received, waiting to be processed.",
+          "in_progress": "Deleting data.",
+          "done": "Data deleted.",
+          "cancelled": "The request was cancelled because the account was reconnected."
+        }
+      }
+    },
+    "breakEven": {
+      "title": "Break-even with AdxLens",
+      "intro": "Estimate the time your team saves on account checks and client reports with AdxLens, compared with the monthly fee.",
+      "accounts": "Active ad accounts",
+      "hours": "Hours saved per account per month",
+      "hoursHint": "Checking numbers, reviewing account issues, building client reports.",
+      "rate": "Your team's hourly cost (VND)",
+      "calculate": "Calculate",
+      "plan": "Suggested plan",
+      "extra": "{count} extra accounts",
+      "fee": "Monthly fee",
+      "saved": "Value of {hours} hours saved",
+      "net": "Monthly difference",
+      "threshold": "You break even when your hourly cost is {rate} or more.",
+      "formula": "Formula: accounts × hours saved per account × hourly cost − fee of the cheapest plan that covers your accounts. Never a % of ad spend.",
+      "toPricing": "See pricing"
+    }
+  },
+  "auth": {
+    "working": "Working…",
+    "passwordHint": "Password must be at least {min} characters.",
+    "fields": {
+      "fullName": "Full name",
+      "email": "Email",
+      "workEmail": "Work email",
+      "password": "Password"
+    },
+    "placeholders": {
+      "fullName": "Jane Doe",
+      "email": "you@agency.com",
+      "password": "At least {min} characters"
+    },
+    "fieldErrors": {
+      "email": "Invalid email address.",
+      "mismatch": "Passwords do not match."
+    },
+    "errors": {
+      "invalid_input": "Some details are not valid. Check the highlighted fields.",
+      "invalid_credentials": "Incorrect email or password.",
+      "invalid_credentials_remaining": "Incorrect email or password. {remaining} attempts left before a 15-minute lock.",
+      "locked": "Sign-in is temporarily locked after too many attempts. Try again in {minutes} minutes or reset your password.",
+      "email_not_confirmed": "Your email is not verified yet. Check your inbox to verify before signing in.",
+      "weak_password": "Password is not strong enough.",
+      "terms_required": "You need to accept the Terms and Privacy Policy.",
+      "email_exists": "This email already has an account. Log in or reset your password.",
+      "link_expired": "This link has expired or is invalid.",
+      "rate_limited": "Too many attempts. Please try again in a few minutes.",
+      "unknown": "Something went wrong. Please try again."
+    },
+    "signup": {
+      "title": "Create your agency account",
+      "description": "Free to try. Read-only access to Meta; we never write to your ad accounts.",
+      "acceptTerms": "I agree to the <terms>Terms</terms> and <privacy>Privacy Policy</privacy>",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?"
+    },
+    "verify": {
+      "title": "Check your email",
+      "description": "We sent a verification link to {email}. The link is valid for 24 hours.",
+      "yourEmail": "your email",
+      "resend": "Resend email",
+      "resendIn": "Resend email (in {seconds}s)",
+      "resent": "Verification email sent again.",
+      "wrongEmail": "Wrong email?",
+      "changeEmail": "Change address"
+    },
+    "login": {
+      "title": "Log in",
+      "description": "Use your agency work email.",
+      "forgot": "Forgot password?",
+      "submit": "Log in",
+      "noAccount": "No account yet?",
+      "signup": "Sign up"
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "description": "Enter your sign-up email and we will send you a reset link.",
+      "submit": "Send reset link",
+      "sent": "If this email has an account, we sent a password reset link. The link is valid for 60 minutes.",
+      "back": "Back to log in"
+    },
+    "reset": {
+      "title": "Set a new password",
+      "newPassword": "New password",
+      "confirm": "Repeat password",
+      "note": "The link expires after 60 minutes. Once reset, all other sessions are signed out.",
+      "submit": "Save new password",
+      "expiredBadge": "Expired",
+      "expiredTitle": "The reset link has expired",
+      "expiredBody": "Links are valid for 60 minutes. Request a new one to get another link.",
+      "sendNew": "Send a new link"
+    }
+  },
+  "onboarding": {
+    "title": "Create your agency workspace",
+    "description": "A workspace holds your agency's clients, ad accounts and members.",
+    "name": "Agency name",
+    "namePlaceholder": "Sao Mai Agency",
+    "timezone": "Time zone",
+    "currency": "Reporting currency",
+    "note": "Each ad account keeps its own time zone and currency from Meta.",
+    "submit": "Continue",
+    "working": "Creating…",
+    "invalid": "Some details are invalid. Check the name, time zone and currency.",
+    "error": "Could not create the workspace. Please try again.",
+    "another": "Each workspace is a separate agency: separate billing, Meta connections and members. Adding a new client to your current agency? Create a Client instead.",
+    "toClients": "Go to Clients",
+    "back": "Back",
+    "freeLimit": "You already own a Free workspace. Upgrade that workspace (Settings › Plan & billing) before creating another, or add the new customer as a Client."
+  },
+  "invite": {
+    "metaTitle": "Invitation",
+    "title": "You're invited to {workspace}",
+    "invitedBy": "{name} ({inviterRole}) invited you as {role}.",
+    "invitedAs": "You were invited as {role}.",
+    "allClients": "You will see: all clients",
+    "clientsCount": "You will see: {count} assigned clients",
+    "noClients": "The owner will assign clients to you after you join.",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "Jane Doe",
+    "password": "Password",
+    "passwordPlaceholder": "At least {min} characters",
+    "accept": "Accept and open workspace",
+    "loginToAccept": "Log in to accept",
+    "validity": "Invitation sent to {email}, valid for {days} more days.",
+    "wrongAccountTitle": "You're signed in with a different account",
+    "wrongAccountBody": "This invitation is for {email}. Sign out and open the link again.",
+    "expiredBadge": "Expired",
+    "expiredTitle": "This invitation has expired",
+    "expiredBody": "The invitation to {workspace} is no longer valid. Ask the owner to send it again.",
+    "invalidTitle": "This invitation is no longer valid",
+    "invalidBody": "The link was already used, revoked or is incorrect. Ask the owner to send a new invitation.",
+    "toLogin": "Go to log in",
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "buyer": "Media buyer"
+    },
+    "errors": {
+      "invalid": "This invitation is no longer valid.",
+      "weak_password": "Enter your name and a password of at least {min} characters.",
+      "failed": "Could not create your account. Please try again."
+    }
+  },
+  "settingsWorkspace": {
+    "name": "Agency name",
+    "timezone": "Default time zone",
+    "locale": "Workspace default language",
+    "brandTitle": "Report branding",
+    "uploadLogo": "Upload logo",
+    "logoHint": "PNG or SVG, up to 1MB",
+    "logoUploaded": "Logo updated",
+    "logoErrors": {
+      "type": "Only PNG or SVG images are accepted.",
+      "too_large": "The logo is larger than 1MB.",
+      "unsafe_svg": "The SVG file contains disallowed content (scripts or external links)."
+    },
+    "badgeNote": "The \"Powered by\" label shows on reports on the Starter and Growth plans; Scale removes it.",
+    "primaryColor": "Primary color",
+    "colorInvalid": "Color must be in #RRGGBB format.",
+    "reportFromEmail": "Report sender email",
+    "domainUnverified": "The domain {domain} has no verified SPF/DKIM yet, so report emails may land in spam.",
+    "invalid": "Invalid value.",
+    "save": "Save changes"
+  },
+  "settingsMembers": {
+    "title": "Members & roles",
+    "count": "{count, plural, one {# member} other {# members}}",
+    "invite": "+ Invite member",
+    "cols": {
+      "member": "Member",
+      "email": "Email",
+      "role": "Role",
+      "clients": "Assigned clients",
+      "approve": "Approve actions",
+      "status": "Status"
+    },
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "buyer": "Media buyer"
+    },
+    "roleHints": {
+      "manager": "Manages clients, connections and reports.",
+      "buyer": "Reviews findings and to-dos for assigned clients."
+    },
+    "allClients": "All",
+    "nClients": "{count, plural, one {# client} other {# clients}}",
+    "approveYes": "Yes",
+    "approveNo": "No",
+    "approveByClient": "Per client",
+    "approveFor": "May approve actions for clients",
+    "approveNote": "Only the owner can let media buyers approve actions, per client. Off by default.",
+    "active": "Active",
+    "notAccepted": "Not accepted",
+    "invitedAgo": "Invited {ago}",
+    "inviteExpired": "Invitation expired",
+    "resend": "Resend",
+    "resent": "Invitation sent again",
+    "emptyTitle": "It's just you in this new workspace",
+    "emptyBody": "Invite colleagues and assign clients to them.",
+    "inviteTitle": "Invite member",
+    "sendInvite": "Send invitation",
+    "invited": "Invitation sent to {email}",
+    "alreadyMember": "This email is already a member of the workspace.",
+    "inviteError": "Could not send the invitation. Check the email and try again.",
+    "clientsForBuyer": "Assigned clients",
+    "clientsOptionalManager": "Limit to clients (leave empty for all)",
+    "editTitle": "Edit member: {name}",
+    "remove": "Remove from workspace",
+    "removed": "Member removed",
+    "transferTitle": "Transfer ownership",
+    "transferBody": "This person becomes the owner and you become a manager. Enter your password to confirm.",
+    "yourPassword": "Your password",
+    "transfer": "Transfer",
+    "transferred": "Ownership transferred",
+    "wrongPassword": "Incorrect password."
+  },
+  "settingsProfile": {
+    "fullName": "Full name",
+    "email": "Login email",
+    "language": "My language",
+    "password": "Password",
+    "changePassword": "Change password",
+    "sessions": "Sessions",
+    "currentSession": "This browser · active",
+    "signOutOthers": "Sign out of all other devices",
+    "signedOutOthers": "Signed out of other devices",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Repeat new password",
+    "passwordRule": "At least 10 characters, both entries must match.",
+    "passwordChanged": "Password changed. Other sessions were signed out.",
+    "wrongCurrent": "Current password is incorrect."
+  },
+  "banners": {
+    "tokenExpired": "The Meta token of {count, plural, one {# connection} other {# connections}} has expired. Data for the related accounts has stopped updating.",
+    "reconnect": "Reconnect",
+    "pastDue": "The current period of your plan is unpaid. Pay within 7 days to keep your plan.",
+    "overLimit": "This workspace has {active} active accounts, over the plan limit of {limit}. After 7 days, accounts over the limit stop updating.",
+    "overLimitExpired": "The grace period has ended: only {limit} accounts within the limit keep updating. Existing data is kept.",
+    "openBilling": "View plan",
+    "killSwitch": "Kill switch is on: AdxLens makes no changes on Meta.",
+    "killSwitchGlobal": "AdxLens has paused all changes on Meta for a safety check. Data and reports keep working normally.",
+    "openKillSwitch": "View kill switch"
+  },
+  "connect": {
+    "step": "Setup · step {n}/{total}",
+    "yes": "Yes",
+    "no": "No",
+    "s02Title": "Meta connections",
+    "connectAccount": "+ Connect account",
+    "s02EmptyTitle": "No Meta connection yet",
+    "s02EmptyBody": "Connect Meta (read-only) to sync your numbers.",
+    "tokenSummary": "{expired} expired token(s), {expiring} expiring within 7 days.",
+    "reconnect": "Reconnect",
+    "todayAt": "{time} today",
+    "suggested": "Suggested: {name}",
+    "footnote": "Numbers use the 7d click / 1d view attribution window, each account's currency and time zone.",
+    "token": {
+      "valid": "Valid",
+      "expired": "Expired",
+      "expiring": "{days, plural, one {# day left} other {# days left}}"
+    },
+    "cols": {
+      "adAccount": "Ad account",
+      "account": "Account",
+      "id": "ID",
+      "client": "Client",
+      "token": "Token",
+      "lastSync": "Last sync",
+      "timezone": "Time zone",
+      "currency": "Currency",
+      "active30d": "Spend in 30d",
+      "spend30d": "30-day spend"
+    },
+    "errors": {
+      "denied": "You cancelled the permission request on Meta. Try again when you're ready.",
+      "missing_scope": "AdxLens needs the ads_read permission to sync your numbers.",
+      "failed": "Could not connect to Meta. Please try again."
+    },
+    "s03Title": "Connect Meta so AdxLens can read your metrics and assets",
+    "s03Intro": "Meta will ask you to grant permissions once. Here is what AdxLens does and does not do with them.",
+    "s03": {
+      "read": {
+        "title": "Read metrics and assets",
+        "body": "Campaigns, ad sets, ads, spend, results; your Pages, Instagram accounts, pixels and catalogs so you can set defaults per client."
+      },
+      "write": {
+        "title": "Change your ads on its own",
+        "body": "AdxLens never pauses ads, changes budgets or creates ads by itself. Management access is only used after the Owner enables write access and you approve each change."
+      },
+      "control": {
+        "title": "You stay in control",
+        "body": "Untick any permission in the Meta dialog, disconnect and ask us to delete your data at any time (Connections)."
+      }
+    },
+    "continueWithMeta": "Continue with Meta",
+    "viewDemo": "See the sample account first",
+    "scopes": "Requested: {scopes}. Only ads_read is required.",
+    "s04Title": "Choose ad accounts to track",
+    "s04Limit": "The {plan} plan tracks up to {limit} accounts. You can change this later.",
+    "s04Loading": "Fetching 30-day spend from Meta…",
+    "s04Selected": "{count}/{limit} accounts selected",
+    "s04Over": "You selected more than the {limit} accounts in the {plan} plan. Accounts over the limit keep syncing during the grace period; upgrade to keep them.",
+    "s04EmptyTitle": "No ad accounts found",
+    "s04EmptyBody": "This Meta account has no ad accounts you can view. Check your permissions in Business Manager and reconnect.",
+    "reconnectMeta": "Reconnect with Meta",
+    "plans": {
+      "free": "Free",
+      "starter": "Starter",
+      "growth": "Growth",
+      "scale": "Scale"
+    },
+    "writeAccess": "Write access",
+    "scopeGroups": {
+      "title": "Permission groups Meta will ask for",
+      "ads": "Ads — read metrics; manage (only when you approve a change)",
+      "business": "Business — businesses and product catalogs",
+      "pages": "Pages — page list, content and comments, leads from lead ads",
+      "instagram": "Instagram — profile and posts"
+    },
+    "assets": {
+      "title": "Meta assets",
+      "page": "{n} Pages",
+      "instagram": "{n} Instagram",
+      "pixel": "{n} pixels",
+      "catalog": "{n} catalogs",
+      "missing": "Not granted: {scopes}. Some features (default Page / pixel, leads, catalogs) will have no data.",
+      "regrant": "Reconnect to grant"
+    },
+    "resync": {
+      "button": "Re-sync",
+      "aria": "Re-sync {name}",
+      "title": "Re-sync {name}",
+      "body": "Fetch metrics from Meta again for the chosen range (up to yesterday in the account's time zone), then reconcile with Ads Manager again. Today's numbers keep updating automatically.",
+      "days": "{n} days",
+      "confirm": "Run sync",
+      "queued": "Re-sync queued; numbers update in a few minutes."
+    }
+  },
+  "placeholder": {
+    "comingSoon": "This screen is coming in the next release."
+  },
+  "clients": {
+    "s05Title": "Assign each account to a Client",
+    "s05Intro": "AdxLens suggests a Client from the account name. Confirm each row so a Client's report only includes their own accounts.",
+    "s05Remaining": "{count} rows not confirmed yet. You can still see the numbers, but you can't share reports for that Client yet.",
+    "s05AllDone": "All accounts are assigned to a Client.",
+    "s05Empty": "There are no ad accounts to assign yet.",
+    "matchName": "Name match",
+    "newClientOption": "+ Create new Client: {name}",
+    "chooseClient": "Choose a Client…",
+    "confirmed": "Confirmed",
+    "change": "Change",
+    "createClient": "+ Create new Client",
+    "finish": "Done, start syncing",
+    "conflict": "This account belongs to another Client. Unassign it first.",
+    "cols": {
+      "account": "Account",
+      "suggestion": "Suggestion",
+      "client": "Client",
+      "confirm": "Confirm",
+      "adAccounts": "Ad accounts",
+      "spend30d": "Spend 30 days",
+      "health": "Health",
+      "highIssues": "High issues",
+      "reconciliation": "Reconciliation",
+      "owner": "Owner",
+      "lastReport": "Last report"
+    },
+    "c01Title": "Clients",
+    "c01Count": "{clients} Clients · {accounts} accounts",
+    "search": "Search Clients or accounts…",
+    "addClient": "+ Add Client",
+    "unconfirmedBanner": "{count} accounts have no confirmed Client. Reports for the related Clients can't be shared yet.",
+    "confirmAssign": "Confirm assignment",
+    "emptyTitle": "No Clients yet",
+    "emptyBody": "Add your first Client and assign ad accounts to start building reports.",
+    "noResults": "No Client matches “{q}”.",
+    "pendingData": "No data yet",
+    "footnote": "Spend, health and reconciliation appear after the first sync. Figures use each account's currency and time zone.",
+    "newClientTitle": "Add Client",
+    "nameLabel": "Client name",
+    "accountsCount": "{count, plural, one {# account} other {# accounts}}",
+    "tabs": {
+      "campaigns": "Campaigns",
+      "adsets": "Ad sets",
+      "ads": "Ads",
+      "reports": "Reports",
+      "settings": "Settings",
+      "goals": "Goals"
+    },
+    "c02NoData": "Campaign figures appear once syncing finishes.",
+    "c02Accounts": "Client ad accounts",
+    "unassign": "Unassign",
+    "rename": "Rename",
+    "archive": "Archive Client",
+    "archiveConfirm": "Archive “{name}”? Its ad accounts become unassigned. Past reports are kept.",
+    "noAccounts": "This Client has no ad accounts.",
+    "backToClients": "Clients",
+    "reconnect": "Reconnect",
+    "budget": {
+      "title": "{month} budget",
+      "status": {
+        "on_track": "On track",
+        "over": "Projected over",
+        "under": "Projected under"
+      },
+      "edit": "Edit budget",
+      "set": "Set monthly budget",
+      "empty": "No monthly budget yet. Set the contracted budget to track spend pace and get alerts when the projection is off by more than 10%.",
+      "spent": "Spent {spent} / {amount} ({days}/{total} days)",
+      "projected": "projected {projected} ({pct})",
+      "dailyNeeded": "spend {amount}/day to hit budget",
+      "dialogTitle": "{month} budget",
+      "amount": "Budget ({currency})",
+      "hint": "Based on spend up to yesterday of the ad accounts in this currency. Owners and managers are alerted when the projection is over / under by more than 10% (from day 5 of the month).",
+      "saved": "Budget saved"
+    }
+  },
+  "sync": {
+    "title": "Syncing 90 days of data",
+    "doneTitle": "90 days of data synced",
+    "summary": "{percent}% · {done} / {total} accounts. No need to wait: open the dashboard now, data appears as it loads (newest first).",
+    "emptyTitle": "There are no ad accounts to sync yet.",
+    "connect": "Connect Meta",
+    "retry": "Retry sync",
+    "reconnect": "Reconnect to Meta",
+    "cols": {
+      "account": "Account",
+      "progress": "Progress",
+      "reconciliation": "Reconciliation"
+    },
+    "status": {
+      "done": "Done",
+      "failed": "Error",
+      "running": "Running {percent}%"
+    },
+    "errors": {
+      "TRANSIENT": "Sync stopped at {percent}%: Meta returned a temporary error. Data already synced is kept.",
+      "META_NO_ACCESS": "Sync stopped at {percent}%: access to the ad account was lost. Check permissions in Business Manager, then retry.",
+      "META_TOKEN_INVALID": "Sync stopped at {percent}%: the Meta connection expired. Reconnect to continue."
+    },
+    "continueBackground": "Go to dashboard, keep syncing in background",
+    "banner": {
+      "body": "Syncing 90 days of data ({percent}%, {count, plural, one {# account} other {# accounts}}). Data appears as it loads, newest first; until done, longer date ranges may be incomplete and not yet reconciled with Meta.",
+      "link": "View progress"
+    }
+  },
+  "recon": {
+    "ok": "Matches Meta (off {pct})",
+    "warning": "Off {pct} vs Meta",
+    "pending": "Not reconciled",
+    "title": "Data reconciliation",
+    "resync": "Re-run sync",
+    "resyncQueued": "Re-sync scheduled. Reconciliation updates when syncing finishes.",
+    "warningBanner": "Figures differ from Ads Manager by more than 1% on {count, plural, one {# day} other {# days}}: {dates}. Reports for this Client can't be shared yet. We re-sync and reconcile again in 24 hours.",
+    "pendingBody": "No reconciliation data for this range yet. Reconciliation runs after syncing finishes.",
+    "noAccounts": "This Client has no ad accounts to reconcile.",
+    "account": "Account",
+    "range": "Date range",
+    "ranges": {
+      "7": "Last 7 days",
+      "14": "Last 14 days",
+      "30": "Last 30 days"
+    },
+    "cols": {
+      "metric": "Metric",
+      "adxlens": "AdxLens",
+      "adsManager": "Ads Manager",
+      "diff": "Difference",
+      "pct": "%",
+      "status": "Status"
+    },
+    "metrics": {
+      "spend": "Spend ({currency})",
+      "impressions": "Impressions",
+      "linkClicks": "Link clicks",
+      "conversionValue": "Conversion value ({currency})",
+      "roas": "ROAS",
+      "purchase": "Purchases (7d click / 1d view)",
+      "lead": "Leads (7d click / 1d view)",
+      "landing_page_view": "Landing page views",
+      "messaging": "Conversations",
+      "other": "Result: {type}"
+    },
+    "match": "Match",
+    "mismatch": "Off",
+    "causesTitle": "Possible causes (for reference only)",
+    "causes": {
+      "recent": "Data for {dates} is not final yet: Meta keeps adjusting conversions for a few days.",
+      "timezone": "The account time zone ({timezone}) must match Ads Manager's setting when comparing.",
+      "attribution": "Ads Manager may be showing an attribution window other than 7d click / 1d view."
+    },
+    "footnote": "Matches Meta · updated {time} · attribution 7d click / 1d view · {currency} · {timezone}"
+  },
+  "disconnect": {
+    "title": "Meta connections",
+    "account": "Meta account",
+    "accounts": "Ad accounts",
+    "status": "Status",
+    "statuses": {
+      "active": "Active",
+      "expired": "Expired",
+      "revoked": "Disconnected"
+    },
+    "disconnect": "Disconnect and delete data",
+    "dialogTitle": "Disconnect Meta?",
+    "dialogBody": "The access token is deleted immediately and syncing stops. Synced ad data for {count, plural, one {# ad account} other {# ad accounts}} will be deleted after {days} days (committed within {deadline} days). Report links using these accounts are locked. Reconnecting before then cancels the deletion.",
+    "facebookHint": "To remove AdxLens's permission on Facebook entirely: Settings › Apps and websites › AdxLens › Remove.",
+    "understand": "I understand the data will be deleted",
+    "confirm": "Disconnect",
+    "done": "Disconnected. Confirmation code {code}.",
+    "pendingBanner": "Data deletion pending (code {code}): deleting on {date}. Reconnect before then to cancel.",
+    "doneBanner": "Data of the old connection was deleted (code {code}) on {date}."
+  },
+  "rules": {
+    "groups": {
+      "creative": "Creative",
+      "budget": "Budget",
+      "structure": "Structure",
+      "learning": "Learning phase",
+      "waste": "Wasted spend",
+      "hygiene": "Account hygiene",
+      "tracking": "Conversion tracking"
+    },
+    "creative_fatigue": {
+      "name": "Creative fatigue",
+      "why": "Frequency rose {freqRise, number}% (to {freq, number}) while CTR fell {ctrDrop, number}% versus the previous 7 days.",
+      "what": "Refresh the creative, or lower this ad's budget while preparing a new one.",
+      "impact": "7-day spend × (1 − current CTR / previous 7-day CTR)"
+    },
+    "budget_misallocation": {
+      "name": "Spend concentrated on low performance",
+      "why": "This ad set takes {share, number}% of spend for its goal but its CPA is {ratio, number}× the median of ad sets with the same goal.",
+      "what": "Shift budget to ad sets near or below the median CPA; review this ad set's audience and creative.",
+      "impact": "7-day spend × (1 − median CPA / ad set CPA)"
+    },
+    "starved_winner": {
+      "name": "Starved winner",
+      "why": "CPA is {better, number}% better than its ad set, yet the ad gets only {share, number}% of the ad set's spend.",
+      "what": "Move this ad into its own ad set, or turn off weaker ads so budget reaches the winner."
+    },
+    "fragmentation": {
+      "name": "Fragmented ad sets",
+      "why": "{weak}/{total} active ad sets have small budgets or limited learning; none gets enough events to optimise.",
+      "what": "Merge small ad sets with similar audiences, or use campaign budget (CBO) so Meta can allocate."
+    },
+    "learning_limited": {
+      "name": "Learning limited",
+      "why": "Meta reports this ad set as \"learning limited\": {results, number} results in 7 days; about {needed, number}/week are needed to exit learning.",
+      "whyInferred": "This ad set had only {results, number} results in 7 days, below the ~{needed, number}/week Meta needs to exit learning.",
+      "what": "Merge with ad sets targeting the same audience, raise the budget, or optimise for a more frequent event."
+    },
+    "spend_no_conversion": {
+      "name": "Spend without conversions",
+      "why": "This ad set spent on {days, number} days last week with no results, while other ad sets with the same goal still convert.",
+      "what": "Pause or cut this ad set's budget; review audience, landing page and optimisation event.",
+      "impact": "The ad set's full 7-day spend"
+    },
+    "account_hygiene": {
+      "name": "Account hygiene",
+      "why": "Item needs cleanup.",
+      "whyName": "An active item has a default or copy name: \"{name}\".",
+      "whyIdle": "Active but spent nothing in the last 7 days.",
+      "what": "Use clear names and turn off unused items.",
+      "whatName": "Follow a naming convention (product · audience · creative) so reports are easier to read.",
+      "whatIdle": "Check schedule, budget and review status; turn it off if no longer used."
+    },
+    "conversion_tracking": {
+      "name": "Conversion tracking",
+      "why": "Results over the last {days, number} days fell {drop, number}% versus the previous 14 days while spend and link clicks did not fall accordingly.",
+      "what": "Check the pixel/Conversions API and events in Events Manager; look for recent landing page changes."
+    }
+  },
+  "account": {
+    "title": "Account overview",
+    "kpi": {
+      "spend": "Spend",
+      "results": "Results",
+      "cpa": "CPA",
+      "roas": "ROAS",
+      "ctr": "CTR",
+      "impressions": "Impressions"
+    },
+    "vsPrev": "vs previous period",
+    "trend": "Daily trend",
+    "spendSeries": "Spend",
+    "resultsSeries": "Results",
+    "health": "Health score",
+    "healthNone": "No open issues.",
+    "healthPenalty": "−{points, number} points · {count, plural, one {# finding} other {# findings}}",
+    "topFindings": "Top findings",
+    "allFindings": "View all findings",
+    "noFindings": "No findings yet. The audit runs after syncing and a clean reconciliation.",
+    "noData": "No data for this period yet. Syncing is running or the account had no spend.",
+    "footnote": "Source: Meta Ads · {from} → {to} · attribution 7d click / 1d view · {currency} · {timezone}",
+    "openAdsManager": "Open in Ads Manager"
+  },
+  "findings": {
+    "title": "Findings",
+    "count": "{count, plural, one {# finding} other {# findings}}",
+    "severity": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "status": {
+      "new": "New",
+      "seen": "Seen",
+      "done": "Done",
+      "dismissed": "Dismissed",
+      "resolved": "Resolved"
+    },
+    "filters": {
+      "all": "All",
+      "severity": "Severity",
+      "group": "Group",
+      "status": "Status",
+      "open": "Open"
+    },
+    "cols": {
+      "severity": "Severity",
+      "finding": "Finding",
+      "group": "Group",
+      "impact": "Estimated impact",
+      "lastSeen": "Updated",
+      "status": "Status"
+    },
+    "emptyTitle": "No findings",
+    "emptyBody": "No findings match the filters. The account looks fine on the active rules.",
+    "loading": "Loading findings…",
+    "entity": {
+      "account": "Account",
+      "campaign": "Campaign",
+      "adset": "Ad set",
+      "ad": "Ad"
+    },
+    "drawer": {
+      "why": "Why",
+      "whatToDo": "What to do",
+      "evidence": "Evidence",
+      "impact": "Estimated impact",
+      "method": "Method: {method}",
+      "noImpact": "No money estimate for this kind of finding.",
+      "window": "This week {cur} · last week {prev}",
+      "notLlm": "Figures are computed by the system from Meta data, not generated by a language model.",
+      "seen": "Mark seen",
+      "done": "Mark done",
+      "dismiss": "Dismiss",
+      "wrong": "Report wrong",
+      "reason": "Reason for dismissing",
+      "reasonPlaceholder": "E.g. testing a new creative",
+      "wrongNote": "What is wrong? (optional)",
+      "saved": "Finding updated"
+    },
+    "metric": {
+      "frequency": "Frequency",
+      "ctr": "CTR",
+      "spend": "Spend",
+      "cpa": "CPA",
+      "median_cpa": "Median CPA",
+      "adset_cpa": "Ad set CPA",
+      "spend_share": "Spend share",
+      "results": "Results",
+      "results_7d": "Results (7 days)",
+      "weekly_events_needed": "Events needed/week",
+      "adsets": "Active ad sets",
+      "weak_adsets": "Weak ad sets",
+      "small_budget_threshold": "Small budget threshold",
+      "link_clicks": "Link clicks",
+      "threshold": "Spend threshold",
+      "results_per_day": "Results/day",
+      "spend_drop": "Spend drop (%)",
+      "click_drop": "Click drop (%)"
+    }
+  },
+  "overview": {
+    "title": "Overview",
+    "spend7": "7-day spend",
+    "spend30": "30-day spend",
+    "highIssues": "High-severity issues",
+    "mismatch": "Accounts with mismatched data",
+    "clients": "Clients",
+    "multiCurrency": "Multiple currencies, not summed",
+    "cols": {
+      "client": "Client",
+      "accounts": "Ad accounts",
+      "spend7": "7-day spend",
+      "spend30": "30-day spend",
+      "health": "Health",
+      "highIssues": "High issues",
+      "reconciliation": "Reconciliation"
+    },
+    "unassignedTitle": "Accounts without a Client",
+    "unassignedBody": "{count, plural, one {# account has} other {# accounts have}} data but no Client yet.",
+    "assign": "Assign Client",
+    "emptyTitle": "No ad data yet",
+    "emptyBody": "Connect Meta (read-only) and pick accounts to see the agency overview.",
+    "connect": "Connect Meta",
+    "footnote": "Dates in each account's time zone · through yesterday · amounts in account currency, not converted.",
+    "healthHint": "Client health = its lowest account.",
+    "attention": {
+      "title": "Clients needing attention ({count})",
+      "none": "No clients need attention right now.",
+      "recon": "Off Meta by {pct}",
+      "sync": "{count} accounts failing to sync",
+      "issues": "{count} high-severity issues",
+      "budget": "Budget projected {status, select, over {to overspend} other {to underspend}} by {pct}%",
+      "health": "Health {score}"
+    }
+  },
+  "entities": {
+    "level": {
+      "campaign": "Campaign",
+      "adset": "Ad set",
+      "ad": "Ad"
+    },
+    "cols": {
+      "status": "Status",
+      "spend": "Spend",
+      "impressions": "Impressions",
+      "clicks": "Clicks",
+      "ctr": "CTR",
+      "results": "Results",
+      "cpa": "CPA",
+      "roas": "ROAS",
+      "conversionValue": "Conversion value",
+      "cpm": "CPM",
+      "linkClicks": "Clicks",
+      "lastChange": "Latest change"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "CAMPAIGN_PAUSED": "Campaign paused",
+      "ADSET_PAUSED": "Ad set paused",
+      "ARCHIVED": "Archived",
+      "DELETED": "Deleted",
+      "WITH_ISSUES": "With issues",
+      "DISAPPROVED": "Disapproved",
+      "PENDING_REVIEW": "Pending review"
+    },
+    "empty": {
+      "campaign": "No campaigns in this period.",
+      "adset": "No ad sets in this period.",
+      "ad": "No ads in this period."
+    },
+    "footnote": "{from} → {to} · attribution 7d click / 1d view · account time zone",
+    "grid": {
+      "search": "Search by name…",
+      "show": "Show",
+      "showActive": "Active or with spend",
+      "showSpend": "With spend in period",
+      "showAll": "All",
+      "hidden": "{count} paused objects without spend hidden",
+      "total": "Total ({count})",
+      "columns": "Columns",
+      "sets": {
+        "performance": "Performance",
+        "conversion": "Conversions",
+        "delivery": "Delivery"
+      },
+      "savedFilters": "Saved filters",
+      "saveFilter": "Save filter",
+      "saveFilterPrompt": "Filter name (current search, show, sort, columns):"
+    },
+    "levelPlural": {
+      "campaign": "Campaigns",
+      "adset": "Ad sets",
+      "ad": "Ads"
+    }
+  },
+  "report": {
+    "kindLabel": {
+      "audit": "Audit report",
+      "periodic": "Performance report",
+      "pitch": "Assessment report"
+    },
+    "preparedFor": "Report for {client}",
+    "period": "{from} – {to}",
+    "compare": "vs {from} – {to}",
+    "sections": {
+      "summary": "Summary",
+      "kpis": "Key metrics",
+      "trend": "Daily spend",
+      "campaigns": "Top campaigns",
+      "findings": "Issues to address",
+      "workDone": "Work done",
+      "nextSteps": "Next steps",
+      "intro": "Agency notes",
+      "audience": "Audience, placements and regions",
+      "creatives": "Top spending ads",
+      "auditOverview": "Audit results",
+      "context": "Performance context for the period"
+    },
+    "kpi": {
+      "spend": "Spend",
+      "results": "Results",
+      "cpa": "Cost per result",
+      "roas": "ROAS",
+      "ctr": "CTR",
+      "impressions": "Impressions",
+      "conversionValue": "Revenue",
+      "aov": "Avg order value",
+      "cpm": "CPM"
+    },
+    "cols": {
+      "campaign": "Campaign",
+      "spend": "Spend",
+      "results": "Results",
+      "cpa": "CPA",
+      "roas": "ROAS"
+    },
+    "severity": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "impact": "Estimated impact: {amount}",
+    "noFindings": "No significant issues this period.",
+    "noData": "No spend in this period.",
+    "source": "Matches Meta as of {matchedAt} · attribution 7-day click / 1-day view · {currencies} · {timezones}",
+    "sourcePending": "Not yet reconciled with Meta · attribution 7-day click / 1-day view · {currencies} · {timezones}",
+    "poweredBy": "Powered by AdxLens",
+    "account": "Account {name}",
+    "demo": "Sample report — illustrative figures, not real data.",
+    "work": {
+      "summary": "This period: {actions} changes on Meta (verified), {tasks} tasks completed, {findings} issues handled.",
+      "actions": "Changes on Meta",
+      "tasks": "Tasks completed",
+      "auto": "automatic (rule)",
+      "undone": "undone",
+      "more": "… and {count} more"
+    },
+    "cpa": {
+      "titleUp": "Why did CPA rise?",
+      "titleDown": "Why did CPA fall?",
+      "headline": "CPA {previous} → {current} ({change}) vs the previous period.",
+      "factors": {
+        "cpm": "Impression cost (CPM)",
+        "ctr": "Click-through rate (CTR)",
+        "cvr": "Conversion rate"
+      },
+      "share": "explains {share}% of the CPA change",
+      "drivers": "Campaigns contributing most",
+      "method": "CPA = CPM ÷ CTR ÷ conversion rate. Computed from the reconciled figures of both periods.",
+      "label": "CPA",
+      "vsPrevious": "vs previous period",
+      "mainUp": "Mainly because of",
+      "mainDown": "Mainly thanks to",
+      "mixedUp": "Several factors at once, none explains more than half. See each factor below.",
+      "mixedDown": "Several factors at once, none explains more than half. See each factor below.",
+      "short": {
+        "cpm": "impression cost",
+        "ctr": "click-through rate",
+        "cvr": "conversion rate"
+      },
+      "help": {
+        "cpm": "cost per 1,000 impressions",
+        "ctr": "share of viewers who click the ad",
+        "cvr": "share of clickers who convert"
+      },
+      "rise": "up {v}%",
+      "fall": "down {v}%",
+      "shareUp": "{share}% of the increase",
+      "shareDown": "{share}% of the decrease",
+      "offset": "offsets {share}%",
+      "hintTitle": "Worth checking:",
+      "hint": {
+        "cpm": "auction competition, narrow audience, high frequency or peak season.",
+        "ctr": "creative fatigue or audience fit; try new ads.",
+        "cvr": "landing page, offer, page speed and conversion tracking (pixel, CAPI)."
+      },
+      "colCampaign": "Campaign",
+      "colCpa": "CPA before → now",
+      "colShare": "Contribution"
+    },
+    "audience": {
+      "age_gender": "Age · gender",
+      "placement": "Placement",
+      "region": "Region",
+      "group": "Group",
+      "share": "Spend share",
+      "female": "Female",
+      "male": "Male",
+      "unknown": "Unknown",
+      "note": "Breakdown figures from Meta may differ slightly from account totals (Meta hides or rounds small groups)."
+    },
+    "audit": {
+      "health": "Health score",
+      "penalty": "{group}: −{points} points · {count} issues",
+      "counts": "{high} high-severity issues · {medium} medium · {low} low",
+      "impact": "estimated impact {amount}",
+      "healthy": "No rule group lost points."
+    },
+    "goal": {
+      "title": "Goal for the period",
+      "target": "Target: {value}",
+      "better": "{pct} better than target",
+      "worse": "{pct} short of target",
+      "previous": "Previous: {value}"
+    },
+    "kpiTpl": {
+      "ecommerce": {
+        "results": "Purchases",
+        "cpa": "Cost per purchase"
+      },
+      "leadgen": {
+        "results": "Leads",
+        "cpa": "CPL"
+      }
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "create": "+ Create report",
+    "emptyTitle": "No reports yet",
+    "emptyBody": "Create a Client's first report: figures matching Ads Manager, findings and a plan, under your agency's brand.",
+    "cols": {
+      "report": "Report",
+      "client": "Client",
+      "period": "Period",
+      "status": "Status",
+      "created": "Created"
+    },
+    "status": {
+      "building": "Building",
+      "ready": "Ready",
+      "failed": "Failed"
+    },
+    "blocked": "Can't share yet",
+    "kind": {
+      "audit": "Audit",
+      "periodic": "Periodic"
+    },
+    "new": {
+      "title": "Create report",
+      "client": "Client",
+      "kind": "Report type",
+      "period": "Period",
+      "locale": "Report language",
+      "from": "From",
+      "to": "To",
+      "presets": {
+        "last7": "Last 7 days",
+        "last30": "Last 30 days",
+        "lastMonth": "Last month",
+        "custom": "Custom"
+      },
+      "submit": "Create report",
+      "noClients": "No Clients yet. Create a Client and assign ad accounts first.",
+      "kindHelp": {
+        "audit": "Health score with points lost per group, every open issue by severity with total estimated impact; period numbers only as context. Good for account checks or pitching new clients.",
+        "periodic": "This period vs the previous one, daily trend, audience and creatives, work done by the agency, plus the main issues."
+      },
+      "locales": {
+        "vi": "Tiếng Việt",
+        "en": "English"
+      },
+      "template": "Report template",
+      "templates": {
+        "general": "General",
+        "ecommerce": "E-commerce",
+        "leadgen": "Lead gen"
+      },
+      "templateHelp": {
+        "general": "Spend, results, cost per result, ROAS, CTR, impressions.",
+        "ecommerce": "Revenue, ROAS, purchases, cost per purchase, average order value.",
+        "leadgen": "Leads, CPL, CTR, CPM, impressions."
+      }
+    },
+    "view": {
+      "building": "Building the report… this page updates itself.",
+      "failed": "Couldn't build the report ({code}). Try rebuilding.",
+      "rebuild": "Rebuild",
+      "edit": "Edit content",
+      "save": "Save changes",
+      "saved": "Saved",
+      "titleLabel": "Title",
+      "workDone": "Work done",
+      "nextSteps": "Next steps",
+      "hide": "Hide sections",
+      "share": "Share",
+      "delete": "Delete report",
+      "deleteConfirm": "Delete this report? Its share links are deleted too.",
+      "blockedTitle": "This report can't be shared yet",
+      "unconfirmed": "{count, plural, one {# account has} other {# accounts have}} no confirmed Client.",
+      "warning": "Figures differ from Ads Manager by more than 1% on {dates}.",
+      "fix": "Once fixed, click \"Rebuild\".",
+      "goAssign": "Confirm assignment",
+      "goRecon": "View reconciliation",
+      "sections": {
+        "kpis": "Key metrics",
+        "trend": "Daily spend",
+        "campaigns": "Top campaigns",
+        "findings": "Issues to address",
+        "workDone": "Work done",
+        "nextSteps": "Next steps",
+        "audience": "Audience, placements and regions",
+        "creatives": "Top spending ads"
+      },
+      "summaryLlm": "Summary written by AI from computed figures; every number was checked against the data.",
+      "summaryTemplate": "Automatic summary from the figures (no AI).",
+      "intro": "Agency notes (shown after the summary)"
+    }
+  },
+  "share": {
+    "title": "Share report",
+    "create": "Create share link",
+    "expiry": "Expires",
+    "expiries": {
+      "none": "Never",
+      "7": "7 days",
+      "30": "30 days",
+      "90": "90 days"
+    },
+    "password": "Password (optional, ≥ 6 characters)",
+    "created": "Link created. Send it to your client.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "revoke": "Revoke",
+    "revoked": "Revoked",
+    "links": "Links",
+    "noLinks": "No links yet.",
+    "cols": {
+      "link": "Link",
+      "expires": "Expires",
+      "views": "Views",
+      "status": "Status"
+    },
+    "active": "Active",
+    "expired": "Expired",
+    "withPassword": "Password",
+    "blockedTitle": "This report can't be shared yet",
+    "blockedBody": "Clients can only view a report once every account has a confirmed Client, figures match Ads Manager (≤ 1% difference) and the Meta connection is active.",
+    "connectionRevoked": "This Client's Meta connection was disconnected.",
+    "pdfLater": "Export PDF below.",
+    "pdfTitle": "PDF (A4)",
+    "pdfBody": "Export the report as a PDF to attach to an email. The download link is valid for 1 hour.",
+    "pdfExport": "Export PDF",
+    "pdfWorking": "Creating PDF…",
+    "pdfDownload": "Download PDF",
+    "pdfTimeout": "The PDF is taking longer than expected. Try again in a few minutes."
+  },
+  "publicReport": {
+    "expiredTitle": "This link has expired or was revoked",
+    "expiredBody": "Ask the agency that sent the report for a new link.",
+    "lockedTitle": "This report is temporarily locked",
+    "lockedBody": "The agency is re-checking the figures. The report reopens once figures match Ads Manager.",
+    "passwordTitle": "This report is password protected",
+    "passwordLabel": "Password",
+    "open": "Open report",
+    "wrongPassword": "Incorrect password.",
+    "notFoundTitle": "Report not found"
+  },
+  "admin": {
+    "brand": "AdxLens Admin",
+    "internal": "Internal",
+    "pm": "PM",
+    "staff": {
+      "title": "AdxLens team",
+      "body": "Superadmins manage staff, enable flags, turn off the kill switch and edit plans. Operators run operations: view, re-sync, retry jobs, turn on the kill switch, propose flags.",
+      "cols": {
+        "email": "Email",
+        "name": "Name",
+        "role": "Role",
+        "since": "Since",
+        "actions": "Actions"
+      },
+      "reason": "Reason (required, ≥ 5 characters)",
+      "add": "Add staff",
+      "addHint": "The person must already have an AdxLens account with this email.",
+      "added": "Staff added",
+      "updated": "Role changed",
+      "removed": "Staff access removed",
+      "makeRole": "Make {role}",
+      "remove": "Remove access",
+      "confirm": "Confirm",
+      "you": "You",
+      "roleTitle": "Make {email} {role}",
+      "removeTitle": "Remove staff access of {email}"
+    },
+    "nav": {
+      "flags": "Feature flags",
+      "incidents": "Incidents",
+      "killSwitch": "Kill switch",
+      "staff": "Team",
+      "audit": "Admin log",
+      "workspaces": "Workspaces",
+      "operations": "Sync & queues",
+      "reconciliation": "Reconciliation",
+      "execution": "Execution & breakers",
+      "billing": "Plans & billing",
+      "deletions": "Data deletion",
+      "system": "System",
+      "emails": "Email templates",
+      "today": "Today"
+    },
+    "flags": {
+      "title": "Feature flags",
+      "search": "Search workspaces…",
+      "cols": {
+        "workspace": "Workspace",
+        "owner": "Owner",
+        "accounts": "Ad accounts",
+        "created": "Created"
+      },
+      "names": {
+        "reports": "Reports",
+        "recommendations": "Recommendations",
+        "approve": "One-click approval",
+        "auto": "Automation"
+      },
+      "on": "On",
+      "off": "Off",
+      "empty": "No workspaces.",
+      "dialog": {
+        "enableTitle": "Enable {flag} for {workspace}",
+        "disableTitle": "Disable {flag} for {workspace}",
+        "checklist": "Technical checklist",
+        "passed": "Passed",
+        "failed": "Not passed",
+        "checking": "Running checklist…",
+        "reason": "Reason (required, ≥ 5 characters)",
+        "override": "Override failed checklist (logged)",
+        "enable": "Enable flag",
+        "disable": "Disable flag",
+        "dependents": "Disabling this flag also disables dependent flags that are on.",
+        "onlyPm": "Only the PM can enable flags.",
+        "done": "Flag updated",
+        "history": "History",
+        "noHistory": "No changes yet.",
+        "overrideTag": "override",
+        "propose": "Send proposal",
+        "proposeHint": "You are an operator: the force-on request goes to a superadmin for approval.",
+        "proposed": "Proposal sent"
+      },
+      "proposals": {
+        "title": "Pending flag proposals ({count})",
+        "by": "{email} · {at}",
+        "approve": "Approve",
+        "reject": "Reject",
+        "cancel": "Cancel proposal",
+        "noteOptional": "Note (optional)",
+        "dialog": {
+          "approve": "Approve {flag} for {workspace}",
+          "reject": "Reject {flag} for {workspace}",
+          "cancel": "Cancel proposal of {flag} for {workspace}"
+        },
+        "done": {
+          "approve": "Approved, flag is on",
+          "reject": "Proposal rejected",
+          "cancel": "Proposal canceled"
+        }
+      },
+      "global": {
+        "title": "App-wide",
+        "intro": "Turn a feature on for every workspace whose plan includes it. Turning off here turns it off for all customers (except forced-on exceptions); pending write actions are canceled.",
+        "turnOn": "Turn on app-wide",
+        "turnOff": "Turn off app-wide",
+        "enableTitle": "Turn {flag} on app-wide",
+        "disableTitle": "Turn {flag} off app-wide",
+        "enableHint": "Every workspace whose plan includes this feature can use it (within 60 seconds). The parent flag must be on.",
+        "disableHint": "Turns it off for every workspace (except forced-on exceptions) and turns off dependent flags."
+      },
+      "plans": {
+        "title": "By plan",
+        "intro": "Which plan includes which feature. Defaults follow the pricing; click a cell to change.",
+        "plan": "Plan",
+        "included": "Yes",
+        "excluded": "No",
+        "addTitle": "Add {flag} to the {plan} plan",
+        "removeTitle": "Remove {flag} from the {plan} plan",
+        "hint": "Applies to every workspace on this plan (except exceptions) within 60 seconds."
+      },
+      "overrides": {
+        "title": "Per-workspace exceptions",
+        "intro": "The value in effect for each workspace. Exceptions win over app-wide × plan: use them for trials, demos or turning off a customer with an issue.",
+        "forcedOn": "forced on",
+        "forcedOff": "forced off",
+        "dialogTitle": "{flag} · {workspace}",
+        "choice": {
+          "on": "Force on",
+          "off": "Force off",
+          "clear": "Follow app-wide × plan"
+        },
+        "choiceHint": {
+          "on": "On for this workspace even if its plan lacks it (the parent flag must still be in effect).",
+          "off": "Off for this workspace even if app-wide and plan are on; also turns off child flags.",
+          "clear": "Remove the exception; the workspace follows the app-wide flag and its plan."
+        }
+      },
+      "scopeHistory": "App-wide / plan flag change log"
+    },
+    "killSwitch": {
+      "nav": "Kill switch",
+      "title": "Global kill switch",
+      "body": "Stops every change on Meta for every workspace and cancels pending actions. Use during an execution incident.",
+      "state": "State",
+      "on": "On",
+      "off": "Off",
+      "reason": "Reason (required)",
+      "turnOn": "Turn on globally",
+      "turnOff": "Turn off globally",
+      "pmOnly": "Operators can only turn the kill switch on; turning it off needs a superadmin.",
+      "done": "Updated, {count} pending actions canceled"
+    },
+    "incidents": {
+      "nav": "Incidents",
+      "title": "Incidents & playbooks",
+      "all": "All",
+      "status": {
+        "open": "Open",
+        "mitigated": "Mitigated",
+        "resolved": "Resolved"
+      },
+      "cols": {
+        "severity": "Severity",
+        "title": "Incident",
+        "kind": "Kind",
+        "occurrences": "Count",
+        "status": "Status",
+        "opened": "Opened"
+      },
+      "emptyTitle": "No incidents",
+      "emptyBody": "Incidents opened by health checks, reconciliation, execution or deploys appear here.",
+      "runs": "Playbook runs",
+      "noRuns": "No playbook runs yet.",
+      "mitigate": "Mitigated",
+      "resolve": "Resolved",
+      "updated": "Incident updated",
+      "detail": "Details",
+      "runResult": {
+        "done": "Ran",
+        "skipped": "Skipped",
+        "failed": "Failed",
+        "escalated": "Escalated (PM notified)"
+      },
+      "openWorkspace": "Open workspace"
+    },
+    "roles": {
+      "superadmin": "Superadmin",
+      "operator": "Operator"
+    },
+    "audit": {
+      "title": "Admin action log",
+      "bodyAll": "Every write action from the admin pages. Append-only: cannot be edited or deleted.",
+      "bodyMine": "Your actions on the admin pages. Superadmins see everything.",
+      "empty": "No actions yet.",
+      "cols": {
+        "at": "At",
+        "actor": "By",
+        "action": "Action",
+        "target": "Target",
+        "reason": "Reason"
+      },
+      "actions": {
+        "staff_add": "Add staff",
+        "staff_role": "Change staff role",
+        "staff_remove": "Remove staff",
+        "flag_propose": "Propose flag",
+        "flag_proposal_approve": "Approve flag proposal",
+        "flag_proposal_reject": "Reject flag proposal",
+        "flag_proposal_cancel": "Cancel flag proposal",
+        "kill_switch_on": "Global kill switch on",
+        "kill_switch_off": "Global kill switch off",
+        "sync_resync": "Re-sync",
+        "queue_retry": "Retry failed job",
+        "queue_discard": "Discard failed job",
+        "billing_plan_update": "Edit plan",
+        "billing_comp_plan": "Set plan manually",
+        "billing_extend_grace": "Extend grace",
+        "execution_breaker_close": "Close breaker",
+        "settings_alert_emails": "Change alert emails",
+        "settings_maintenance_on": "Turn on maintenance notice",
+        "settings_maintenance_off": "Turn off maintenance notice"
+      }
+    },
+    "workspaces": {
+      "title": "Workspace lookup",
+      "detailTitle": "Workspace detail",
+      "search": "Workspace name or member email…",
+      "empty": "No workspace found.",
+      "back": "← Lookup",
+      "createdAt": "created {at}",
+      "openFlags": "Open the flag matrix for this workspace",
+      "demo": "Demo",
+      "yes": "Yes",
+      "no": "No",
+      "none": "None.",
+      "pendingDeletion": "Disconnected · pending deletion",
+      "reconSummary": "{warnings}/{days} days off (30 days)",
+      "purgeAfter": "purge at {at}",
+      "sections": {
+        "billing": "Plan & billing",
+        "flags": "Feature flags",
+        "members": "Members ({count})",
+        "connections": "Meta connections ({count})",
+        "accounts": "Ad accounts ({count})",
+        "syncRuns": "Recent syncs",
+        "incidents": "Open incidents ({count})",
+        "deletions": "Data deletion requests ({count})"
+      },
+      "billing": {
+        "plan": "Effective plan",
+        "subscribed": "subscribed {plan}",
+        "status": "Status",
+        "accounts": "Active accounts / limit",
+        "overLimit": "Over limit",
+        "periodEnd": "Period ends",
+        "grace": "Grace until",
+        "comp": "Set plan manually",
+        "compTitle": "Set plan manually for {workspace}",
+        "extendGrace": "Extend grace",
+        "extendTitle": "Extend grace for {workspace}",
+        "days": "Days (1–14)",
+        "saved": "Plan updated"
+      },
+      "cols": {
+        "name": "Workspace",
+        "owner": "Owner",
+        "members": "Members",
+        "accounts": "Ad accounts",
+        "created": "Created",
+        "email": "Email",
+        "role": "Role",
+        "metaUser": "Meta user",
+        "status": "Status",
+        "expires": "Token expires",
+        "write": "Write access",
+        "account": "Account",
+        "client": "Client · assignment",
+        "sync": "Sync",
+        "lastSync": "Last synced",
+        "recon": "Reconciliation",
+        "kind": "Kind",
+        "range": "Range",
+        "started": "Started",
+        "error": "Error"
+      },
+      "toc": {
+        "label": "Sections",
+        "billing": "Plan",
+        "flags": "Flags",
+        "members": "Members ({count})",
+        "connections": "Connections ({count})",
+        "accounts": "Ad accounts ({count})",
+        "syncRuns": "Syncs",
+        "incidents": "Incidents ({count})",
+        "deletions": "Deletions ({count})"
+      },
+      "danger": {
+        "title": "Danger zone",
+        "workspaceBody": "Permanently delete the workspace and all its data: members, clients, Meta connections (tokens deleted), ad accounts, metrics, reports, actions. The admin audit log is kept.",
+        "deleteWorkspace": "Delete workspace",
+        "deleteWorkspaceTitle": "Delete workspace {workspace}",
+        "workspaceIntro": "This can't be undone. Members' login accounts remain (delete them separately if needed).",
+        "typeName": "Type the workspace name to confirm: {workspace}",
+        "workspaceDeleted": "Workspace deleted",
+        "deleteUser": "Delete account",
+        "deleteUserTitle": "Delete account {email}",
+        "deleteUserIntro": "Removes the user from every workspace and deletes their login. This can't be undone.",
+        "typeEmail": "Type the email to confirm: {email}",
+        "userDeleted": "Account deleted"
+      }
+    },
+    "operations": {
+      "title": "Operations",
+      "syncTitle": "Failed (7 days) or stuck > 3h syncs ({count})",
+      "syncEmpty": "No failed or stuck syncs.",
+      "failed": "Failed",
+      "stuck": "Stuck",
+      "resync": "Re-sync",
+      "resyncTitle": "Re-sync {account}",
+      "resyncQueued": "Re-sync scheduled",
+      "days": "Range (up to yesterday, account time)",
+      "daysOption": "Last {days} days",
+      "reason": "Reason (required, ≥ 5 characters)",
+      "queuesTitle": "Job queues",
+      "redisDown": "Cannot read Redis.",
+      "failedTitle": "Failed jobs · {queue}",
+      "noRetry": "This queue writes to Meta: never retried (ADR-0008). Check Ads Manager, then discard.",
+      "loading": "Loading…",
+      "noFailed": "No failed jobs left.",
+      "attempts": "{n} attempts",
+      "retry": "Retry",
+      "discard": "Discard",
+      "retried": "Job retried",
+      "discarded": "Job discarded",
+      "metaTitle": "Meta API · last 60 minutes",
+      "noWorkspace": "(no workspace)",
+      "meta": {
+        "calls": "Calls",
+        "errors": "Errors",
+        "rateLimited": "Rate limited",
+        "avgMs": "Average duration"
+      },
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Ad account",
+        "status": "Status",
+        "range": "Range",
+        "error": "Error",
+        "at": "At",
+        "actions": "Actions",
+        "queue": "Queue",
+        "waiting": "Waiting",
+        "active": "Active",
+        "delayed": "Delayed",
+        "failed": "Failed",
+        "job": "Job"
+      }
+    },
+    "reconciliation": {
+      "title": "System-wide reconciliation",
+      "body": "Real ad accounts (no demo data, no disconnected connections) with days off Meta by more than 1% in the period. The 1% threshold is fixed; status comes from computed reconciliation results. Sharing is blocked when a day is off or the Client assignment is unconfirmed (same rule as reports).",
+      "days": "{days} days",
+      "onlyIssues": "Issues only",
+      "all": "All",
+      "empty": "No off, blocked or stale accounts.",
+      "emptyAll": "No real ad accounts yet.",
+      "noClient": "No Client",
+      "blocked": "Sharing blocked",
+      "ok": "Matches",
+      "unconfirmed": "Assignment unconfirmed",
+      "stale": "Not reconciled > 3 days",
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Ad account",
+        "warningDays": "Days off / checked",
+        "maxSpend": "Max spend delta",
+        "maxResults": "Max results delta",
+        "state": "State",
+        "lastChecked": "Last reconciled"
+      }
+    },
+    "reasonRequired": "Reason (required, ≥ 5 characters)",
+    "billing": {
+      "title": "Billing",
+      "plansTitle": "Plans",
+      "defaultConfig": "code default",
+      "edit": "Edit",
+      "editTitle": "Edit plan {plan}",
+      "saved": "Plan saved",
+      "entitlementsNote": "Plan entitlements are read-only: one-click approval / automation need Growth or higher (PM decision), not changed here.",
+      "attentionTitle": "Needs attention: past due or over limit ({count})",
+      "attentionEmpty": "No workspace is past due or over limit.",
+      "pastDue": "Past due",
+      "overLimit": "Over limit",
+      "ordersTitle": "Recent PayOS orders",
+      "eventsTitle": "Recent webhook events",
+      "none": "None yet.",
+      "cols": {
+        "plan": "Plan",
+        "priceVnd": "Price/month (VND)",
+        "priceUsd": "Price/month (USD)",
+        "included": "Included accounts",
+        "extra": "Extra account fee (VND)",
+        "entitlements": "Entitlements",
+        "workspace": "Workspace",
+        "status": "Status",
+        "since": "Since",
+        "order": "Order",
+        "amount": "Amount",
+        "at": "At",
+        "event": "Event"
+      }
+    },
+    "deletions": {
+      "title": "Data deletion requests",
+      "body": "Track the committed deletion deadline (Meta policy). The worker deletes on time; requests overdue by more than a day need a check (data-deletion runbook).",
+      "overdueCount": "{count} overdue requests",
+      "empty": "No data deletion requests yet.",
+      "deletedWorkspace": "(deleted workspace)",
+      "overdue": "Overdue",
+      "cols": {
+        "code": "Code",
+        "workspace": "Workspace",
+        "source": "Source",
+        "status": "Status",
+        "purgeAfter": "Purge by",
+        "completed": "Completed"
+      }
+    },
+    "execution": {
+      "title": "Execution on Meta",
+      "last7": "Last 7 days, all workspaces",
+      "status": {
+        "success": "Succeeded",
+        "failed": "Failed",
+        "pending": "Pending",
+        "undone": "Undone",
+        "canceled": "Canceled"
+      },
+      "breakersTitle": "Open breakers ({count})",
+      "breakersEmpty": "No open breakers.",
+      "closeBreaker": "Close breaker",
+      "closeTitle": "Close breaker of {account} (allows writes to Meta again)",
+      "closed": "Breaker closed",
+      "superOnly": "Superadmin only",
+      "failedTitle": "Recent failed actions",
+      "liveTitle": "Live rules ({count})",
+      "none": "None.",
+      "cols": {
+        "workspace": "Workspace",
+        "account": "Ad account",
+        "failures": "Consecutive failures",
+        "openedAt": "Opened",
+        "action": "Action",
+        "result": "Result code",
+        "rule": "Rule",
+        "liveSince": "Live since"
+      }
+    },
+    "system": {
+      "title": "System",
+      "healthTitle": "Health",
+      "version": "Version",
+      "executionCheck": "Execution check (this version)",
+      "passed": "Passed",
+      "failed": "Failed",
+      "notRun": "Not run",
+      "incidents": "Open incidents",
+      "smoke": "Post-deploy smoke",
+      "smokeOk": "Passed",
+      "smokeFailed": "Failed",
+      "smokeNone": "No failure recorded",
+      "alertsTitle": "Team alert channels",
+      "edit": "Edit",
+      "saved": "Saved",
+      "emailsLabel": "Alert emails (one per line, max 20)",
+      "emails": "Emails (set here)",
+      "envEmails": "OPS_ALERT_EMAILS (environment)",
+      "slack": "Slack webhook",
+      "configured": "Configured",
+      "notConfigured": "Not configured",
+      "yes": "Yes",
+      "no": "No",
+      "alertsNote": "High and medium severity incidents go to both these emails and OPS_ALERT_EMAILS. The Slack webhook is a secret, so it is set through environment variables only.",
+      "maintenanceTitle": "Maintenance notice",
+      "maintenanceActive": "Show to every customer",
+      "messageVi": "Vietnamese text",
+      "messageEn": "English text",
+      "endsAt": "Turn off at (empty = until turned off)",
+      "maintenanceOn": "Showing",
+      "maintenanceOff": "No maintenance notice.",
+      "until": "until {at}",
+      "untilOff": "until turned off",
+      "schedulesTitle": "Schedules",
+      "redisDown": "Cannot read Redis.",
+      "every": "every {minutes} min",
+      "late": "Late — worker may be down",
+      "cols": {
+        "job": "Job",
+        "when": "Schedule",
+        "next": "Next run"
+      }
+    },
+    "emails": {
+      "title": "Email templates",
+      "body": "Preview every email template with fixed sample data (not customer data). No email is sent.",
+      "keys": {
+        "invitation": "Member invitation",
+        "connection_expiring": "Meta connection expiring",
+        "data_deletion": "Data deletion",
+        "digest": "Weekly digest",
+        "scheduled_report": "Scheduled report"
+      }
+    },
+    "navLabel": "Admin navigation",
+    "superadminOnly": "Superadmin only",
+    "ksShort": {
+      "on": "ON",
+      "off": "OFF"
+    },
+    "ksBanner": {
+      "title": "Global kill switch is ON",
+      "body": "All Meta changes in every workspace are stopped. Reason: {reason}.",
+      "link": "Open kill switch"
+    },
+    "groups": {
+      "customers": "Customers",
+      "data": "Data operations",
+      "safety": "Execution safety",
+      "release": "Release",
+      "revenue": "Revenue",
+      "compliance": "Compliance",
+      "config": "Configuration"
+    },
+    "today": {
+      "title": "Today",
+      "subtitle": "{count, plural, =0 {Nothing waiting.} other {# items waiting across the system, urgent first.}}",
+      "allClear": "All clear",
+      "allClearBody": "No incidents, failed syncs, discrepancies, breakers, payment issues, overdue deletions or flag proposals waiting.",
+      "handle": "Handle →",
+      "oldest": "Oldest: {when}",
+      "more": "and {count} more",
+      "system": "System-wide",
+      "waitSuperadmin": "Waiting for a superadmin.",
+      "killSwitch": "Global kill switch:",
+      "ksOn": "ON",
+      "ksOff": "off",
+      "items": {
+        "incidents": {
+          "title": "Open incidents",
+          "body": "Incidents not yet resolved (open or mitigated), most severe first."
+        },
+        "syncs": {
+          "title": "Failed or stuck syncs",
+          "body": "Syncs that failed in the last 7 days or have run over 3 hours."
+        },
+        "reconciliation": {
+          "title": "Reconciliation to review",
+          "body": "Accounts with days off by > 1%, unconfirmed client assignment, or stale checks."
+        },
+        "breakers": {
+          "title": "Open breakers",
+          "body": "Accounts with execution paused after repeated failures."
+        },
+        "billing": {
+          "title": "Billing needs attention",
+          "body": "Workspaces past due or over their account limit."
+        },
+        "deletions": {
+          "title": "Overdue data deletions",
+          "body": "Deletion requests more than 1 day past due and not done."
+        },
+        "flagProposals": {
+          "title": "Flag proposals",
+          "body": "Operator proposals waiting for approval."
+        }
+      }
+    },
+    "search": {
+      "label": "Search admin",
+      "placeholder": "Workspace, email, act_…, deletion code",
+      "title": "Search",
+      "for": "Results for \"{q}\"",
+      "hint": "Search by workspace name, member email, ad account id (act_…) or name, or data deletion code.",
+      "none": "Nothing found",
+      "workspaces": "Workspaces ({count})",
+      "accounts": "Ad accounts ({count})",
+      "deletions": "Data deletion requests ({count})"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAll": "Mark all as read",
+    "emptyTitle": "No notifications yet",
+    "emptyBody": "Updates about syncing, data, tokens and reports appear here.",
+    "unread": "Unread",
+    "kinds": {
+      "sync_done": {
+        "label": "Sync finished",
+        "title": "{account} is synced",
+        "body": "90 days of data for {account} are ready."
+      },
+      "reconciliation_warning": {
+        "label": "Figures differ from Ads Manager",
+        "title": "{account} differs from Ads Manager by more than 1%",
+        "body": "Days affected: {dates}. Related reports can't be shared for now; we re-sync and reconcile again in 24 hours."
+      },
+      "token_expiring": {
+        "label": "Meta connection expiring",
+        "title": "Meta connection expires in {days} days",
+        "body": "Reconnect Meta (read-only) so syncing is not interrupted."
+      },
+      "token_expired": {
+        "label": "Meta connection expired",
+        "title": "Meta connection expired",
+        "body": "Syncing has stopped. Reconnect so reports keep matching Ads Manager."
+      },
+      "report_viewed": {
+        "label": "Client opened a report",
+        "title": "{client} opened the report",
+        "body": "Your client opened \"{report}\"."
+      },
+      "report_sent": {
+        "label": "Scheduled report sent",
+        "title": "Report sent to {client}",
+        "body": "\"{report}\" was sent on schedule."
+      },
+      "report_postponed": {
+        "label": "Scheduled report postponed",
+        "title": "Report to {client} postponed",
+        "body": "Reason: {reason, select, unconfirmed {an account has no confirmed Client} reconciliation {figures differ from Ads Manager by more than 1%} connection_revoked {the Meta connection was disconnected} demo {the Client uses sample data} other {the report could not be built}}. Once fixed, it goes out on the next run."
+      },
+      "billing_failed": {
+        "label": "Payment failed",
+        "title": "Payment failed",
+        "body": "Update your payment method to avoid service interruption."
+      },
+      "billing_renewal": {
+        "label": "Plan renewal reminder",
+        "title": "Your {plan} plan expires on {date}",
+        "body": "Pay for the next period to avoid interruption."
+      },
+      "action_failed": {
+        "label": "Meta action failed",
+        "title": "Meta action failed",
+        "body": "{action}: {reason}. No change was kept."
+      },
+      "report_needs_approval": {
+        "label": "Scheduled report awaiting approval",
+        "title": "Report for {client} awaiting approval",
+        "body": "\"{report}\" was built on schedule and needs your approval before it goes to the client."
+      },
+      "weekly_digest": {
+        "label": "Weekly summary",
+        "title": "Weekly summary {week}",
+        "body": "{summary}"
+      },
+      "weekly_actions": {
+        "label": "This week's actions",
+        "title": "This week: {count} actions",
+        "body": "The action list for the week of {week} is ready, ranked by impact."
+      },
+      "action_assigned": {
+        "label": "Assigned to me",
+        "title": "Assigned to you: {item}",
+        "body": "Account {account}."
+      },
+      "action_executed": {
+        "label": "Action completed",
+        "title": "Done: {item}",
+        "body": "The change was applied and verified on Meta."
+      },
+      "budget_pacing": {
+        "label": "Monthly budget off pace",
+        "title": "{client}: {month} budget {status, select, over {projected to overspend} other {projected to underspend}} by {pct}%",
+        "body": "See spend pacing and the daily spend needed."
+      },
+      "anomaly": {
+        "label": "Daily unusual changes",
+        "title": "{account}: {anomaly, select, spend_spike {spend up {pct}%} spend_stop {spend dropped to zero} cpa_spike {CPA up {pct}%} other {no results despite spending}}",
+        "body": "On {date}, vs the previous 7 days. Check it before the client asks."
+      },
+      "custom_alert": {
+        "label": "Custom alerts",
+        "title": "{scopeAll, select, yes {All accounts} other {{scope}}}: {metric, select, spend {Ad spend} cpa {Cost per result} cpm {CPM cost} cpc {CPC cost} ctr {CTR rate} roas {ROAS ratio} cost_per_purchase {Cost per purchase} cpl {Cost per lead} cost_per_add_to_cart {Cost per add to cart} frequency {Ad frequency} other {Ad results}} {cond, select, above {went above threshold} other {went below threshold}}",
+        "body": "On {date}: {value} {currency} vs threshold {threshold} {currency}."
+      },
+      "rule_suggest_resume": {
+        "label": "Rule turn-back-on suggestions",
+        "title": "Turn {item} back on?",
+        "body": "Rule «{rule}» paused {item}. Open the action log and click Undo to run it again."
+      }
+    },
+    "settings": {
+      "title": "What you receive",
+      "intro": "Choose what you get in the app and by email. Alerts about data issues, the Meta connection and billing are always on.",
+      "kind": "Type",
+      "inApp": "In app",
+      "email": "Email",
+      "always": "Always on",
+      "save": "Save",
+      "saved": "Notification settings saved"
+    },
+    "subtitle": "Every workspace event and your metric alert rules in one place.",
+    "unreadOnly": "Unread only",
+    "tabs": {
+      "inbox": "Inbox",
+      "rules": "Alert rules"
+    },
+    "groups": {
+      "all": "All",
+      "alerts": "Metric alerts",
+      "actions": "Actions",
+      "reports": "Reports",
+      "system": "System"
+    }
+  },
+  "schedules": {
+    "title": "Report schedules",
+    "link": "Schedules",
+    "add": "+ Add schedule",
+    "emptyTitle": "No schedules yet",
+    "emptyBody": "Send reports to clients automatically every week or month. Reports go out only when figures match Ads Manager and every account has a confirmed Client.",
+    "weekly": "Weekly, {weekday} at {hour}:00 ({timezone})",
+    "monthly": "Monthly, day {day} at {hour}:00 ({timezone})",
+    "weekdays": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    },
+    "modes": {
+      "auto": "Send automatically",
+      "approval": "Approve before sending"
+    },
+    "deliveries": {
+      "link": "Report link",
+      "pdf": "Link + PDF attachment"
+    },
+    "recipients": "Recipients",
+    "enabled": "On",
+    "disabled": "Off",
+    "edit": "Edit",
+    "delete": "Delete schedule",
+    "deleteConfirm": "Delete this schedule? Reports already sent are kept.",
+    "history": "Recent deliveries",
+    "noHistory": "Not run yet.",
+    "approve": "Approve & send",
+    "approved": "Approved, sending",
+    "status": {
+      "pending_approval": "Awaiting approval",
+      "approved": "Approved",
+      "sent": "Sent",
+      "postponed": "Postponed",
+      "failed": "Failed"
+    },
+    "reasons": {
+      "unconfirmed": "Account without confirmed Client",
+      "reconciliation": "Figures off by > 1%",
+      "connection_revoked": "Meta connection disconnected",
+      "build_failed": "Report could not be built",
+      "demo": "the Client uses sample data"
+    },
+    "form": {
+      "titleNew": "Add schedule",
+      "titleEdit": "Edit schedule",
+      "client": "Client",
+      "cadence": "Frequency",
+      "cadences": {
+        "weekly": "Weekly",
+        "monthly": "Monthly"
+      },
+      "weekday": "Day",
+      "monthDay": "Day of month (1–28)",
+      "hour": "Send hour",
+      "timezone": "Time zone",
+      "mode": "Sending",
+      "delivery": "Email content",
+      "locale": "Report language",
+      "localeClient": "Client default",
+      "recipients": "Recipient emails (comma separated, up to 10)",
+      "save": "Save schedule",
+      "periodNote": "Each delivery covers the period that just ended (last week or last month)."
+    }
+  },
+  "demo": {
+    "banner": "You are viewing sample data. Figures are illustrative; sample reports cannot be shared with clients.",
+    "remove": "Remove sample data",
+    "connectReal": "Connect a real account",
+    "title": "Try AdxLens with a sample account",
+    "body": "Creates 2 sample Clients with 90 days of fake ad data: reconciliation, findings and reports. Every screen is marked \"sample data\". You can remove it at any time.",
+    "points": {
+      "match": "One account matches Ads Manager; one has a mismatched day so you can see reconciliation.",
+      "findings": "Sample findings: creative fatigue, budget, limited learning…",
+      "safe": "No Meta login, no charge, nothing is sent to clients."
+    },
+    "start": "Use the sample account",
+    "starting": "Creating sample data…",
+    "already": "This workspace already has sample data.",
+    "goOverview": "Open overview",
+    "back": "Back"
+  },
+  "billing": {
+    "currentPlan": "Current plan",
+    "comparePlans": "Compare plans",
+    "plan": "Plan",
+    "price": "Price",
+    "activeAccounts": "Active accounts",
+    "usage": "{active}/{limit}",
+    "renewsOn": "Renews on",
+    "endsOn": "Ends on",
+    "activeHint": "An active account is one with spend in the last 30 days. Sample accounts are not counted.",
+    "pastDue": "The current period is unpaid. The plan moves to Free after {date} unless paid.",
+    "overLimit": "{active} active accounts, over the limit of {limit}. Upgrade before {date} to keep every account updating.",
+    "overLimitExpired": "The grace period has ended: only {limit} accounts within the limit keep updating.",
+    "changePlan": "Change plan",
+    "period": "Billing period",
+    "monthly": "Monthly",
+    "annual": "Annual (20% off)",
+    "currentBadge": "Current plan",
+    "choose": "Choose",
+    "unavailable": "Payments are not available yet. Please try again later.",
+    "managePayment": "Manage payment",
+    "cancel": "Cancel plan",
+    "resume": "Resume plan",
+    "cancelConfirm": "Cancel at the end of the current period? You keep full access until then, after which the workspace moves to Free.",
+    "canceled": "The plan will end at the end of the period",
+    "resumed": "The plan will keep renewing",
+    "invoiceInfo": "Invoice details",
+    "companyName": "Company name",
+    "taxCode": "Tax code",
+    "address": "Address",
+    "invoiceEmail": "Invoice email",
+    "invalid": "Invalid value",
+    "checkoutSuccess": "Payment successful. The workspace is on the {plan} plan.",
+    "checkoutProcessing": "Payment completed; confirming with the payment provider. Your plan will update in a few minutes.",
+    "checkoutCanceled": "You canceled the payment. Your current plan is unchanged.",
+    "backToBilling": "Back to Plan & billing",
+    "method": "Payment method",
+    "methodPayos": "QR / bank transfer (VND)",
+    "methodStripe": "International card",
+    "renew": "Renew",
+    "payosPaid": "Payment received. The workspace is on the {plan} plan until {date}.",
+    "payosPending": "Payment not received yet. If you have transferred, your plan will update in a few minutes."
+  },
+  "creatives": {
+    "title": "Creatives",
+    "account": "Ad account",
+    "apply": "View",
+    "all": "All",
+    "viewTable": "Table",
+    "viewGrid": "Grid",
+    "classes": {
+      "winner": "Winner",
+      "watch": "Watch",
+      "fatigued": "Fatigued",
+      "loser": "Loser",
+      "insufficient": "Not enough data"
+    },
+    "reasons": {
+      "insufficient": "Needs ≥ {impressions} impressions and ≥ {days} days with spend in the period.",
+      "fatigued": "CTR down {ctrDrop}% vs last week, frequency {freq}.",
+      "noPeers": "Needs ≥ {peers} creatives with the same result type to compare.",
+      "winner": "CPA {pct}% below the median of creatives with the same result type.",
+      "loser": "CPA is {ratio}× the median of creatives with the same result type.",
+      "loserNoResult": "No results despite spend ≥ {ratio}× the median CPA.",
+      "watch": "CPA near the median of creatives with the same result type."
+    },
+    "forecast": "Forecast: may fatigue within about {days} days",
+    "formats": {
+      "VIDEO": "Video",
+      "PHOTO": "Image",
+      "SHARE": "Link",
+      "STATUS": "Post"
+    },
+    "ads": "{count} ads",
+    "select": "Select",
+    "selectOne": "Select {name} to compare",
+    "creative": "Creative",
+    "class": "Class",
+    "spend": "Spend",
+    "results": "Results",
+    "cpa": "Cost / result",
+    "ctr": "CTR",
+    "roas": "ROAS",
+    "frequency": "Frequency",
+    "impressions": "Impressions",
+    "runTime": "Run time",
+    "compare": "Compare",
+    "compareHint": "Select 2–4 creatives from the same account to compare.",
+    "compareTitle": "Compare creatives",
+    "compareNeedTwo": "Select at least 2 creatives",
+    "metric": "Metric",
+    "empty": "No creatives in this period",
+    "emptyBody": "Creatives appear when the account has spend in the selected period.",
+    "noAccounts": "No ad accounts yet",
+    "noAccountsBody": "Connect Meta and import accounts to see creatives.",
+    "footnote": "Source: Meta Marketing API, {from} → {to}, in the account time zone. Classes follow public rules; a \"forecast\" is an estimate from the CTR trend, not a conclusion.",
+    "openInLauncher": "Open in Ad Launcher"
+  },
+  "weekly": {
+    "title": "This week's actions",
+    "weekOf": "Week of {date}",
+    "all": "All",
+    "mine": "Assigned to me",
+    "status": {
+      "proposed": "Proposed",
+      "in_progress": "In progress",
+      "done": "Done",
+      "skipped": "Skipped"
+    },
+    "skip": {
+      "not_relevant": "Not relevant for this client",
+      "wrong": "Suggestion is wrong",
+      "later": "Next week",
+      "other": "Other reason"
+    },
+    "cols": {
+      "action": "Action",
+      "account": "Account",
+      "impact": "Estimated impact",
+      "confidence": "Confidence",
+      "effort": "Effort",
+      "status": "Status",
+      "assignee": "Assignee"
+    },
+    "minutes": "{n} min",
+    "hours": "{n} h",
+    "detail": "Suggestion details",
+    "why": "Why",
+    "noImpact": "No money estimate",
+    "scoreNote": "Rank = estimated impact (vs the account 7-day spend) × confidence ÷ effort. Suggestion types often marked \"wrong\" rank lower.",
+    "unassigned": "Unassigned",
+    "skippedBecause": "Skipped: {reason}",
+    "openAdsManager": "Open in Ads Manager",
+    "skipTitle": "Skip suggestion",
+    "skipBody": "A reason helps AdxLens rank suggestions better in later weeks.",
+    "skipConfirm": "Skip",
+    "emptyTitle": "No action list yet",
+    "emptyBody": "The list is created every Monday at 07:00 from last week's findings and creatives.",
+    "noneFiltered": "No actions match the filter",
+    "noneFilteredBody": "Change the status or clear \"Assigned to me\".",
+    "footnote": "Suggestions are for reference only; AdxLens does not change anything in your accounts. Data follows each account time zone.",
+    "actions": {
+      "creative_loser": "Pause or reduce delivery for the losing creative ({ads} ads)",
+      "creative_winner": "Shift more delivery to the winning creative"
+    },
+    "results": "Before / after results →",
+    "bulk": {
+      "selected": "{count} selected",
+      "clear": "Clear",
+      "all": "Select all (max 20)",
+      "select": "Select: {action}"
+    },
+    "automate": "Create automation from this",
+    "automateHint": "Let AdxLens do this next time: thresholds from your account data, preview the 30-day savings, 14-day shadow run before going live."
+  },
+  "outcomes": {
+    "title": "Before / after results",
+    "causality": "Compares the 7 days before and the 7 days after the day an action was marked \"Done\" (that day excluded). This is not proof of cause: seasonality, budgets and other changes also move the numbers.",
+    "cols": {
+      "item": "Completed action",
+      "doneOn": "Done on",
+      "metric": "Measured by",
+      "before": "7 days before",
+      "after": "7 days after",
+      "change": "Change"
+    },
+    "metric": {
+      "cpa": "Cost / result",
+      "ctr": "CTR",
+      "results": "Results",
+      "spend": "Spend"
+    },
+    "scope": {
+      "entity": "item",
+      "account": "whole account"
+    },
+    "waiting": "Needs 7 days after; results from {date}",
+    "notMeasured": "Not measured",
+    "notMeasuredBody": "This action type has no before / after metric.",
+    "emptyTitle": "No actions marked \"Done\" yet",
+    "emptyBody": "Mark actions \"Done\" in This week's actions to follow their results."
+  },
+  "welcome": {
+    "title": "Hi {name}, get started with AdxLens",
+    "intro": "Nothing to set up. AdxLens already reads the ad accounts you handle and prepares your weekly actions.",
+    "clientsTitle": "Your clients",
+    "client": "{name} · {count} accounts",
+    "noClients": "No clients assigned yet. Ask the owner to assign clients to you.",
+    "howTitle": "Your week",
+    "step1": "Open \"This week's actions\": {count} waiting, ranked by impact.",
+    "step2": "Assigned to you: {count}. Update the status when done.",
+    "step3": "Check \"Creatives\" for winners, losers and creatives about to fatigue.",
+    "start": "Start with this week",
+    "creatives": "View creatives"
+  },
+  "writeAccess": {
+    "title": "Write access on Meta",
+    "done": "Write access granted. Every change still needs approval each time.",
+    "missingScope": "Meta did not grant \"manage ads\". Try again and allow this permission.",
+    "planRequired": "Approving actions on Meta is available on Growth and above.",
+    "upgrade": "See plans",
+    "whatTitle": "With write access, AdxLens will:",
+    "what": {
+      "approve": "Only make a change after an authorised person approves it, with an exact before / after preview.",
+      "actions": "Only: pause / resume ads or ad sets, adjust ad set daily budget (max ±15% each time), duplicate an ad set (copy stays paused).",
+      "guardrails": "Always check safety limits, read the state back from Meta after each change and keep a full log.",
+      "revoke": "You can revoke write access at any time; it takes effect immediately."
+    },
+    "connections": "Meta connections",
+    "noConnections": "No Meta connection yet",
+    "noConnectionsBody": "Connect Meta before granting write access.",
+    "cols": {
+      "connection": "Connection",
+      "status": "Access",
+      "actions": "Actions"
+    },
+    "state": {
+      "enabled": "Can write",
+      "revoked": "Revoked",
+      "readOnly": "Read only",
+      "demo": "Sample data"
+    },
+    "grant": "Grant write access",
+    "revoke": "Revoke write access",
+    "reenable": "Re-enable write access",
+    "revokeConfirm": "Revoke write access for this connection? Pending actions will not run.",
+    "enabledToast": "Write access enabled",
+    "revokedToast": "Write access revoked"
+  },
+  "guardrails": {
+    "title": "Guardrails",
+    "intro": "Safety limits for every change AdxLens makes on Meta. Fixed values are the maximum; you can only make them stricter.",
+    "maxBudgetChangePct": "Max budget change per action (%)",
+    "maxActionsPerDay": "Max actions per day per account",
+    "minDataDays": "Minimum days of data before a change",
+    "quietStartHour": "No automatic runs from (hour)",
+    "quietEndHour": "Until (hour)",
+    "breakerFailures": "Lock the account after consecutive failures",
+    "excludeMetaIds": "Never change (campaign / ad set / ad IDs)",
+    "excludeHint": "One Meta ID per line.",
+    "fixed": "Fixed: {value}",
+    "looser": "Values can only be stricter than the fixed ones.",
+    "looserField": "Looser than the fixed value"
+  },
+  "actionLog": {
+    "title": "Action log",
+    "detailTitle": "Action details",
+    "all": "All",
+    "status": {
+      "pending": "Pending",
+      "executing": "Running",
+      "success": "Succeeded",
+      "failed": "Failed",
+      "undone": "Undone",
+      "canceled": "Canceled"
+    },
+    "cols": {
+      "when": "When",
+      "action": "Action",
+      "change": "Change",
+      "by": "Approved by",
+      "status": "Status",
+      "target": "Item",
+      "account": "Account",
+      "executed": "Executed at",
+      "verified": "Verified at"
+    },
+    "types": {
+      "pause_ad": "Pause ad",
+      "resume_ad": "Resume ad",
+      "pause_adset": "Pause ad set",
+      "resume_adset": "Resume ad set",
+      "set_adset_budget": "Change ad set daily budget",
+      "duplicate_adset": "Duplicate ad set",
+      "suggest_resume": "Suggest turning back on",
+      "create_ad": "Create ad",
+      "create_lookalike": "Create lookalike",
+      "pause_campaign": "Pause campaign",
+      "resume_campaign": "Resume campaign",
+      "rename_ad": "Rename ad",
+      "rename_adset": "Rename ad set",
+      "rename_campaign": "Rename campaign",
+      "set_adset_bid": "Change ad set bid",
+      "set_campaign_spend_cap": "Change campaign spending limit",
+      "create_custom_audience": "Create custom audience",
+      "create_adset": "Create ad set",
+      "create_creative": "Create creative"
+    },
+    "state": {
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "ARCHIVED": "Archived",
+      "DELETED": "Deleted"
+    },
+    "copyPaused": "Copy created paused",
+    "system": "System",
+    "isUndo": "· undo",
+    "emptyTitle": "No actions yet",
+    "emptyBody": "Changes approved from \"This week's actions\" appear here.",
+    "failedBody": "The action failed: {reason}. No change was kept on Meta.",
+    "checkManually": "Could not confirm whether the copy was created. Please check in Ads Manager.",
+    "summary": "Summary",
+    "timeline": "Timeline",
+    "undoOf": "Undo of",
+    "viewOriginal": "View original action",
+    "undoneBy": "Undo",
+    "noUndoDuplicate": "Duplicates cannot be undone automatically; pause or delete the copy in Ads Manager if needed.",
+    "undo": "Undo",
+    "undoTitle": "Undo this action?",
+    "undoBody": "AdxLens will return the item to its previous state, through the same safety checks.",
+    "undoConfirm": "Undo",
+    "undoQueued": "Undo requested",
+    "events": {
+      "approved": "Approved",
+      "before_live": "Read current state on Meta",
+      "meta_call": "Sent change to Meta",
+      "verify": "Read back to verify",
+      "success": "Succeeded",
+      "failed": "Failed",
+      "canceled": "Canceled",
+      "undone": "Undone",
+      "circuit_breaker_opened": "Account locked after repeated failures"
+    },
+    "errors": {
+      "GUARDRAIL_VIOLATION": "Outside the safety limits (guardrails).",
+      "KILL_SWITCH_ACTIVE": "All changes are paused (kill switch, or the account is locked after repeated failures).",
+      "PLAN_REQUIRED": "Requires the Growth plan or higher.",
+      "FORBIDDEN": "You cannot approve this action, or the connection has no write access.",
+      "CONFLICT": "The action is already running or no longer applies.",
+      "NOT_FOUND": "Item not found."
+    },
+    "createdPaused": "Created · paused",
+    "createdLookalike": "New lookalike created",
+    "createdAudience": "Audience created",
+    "createdCreative": "Creative created"
+  },
+  "killSwitch": {
+    "title": "Kill switch",
+    "on": "On",
+    "off": "Off",
+    "body": "Turning on the kill switch immediately stops every change AdxLens makes on Meta for this workspace and cancels pending actions.",
+    "reason": "Reason: {reason}",
+    "turnOn": "Turn on kill switch",
+    "turnOff": "Turn off kill switch",
+    "globalOn": "The system-wide kill switch is on: all changes on Meta are paused.",
+    "confirmTitle": "Turn on the kill switch?",
+    "confirmBody": "Pending actions are canceled and no new action runs until you turn it off.",
+    "reasonLabel": "Reason (required, ≥ 5 characters)",
+    "onToast": "Kill switch on, {count} pending actions canceled",
+    "offToast": "Kill switch off",
+    "breakers": "Accounts locked after repeated failures",
+    "locked": "Locked",
+    "failures": "{count} failures in a row",
+    "unlock": "Unlock",
+    "breakerClosed": "Account unlocked"
+  },
+  "approve": {
+    "open": "Approve on Meta",
+    "title": "Approve action",
+    "confirm": "Approve and run",
+    "manualOnly": "This suggestion needs to be done manually in Ads Manager.",
+    "viewResult": "View result in the log",
+    "queued": "Approved. AdxLens is applying and verifying it on Meta.",
+    "beforeNote": "\"Before\" is from the latest sync. If the item has changed on Meta, AdxLens stops and does not overwrite it.",
+    "safety": "AdxLens checks the safety limits, applies the change once, then reads Meta back to verify.",
+    "noPermission": "You are not allowed to approve actions for this client. The owner can grant it in Settings › Members.",
+    "warnings": {
+      "not_undoable": "This action cannot be undone automatically.",
+      "learning_reset": "Changing the budget may send the ad set back into learning.",
+      "last_active_ad": "This is the last active ad in the ad set: the ad set will stop delivering."
+    },
+    "violations": {
+      "excluded": "The item is on the never-change list.",
+      "too_many_actions": "Reached the limit of {max} actions today for this account.",
+      "not_enough_data": "Fewer than {min} days of data.",
+      "budget_change_too_large": "Budget change exceeds {max}%.",
+      "no_daily_budget": "The ad set does not use a daily budget.",
+      "invalid_budget": "The new budget is invalid.",
+      "quiet_hours": "Outside allowed hours.",
+      "no_auto_resume": "No automatic resume.",
+      "no_auto_duplicate": "No automatic duplicate.",
+      "no_auto_edit": "Automated rules never rename or change bids / spending limits (manual approval only).",
+      "no_bid_amount": "This ad set uses an automatic bid strategy (no bid to change).",
+      "invalid_bid": "Invalid new bid.",
+      "bid_change_too_large": "Bid change over {max}% per action.",
+      "invalid_spend_cap": "Invalid new spending limit.",
+      "spend_cap_change_too_large": "Raising the spending limit over {max}% per action (lowering is unlimited).",
+      "new_adset_budget_too_large": "New ad set budget exceeds the template by more than {max}%."
+    },
+    "bulkButton": "Preview & approve ({count})",
+    "bulkTitle": "Approve {count} suggestions",
+    "bulkConfirm": "Approve {count} actions",
+    "bulkNote": "Only executable suggestions without guardrail violations are sent. Each action is still re-checked, executed and verified as with single approval; see results in the Action log.",
+    "bulkQueued": "{count} actions sent",
+    "bulkOk": "Sent"
+  },
+  "automation": {
+    "title": "Automation rules",
+    "new": "New rule",
+    "detail": "Rule details",
+    "effectiveness": "Automation results",
+    "emptyTitle": "No automation rules yet",
+    "emptyBody": "Create a rule from a template. New rules always run in shadow for at least 14 days before acting for real.",
+    "cols": {
+      "name": "Name",
+      "account": "Account",
+      "action": "Action",
+      "mode": "Mode",
+      "since": "Since",
+      "date": "Data date",
+      "item": "Item",
+      "matched": "Matched",
+      "wouldDo": "Would do"
+    },
+    "modes": {
+      "shadow": "Shadow",
+      "live": "Live",
+      "paused": "Paused"
+    },
+    "templates": {
+      "pause_fatigued_ad": "Pause fatigued ads",
+      "pause_adset_no_results": "Pause ad sets spending without results",
+      "reduce_budget_high_cpa": "Cut budget of ad sets with rising CPA",
+      "increase_budget_winner": "Increase budget of winning ad sets (CPA down sharply)",
+      "stop_loss_no_clicks": "Stop-loss: spend with no clicks",
+      "surf_winner": "Surf: temporary boost for winners",
+      "sunset_loser": "Sunsetting: step down losers",
+      "revive_paused": "Revive: suggest turning back on"
+    },
+    "template": "Template",
+    "doneCount": "done {count} times",
+    "fields": {
+      "name": "Rule name",
+      "account": "Ad account",
+      "when": "When an active {level} has (last 7 days):",
+      "metric": "Metric",
+      "op": "Compare",
+      "value": "Value",
+      "then": "then",
+      "changePct": "Budget change (%)",
+      "maxDailyBudget": "Daily budget cap (smallest currency unit)",
+      "maxPerDay": "Max actions per day (optional)",
+      "match": "Condition matching",
+      "floorDailyBudget": "Daily budget floor (minor units)",
+      "revertRestore": "Restore old budget at",
+      "revertSuggest": "Suggest turning back on at",
+      "valueKind": "Value type"
+    },
+    "levels": {
+      "ad": "ad",
+      "adset": "ad set"
+    },
+    "metrics": {
+      "spend": "Spend",
+      "results": "Results",
+      "cpa": "Cost / result",
+      "ctr": "CTR (ratio)",
+      "frequency": "Frequency",
+      "ctr_change_pct": "CTR change vs last week (%)",
+      "cpa_change_pct": "CPA change vs last week (%)",
+      "link_clicks": "Link clicks (7 days)",
+      "roas": "ROAS (7 days)",
+      "spend_1d": "Spend (latest day)",
+      "results_1d": "Results (latest day)",
+      "link_clicks_1d": "Clicks (latest day)",
+      "cpa_1d": "Cost per result (latest day)",
+      "roas_1d": "ROAS (latest day)",
+      "spend_3d": "Spend (3 days)",
+      "results_3d": "Results (3 days)",
+      "cpa_3d": "Cost per result (3 days)",
+      "roas_3d": "ROAS (3 days)"
+    },
+    "remove": "Remove",
+    "addCondition": "+ Add condition",
+    "pctHint": "From −15 to +15. Increases need a cap.",
+    "maxHint": "Required for increases.",
+    "maxPerDayHint": "Can only be lower than the workspace limit.",
+    "runBacktest": "Run 30-day backtest",
+    "saveShadow": "Save and run in shadow",
+    "saved": "Rule saved in shadow mode",
+    "shadowNote": "A new rule only records what it would do (shadow). After at least 14 days you can turn it live; every change still goes through safety limits and the kill switch.",
+    "backtestTitle": "30-day backtest: {count} actions",
+    "backtestEmpty": "No day matched the conditions.",
+    "backtestNote": "The backtest uses stored data, not Meta; real results may differ.",
+    "summary": "When an active {level} has {conditions}, {action}.",
+    "shadowProgress": "Shadow for {days}/{min} days.",
+    "liveBlockers": {
+      "feature_disabled": "Automatic actions are not enabled for this workspace.",
+      "plan_required": "Requires the Growth plan or higher.",
+      "shadow_too_short": "Needs 14 days in shadow before going live."
+    },
+    "evaluations": "Evaluations",
+    "noEvaluations": "No evaluations yet",
+    "noEvaluationsBody": "Rules are evaluated every 30 minutes on synced data.",
+    "blocked": "blocked: {reason}",
+    "actionsCreated": "{count} actions created",
+    "evaluatedNote": "Last evaluation: {at}.",
+    "goLive": "Go live",
+    "toShadow": "Back to shadow",
+    "pause": "Pause rule",
+    "delete": "Delete",
+    "liveConfirm": "Go live? AdxLens will make changes on Meta automatically when the rule matches, within safety limits.",
+    "deleteConfirm": "Delete this rule?",
+    "modeSet": {
+      "shadow": "Back in shadow",
+      "live": "Rule is live",
+      "paused": "Rule paused"
+    },
+    "errors": {
+      "GUARDRAIL_VIOLATION": "Outside safety limits: budget change max ±15%, limits can only be stricter than the workspace.",
+      "VALIDATION_FAILED": "Check the conditions / action (increases need a cap; level must match the action).",
+      "NOT_FOUND": "Account not found."
+    },
+    "results": {
+      "note": "Last 30 days. \"Spend in the 7 days before pausing\" is what the item spent in the 7 days before the rule paused it — for reference only, not proof of real savings. Undo rate target ≤ 5%.",
+      "emptyTitle": "No automatic actions yet",
+      "emptyBody": "Live rules show their results here.",
+      "cols": {
+        "rule": "Rule",
+        "mode": "Mode",
+        "total": "Actions",
+        "success": "Succeeded",
+        "failed": "Failed",
+        "undoRate": "Undo rate",
+        "pausedSpend": "Spend in 7 days before pausing"
+      }
+    },
+    "match": {
+      "all": "When ALL conditions are true (AND)",
+      "any": "When ANY condition is true (OR)"
+    },
+    "maxRequired": "Required for budget increases: the new budget never exceeds this.",
+    "copy": {
+      "button": "Copy to other accounts",
+      "title": "Copy rule \"{name}\"",
+      "note": "Each copy is a separate rule for one account and starts with a 14-day trial run. Exclusions are not copied.",
+      "accounts": "Ad accounts",
+      "confirm": "Copy",
+      "done": "Created {created} rules (skipped {skipped})"
+    },
+    "log": {
+      "title": "Trigger log",
+      "matched": "Matched objects",
+      "none": "No matching objects.",
+      "blockedBy": "blocked: {reason}",
+      "newBudget": "new budget {budget}"
+    },
+    "and": "AND",
+    "or": "OR",
+    "overview": {
+      "title": "Triggered in the last 7 days",
+      "chart": "Automated actions per day",
+      "kinds": {
+        "start": "Start",
+        "pause": "Pause",
+        "increase_budget": "Increase budget",
+        "decrease_budget": "Decrease budget",
+        "other": "Other"
+      },
+      "cols": {
+        "last48h": "48h",
+        "last7d": "7d",
+        "lastAt": "Last triggered"
+      }
+    },
+    "whyValue": "Why this value?",
+    "suggestReasons": {
+      "cpa_x2": "2× the account's cost per result over the last 30 days ({cpa}): spending that much with no result signals waste.",
+      "frequency_x1_5": "1.5× the average frequency over the last 30 days ({frequency}), at least 2.",
+      "cpc_x2": "2× the account's cost per click over the last 30 days ({cpc}): spending that much with zero clicks means nobody clicks the ad."
+    },
+    "savings": {
+      "saved": "Had this rule been running, you could have avoided about {amount} of spend in the last {days} days",
+      "extra": "Had this rule been running, spend would have grown by about {amount} in the last {days} days on winning ad sets",
+      "note": "Estimate on synced data for {entities} items, counted from the first trigger day; assumes Meta does not shift the budget elsewhere."
+    },
+    "tacticsTitle": "Automation tactics (Madgicx-style)",
+    "tacticHelp": {
+      "stop_loss_no_clicks": "Stop-loss: an ad that spent meaningfully on the latest data day with no clicks is paused. Next morning AdxLens suggests turning it back on (one-click Undo) — never turns it on by itself. Based on synced daily data, not hourly.",
+      "surf_winner": "Surf: an ad set profitable both yesterday and over 7 days gets +15% budget (cap required), then the old budget is restored at the chosen hour through the Execution Gateway. Not restored if you changed the budget by hand.",
+      "sunset_loser": "Sunsetting: when CPA rises sharply, cut the budget by 15%, at least 48 hours apart, never below your floor.",
+      "revive_paused": "Revive: an ad paused by a rule in the last 7 days whose 7-day numbers are still good gets a turn-back-on suggestion. Never touches ads you turned off yourself; never turns on by itself."
+    },
+    "floorRequired": "Required for Sunsetting: the budget never goes below this.",
+    "floorHint": "Optional: the budget never goes below this.",
+    "revertRestoreHint": "Account time, outside quiet hours. The restore passes all guardrails; retried later if blocked temporarily.",
+    "revertSuggestHint": "Account time, next morning. Owners / Managers get a notification with an Undo button.",
+    "schedule": {
+      "title": "Run on a schedule (days / hours of week)",
+      "days": "Days of week",
+      "from": "From",
+      "to": "To",
+      "hint": "Account time. Outside the schedule the rule is not evaluated; quiet hours 22:00–06:00 still apply.",
+      "day": {
+        "0": "Sun",
+        "1": "Mon",
+        "2": "Tue",
+        "3": "Wed",
+        "4": "Thu",
+        "5": "Fri",
+        "6": "Sat"
+      }
+    },
+    "valueKind": {
+      "fixed": "(fixed)",
+      "account_avg": "× account average"
+    },
+    "pauseAtFloor": "Already at the floor and still poor → pause the ad set"
+  },
+  "entity": {
+    "title": "Object detail",
+    "crumbs": {
+      "clients": "Clients"
+    },
+    "openAdsManager": "Open in Ads Manager",
+    "dailyBudget": "Daily budget {budget}",
+    "learning": "Learning phase: {stage}",
+    "tabs": {
+      "overview": "Overview",
+      "children": "Children",
+      "findings": "Issues",
+      "history": "Change history"
+    },
+    "trend": "Spend and results by day",
+    "noData": "No spend in this period.",
+    "adsetScope": "Breakdown data comes from the ad set containing this ad.",
+    "noFindings": "No open issues on this object.",
+    "noHistory": "No changes made through AdxLens yet.",
+    "noHistoryBody": "Changes approved from Weekly actions or made by automation rules appear here.",
+    "auto": "automatic (rule)",
+    "cols": {
+      "at": "At",
+      "action": "Action",
+      "change": "Change",
+      "status": "Status"
+    }
+  },
+  "gridActions": {
+    "header": "Actions",
+    "pause": "Pause",
+    "resume": "Resume",
+    "budget": "Budget",
+    "selected": "{count} selected",
+    "clear": "Clear",
+    "selectAll": "Select all (max 20)",
+    "select": "Select {name}",
+    "title": {
+      "pause_ad": "Pause {count} ads",
+      "resume_ad": "Resume {count} ads",
+      "pause_adset": "Pause {count} ad sets",
+      "resume_adset": "Resume {count} ad sets",
+      "set_adset_budget": "Change daily budget",
+      "pause_campaign": "Pause {count} campaigns",
+      "resume_campaign": "Resume {count} campaigns",
+      "rename_ad": "Rename ad",
+      "rename_adset": "Rename ad set",
+      "rename_campaign": "Rename campaign",
+      "set_adset_bid": "Change ad set bid",
+      "set_campaign_spend_cap": "Change campaign spending limit"
+    },
+    "confirm": "Run {count} actions",
+    "note": "Each action is checked against guardrails, executed on Meta and verified; only objects without violations are sent. Follow results in the",
+    "log": "Action log",
+    "newBudget": "New daily budget",
+    "preview": "Preview",
+    "ok": "Ready",
+    "queued": "{count} actions sent",
+    "partial": "{ok} sent, {failed} could not run",
+    "parentPaused": {
+      "campaign": "Turn the campaign on first",
+      "adset": "Turn on the ad set first"
+    },
+    "failed": "{count} actions could not be submitted — see the reason on each item.",
+    "sent": "Submitted",
+    "campaignNote": "Pausing a campaign stops every ad set under it. Resuming only turns the campaign on, not ad sets you turned off.",
+    "newName": "New name",
+    "rename": "Rename",
+    "newBid": "New bid",
+    "newSpendCap": "New spending limit",
+    "bid": "Bid",
+    "spendCap": "Spending limit"
+  },
+  "goals": {
+    "title": "Goals and onboarding",
+    "clients": "Clients",
+    "stepsLabel": "Steps",
+    "step1": "Main goal",
+    "step2": "Secondary metrics",
+    "step3": "Industry and assets",
+    "primaryTitle": "Main optimization metric",
+    "primaryIntro": "Pick the metric that matters most for {client} and the target to hit. Actual values help you set a realistic target.",
+    "mixedCurrency": "This client has accounts in other currencies; suggestions only use {currency} accounts.",
+    "last30Short": "30 days",
+    "actualTitle": "Actual {metric}",
+    "period": {
+      "yesterday": "Yesterday",
+      "last7": "7 days",
+      "last30": "30 days"
+    },
+    "targetLabel": "Target",
+    "useLast7": "Use the 7-day value ({value})",
+    "secondaryTitle": "2nd and 3rd metrics",
+    "secondaryIntro": "Shown next to the main metric on home, tables and reports for this client.",
+    "range30": "30 days: {value}",
+    "secondaryCount": "{n}/2 selected",
+    "assetsTitle": "Industry and default assets",
+    "assetsIntro": "Industry drives industry report templates. Default Page, Instagram and pixel are used for analysis and ad creation later.",
+    "industry": "Industry",
+    "subIndustry": "Sub-industry",
+    "choose": "Choose…",
+    "page": "Default Page",
+    "instagram": "Default Instagram",
+    "pixel": "Default pixel",
+    "noAsset": "None",
+    "later": "Later",
+    "back": "Back",
+    "next": "Continue",
+    "finish": "Finish",
+    "saved": "Goal saved",
+    "saveError": "Could not save, try again",
+    "banner": "Set a KPI goal for this client so AdxLens compares results with the goal and suggests alert thresholds.",
+    "bannerCta": "Set goal",
+    "tab": {
+      "primary": "Main goal",
+      "target": "Target",
+      "actual7": "Last 7 days",
+      "vs": "Vs target",
+      "better": "{pct} better",
+      "worse": "{pct} worse",
+      "secondary": "Secondary metrics",
+      "industry": "Industry",
+      "assets": "Default assets",
+      "edit": "Edit goal",
+      "empty": "No goal yet",
+      "none": "—"
+    },
+    "noGoal": "No goal"
+  },
+  "metrics": {
+    "spend": {
+      "name": "Spend",
+      "hint": "Total ad spend."
+    },
+    "impressions": {
+      "name": "Impressions",
+      "hint": "Times ads were shown."
+    },
+    "reach": {
+      "name": "Reach",
+      "hint": "People who saw the ads."
+    },
+    "frequency": {
+      "name": "Frequency",
+      "hint": "Average times each person saw the ads."
+    },
+    "link_clicks": {
+      "name": "Link clicks",
+      "hint": "Clicks on the ad link."
+    },
+    "ctr": {
+      "name": "CTR (link)",
+      "hint": "Link clicks per impression."
+    },
+    "cpc": {
+      "name": "CPC (link)",
+      "hint": "Cost per link click."
+    },
+    "cpm": {
+      "name": "CPM",
+      "hint": "Cost per 1,000 impressions."
+    },
+    "results": {
+      "name": "Results",
+      "hint": "Results for the ad set optimization goal."
+    },
+    "cpa": {
+      "name": "Cost per result",
+      "hint": "Spend divided by results."
+    },
+    "purchases": {
+      "name": "Purchases",
+      "hint": "Purchase events (pixel / Meta)."
+    },
+    "cost_per_purchase": {
+      "name": "Cost per purchase",
+      "hint": "Spend divided by purchases."
+    },
+    "purchase_value": {
+      "name": "Conversion value",
+      "hint": "Revenue Meta attributes to conversions."
+    },
+    "roas": {
+      "name": "ROAS",
+      "hint": "Conversion value divided by spend."
+    },
+    "leads": {
+      "name": "Leads",
+      "hint": "Leads from forms or pixel."
+    },
+    "cpl": {
+      "name": "Cost per lead",
+      "hint": "Spend divided by leads."
+    },
+    "add_to_cart": {
+      "name": "Adds to cart",
+      "hint": "Add-to-cart events."
+    },
+    "cost_per_add_to_cart": {
+      "name": "Cost per add to cart",
+      "hint": "Spend divided by adds to cart."
+    }
+  },
+  "industries": {
+    "ecommerce": {
+      "name": "E-commerce",
+      "fashion": "Fashion",
+      "beauty": "Beauty",
+      "home_living": "Home & living",
+      "electronics": "Electronics",
+      "food_beverage": "Food & beverage",
+      "mother_baby": "Mother & baby",
+      "sports": "Sports",
+      "other": "Other"
+    },
+    "hospitality": {
+      "name": "Hospitality & travel",
+      "hotel_resort": "Hotels & resorts",
+      "restaurant_cafe": "Restaurants & cafés",
+      "travel_agency": "Travel agencies",
+      "homestay_glamping": "Homestay & glamping",
+      "other": "Other"
+    },
+    "real_estate": {
+      "name": "Real estate",
+      "residential": "Residential",
+      "commercial": "Commercial",
+      "rental": "Rental",
+      "other": "Other"
+    },
+    "education": {
+      "name": "Education",
+      "language": "Languages",
+      "k12": "K-12",
+      "higher_ed": "Higher education",
+      "online_course": "Online courses",
+      "other": "Other"
+    },
+    "health": {
+      "name": "Health & beauty",
+      "clinic": "Clinics",
+      "dental": "Dental",
+      "spa_aesthetic": "Spa & aesthetics",
+      "pharmacy": "Pharmacy",
+      "fitness": "Fitness",
+      "other": "Other"
+    },
+    "finance": {
+      "name": "Finance",
+      "banking": "Banking",
+      "insurance": "Insurance",
+      "investment": "Investment",
+      "lending": "Lending",
+      "other": "Other"
+    },
+    "automotive": {
+      "name": "Automotive",
+      "dealer": "Dealers",
+      "service": "Service & repair",
+      "rental": "Rental",
+      "other": "Other"
+    },
+    "services": {
+      "name": "Services",
+      "agency_marketing": "Agencies & marketing",
+      "legal_consulting": "Legal & consulting",
+      "home_services": "Home services",
+      "events": "Events",
+      "other": "Other"
+    },
+    "saas_tech": {
+      "name": "Software & tech",
+      "b2b_software": "B2B software",
+      "consumer_app": "Consumer apps",
+      "gaming": "Gaming",
+      "other": "Other"
+    },
+    "local_business": {
+      "name": "Local business",
+      "retail_store": "Retail stores",
+      "franchise": "Franchise",
+      "other": "Other"
+    },
+    "other": {
+      "name": "Other",
+      "other": "Other"
+    }
+  },
+  "ws": {
+    "nav": {
+      "label": "Workspace navigation",
+      "home": "Home",
+      "agents": "AI Agents",
+      "ads": "Ads",
+      "adsManager": "Ads Manager",
+      "funnels": "Funnels",
+      "geography": "Geography",
+      "scale": "Scale",
+      "alerts": "Notifications",
+      "settings": "Settings",
+      "business": "Business",
+      "audiences": "Audiences",
+      "launcher": "Launcher",
+      "more": "More"
+    },
+    "create": {
+      "button": "Create",
+      "report": {
+        "title": "Report",
+        "body": "Agency-branded client report"
+      },
+      "manageAds": {
+        "title": "Manage my ads",
+        "body": "Pause, resume, budgets in Ads Manager"
+      },
+      "agent": {
+        "title": "Ask an AI agent",
+        "body": "Ask about your accounts"
+      },
+      "rule": {
+        "title": "Automation rule",
+        "body": "Automate repeat tasks"
+      },
+      "alert": {
+        "title": "Alert",
+        "body": "Notify when a metric crosses a threshold"
+      }
+    },
+    "scope": {
+      "label": "Ad account",
+      "agency": "All accounts ({n})"
+    },
+    "periodLabel": "Period",
+    "periods": {
+      "last7": "7 days",
+      "last14": "14 days",
+      "last30": "30 days"
+    },
+    "coming": "Being built in this release.",
+    "exportPdf": "Export PDF",
+    "navGroups": {
+      "analysis": "Analysis",
+      "clients": "Clients & reports",
+      "execution": "Execution"
+    }
+  },
+  "wsHome": {
+    "greeting": "Hi {name}",
+    "emptyTitle": "No ad accounts yet",
+    "emptyBody": "Connect Meta to see account health, KPIs and alerts.",
+    "connect": "Connect Meta",
+    "otherCurrency": "{n} accounts in other currencies are not included in this scope ({currency}).",
+    "customize": "Customize",
+    "customizeTitle": "Pick 4 metrics",
+    "customizeHint": "Pick exactly 4 metrics ({n}/4).",
+    "save": "Save",
+    "close": "Close",
+    "health": {
+      "title": "Account health",
+      "none": "No audit data yet.",
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Poor",
+      "single": "Points deducted for open issues, max 30 per group.",
+      "agency": "Lowest across accounts · average {avg}",
+      "details": "View details"
+    },
+    "tracking": {
+      "title": "Tracking",
+      "none": "No pixels found for these accounts (pixel read access is needed when connecting).",
+      "active": "Receiving events",
+      "stale": "No events for {days} days",
+      "never": "No events yet"
+    },
+    "ask": {
+      "title": "Ask AdxLens",
+      "placeholder": "Why did my cost per result rise this week?",
+      "locked": "The AI agent unlocks when your plan includes recommendations.",
+      "whyCpaQ": "Why did cost per result change over the last 7 days?"
+    },
+    "quick": {
+      "whyCpa": "Why did CPA change?",
+      "report": "Create report",
+      "alert": "Create alert",
+      "rule": "Create rule"
+    },
+    "perf": {
+      "title": "Performance",
+      "coverage": "Data for {days} of {total} days",
+      "vsPrev": "vs {value} previous period"
+    },
+    "attention": {
+      "title": "Needs attention",
+      "none": "No open issues. Nice!",
+      "sev": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      }
+    },
+    "suggest": {
+      "title": "Alert suggestions from your data",
+      "none": "At least 3 weeks of data are needed to suggest thresholds.",
+      "range": "{metric} (7-day) ranged {min} – {max} over the last 30 days",
+      "notifyAbove": "Notify above {value}",
+      "notifyBelow": "Notify below {value}",
+      "now": "now {value}",
+      "create": "Create alert",
+      "createdShort": "Created",
+      "created": "Alert created",
+      "error": "Could not create the alert"
+    },
+    "agency": {
+      "title": "By client",
+      "client": "Client",
+      "spend7": "7-day spend",
+      "vsPrev": "Vs last week",
+      "health": "Health",
+      "goal": "Goal (7 days)",
+      "accounts": "{n} accounts"
+    }
+  },
+  "wsAlerts": {
+    "title": "Alerts",
+    "subtitle": "Get notified when a metric crosses your threshold. Checked daily after sync.",
+    "new": "Create alert",
+    "newIntro": "Pick a metric, condition and threshold. The 7-day average helps set a sensible threshold.",
+    "emptyTitle": "No alerts yet",
+    "emptyBody": "Create an alert or use the data-driven suggestions on Home.",
+    "cols": {
+      "alert": "Alert",
+      "scope": "Account",
+      "window": "Based on",
+      "last": "Last triggered",
+      "status": "Status"
+    },
+    "rule": "{metric} {cond, select, above {goes above} other {goes below}} {value}",
+    "allAccounts": "All accounts",
+    "windows": {
+      "1d": "Yesterday",
+      "7d": "Last 7 days"
+    },
+    "fired": "{date}: {value}",
+    "never": "Never",
+    "on": "On",
+    "off": "Off",
+    "pause": "Turn off alert",
+    "resume": "Turn on alert",
+    "paused": "Alert turned off",
+    "resumed": "Alert turned on",
+    "delete": "Delete alert",
+    "deleted": "Alert deleted",
+    "created": "Alert created",
+    "error": "Something went wrong, try again",
+    "metric": "Metric",
+    "condition": "Condition",
+    "above": "Goes above",
+    "below": "Goes below",
+    "threshold": "Threshold",
+    "avg7": "7-day average: {value}",
+    "fromData": "Suggestions from 30 days of data:",
+    "save": "Create alert"
+  },
+  "wsAds": {
+    "subtitle": "Each ad, {from} → {to}, vs previous period",
+    "search": "Search ads, campaigns",
+    "allFormats": "All types",
+    "formats": {
+      "image": "Image",
+      "video": "Video",
+      "carousel": "Carousel",
+      "dynamic": "Dynamic",
+      "text": "Text",
+      "other": "Other"
+    },
+    "objective": "Objective",
+    "allObjectives": "All objectives",
+    "objectives": {
+      "OUTCOME_SALES": "Sales",
+      "OUTCOME_LEADS": "Leads",
+      "OUTCOME_TRAFFIC": "Traffic",
+      "OUTCOME_AWARENESS": "Awareness",
+      "OUTCOME_ENGAGEMENT": "Engagement",
+      "OUTCOME_APP_PROMOTION": "App promotion"
+    },
+    "status": "Status",
+    "statusAll": "All statuses",
+    "statusActive": "Active",
+    "statusPaused": "Paused",
+    "sort": "Sort",
+    "sortBy": "Sort by {metric}",
+    "metrics": "Metrics shown:",
+    "metricN": "Metric {n}",
+    "count": "{n} ads",
+    "emptyTitle": "No matching ads",
+    "emptyBody": "Change filters or the period."
+  },
+  "wsAm": {
+    "subtitle": "Campaigns, ad sets, ads · {from} → {to} · % vs previous period, daily sparklines",
+    "views": {
+      "tree": "Campaigns",
+      "adset": "Ad sets",
+      "ad": "Ads"
+    },
+    "levels": {
+      "campaign": "Camp.",
+      "adset": "Set",
+      "ad": "Ad"
+    },
+    "search": "Search by name",
+    "hideZero": "Hide items with no spend",
+    "columns": "Columns",
+    "columnsHint": "Pick up to 10 columns. Saved in this browser.",
+    "total": "Total",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "select": "Select {name}",
+    "selected": "{n} selected",
+    "pause": "Pause",
+    "resume": "Resume",
+    "emptyTitle": "Nothing to show",
+    "emptyBody": "Change the period, filters, or untick \"Hide items with no spend\".",
+    "askAi": "Ask AI about selected",
+    "dailyBudget": "Daily budget",
+    "editBudget": "Edit budget for {name}",
+    "stageFilter": "Funnel stage",
+    "stageAll": "All stages",
+    "stages": {
+      "prospecting": "Prospecting",
+      "re_engagement": "Re-engagement",
+      "retargeting": "Retargeting",
+      "retention": "Retention"
+    },
+    "rename": "Rename {name}"
+  },
+  "wsFunnels": {
+    "subtitle": "Awareness → Consideration → Conversion, with step-to-step rates",
+    "group": {
+      "awareness": "Awareness",
+      "consideration": "Consideration",
+      "conversion": "Conversion"
+    },
+    "stages": {
+      "impressions": "Impressions",
+      "link_clicks": "Link clicks",
+      "add_to_cart": "Adds to cart",
+      "conversions": "Conversions"
+    },
+    "conv": {
+      "purchases": "Purchases",
+      "leads": "Leads",
+      "results": "Results"
+    },
+    "rate": "{pct} from previous step",
+    "by": {
+      "campaign": "Campaigns",
+      "adset": "Ad sets",
+      "stage": "Funnel stage",
+      "landing": "Landing pages"
+    },
+    "spend": "Spend",
+    "ctr": "CTR",
+    "clickToConv": "Click → conversion",
+    "emptyTitle": "No funnel data yet",
+    "emptyBody": "No impressions in this period.",
+    "share": "Share of spend",
+    "stage": {
+      "adsets": "Ad sets",
+      "cpa": "Cost per result",
+      "names": {
+        "prospecting": "Prospecting",
+        "re_engagement": "Re-engagement",
+        "retargeting": "Retargeting",
+        "retention": "Retention",
+        "unknown": "Unclassified"
+      },
+      "hints": {
+        "prospecting": "Broad, interests, lookalikes",
+        "re_engagement": "People who engaged with Page / video / IG",
+        "retargeting": "Website / app visitors",
+        "retention": "Customer lists",
+        "unknown": "Audience type not readable"
+      },
+      "note": "Classified by the custom audiences in each ad set targeting (read from Meta on sync).",
+      "chartTitle": "Spend share × ROAS by stage"
+    },
+    "landing": {
+      "ads": "Ads",
+      "emptyTitle": "No destination URLs yet",
+      "emptyBody": "Destination URLs are read from creatives on the next sync."
+    }
+  },
+  "wsGeo": {
+    "subtitle": "Spend and results by region (Meta \"region\" breakdown)",
+    "region": "Region",
+    "share": "Share of spend",
+    "spend": "Spend",
+    "results": "Results",
+    "cpa": "Cost per result",
+    "ctr": "CTR",
+    "unknown": "Unknown",
+    "noResults": "No results",
+    "wasted": "{amount} spent in {n} regions with no results this period — consider excluding them or lowering budget.",
+    "note": "Regional totals may differ slightly from account totals (Meta hides / rounds small groups).",
+    "emptyTitle": "No regional data yet",
+    "emptyBody": "Regional data appears after the next daily sync.",
+    "tabs": {
+      "label": "Geography type",
+      "region": "Regions",
+      "country": "Countries · Tier"
+    },
+    "country": "Country",
+    "vsPrev": "Spend vs previous",
+    "trend": {
+      "rising": "Rising",
+      "falling": "Falling",
+      "new": "New"
+    },
+    "tier": "Tier {n}",
+    "tierHint": {
+      "1": "High income: US, Western Europe, Australia, Singapore, Japan…",
+      "2": "Other developed: Korea, Taiwan, Southern Europe, Middle East…",
+      "3": "Emerging: Vietnam, Thailand, Indonesia, Brazil…",
+      "4": "Rest of world"
+    },
+    "tierLine": "{share} of spend · {n} countries · {results} results",
+    "emptyCountry": "No country data yet. Country numbers appear after the next sync.",
+    "tierNote": "Tiers are an industry reference by income / typical ad cost (like Madgicx International scaling), not a Meta classification. \"Rising / falling\" = spend changed ≥ 20% vs the previous period."
+  },
+  "wsScale": {
+    "subtitle": "Which ads to scale, refresh or rework",
+    "emptyTitle": "No ads with spend",
+    "emptyBody": "Pick a longer period or another account.",
+    "fatigue": {
+      "title": "Is my ad getting tired?",
+      "intro": "Each dot is an ad: frequency (x) × CPC (y), bigger = more spend. Dashed lines are medians.",
+      "xAxis": "Frequency",
+      "yAxis": "CPC",
+      "actions": "What to do",
+      "tip": "frequency {f}, CPC {cpc}, spend {spend}",
+      "mid": "Medians: frequency {f}, CPC {cpc}",
+      "refreshList": "Refresh these creatives:",
+      "q": {
+        "fresh_cheap": {
+          "title": "Fresh and cheap",
+          "action": "Low frequency, low CPC → scale budget gradually."
+        },
+        "burning_out": {
+          "title": "Burning out",
+          "action": "High frequency, high CPC → refresh creative or widen the audience."
+        },
+        "expensive_early": {
+          "title": "Expensive early",
+          "action": "Low frequency but high CPC → rework creative / message / audience."
+        },
+        "still_holding": {
+          "title": "Still holding",
+          "action": "High frequency, CPC still low → monitor, prepare a replacement."
+        }
+      }
+    },
+    "format": {
+      "title": "By format",
+      "format": "Format",
+      "ads": "Ads",
+      "spend": "Spend",
+      "share": "Share",
+      "cpa": "Cost / result"
+    },
+    "ageGender": {
+      "title": "Age × gender (spend)",
+      "none": "No age / gender data yet.",
+      "age": "Age",
+      "g": {
+        "female": "Female",
+        "male": "Male",
+        "unknown": "Other"
+      }
+    },
+    "trend": {
+      "title": "Daily spend",
+      "results": "results"
+    }
+  },
+  "wsAgents": {
+    "subtitle": "Ask about your accounts or ask for change proposals. Numbers come from AdxLens; changes always need your approval.",
+    "unconfiguredBanner": "AI is not configured (missing ANTHROPIC_API_KEY). Questions are saved but not answered yet.",
+    "newChat": "New chat",
+    "history": "History",
+    "noHistory": "No chats yet.",
+    "favorite": "Add to favorites",
+    "unfavorite": "Remove from favorites",
+    "delete": "Delete chat",
+    "welcome": "How can AdxLens help?",
+    "welcomeBody": "Ask about metrics, trends and issues. The AI only explains numbers AdxLens computed.",
+    "askAbout": "Ask about your account",
+    "getDone": "Get something done",
+    "samples": {
+      "askSpend": "Spend and cost per result over the last 7 days vs the week before?",
+      "askCpa": "Why did cost per result change over the last 7 days?",
+      "askBest": "Which campaign had the best ROAS over the last 30 days?",
+      "askFatigue": "Which ads are getting tired and need new creative?",
+      "askFindings": "What issues should I fix first?",
+      "askRegion": "Which regions spend a lot with few results?",
+      "doPause": "Propose pausing the ad with the worst cost per result",
+      "doBudget": "Propose raising the budget of the best ad set",
+      "doRefresh": "List ads that need new creative this week"
+    },
+    "proposeOff": "Change proposals need a plan with action approval.",
+    "thinking": "AdxLens is checking your data…",
+    "unconfigured": "AI is not configured yet, so there is no answer.",
+    "disabled": "This feature is not enabled for this workspace.",
+    "factsIntro": "Could not write an answer that matches the data; here are the numbers AdxLens looked up:",
+    "usedTools": "Looked at:",
+    "tools": {
+      "list_accounts": "Accounts",
+      "account_kpis": "KPIs",
+      "top_entities": "Rankings",
+      "explain_cpa_change": "Why CPA changed",
+      "open_findings": "Issues",
+      "breakdown": "Breakdowns",
+      "ad_fatigue": "Ad fatigue",
+      "propose_action": "Proposal",
+      "funnel_stages": "Funnel stages",
+      "landing_pages": "Landing pages",
+      "entity_details": "Selected items",
+      "account_structure": "Account structure",
+      "launch_assets": "Launch assets",
+      "store_summary": "Store revenue",
+      "write_ad_copy": "Copywriting",
+      "propose_ad_plan": "Ad creation plan"
+    },
+    "proposal": "Proposal — needs your approval",
+    "review": "Preview and approve",
+    "actions": {
+      "pause_ad": "Pause ad {name}",
+      "resume_ad": "Resume ad {name}",
+      "pause_adset": "Pause ad set {name}",
+      "resume_adset": "Resume ad set {name}",
+      "set_adset_budget": "Change daily budget of ad set {name}",
+      "pause_campaign": "Pause campaign {name}",
+      "resume_campaign": "Resume campaign {name}",
+      "rename_ad": "Rename ad {name}",
+      "rename_adset": "Rename ad set {name}",
+      "rename_campaign": "Rename campaign {name}",
+      "set_adset_bid": "Change bid of ad set {name}",
+      "set_campaign_spend_cap": "Change spending limit of campaign {name}"
+    },
+    "context": "Context",
+    "allAccounts": "All accounts",
+    "placeholder": "Ask about your accounts…",
+    "send": "Send",
+    "disclaimer": "AI can make mistakes. Numbers come from AdxLens (reconciled with Ads Manager ≤ 1%); every change needs your approval.",
+    "floating": "Why did my cost go up? Ask AdxLens…",
+    "limit": "Daily question limit reached, try again tomorrow.",
+    "error": "Could not send the question",
+    "ownKey": "Answered with the workspace's AI key · {model}",
+    "ownKeyFailed": "The workspace's AI key was rejected (see Settings → Integrations). Here are the numbers AdxLens computed:",
+    "stop": "Stop",
+    "stopped": "Answer stopped.",
+    "selectedContext": "Context:",
+    "removeContext": "Remove from context",
+    "levels": {
+      "campaign": "Campaign",
+      "adset": "Ad set",
+      "ad": "Ad"
+    },
+    "newName": "New name: {name}",
+    "plan": {
+      "title": "Ad creation plan",
+      "approve": "Approve & run",
+      "cancel": "Discard plan",
+      "approved": "Approved — creating step by step",
+      "canceled": "Plan discarded",
+      "error": "Could not complete",
+      "noPermission": "You cannot approve actions for this client",
+      "safety": "Approve once; steps run one by one through guardrails. New ad sets and ads are always paused; turn them on when ready.",
+      "campaignBudget": "campaign budget",
+      "fromStep": "created in step \"{name}\"",
+      "adsetLine": "Daily budget {budget} · {countries} · age {ageMin}–{ageMax} · {audiences} audiences",
+      "adLine": "Ad set: {adset} · Creative: {creative}",
+      "stepFailed": "Step failed ({code}) — later steps did not run. See the action log.",
+      "kinds": {
+        "create_creative": "Creative",
+        "create_adset": "New ad set",
+        "create_ad": "Ad"
+      },
+      "status": {
+        "proposed": "Awaiting approval",
+        "approved": "Approved",
+        "running": "Running",
+        "done": "Done",
+        "failed": "Failed",
+        "canceled": "Discarded",
+        "expired": "Expired"
+      }
+    }
+  },
+  "integrations": {
+    "title": "MCP server — connect AdxLens to Claude and other AI tools",
+    "intro": "Create an API key so Claude Desktop, Claude Code or any MCP client can read this workspace’s data (same tools as AI Agents). The key runs with your permissions; read-only, and change proposals still need approval in AdxLens.",
+    "endpoint": "MCP endpoint:",
+    "create": "Create API key",
+    "createdTitle": "New API key",
+    "emptyTitle": "No API keys yet",
+    "emptyBody": "Create a key to use AdxLens in Claude or another MCP tool.",
+    "cols": {
+      "name": "Name",
+      "key": "Key",
+      "scopes": "Scopes",
+      "lastUsed": "Last used",
+      "created": "Created"
+    },
+    "scopes": {
+      "read": "Read data",
+      "propose": "Propose changes"
+    },
+    "revoke": "Revoke",
+    "revoked": "Revoked",
+    "revokedToast": "Key revoked",
+    "once": "Copy the key now: AdxLens shows it only once and does not store it in plain text.",
+    "copy": "Copy key",
+    "copied": "Copied",
+    "copyConfig": "Copy configuration",
+    "configTitle": "Sample configuration (Claude Desktop / MCP clients):",
+    "claudeCode": "Claude Code: claude mcp add --transport http adxlens {url} --header \"Authorization: Bearer <key>\"",
+    "done": "Done",
+    "error": "Could not create the key",
+    "proposeLabel": "Allow change proposals (pause / resume / budget)",
+    "proposeHint": "Proposals appear in AI Agents as cards for you to preview and approve; MCP never changes ads by itself.",
+    "proposeOff": "Requires a plan with action approval.",
+    "llm": {
+      "title": "Workspace AI model",
+      "intro": "AI runs on the agency's own AI accounts: Anthropic (Claude), OpenAI (GPT), Google (Gemini), DeepSeek — save several keys, one per provider. Usage is billed to your provider account. Numbers are still computed and checked by AdxLens before they are shown.",
+      "statusOn": "In use",
+      "statusError": "Error",
+      "using": "{provider} · {model}",
+      "lastUsed": "Last used {at}",
+      "nonePlatform": "No key of your own: AI Agents use AdxLens's default model.",
+      "noneOff": "No key yet: add one to use AI Agents.",
+      "provider": "Provider",
+      "providers": {
+        "anthropic": "Anthropic (Claude)",
+        "openai": "OpenAI (GPT)",
+        "gemini": "Google (Gemini)",
+        "deepseek": "DeepSeek"
+      },
+      "model": "Model",
+      "key": "API key",
+      "keyKeep": "Leave empty to keep the current key",
+      "security": "Keys are encrypted when saved, never shown again and only used for AI tasks in AdxLens.",
+      "save": "Save key",
+      "remove": "Remove key",
+      "saved": "AI key saved",
+      "removed": "AI key removed",
+      "error": "Could not save: check the provider, model and key",
+      "errors": {
+        "auth": "The last call was rejected: the key is wrong or revoked. Enter a new key.",
+        "quota": "The last call was rejected: quota or credit exhausted at the provider.",
+        "model": "The last call was rejected: your account cannot use this model. Change the model.",
+        "other": "The last call failed. Try again in a few minutes."
+      },
+      "where": {
+        "anthropic": "Create a key at console.anthropic.com → API Keys.",
+        "openai": "Create a key at platform.openai.com → API keys.",
+        "gemini": "Create a key at aistudio.google.com → Get API key.",
+        "deepseek": "Create a key at platform.deepseek.com → API keys."
+      },
+      "modelHint": "Pick a suggested model or type another model your account can use.",
+      "addTitle": "Add a key",
+      "replaceTitle": "Change this provider's key / model",
+      "removeOf": "Remove {provider} key",
+      "routesTitle": "Model per task",
+      "routesIntro": "Each task uses a suitable model: a strong model for analysis, a cheap fast one for copywriting, OpenAI for images. Leave it on default and AdxLens picks from your saved keys.",
+      "tasks": {
+        "analysis": "Analysis (AI Agents)",
+        "copywriting": "Ad copywriting",
+        "image": "Creative images"
+      },
+      "routeDefault": "Default",
+      "routeCustom": "Chosen",
+      "routeSave": "Use this model",
+      "routeReset": "Back to default",
+      "routeSaved": "Model choice saved",
+      "routeError": "Could not save: the provider needs a key and must support this task",
+      "routeNone": {
+        "analysis": "No key: uses the AdxLens default model if available.",
+        "copywriting": "No key: AI copywriting is unavailable.",
+        "image": "No OpenAI key: AI images are unavailable."
+      },
+      "routeMissing": {
+        "analysis": "Add a key to choose a model.",
+        "copywriting": "Add a key to choose a model.",
+        "image": "Images need an OpenAI key."
+      }
+    },
+    "connector": {
+      "title": "Use AdxLens in Claude / ChatGPT",
+      "intro": "Add AdxLens as a connector in Claude or ChatGPT, sign in to AdxLens once, then ask about your ads right inside that app with your own Claude / ChatGPT plan. The connector only reads numbers (and creates proposals awaiting approval if allowed); it never changes ads.",
+      "steps": {
+        "claude": {
+          "title": "Claude (claude.ai, Claude Desktop)",
+          "body": "Settings → Connectors → Add custom connector → paste the URL above → Connect → sign in to AdxLens and click Allow."
+        },
+        "chatgpt": {
+          "title": "ChatGPT",
+          "body": "Settings → Apps & Connectors → Create (Developer mode required) → paste the URL, choose OAuth → sign in to AdxLens and click Allow."
+        },
+        "code": {
+          "title": "Claude Code",
+          "body": "Run the command below, then type /mcp to sign in (click to copy)."
+        }
+      },
+      "connected": "Connected apps",
+      "none": "No apps connected yet.",
+      "mine": "yours",
+      "revoked": "App disconnected",
+      "cols": {
+        "app": "App",
+        "scopes": "Access",
+        "lastUsed": "Last used",
+        "connected": "Connected"
+      }
+    }
+  },
+  "creativeInsights": {
+    "formatsTitle": "By format",
+    "cols": {
+      "format": "Format",
+      "creatives": "Creatives",
+      "spendShare": "% spend",
+      "revenueShare": "% revenue",
+      "resultsShare": "% results"
+    },
+    "formats": {
+      "image": "Image",
+      "video": "Video",
+      "carousel": "Carousel",
+      "dynamic": "Dynamic (DPA)",
+      "text": "Text",
+      "other": "Other"
+    },
+    "missing": "Missing formats: {formats}. Add them to give Meta more delivery options.",
+    "matrixTitle": "Creative matrix",
+    "matrixIntro": "Spend × revenue, thresholds are the medians of creatives in the period.",
+    "matrixIntroResults": "Spend × results (no revenue in this account), thresholds are medians.",
+    "quadrants": {
+      "scalable": {
+        "title": "Scalable",
+        "action": "Low spend, high revenue: spend more."
+      },
+      "core": {
+        "title": "Core performers",
+        "action": "High spend, high revenue: keep, watch fatigue."
+      },
+      "getting_started": {
+        "title": "Getting started",
+        "action": "Low spend, low revenue: wait for more data."
+      },
+      "overspend": {
+        "title": "Overspend",
+        "action": "High spend, low revenue: cut or replace creative."
+      }
+    },
+    "trendTitle": "Weekly trend",
+    "trendIntro": "Share of spend per format each week (Monday → Sunday), with ROAS when revenue exists.",
+    "trendWeek": "Week of"
+  },
+  "adCopy": {
+    "title": "Ad copy",
+    "intro": "Which ad copy works: by length, emoji, links in text and a 4-quadrant matrix (spend × revenue).",
+    "by": {
+      "length": "By length",
+      "emoji": "Emoji",
+      "link": "Links in text"
+    },
+    "cols": {
+      "group": "Group",
+      "share": "% spend"
+    },
+    "groups": {
+      "length": {
+        "short": "Short (≤ 80 chars)",
+        "medium": "Medium (≤ 200)",
+        "long": "Long (> 200)"
+      },
+      "emoji": {
+        "with": "With emoji",
+        "without": "No emoji"
+      },
+      "link": {
+        "with": "With link",
+        "without": "No link"
+      }
+    },
+    "topEmojis": "Most used emoji:"
+  },
+  "oauthConsent": {
+    "pageTitle": "Authorize app",
+    "title": "{app} wants to access AdxLens",
+    "signedInAs": "Signed in as {email}",
+    "workspace": "Workspace",
+    "willAllow": "{app} will be able to:",
+    "scopeRead": "Read ad numbers, findings and goals in the workspace, with exactly your permissions",
+    "scopePropose": "Create change proposals awaiting your approval in AdxLens",
+    "never": "The app never changes ads on Meta. You can disconnect it any time in Settings → Integrations.",
+    "disabled": "AI features are not enabled for this workspace. Contact the AdxLens team or choose another workspace.",
+    "error": "Could not authorize. Try again.",
+    "allow": "Allow",
+    "deny": "Deny",
+    "badClient": "Invalid authorization link (app or redirect address does not match). Add the connector again in the app.",
+    "badRequest": "The authorization request is missing required security parameters. Add the connector again in the app."
+  },
+  "wsBusiness": {
+    "subtitle": "Blended from Meta, {from} → {to}",
+    "blended": "Blended summary",
+    "aov": "Avg order value (Meta)",
+    "otherCurrency": "{n} accounts in other currencies are not added to the total; see each account below.",
+    "store": {
+      "netProfit": "Net ad profit",
+      "mer": "MER",
+      "cac": "CAC",
+      "ltv": "LTV / LTV:CAC"
+    },
+    "needsStore": "Needs an order source (Shopify / web) — not connected. Meta numbers are not enough.",
+    "byAccount": "By ad account",
+    "shareLink": {
+      "button": "Share with client",
+      "title": "Public Business link",
+      "intro": "Your client sees their ads overview (7 or 30 days to yesterday) without logging in. The page locks itself while numbers are being reconciled, an account isn't confirmed or the connection is disconnected.",
+      "client": "Client",
+      "period": "Period",
+      "days": "{n} days",
+      "expiry": "Expires",
+      "never": "Never",
+      "password": "Password (optional, ≥ 6 characters)",
+      "create": "Create link and copy",
+      "noClient": "No clients yet.",
+      "copied": "Link copied",
+      "copy": "Copy link",
+      "revoke": "Revoke",
+      "revoked": "Link revoked",
+      "protected": "Password",
+      "revokedBadge": "Revoked",
+      "views": "{n} views"
+    }
+  },
+  "wsAudiences": {
+    "subtitle": "Which audiences work: lookalikes, customers, interests, broad",
+    "audience": "Audience",
+    "type": "Type",
+    "adsets": "Ad sets",
+    "spend": "Spend",
+    "results": "Results",
+    "cpa": "Cost per result",
+    "broad": "Broad (no audience)",
+    "types": {
+      "lookalike": "Lookalike",
+      "custom": "Custom audience",
+      "interest": "Interest",
+      "broad": "Broad"
+    },
+    "emptyTitle": "No audience data yet",
+    "emptyBody": "Audiences appear after the next sync (read from ad set targeting).",
+    "note": "Each audience sums the ad sets using it; an ad set with several audiences counts for each, so rows can add up to more than the account total.",
+    "noData": "{n} ad sets with spend have no audience info yet (waiting for sync).",
+    "discover": {
+      "title": "Suggested interests (Discover)",
+      "intro": "Meta suggests these from the interests you use most. Refreshed on every sync.",
+      "interest": "Interest",
+      "path": "Category",
+      "size": "Size (Meta estimate)",
+      "from": "Suggested from",
+      "note": "Size is estimated by Meta. Not yet used in any of your ad sets; add it to targeting in Ads Manager."
+    }
+  },
+  "wsLauncher": {
+    "subtitle": "Launch ads from your best creatives and create lookalikes — every step goes through approval and the Execution Gateway",
+    "noAccount": "No ad account yet",
+    "pickAccount": "Using account {name}. Pick another in the scope selector.",
+    "noPermission": "You cannot approve actions for this client.",
+    "paused": "paused",
+    "adsQueued": "Sent {n} ads to create",
+    "audiencesQueued": "Sent {n} lookalikes to create",
+    "doneBody": "{n} actions are running through the Execution Gateway.",
+    "openLog": "Open the action log",
+    "ads": {
+      "title": "Ad Launcher",
+      "intro": "Pick an existing ad set and up to 5 creatives (sorted by ROAS for the selected period). Each creative becomes a new ad in PAUSED state; turn it on when ready.",
+      "adset": "Ad set",
+      "name": "Ad name",
+      "nameHint": "Several creatives → adds #1, #2…",
+      "pick": "Pick creatives (up to {max})",
+      "creative": "Creative",
+      "spend": "Spend",
+      "results": "Results",
+      "select": "Select {name}",
+      "launch": "Create {n} ads (paused)",
+      "note": "Cannot be undone; pause / delete on Meta to drop them.",
+      "adsets": "Ad sets (up to {max})"
+    },
+    "aud": {
+      "title": "Audience Launcher",
+      "intro": "Create lookalikes from the account's existing custom audiences (buyers, website, lists). Does not touch ads or budgets.",
+      "none": "The account has no custom audiences (or they are not synced yet).",
+      "origin": "Source audience",
+      "country": "Country",
+      "countryHint": "2-letter code, e.g. VN",
+      "ratios": "Ratios (up to 3)",
+      "launch": "Create {n} lookalikes",
+      "note": "Meta needs a few hours to populate the audience."
+    },
+    "errors": {
+      "GUARDRAIL_VIOLATION": "Over today's action limit or the item is excluded.",
+      "FORBIDDEN": "No permission or the connection has no write access.",
+      "KILL_SWITCH_ACTIVE": "Kill switch is on.",
+      "PLAN_REQUIRED": "Requires Growth plan or higher.",
+      "other": "Could not create. Try again."
+    },
+    "adsPartial": "Sent {n}/{total} ads — the rest were blocked (e.g. daily action limit reached).",
+    "custom": {
+      "title": "Custom audience from pixel / engagement",
+      "intro": "Build an audience of people who did a website event (pixel) or engaged with your Page / Instagram. Use it as a lookalike source or for retargeting.",
+      "none": "No pixel, Page or Instagram account synced yet. Check permissions in Connections.",
+      "types": {
+        "pixel": "Website (pixel)",
+        "page": "Page engagement",
+        "ig_business": "Instagram engagement"
+      },
+      "source": {
+        "pixel": "Pixel",
+        "page": "Page",
+        "ig_business": "Instagram account"
+      },
+      "event": "Event",
+      "events": {
+        "all": "All visitors",
+        "PageView": "Page view",
+        "ViewContent": "View content",
+        "AddToCart": "Add to cart",
+        "InitiateCheckout": "Initiate checkout",
+        "Purchase": "Purchase",
+        "Lead": "Lead"
+      },
+      "days": "Days (1–{max})",
+      "daysShort": "{n} days",
+      "name": "Audience name (blank = automatic)",
+      "launch": "Create audience",
+      "note": "Needs approval; audiences don't spend money.",
+      "queued": "Audience creation sent. Follow it in the Action log."
+    },
+    "adset": {
+      "title": "New ad set",
+      "intro": "Create a new ad set in an existing campaign with a new audience (countries, age, custom audiences). Optimization goal, conversion event and bid are copied from a template ad set. New ad sets always start paused.",
+      "none": "This account has no ad set to use as a template.",
+      "template": "Template ad set",
+      "templateHint": "The new ad set goes into the same campaign with the same optimization.",
+      "budget": "Daily budget",
+      "budgetHint": "Template: {amount}/day. At most template +15%.",
+      "cbo": "The campaign uses campaign budget: the new ad set has no budget of its own.",
+      "countries": "Countries",
+      "countriesHint": "2-letter codes, comma separated (e.g. VN, TH).",
+      "ageMin": "Age from",
+      "ageMax": "to",
+      "audiences": "Custom audiences to include (up to 10; none = broad)",
+      "name": "Ad set name (blank = automatic)",
+      "launch": "Create ad set (paused)",
+      "note": "Needs approval; turning it on is a separate action.",
+      "queued": "Ad set creation sent. Follow it in the Action log.",
+      "tooLarge": "The budget is above what is allowed relative to the template ad set."
+    },
+    "creative": {
+      "title": "New creative",
+      "intro": "Upload an image to make a single-image creative (Page, link, text, headline, button). Creatives never run on their own: create ads from them in the Ad Launcher above (always paused).",
+      "noPage": "No Page synced yet — check permissions in Connections.",
+      "upload": "Upload image",
+      "uploadHint": "PNG, JPEG or WebP, up to 5MB. 1080×1080 recommended.",
+      "uploadFailed": "Could not upload (PNG / JPEG / WebP ≤ 5MB only).",
+      "drafts": "Images",
+      "generating": "Generating",
+      "failed": "Failed",
+      "page": "Page",
+      "link": "Destination link (https)",
+      "headline": "Headline",
+      "cta": "Call to action",
+      "message": "Primary text",
+      "name": "Creative name (blank = automatic)",
+      "defaultName": "Image creative",
+      "launch": "Create creative",
+      "note": "Needs approval; creatives don't spend money.",
+      "queued": "Creative creation sent. Follow it in the Action log; once done it appears in the Ad Launcher.",
+      "ctas": {
+        "LEARN_MORE": "Learn more",
+        "SHOP_NOW": "Shop now",
+        "SIGN_UP": "Sign up",
+        "CONTACT_US": "Contact us",
+        "ORDER_NOW": "Order now",
+        "GET_OFFER": "Get offer",
+        "BOOK_TRAVEL": "Book now",
+        "SUBSCRIBE": "Subscribe",
+        "APPLY_NOW": "Apply now",
+        "DOWNLOAD": "Download",
+        "MESSAGE_PAGE": "Send message"
+      },
+      "ai": {
+        "label": "AI image (workspace's OpenAI)",
+        "placeholder": "e.g. Product shot of a serum bottle on marble, natural light, no text",
+        "generate": "Generate",
+        "note": "Billed to the agency's OpenAI account. Images are drafts; review before creating a creative.",
+        "queued": "Generating; the image appears in the list when ready.",
+        "tooMany": "Several images are generating; try again when they finish.",
+        "failed": "Could not send the image request.",
+        "noKey": "To generate images with AI, add an OpenAI key for the workspace.",
+        "addKey": "Settings → Integrations"
+      }
+    }
+  },
+  "publicBusiness": {
+    "period": "{from} to {to} · vs previous period",
+    "lockedTitle": "Numbers are being updated",
+    "lockedBody": "Numbers are being reconciled with Ads Manager. Please check back later.",
+    "footnote": "Data from Meta Ads, reconciled with Ads Manager (≤ 1% difference). Revenue is as reported by Meta.",
+    "poweredBy": "Report by AdxLens"
+  },
+  "stores": {
+    "title": "Stores & Analytics",
+    "intro": "Connect the client's Shopify, Shopee, TikTok Shop and Google Analytics 4 so the Business Dashboard shows real store revenue, orders, AOV, MER (store revenue / ad spend), sessions and conversions. Each store / property maps to one client; AdxLens only reads.",
+    "providers": {
+      "shopify": "Shopify",
+      "ga4": "Google Analytics 4",
+      "shopee": "Shopee",
+      "tiktok_shop": "TikTok Shop"
+    },
+    "cols": {
+      "store": "Store",
+      "client": "Client",
+      "sync": "Last sync"
+    },
+    "noClient": "— Not assigned —",
+    "reconnect": "Reconnect needed",
+    "syncing": "Syncing",
+    "disconnect": "Disconnect",
+    "removed": "Disconnected and store data deleted",
+    "shop": "Shopify store",
+    "shopHint": "Store name or your-store.myshopify.com",
+    "connectShopify": "Connect Shopify",
+    "notConfigured": "The Shopify app is not configured (see docs/runbooks/store-connectors.md).",
+    "tiles": {
+      "revenue": "Store revenue (web + marketplaces)",
+      "orders": "Orders",
+      "aov": "Store AOV",
+      "mer": "MER",
+      "sessions": "Sessions (GA4)",
+      "conversions": "Conversions (GA4)"
+    },
+    "property": "GA4 Property ID",
+    "propertyHint": "GA4 → Admin → Property settings (a number).",
+    "connectGa4": "Connect Google Analytics",
+    "ga4NotConfigured": "Google OAuth for GA4 is not configured (see docs/runbooks/store-connectors.md).",
+    "shopeeHint": "The shop owner signs in to Shopee Seller and picks the shop to authorize.",
+    "connectShopee": "Connect Shopee",
+    "shopeeNotConfigured": "The Shopee Open Platform app is not configured (see docs/runbooks/store-connectors.md).",
+    "tiktokHint": "The seller signs in to TikTok Shop Seller Center and authorizes; every shop selected maps to this client.",
+    "connectTiktok": "Connect TikTok Shop",
+    "tiktokNotConfigured": "The TikTok Shop app is not configured (see docs/runbooks/store-connectors.md)."
+  },
+  "panel": {
+    "title": "Assistant",
+    "close": "Close assistant",
+    "tabs": {
+      "ask": "Ask AI",
+      "explain": "Explain",
+      "inbox": "Notifications"
+    },
+    "ask": {
+      "intro": "Ask about the numbers on this screen — the selected account and period are sent along. Every number is computed and checked by AdxLens.",
+      "introEntity": "Ask about the item you are viewing — AdxLens starts from its own numbers.",
+      "placeholder": "Ask about this screen…",
+      "newChat": "New conversation",
+      "contextEntity": "Context: item in view",
+      "contextAccount": "Context: selected account",
+      "contextAll": "Context: all accounts"
+    },
+    "explain": {
+      "intro": "Pick a question — AdxLens breaks the change down with computed numbers; AI only explains.",
+      "note": "Click ✨ next to a metric to ask about that metric.",
+      "metric": "Why did {metric} change vs the previous period?",
+      "button": "Explain {metric}",
+      "q": {
+        "cpa": "Why did cost per result change vs the previous period?",
+        "spend": "How did spend change and which campaigns drove it?",
+        "findings": "What issues need attention now?",
+        "fatigue": "Which ads are fatigued and should be refreshed?",
+        "best": "Which ads performed best this period?",
+        "funnel": "Which funnel stage is weakest?",
+        "mer": "How is MER (store revenue / ad spend) this period?",
+        "geo": "Which regions have the best and worst cost per result?",
+        "entity": "Why did this item's performance change vs the previous period?",
+        "children": "Which children drag performance down?"
+      }
+    },
+    "inbox": {
+      "empty": "No notifications yet.",
+      "all": "See all notifications →"
+    }
+  }
+}

@@ -4,6 +4,11 @@ node_modules/
 !.env.example
 dist/
 .next/
+.next-*/
+.adxlens-app.json
 .turbo/
 coverage/
 *.log
+*.tsbuildinfo
+test-results/
+playwright-report/

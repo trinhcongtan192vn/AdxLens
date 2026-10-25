@@ -1,0 +1,2 @@
+ALTER TABLE "app"."meta_available_accounts" ADD COLUMN "spend_30d" numeric(18, 4);--> statement-breakpoint
+ALTER TABLE "app"."meta_available_accounts" ADD COLUMN "spend_checked_at" timestamp with time zone;

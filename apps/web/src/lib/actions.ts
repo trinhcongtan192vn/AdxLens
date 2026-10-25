@@ -1,0 +1,48 @@
+/** Màu trạng thái hành động (P203/P204). */
+export const ACTION_STATUS_TONE = {
+  pending: 'info',
+  executing: 'info',
+  success: 'success',
+  failed: 'danger',
+  undone: 'neutral',
+  canceled: 'neutral',
+} as const;
+
+/** Tiền tệ không có đơn vị lẻ theo Meta (offset 1). */
+export const ZERO_DECIMAL = new Set(['VND', 'JPY', 'KRW', 'CLP', 'ISK', 'PYG']);
+
+type Fmt = { number(n: number, o?: Intl.NumberFormatOptions): string };
+type Tr = { t(key: string): string };
+
+/** "ACTIVE → PAUSED" / "300.000 → 330.000" từ trạng thái trước / sau mong đợi (đơn vị nhỏ nhất của tiền tệ). */
+export function describeChange(
+  a: { beforeState: Record<string, string | null>; afterExpected: Record<string, string | null>; currency: string },
+  format: Fmt,
+  tr: Tr,
+): string {
+  const money = (['daily_budget', 'bid_amount', 'spend_cap'] as const).find((k) => k in a.afterExpected);
+  if (money) {
+    // Meta lưu ngân sách theo đơn vị nhỏ nhất: tiền không có phần lẻ (VND, JPY…) = 1; USD… = cent.
+    const div = ZERO_DECIMAL.has(a.currency) ? 1 : 100;
+    const show = (v: string | null | undefined) =>
+      v
+        ? format.number(Number(v) / div, {
+            style: 'currency',
+            currency: a.currency,
+            maximumFractionDigits: div === 1 ? 0 : 2,
+          })
+        : '—';
+    return `${show(a.beforeState[money])} → ${show(a.afterExpected[money])}`;
+  }
+  if ('copy_status' in a.afterExpected) return tr.t('copyPaused');
+  // ADR-0025: đổi tên.
+  if ('name' in a.afterExpected) return `${a.beforeState.name ?? '—'} → ${a.afterExpected.name ?? '—'}`;
+  // ADR-0023: tạo mới.
+  if ('created_status' in a.afterExpected) return tr.t('createdPaused');
+  if ('created_creative' in a.afterExpected) return tr.t('createdCreative');
+  if ('created_subtype' in a.afterExpected) {
+    return tr.t(a.afterExpected.created_subtype === 'LOOKALIKE' ? 'createdLookalike' : 'createdAudience');
+  }
+  const s = (v: string | null | undefined) => (v ? tr.t(`state.${v}`) : '—');
+  return `${s(a.beforeState.status)} → ${s(a.afterExpected.status)}`;
+}
