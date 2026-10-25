@@ -88,6 +88,8 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page.getByTestId('funnel-landing')).toContainText('shop.example.vn');
   await page.getByRole('link', { name: 'Địa lý', exact: true }).click();
   await expect(page.getByTestId('geo-table')).toBeVisible();
+  await page.getByRole('tab', { name: 'Quốc gia · Tier' }).click();
+  await expect(page.getByTestId('geo-tiers')).toContainText('Tier 3');
   await page.getByRole('link', { name: 'Mở rộng', exact: true }).click();
   await expect(page.getByTestId('fatigue-chart')).toContainText('Quảng cáo có mệt không?');
   await expect(page.getByTestId('quadrant-burning_out')).toBeVisible();

@@ -2,6 +2,27 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [098] Địa lý: Quốc gia · Tier 1–4 + khu vực / quốc gia đang lên — 2026-10-25
+
+Theo Madgicx Geo & Demo: International scaling và Trending countries.
+
+- **Đồng bộ thêm breakdown theo quốc gia** (`country`, mã ISO). Chỉ cần quyền `ads_read`, thêm 1 lời gọi insight mỗi lô.
+  Meta giả có VN / US / SG / TH / KH.
+- **Workspace › Địa lý** có 2 tab:
+  - **Khu vực** (như cũ): thêm cột chi tiêu so kỳ trước và nhãn **Đang lên / Đang xuống / Mới** (đổi ≥ 20%);
+  - **Quốc gia · Tier**: 4 thẻ Tier (tỷ trọng chi tiêu, số nước, kết quả, CPA) + bảng theo nước có nhãn Tier và xu hướng;
+    wasted spend tính theo nước.
+- Tier là phân tầng tham khảo theo thu nhập / giá quảng cáo, không phải phân loại của Meta; trang ghi rõ điều này.
+- Công cụ `breakdown` của AI Agents / MCP nhận thêm `country`.
+
+**Test tự động:**
+- `reporting/geo-tiers.test.ts`:
+  - Tier theo mã nước;
+  - xu hướng ±20% / mới / wasted;
+  - đồng bộ lưu breakdown quốc gia; tổng Tier = 100%; VN ở Tier 3.
+- E2E: tab Quốc gia · Tier.
+- **Đổi test (quy tắc 8):** `ingestion.test.ts` (2 test A4) thêm `country` vào danh sách breakdown mong đợi, vì đồng bộ có nhóm mới. Kiểm "tổng mỗi nhóm khớp chi tiêu insight" giữ nguyên và áp cho cả `country`.
+
 ## [097] Business Dashboard (Workspace) — 2026-10-25
 
 Theo Madgicx Business Dashboard, mục 3.3 trong tài liệu nghiên cứu.

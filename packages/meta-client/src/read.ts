@@ -30,6 +30,8 @@ export const BREAKDOWNS = {
   age_gender: ['age', 'gender'],
   placement: ['publisher_platform', 'platform_position'],
   region: ['region'],
+  /** Quốc gia (mã ISO 2 chữ) — phân tầng Tier 1–4 kiểu Madgicx International scaling. */
+  country: ['country'],
 } as const;
 export type BreakdownKey = keyof typeof BREAKDOWNS;
 

@@ -3105,7 +3105,29 @@
     "wasted": "{amount} spent in {n} regions with no results this period — consider excluding them or lowering budget.",
     "note": "Regional totals may differ slightly from account totals (Meta hides / rounds small groups).",
     "emptyTitle": "No regional data yet",
-    "emptyBody": "Regional data appears after the next daily sync."
+    "emptyBody": "Regional data appears after the next daily sync.",
+    "tabs": {
+      "label": "Geography type",
+      "region": "Regions",
+      "country": "Countries · Tier"
+    },
+    "country": "Country",
+    "vsPrev": "Spend vs previous",
+    "trend": {
+      "rising": "Rising",
+      "falling": "Falling",
+      "new": "New"
+    },
+    "tier": "Tier {n}",
+    "tierHint": {
+      "1": "High income: US, Western Europe, Australia, Singapore, Japan…",
+      "2": "Other developed: Korea, Taiwan, Southern Europe, Middle East…",
+      "3": "Emerging: Vietnam, Thailand, Indonesia, Brazil…",
+      "4": "Rest of world"
+    },
+    "tierLine": "{share} of spend · {n} countries · {results} results",
+    "emptyCountry": "No country data yet. Country numbers appear after the next sync.",
+    "tierNote": "Tiers are an industry reference by income / typical ad cost (like Madgicx International scaling), not a Meta classification. \"Rising / falling\" = spend changed ≥ 20% vs the previous period."
   },
   "wsScale": {
     "subtitle": "Which ads to scale, refresh or rework",

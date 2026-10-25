@@ -322,6 +322,7 @@ export function breakdownKeyOf(r: MetaInsight, breakdown: (typeof BREAKDOWN_KEYS
   const v = (x: string | undefined) => x?.trim() || 'unknown';
   if (breakdown === 'age_gender') return `${v(r.age)}|${v(r.gender)}`;
   if (breakdown === 'placement') return `${v(r.publisher_platform)}|${v(r.platform_position)}`;
+  if (breakdown === 'country') return v(r.country).toUpperCase();
   return v(r.region);
 }
 

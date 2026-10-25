@@ -301,6 +301,13 @@ const MOCK_BREAKDOWNS: Record<
     { fields: { region: 'Can Tho' }, weight: 0.07 },
     { fields: { region: 'Hai Phong' }, weight: 0.05 },
   ],
+  country: [
+    { fields: { country: 'VN' }, weight: 0.86 },
+    { fields: { country: 'US' }, weight: 0.05 },
+    { fields: { country: 'SG' }, weight: 0.04 },
+    { fields: { country: 'TH' }, weight: 0.03 },
+    { fields: { country: 'KH' }, weight: 0.02 },
+  ],
 };
 
 /** Tách một dòng thành các nhóm theo trọng số; nhóm cuối nhận phần dư để tổng khớp đúng dòng gốc. */

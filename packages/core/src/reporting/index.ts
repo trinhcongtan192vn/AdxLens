@@ -26,3 +26,4 @@ export * from './creative-insights';
 export * from './latest-changes';
 export * from './copy-stage';
 export * from './business';
+export * from './geo-tiers';

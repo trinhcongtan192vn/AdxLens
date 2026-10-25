@@ -356,7 +356,7 @@ describe('insight theo nhóm (A4)', () => {
       .select({ spend: sql<string>`sum(${schema.insightsDaily.spend})::text` })
       .from(schema.insightsDaily)
       .where(eq(schema.insightsDaily.adAccountId, adAccountId));
-    expect(rows.map((r) => r.breakdown).sort()).toEqual(['age_gender', 'placement', 'region']);
+    expect(rows.map((r) => r.breakdown).sort()).toEqual(['age_gender', 'country', 'placement', 'region']);
     for (const r of rows) {
       expect(Number(r.spend)).toBeCloseTo(Number(total!.spend), 0);
       expect(r.keys).toBeGreaterThan(1);
@@ -381,7 +381,7 @@ describe('insight theo nhóm (A4)', () => {
       .selectDistinct({ b: schema.insightsBreakdowns.breakdown })
       .from(schema.insightsBreakdowns)
       .where(eq(schema.insightsBreakdowns.adAccountId, adAccountId));
-    expect(kinds.map((k) => k.b).sort()).toEqual(['age_gender', 'placement']);
+    expect(kinds.map((k) => k.b).sort()).toEqual(['age_gender', 'country', 'placement']);
 
     const expired = Object.assign(Object.create(meta), {
       getInsights: async (t: string, act: string, q: Parameters<typeof meta.getInsights>[2]) => {

@@ -3105,7 +3105,29 @@
     "wasted": "{amount} chi ở {n} khu vực chưa có kết quả nào trong kỳ — cân nhắc loại trừ hoặc giảm ngân sách.",
     "note": "Tổng theo khu vực có thể lệch nhẹ tổng tài khoản (Meta ẩn / làm tròn nhóm nhỏ).",
     "emptyTitle": "Chưa có dữ liệu khu vực",
-    "emptyBody": "Dữ liệu theo khu vực có sau lần đồng bộ ngày tiếp theo."
+    "emptyBody": "Dữ liệu theo khu vực có sau lần đồng bộ ngày tiếp theo.",
+    "tabs": {
+      "label": "Kiểu địa lý",
+      "region": "Khu vực",
+      "country": "Quốc gia · Tier"
+    },
+    "country": "Quốc gia",
+    "vsPrev": "Chi tiêu so kỳ trước",
+    "trend": {
+      "rising": "Đang lên",
+      "falling": "Đang xuống",
+      "new": "Mới"
+    },
+    "tier": "Tier {n}",
+    "tierHint": {
+      "1": "Thu nhập cao: Mỹ, Tây Âu, Úc, Singapore, Nhật…",
+      "2": "Phát triển khác: Hàn, Đài Loan, Nam Âu, Trung Đông…",
+      "3": "Đang nổi: Việt Nam, Thái, Indonesia, Brazil…",
+      "4": "Còn lại"
+    },
+    "tierLine": "{share} chi tiêu · {n} nước · {results} kết quả",
+    "emptyCountry": "Chưa có dữ liệu theo quốc gia. Số theo nước có sau lần đồng bộ kế tiếp.",
+    "tierNote": "Tier là phân tầng tham khảo theo thu nhập / giá quảng cáo phổ biến (như Madgicx International scaling), không phải phân loại của Meta. \"Đang lên / xuống\" = chi tiêu đổi ≥ 20% so kỳ trước."
   },
   "wsScale": {
     "subtitle": "Quảng cáo nào nên mở rộng, làm mới hay sửa",

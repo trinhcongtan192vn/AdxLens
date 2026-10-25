@@ -159,6 +159,7 @@ export const insightSchema = z.object({
   publisher_platform: z.string().optional(),
   platform_position: z.string().optional(),
   region: z.string().optional(),
+  country: z.string().optional(),
 });
 export type MetaInsight = z.infer<typeof insightSchema>;
 
