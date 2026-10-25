@@ -1,7 +1,7 @@
 import { and, desc, eq } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import { listAdAccounts } from '@adxlens/core/connections';
-import { AppError, type ActorCtx } from '@adxlens/core/shared';
+import { AppError, type ActorCtx, type WorkspaceCtx } from '@adxlens/core/shared';
 import { canApproveActions } from '@adxlens/core/tenancy';
 
 /** Nút CTA hợp lệ (web chỉ import qua core/execution — ranh giới `meta-client/write`). */
@@ -86,4 +86,50 @@ export async function getCreativeDraft(ctx: ActorCtx, id: string): Promise<Creat
     .where(and(eq(creativeDrafts.workspaceId, ctx.workspaceId), eq(creativeDrafts.id, id)));
   if (!row) throw new AppError('NOT_FOUND', 'Không tìm thấy bản nháp');
   return row;
+}
+
+/** Worker cập nhật bản nháp AI (ADR-0027): xong (`ready` + đường dẫn ảnh) hoặc lỗi (`failed` + mã lỗi). */
+export async function finishCreativeDraft(
+  ctx: WorkspaceCtx,
+  id: string,
+  r: { status: 'ready'; storagePath: string; contentType: string } | { status: 'failed'; error: string },
+): Promise<void> {
+  await ctx.db
+    .update(creativeDrafts)
+    .set(
+      r.status === 'ready'
+        ? {
+            status: 'ready',
+            storagePath: r.storagePath,
+            contentType: r.contentType,
+            error: null,
+            updatedAt: new Date(),
+          }
+        : { status: 'failed', error: r.error.slice(0, 60), updatedAt: new Date() },
+    )
+    .where(and(eq(creativeDrafts.workspaceId, ctx.workspaceId), eq(creativeDrafts.id, id)));
+}
+
+/** Bản nháp đang chờ worker tạo (theo workspace) — null nếu không còn ở trạng thái `generating`. */
+export async function pendingCreativeDraft(ctx: WorkspaceCtx, id: string): Promise<CreativeDraft | null> {
+  const [row] = await ctx.db
+    .select()
+    .from(creativeDrafts)
+    .where(
+      and(
+        eq(creativeDrafts.workspaceId, ctx.workspaceId),
+        eq(creativeDrafts.id, id),
+        eq(creativeDrafts.status, 'generating'),
+      ),
+    );
+  return row ?? null;
+}
+
+/** Số bản nháp AI đang tạo của workspace (giới hạn chi phí AI ngoài ý muốn). */
+export async function generatingDraftCount(ctx: WorkspaceCtx): Promise<number> {
+  const rows = await ctx.db
+    .select({ id: creativeDrafts.id })
+    .from(creativeDrafts)
+    .where(and(eq(creativeDrafts.workspaceId, ctx.workspaceId), eq(creativeDrafts.status, 'generating')));
+  return rows.length;
 }

@@ -1,4 +1,10 @@
-import { agentMessageOwner, runAgentReply, workspaceAgentLlm } from '@adxlens/core/agent';
+import {
+  agentMessageOwner,
+  runAgentReply,
+  runAiImage,
+  workspaceAgentLlm,
+  workspaceImageGenerator,
+} from '@adxlens/core/agent';
 import { isEnabled } from '@adxlens/core/flags';
 import { generateWeeklyActions } from '@adxlens/core/recommendation';
 import { resolveActor } from '@adxlens/core/tenancy';
@@ -17,6 +23,16 @@ export const recommendHandlers: HandlerMap = {
   // AI agent (ADR-0019): chạy với quyền của người hỏi (buyer chỉ thấy Client được gán). Cờ P1 kiểm trong runAgentReply.
   // Workspace có khóa tự mang (ADR-0022) thì dùng khóa đó; không thì khóa nền tảng. Khóa workspace lỗi KHÔNG rơi sang
   // khóa nền tảng (trả bảng số + mã lỗi để Owner sửa khóa).
+  // ADR-0027: AI tạo ảnh (khóa OpenAI của workspace; kiểm cờ trong runAiImage).
+  'recommend:creative_image': async (p, { db, tokenKeys, saveCreativeImage, log }) => {
+    const ctx = { db, workspaceId: p.workspaceId };
+    const r = await runAiImage(ctx, p.draftId, {
+      generator: await workspaceImageGenerator(ctx, tokenKeys),
+      save: saveCreativeImage,
+    });
+    log.info({ draft_id: p.draftId, ...r }, 'creative image');
+    return r;
+  },
   'recommend:agent_reply': async (p, { db, agentLlm, agentLlmModel, tokenKeys, log }) => {
     const userId = await agentMessageOwner({ db, workspaceId: p.workspaceId }, p.messageId);
     if (!userId) return { status: 'missing' };

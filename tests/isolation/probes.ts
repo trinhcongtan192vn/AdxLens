@@ -620,6 +620,10 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     query: (w) => ({ ad_account_id: w.a.adAccount.id }),
   },
   'POST /api/v1/creative-drafts': { kind: 'workspace' },
+  'POST /api/v1/creative-drafts/ai': {
+    kind: 'workspace',
+    body: (w) => ({ adAccountId: w.a.adAccount.id, prompt: 'Ảnh thử nghiệm probe' }),
+  },
   'POST /api/v1/launcher/creatives': {
     kind: 'workspace',
     body: (w) => ({

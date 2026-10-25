@@ -3811,6 +3811,17 @@
         "APPLY_NOW": "Ứng tuyển ngay",
         "DOWNLOAD": "Tải xuống",
         "MESSAGE_PAGE": "Gửi tin nhắn"
+      },
+      "ai": {
+        "label": "AI tạo ảnh (OpenAI của workspace)",
+        "placeholder": "VD: Ảnh sản phẩm serum trên nền đá cẩm thạch, ánh sáng tự nhiên, không có chữ",
+        "generate": "Tạo ảnh",
+        "note": "Chi phí tính vào tài khoản OpenAI của agency. Ảnh là bản nháp, xem rồi mới tạo creative.",
+        "queued": "Đang tạo ảnh, sẽ hiện trong danh sách khi xong.",
+        "tooMany": "Đang tạo nhiều ảnh, chờ xong rồi thử lại.",
+        "failed": "Không gửi được yêu cầu tạo ảnh.",
+        "noKey": "Muốn AI tạo ảnh: thêm khóa OpenAI cho workspace.",
+        "addKey": "Cài đặt → Tích hợp"
       }
     }
   }

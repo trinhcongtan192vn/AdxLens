@@ -27,6 +27,39 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [128] AI tạo ảnh cho creative bằng khóa OpenAI của workspace (ADR-0027) — 2026-10-25
+
+Bước 2 của gap "Upload creative + AI tạo ảnh" (bước 1: [127]).
+
+- **Thẻ "Creative mới" → khối "AI tạo ảnh"** (chỉ hiện khi workspace có khóa OpenAI ở Cài đặt → Tích hợp):
+  - nhập mô tả (5–1000 ký tự) → **Tạo ảnh**;
+  - ảnh hiện trong danh sách bản nháp khi xong (trang tự hỏi lại mỗi 5 giây);
+  - chọn ảnh như ảnh tải lên → tạo creative (vẫn cần duyệt).
+- Workspace không có khóa OpenAI → lời nhắn + link Cài đặt → Tích hợp. Không dùng khóa nền tảng.
+- **Job `recommend:creative_image`:**
+  - kiểm cờ `p2a_approve` ở đầu job;
+  - khóa OpenAI chỉ giải mã trong worker; gọi OpenAI Images (`gpt-image-1`, 1024×1024);
+  - kiểm ảnh theo byte rồi lưu PNG vào bucket private `creatives` (`<workspace>/<tài khoản>/<bản nháp>.png`);
+  - bản nháp `ready`; lỗi chỉ ghi mã (vd. `LLM_HTTP_401`), không ghi khóa hay nội dung trả về; lần dùng / lỗi gần nhất
+    hiện ở thẻ khóa AI như agent.
+- **Giới hạn:** tối đa 3 ảnh đang tạo cùng lúc mỗi workspace (chặn chi phí ngoài ý muốn). Chi phí tính vào tài khoản
+  OpenAI của agency.
+
+**Vùng bảo vệ:**
+- `packages/core/execution` (bản nháp: hoàn tất / đếm đang tạo);
+- `packages/jobs` (job mới).
+- Không đổi schema.
+
+**Test tự động:**
+- `core/agent/creative-image.test.ts`:
+  - cần khóa OpenAI (Anthropic → 409); mô tả ngắn → 422; quá 3 ảnh đang tạo → 409;
+  - worker gọi đúng endpoint + Bearer, lưu đúng đường dẫn, bản nháp ready; chạy lại → bỏ qua;
+  - lỗi 401 chỉ ghi mã; không khóa / cờ tắt → failed, không lưu ảnh;
+  - ảnh rỗng → mã lỗi riêng.
+- **Bộ cách ly:**
+  - route `POST /api/v1/creative-drafts/ai`;
+  - job `recommend:creative_image` (kể cả biến thể id bản nháp của workspace khác → không chạm).
+
 ## [127] Creative mới: tải ảnh lên → tạo ad creative qua Execution Gateway (ADR-0027) — 2026-10-25
 
 Gap "Upload creative + AI tạo ảnh" (PM chọn; AI dùng khóa OpenAI của workspace). Bước 1: tải ảnh lên + tạo creative.

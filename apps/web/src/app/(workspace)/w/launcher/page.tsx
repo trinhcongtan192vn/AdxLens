@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { creativeLibrary } from '@adxlens/core/recommendation';
+import { workspaceLlmProvider } from '@adxlens/core/agent';
 import { listAssets } from '@adxlens/core/connections';
 import { launcherSources } from '@adxlens/core/reporting';
 import { canApproveActions, listClients } from '@adxlens/core/tenancy';
@@ -56,11 +57,12 @@ export default async function LauncherPage({
   const canApprove = account.clientId
     ? canApproveActions(pc.ctx.actor, account.clientId)
     : pc.ctx.actor.role === 'owner';
-  const [sources, creatives, clients, assets] = await Promise.all([
+  const [sources, creatives, clients, assets, llmProvider] = await Promise.all([
     launcherSources(pc.ctx, account.id),
     creativeLibrary(pc.ctx, account.id, scope.cur),
     listClients(pc.ctx),
     listAssets(pc.ctx),
+    workspaceLlmProvider(pc.ctx),
   ]);
   // ADR-0026: nguồn custom audience — pixel của đúng tài khoản, Page / Instagram của workspace.
   const asset = (kind: 'pixel' | 'page' | 'instagram') =>
@@ -116,6 +118,7 @@ export default async function LauncherPage({
           canApprove={canApprove}
           pages={asset('page')}
           namePrefix={clientName}
+          hasOpenAiKey={llmProvider === 'openai'}
         />
       </div>
       <div className="mt-4">
