@@ -131,6 +131,13 @@ export const JOBS = {
     schema: z.object({ ...ws, actionId: uuid }),
     jobId: (p) => `execute:${p.actionId}`,
   }),
+  // ADR-0031: chạy tuần tự các bước của một kế hoạch đã duyệt (mỗi bước qua Execution Gateway).
+  'execute:plan': def({
+    queue: 'execute',
+    workspaceScoped: true,
+    schema: z.object({ ...ws, planId: uuid }),
+    jobId: (p) => `plan:${p.planId}`,
+  }),
   // ADR-0021: một lịch hẹn của rule đến hạn (trả ngân sách / đề xuất bật lại). `tick` cho phép thử lại lần sau.
   'execute:revert': def({
     queue: 'execute',

@@ -27,6 +27,51 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [137] Kế hoạch hành động: chuỗi tạo quảng cáo duyệt một lần, chạy tuần tự qua Execution Gateway (ADR-0031) — 2026-10-25
+
+Lõi + job; công cụ agent và thẻ trong chat ở 138.
+
+- **Kế hoạch** (`app.action_plans`):
+  - tối đa 6 bước `create_creative` / `create_adset` / `create_ad`;
+  - bước sau tham chiếu bước trước bằng `{ "ref": "<khóa>" }`, chỉ bước đứng trước và đúng loại;
+  - trạng thái `proposed → approved → running → done | failed`, hoặc `canceled`; chưa duyệt thì hết hạn sau 24 giờ.
+- **Duyệt một lần** (`approveActionPlan`):
+  - quyền duyệt theo Client như Launcher;
+  - mọi bước không tham chiếu chạy đủ kiểm tra của Launcher (nguồn, ảnh, link, guardrails, kill switch);
+  - bước thứ n tính n − 1 bước trước vào giới hạn hành động / ngày;
+  - vi phạm → trả kết quả kiểm từng bước, kế hoạch vẫn `proposed`.
+- **Job `execute:plan`:**
+  - kiểm cờ ở đầu job; chạy bằng quyền của người duyệt;
+  - mỗi bước là một hành động duyệt tay trong Nhật ký (`params.plan_id`), thực hiện + xác minh như Launcher;
+  - bước lỗi → dừng, các bước sau `skipped`, đối tượng đã tạo giữ nguyên (đều PAUSED / creative không tiêu tiền);
+  - chạy lại job không ghi lần hai.
+- **Gateway:**
+  - `requestLaunch` tách phần kiểm (`checkLaunch`) và phần tạo hành động không enqueue (`insertPlannedLaunch`); hành vi
+    `requestLaunch` không đổi;
+  - nhóm QC mới được ghi vào bản chụp cấu trúc ngay, để bước quảng cáo tìm thấy.
+- **Mock Meta (`write-mock`):** `createAd` nhận cả nhóm QC / creative vừa tạo trong phiên, như Meta thật.
+
+**Vùng bảo vệ — cần PM duyệt, chạy staging trước khi merge `main`:**
+- `packages/db`: migration 0087–0088, bảng `action_plans` có RLS;
+- `packages/core/execution`: `plans.ts`, `gateway.ts` (tách hàm, không nới guardrail).
+
+**Rủi ro:** kế hoạch tạo nhiều đối tượng trong một lần duyệt. Giảm thiểu:
+- mọi đối tượng PAUSED;
+- giới hạn hành động / ngày tính cả kế hoạch;
+- người duyệt thấy đủ tham số (thẻ ở 138).
+
+**Test tự động:**
+- `core/execution/plans.test.ts`:
+  - tham chiếu sai / khóa trùng / quá 6 bước / id lạ → từ chối;
+  - duyệt → job chạy creative → nhóm QC → quảng cáo dùng đúng id vừa tạo, PAUSED, 3 hành động có `plan_id`; chạy lại →
+    bỏ qua;
+  - nhóm QC lỗi → `failed`, quảng cáo `skipped`, creative giữ;
+  - ngân sách vượt guardrail → không duyệt được, báo đúng bước;
+  - buyer không thấy; hết hạn; hủy; cờ tắt trước khi chạy → không bước nào chạy; cờ tắt → không tạo được;
+  - 6 bước > 5 hành động / ngày → bước 6 bị chặn.
+- Bộ cách ly job: `execute:plan`.
+- Test cũ của Launcher (`launch.test.ts`) giữ nguyên, vẫn qua.
+
 ## [136] AI agent: công cụ đọc mới và đề xuất đủ loại thay đổi đã có — 2026-10-25
 
 PM yêu cầu "nâng cấp bộ công cụ cho AI agent". Công cụ dùng chung cho chat AI Agents và MCP (ADR-0020).
