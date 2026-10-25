@@ -36,11 +36,19 @@ export const POST = route({
     date_from: isoDate,
     date_to: isoDate,
     locale: z.enum(['vi', 'en']).optional(),
+    template: z.enum(['general', 'ecommerce', 'leadgen']).optional(),
   }),
   handler: async (ctx, { body }) => {
     const r = await createReport(
       ctx,
-      { clientId: body.client_id, kind: body.kind, from: body.date_from, to: body.date_to, locale: body.locale },
+      {
+        clientId: body.client_id,
+        kind: body.kind,
+        from: body.date_from,
+        to: body.date_to,
+        locale: body.locale,
+        template: body.template,
+      },
       { enqueue: ctx.enqueue },
     );
     return Response.json({ report_id: r.id, status: 'building' }, { status: 202 });

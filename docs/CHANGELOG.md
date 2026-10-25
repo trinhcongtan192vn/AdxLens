@@ -2,6 +2,25 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [101] Báo cáo theo mẫu ngành: E-commerce / Lead gen — 2026-10-25
+
+Theo Madgicx One-Click Report templates.
+
+- **Tạo báo cáo** có ô **Mẫu báo cáo**: Chung / E-commerce / Lead gen. Mẫu được gợi ý sẵn theo mục tiêu chính của Client
+  (ROAS / lượt mua → E-commerce; lead / CPL → Lead gen).
+- Bộ KPI theo mẫu, áp cho web, link công khai và PDF:
+  - **Chung** (như cũ): Chi tiêu, Kết quả, Chi phí / kết quả, ROAS, CTR, Hiển thị;
+  - **E-commerce**: Chi tiêu, Doanh thu, ROAS, Lượt mua, Chi phí / lượt mua, Giá trị đơn TB;
+  - **Lead gen**: Chi tiêu, Khách tiềm năng, CPL, CTR, CPM, Hiển thị.
+- Đổi được mẫu sau khi tạo (Chỉnh báo cáo → Mẫu báo cáo). Mẫu lưu trong `edits.template`, không cần dựng lại.
+- Số vẫn là số đã dựng trong báo cáo. Giá trị đơn TB = doanh thu Meta / lượt mua, do code tính
+  (`reporting/report-templates.ts`).
+- Khối "Mục tiêu của kỳ" (goal tracker) đã có từ 089.
+
+**Test tự động:**
+- `report-view.test.tsx`: bộ KPI + nhãn từng mẫu; AOV 150.000; mặc định như cũ.
+- `report.test.ts` (test mới): mẫu lưu khi tạo, đổi sau được, không chọn thì không có.
+
 ## [100] Top Audiences (Workspace) — 2026-10-25
 
 Theo Madgicx Top Audiences / Audience Studio, phần chỉ đọc.

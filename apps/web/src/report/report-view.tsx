@@ -1,6 +1,6 @@
 import { createTranslator } from 'next-intl';
 import type { ReportEdits } from '@adxlens/db/schema';
-import type { ReportContent } from '@adxlens/core/reporting';
+import { templateKpis, type ReportContent } from '@adxlens/core/reporting';
 import en from '../../messages/en.json';
 import vi from '../../messages/vi.json';
 import { describeChange } from '@/lib/actions';
@@ -227,30 +227,24 @@ export function ReportView({
             <div className="mt-2">
               <h3 className="text-h3 font-semibold">{t(isAudit ? 'sections.context' : 'sections.kpis')}</h3>
               <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {(
-                  [
-                    ['spend', money(a.kpis.spend, a.currency), a.kpis.spend, a.prevKpis.spend],
-                    ['results', nf(a.kpis.results), a.kpis.results, a.prevKpis.results],
-                    ['cpa', money(a.kpis.cpa, a.currency), a.kpis.cpa, a.prevKpis.cpa],
-                    [
-                      'roas',
-                      a.kpis.roas === null ? '—' : nf(Number(a.kpis.roas), { maximumFractionDigits: 2 }),
-                      a.kpis.roas,
-                      a.prevKpis.roas,
-                    ],
-                    [
-                      'ctr',
-                      a.kpis.ctr === null ? '—' : nf(a.kpis.ctr, { style: 'percent', maximumFractionDigits: 2 }),
-                      a.kpis.ctr,
-                      a.prevKpis.ctr,
-                    ],
-                    ['impressions', nf(a.kpis.impressions), a.kpis.impressions, a.prevKpis.impressions],
-                  ] as const
-                ).map(([k, shown, cur, prev]) => {
+                {/* Mẫu theo ngành (E-commerce / Lead gen) đổi bộ KPI và nhãn; số là số đã dựng trong báo cáo. */}
+                {templateKpis(edits.template, a.kpis, a.prevKpis).map(({ key: k, cur, prev }) => {
+                  const shown =
+                    cur === null
+                      ? '—'
+                      : k === 'spend' || k === 'cpa' || k === 'conversionValue' || k === 'aov' || k === 'cpm'
+                        ? money(String(cur), a.currency)
+                        : k === 'roas'
+                          ? nf(Number(cur), { maximumFractionDigits: 2 })
+                          : k === 'ctr'
+                            ? nf(Number(cur), { style: 'percent', maximumFractionDigits: 2 })
+                            : nf(Number(cur));
                   const d = kpiDelta(k, cur, prev);
+                  const tpl = edits.template === 'ecommerce' || edits.template === 'leadgen' ? edits.template : null;
+                  const label = tpl && (k === 'results' || k === 'cpa') ? t(`kpiTpl.${tpl}.${k}`) : t(`kpi.${k}`);
                   return (
-                    <div key={k} className="rounded-md border border-line px-3 py-2">
-                      <p className="text-caption uppercase text-fg-tertiary">{t(`kpi.${k}`)}</p>
+                    <div key={k} className="rounded-md border border-line px-3 py-2" data-testid={`report-kpi-${k}`}>
+                      <p className="text-caption uppercase text-fg-tertiary">{label}</p>
                       <p className="num text-h2 font-semibold">{shown}</p>
                       {d ? (
                         <p

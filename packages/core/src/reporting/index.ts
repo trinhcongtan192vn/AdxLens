@@ -28,3 +28,4 @@ export * from './copy-stage';
 export * from './business';
 export * from './geo-tiers';
 export * from './audiences';
+export * from './report-templates';

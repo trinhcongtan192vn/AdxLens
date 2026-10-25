@@ -158,7 +158,14 @@ export function isBlocked(i: ReportIntegrity | null | undefined): boolean {
 /** R02: tạo báo cáo (bất đồng bộ) — dựng nội dung ở job `report:build`. */
 export async function createReport(
   ctx: ActorCtx,
-  input: { clientId: string; kind: 'audit' | 'periodic'; from: string; to: string; locale?: 'vi' | 'en' },
+  input: {
+    clientId: string;
+    kind: 'audit' | 'periodic';
+    from: string;
+    to: string;
+    locale?: 'vi' | 'en';
+    template?: 'general' | 'ecommerce' | 'leadgen';
+  },
   deps: { enqueue: Enqueue },
 ): Promise<{ id: string }> {
   assertCan(ctx.actor, 'reports.manage');
@@ -183,6 +190,7 @@ export async function createReport(
       locale,
       templateVersion: TEMPLATE_VERSION,
       createdBy: ctx.actor.userId,
+      ...(input.template && input.template !== 'general' ? { edits: { template: input.template } } : {}),
     })
     .returning({ id: reports.id });
   await deps.enqueue('report:build', { workspaceId: ctx.workspaceId, reportId: r!.id });
@@ -391,6 +399,7 @@ export async function updateReportEdits(ctx: ActorCtx, reportId: string, edits: 
     ...(edits.workDone !== undefined ? { workDone: clean(edits.workDone, 4000) } : {}),
     ...(edits.nextSteps !== undefined ? { nextSteps: clean(edits.nextSteps, 4000) } : {}),
     ...(edits.hiddenSections !== undefined ? { hiddenSections: edits.hiddenSections.slice(0, 20) } : {}),
+    ...(edits.template !== undefined ? { template: edits.template } : {}),
   };
   await ctx.db
     .update(reports)

@@ -19,6 +19,8 @@ export type ReportEdits = {
   workDone?: string;
   nextSteps?: string;
   hiddenSections?: string[];
+  /** Mẫu theo ngành (E-commerce / Lead gen): bộ KPI hiển thị. */
+  template?: 'general' | 'ecommerce' | 'leadgen';
 };
 
 /** Báo cáo (L3 5.2): nội dung có cấu trúc, mỗi số kèm nguồn; một mẫu cho web công khai và PDF. */

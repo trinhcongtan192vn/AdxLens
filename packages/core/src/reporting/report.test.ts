@@ -168,6 +168,16 @@ describe('báo cáo (R02, R03)', () => {
     );
   });
 
+  it('mẫu theo ngành (E-commerce / Lead gen) lưu vào phần chỉnh sửa, đổi được sau', async () => {
+    const { ctx, clientId } = await clientWithData();
+    const enqueue = recordingEnqueue();
+    const shop = await createReport(ctx, { clientId, kind: 'periodic', ...period, template: 'ecommerce' }, { enqueue });
+    expect((await getReport(ctx, shop.id)).edits.template).toBe('ecommerce');
+    expect((await updateReportEdits(ctx, shop.id, { template: 'leadgen' })).template).toBe('leadgen');
+    const plain = await createReport(ctx, { clientId, kind: 'periodic', ...period }, { enqueue });
+    expect((await getReport(ctx, plain.id)).edits.template).toBeUndefined();
+  });
+
   it('chỉnh nội dung agency, dựng lại, danh sách; khoảng ngày sai bị từ chối', async () => {
     const { ctx, clientId } = await clientWithData();
     const enqueue = recordingEnqueue();

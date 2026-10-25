@@ -5,10 +5,17 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import { Button, buttonVariants, Checkbox, Dialog, Drawer, Field, Input, Textarea } from '@adxlens/ui';
+import { Button, buttonVariants, Checkbox, Dialog, Drawer, Field, Input, Select, Textarea } from '@adxlens/ui';
 import { api } from '@/lib/api-client';
 
-type Edits = { title?: string; intro?: string; workDone?: string; nextSteps?: string; hiddenSections?: string[] };
+type Edits = {
+  title?: string;
+  intro?: string;
+  workDone?: string;
+  nextSteps?: string;
+  hiddenSections?: string[];
+  template?: 'general' | 'ecommerce' | 'leadgen';
+};
 const SECTIONS = ['kpis', 'trend', 'campaigns', 'audience', 'creatives', 'findings', 'workDone', 'nextSteps'] as const;
 
 /** Làm mới trang khi báo cáo đang dựng (L). */
@@ -24,6 +31,7 @@ export function ReportPoller() {
 /** R03: chia sẻ (R04), chỉnh nội dung agency, dựng lại, xóa. */
 export function ReportToolbar({ id, edits, ready }: { id: string; edits: Edits; ready: boolean; blocked: boolean }) {
   const t = useTranslations('reports.view');
+  const tn = useTranslations('reports.new');
   const tc = useTranslations('common');
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -126,6 +134,19 @@ export function ReportToolbar({ id, edits, ready }: { id: string; edits: Edits; 
               value={form.nextSteps ?? ''}
               onChange={(e) => setForm({ ...form, nextSteps: e.target.value })}
             />
+          </Field>
+          <Field label={tn('template')} htmlFor="r-template">
+            <Select
+              id="r-template"
+              value={form.template ?? 'general'}
+              onChange={(e) => setForm({ ...form, template: e.target.value as Edits['template'] })}
+            >
+              {(['general', 'ecommerce', 'leadgen'] as const).map((k) => (
+                <option key={k} value={k}>
+                  {tn(`templates.${k}`)}
+                </option>
+              ))}
+            </Select>
           </Field>
           <fieldset>
             <legend className="text-small font-medium text-fg-secondary">{t('hide')}</legend>
