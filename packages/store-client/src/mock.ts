@@ -1,4 +1,5 @@
 import type { GoogleAnalyticsApi } from './ga4';
+import type { ShopeeApi } from './shopee';
 import type { ShopifyApi } from './shopify';
 
 /** Shopify giả (STORE_MOCK=1, local / test): số đơn / doanh thu xác định theo ngày. */
@@ -48,6 +49,36 @@ export class MockGoogleAnalytics implements GoogleAnalyticsApi {
         sessions: 400 + d.getUTCDate() * 3,
         conversions: 20 + (d.getUTCDate() % 4),
       });
+    }
+    return out;
+  }
+}
+
+/** Shopee giả (STORE_MOCK=1): shop VN, refresh token đổi mỗi lần làm mới (như Shopee thật). */
+export class MockShopee implements ShopeeApi {
+  private n = 0;
+
+  async exchangeCode(code: string) {
+    if (code === 'bad') throw new Error('SHOPEE_HTTP_400');
+    return { accessToken: 'shopee_access', refreshToken: `shopee_refresh_${code}` };
+  }
+
+  async refresh(refreshToken: string) {
+    if (refreshToken.includes('revoked')) throw new Error('SHOPEE_HTTP_401');
+    this.n += 1;
+    return { accessToken: 'shopee_access', refreshToken: `shopee_refresh_r${this.n}` };
+  }
+
+  async shopInfo(_t: string, shopId: string) {
+    return { name: `Shopee ${shopId}`, region: 'VN', currency: 'VND', timezone: 'Asia/Ho_Chi_Minh' };
+  }
+
+  async dailyOrders(_t: string, _s: string, range: { from: string; to: string }) {
+    const out: { date: string; orders: number; revenue: string }[] = [];
+    const end = new Date(`${range.to}T00:00:00Z`);
+    for (let d = new Date(`${range.from}T00:00:00Z`); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+      const n = 20 + (d.getUTCDate() % 3);
+      out.push({ date: d.toISOString().slice(0, 10), orders: n, revenue: String(n * 150_000) });
     }
     return out;
   }

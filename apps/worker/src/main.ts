@@ -4,7 +4,7 @@ import { getEnv } from '@adxlens/config/env';
 import { getDb } from '@adxlens/db';
 import { keysFromEnv, metaReadApi, recordMetaCall } from '@adxlens/core/connections';
 import { createMetaWriter } from '@adxlens/core/execution';
-import { googleAnalyticsApi, shopifyApi } from '@adxlens/core/stores';
+import { googleAnalyticsApi, shopeeApi, shopifyApi } from '@adxlens/core/stores';
 import { smtpEmailSender } from '@adxlens/core/notification';
 import {
   mergeAlertRecipients,
@@ -51,6 +51,12 @@ const services: WorkerServices = {
     clientId: env.SHOPIFY_CLIENT_ID,
     clientSecret: env.SHOPIFY_CLIENT_SECRET,
     apiVersion: env.SHOPIFY_API_VERSION,
+  }),
+  shopee: shopeeApi({
+    mock: env.STORE_MOCK,
+    host: env.SHOPEE_HOST,
+    partnerId: env.SHOPEE_PARTNER_ID,
+    partnerKey: env.SHOPEE_PARTNER_KEY,
   }),
   ga4: googleAnalyticsApi({
     mock: env.STORE_MOCK,

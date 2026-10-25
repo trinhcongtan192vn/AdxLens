@@ -1,6 +1,6 @@
 import 'server-only';
 import { getEnv } from '@adxlens/config/env';
-import { googleAnalyticsApi, shopifyApi } from '@adxlens/core/stores';
+import { googleAnalyticsApi, shopeeApi, shopifyApi } from '@adxlens/core/stores';
 import type { RequestLike } from '@/lib/public-url';
 import { appBaseUrl } from './public-base';
 
@@ -46,4 +46,25 @@ export function ga4() {
 /** redirect_uri của Google OAuth (khai báo trong Google Cloud, xem docs/runbooks/store-connectors.md). */
 export function ga4RedirectUri(req: RequestLike): string {
   return `${appBaseUrl(req)}/api/v1/stores/ga4/callback`;
+}
+
+/** ADR-0029 (phụ lục Shopee): cấu hình Shopee Open Platform; `enabled` = có partner (hoặc STORE_MOCK). */
+export function shopeeConfig() {
+  const env = getEnv();
+  return {
+    mock: env.STORE_MOCK,
+    enabled: env.STORE_MOCK || Boolean(env.SHOPEE_PARTNER_ID && env.SHOPEE_PARTNER_KEY),
+    host: env.SHOPEE_HOST,
+    partnerId: env.SHOPEE_PARTNER_ID,
+    partnerKey: env.SHOPEE_PARTNER_KEY,
+  };
+}
+
+export function shopee() {
+  return shopeeApi(shopeeConfig());
+}
+
+/** Địa chỉ Shopee chuyển về (khai báo Redirect URL Domain trong app Shopee, xem runbook). */
+export function shopeeRedirectUri(req: RequestLike): string {
+  return `${appBaseUrl(req)}/api/v1/stores/shopee/callback`;
 }

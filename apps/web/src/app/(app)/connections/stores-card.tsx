@@ -10,7 +10,7 @@ import { api } from '@/lib/api-client';
 
 type Item = {
   id: string;
-  provider: 'shopify' | 'ga4';
+  provider: 'shopify' | 'ga4' | 'shopee';
   name: string;
   externalId: string;
   clientId: string | null;
@@ -28,11 +28,13 @@ export function StoresCard({
   clients,
   shopifyEnabled,
   ga4Enabled,
+  shopeeEnabled,
 }: {
   items: Item[];
   clients: { id: string; name: string }[];
   shopifyEnabled: boolean;
   ga4Enabled: boolean;
+  shopeeEnabled: boolean;
 }) {
   const t = useTranslations('stores');
   const format = useFormatter();
@@ -41,6 +43,11 @@ export function StoresCard({
   const [clientId, setClientId] = useState(clients[0]?.id ?? '');
   const [property, setProperty] = useState('');
   const [gaClient, setGaClient] = useState(clients[0]?.id ?? '');
+  const [shopeeClient, setShopeeClient] = useState(clients[0]?.id ?? '');
+  const connectShopee = () => {
+    const q = new URLSearchParams(shopeeClient ? { client_id: shopeeClient } : {});
+    window.location.href = `/api/v1/stores/shopee/authorize?${q.toString()}`;
+  };
   const connectGa4 = () => {
     const q = new URLSearchParams({ property_id: property.trim(), ...(gaClient ? { client_id: gaClient } : {}) });
     window.location.href = `/api/v1/stores/ga4/authorize?${q.toString()}`;
@@ -152,6 +159,27 @@ export function StoresCard({
         </div>
       ) : (
         <p className="mt-3 text-small text-fg-tertiary">{t('notConfigured')}</p>
+      )}
+
+      {shopeeEnabled ? (
+        <div className="mt-4 grid max-w-3xl gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <p className="self-center text-small text-fg-secondary">{t('shopeeHint')}</p>
+          <Field label={t('cols.client')} htmlFor="st-shopee-client">
+            <Select id="st-shopee-client" value={shopeeClient} onChange={(e) => setShopeeClient(e.target.value)}>
+              <option value="">{t('noClient')}</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button kind="secondary" size="m" onClick={connectShopee} data-testid="connect-shopee">
+            {t('connectShopee')}
+          </Button>
+        </div>
+      ) : (
+        <p className="mt-2 text-small text-fg-tertiary">{t('shopeeNotConfigured')}</p>
       )}
 
       {ga4Enabled ? (

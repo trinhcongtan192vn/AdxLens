@@ -1,8 +1,15 @@
 import { and, eq, gte, inArray, isNotNull, lte, sql } from 'drizzle-orm';
 import type { Db } from '@adxlens/db';
 import { schema } from '@adxlens/db';
-import { HttpGoogleAnalytics, HttpShopify, type GoogleAnalyticsApi, type ShopifyApi } from '@adxlens/store-client';
-import { MockGoogleAnalytics, MockShopify } from '@adxlens/store-client/mock';
+import {
+  HttpGoogleAnalytics,
+  HttpShopee,
+  HttpShopify,
+  type GoogleAnalyticsApi,
+  type ShopeeApi,
+  type ShopifyApi,
+} from '@adxlens/store-client';
+import { MockGoogleAnalytics, MockShopee, MockShopify } from '@adxlens/store-client/mock';
 import { decryptSecret, encryptSecret, type TokenKeys } from '@adxlens/core/connections';
 import {
   addDays,
@@ -150,7 +157,7 @@ export async function disconnectStore(ctx: ActorCtx, id: string): Promise<void> 
 export async function runStoreSync(
   ctx: WorkspaceCtx,
   input: { connectionId: string; from?: string; to?: string; days?: number },
-  deps: { shopify: ShopifyApi; ga4?: GoogleAnalyticsApi; keys: TokenKeys; clock?: Clock },
+  deps: { shopify: ShopifyApi; ga4?: GoogleAnalyticsApi; shopee?: ShopeeApi; keys: TokenKeys; clock?: Clock },
 ): Promise<{ status: 'ok' | 'skipped' | 'failed'; days?: number; code?: string }> {
   const [c] = await ctx.db
     .select()
@@ -163,6 +170,37 @@ export async function runStoreSync(
   const from = input.from ?? addDays(to, -((input.days ?? STORE_DAILY_DAYS) - 1));
   try {
     const token = decryptSecret(c.tokenCiphertext, c.tokenKeyVersion, deps.keys);
+    if (c.provider === 'shopee') {
+      if (!deps.shopee) return { status: 'skipped' };
+      // Shopee: refresh token đổi mỗi lần làm mới → mã hóa lại và lưu ngay (token cũ hết hiệu lực).
+      const t = await deps.shopee.refresh(token, c.externalId);
+      const { blob } = encryptSecret(t.refreshToken, { keys: deps.keys, current: c.tokenKeyVersion });
+      await ctx.db
+        .update(storeConnections)
+        .set({ tokenCiphertext: blob })
+        .where(and(eq(storeConnections.workspaceId, ctx.workspaceId), eq(storeConnections.id, c.id)));
+      const days = await deps.shopee.dailyOrders(t.accessToken, c.externalId, { from, to }, tz);
+      for (const r of days) {
+        await ctx.db
+          .insert(storeDaily)
+          .values({
+            workspaceId: ctx.workspaceId,
+            connectionId: c.id,
+            date: r.date,
+            orders: r.orders,
+            revenue: r.revenue,
+          })
+          .onConflictDoUpdate({
+            target: [storeDaily.connectionId, storeDaily.date],
+            set: { orders: r.orders, revenue: r.revenue, updatedAt: new Date() },
+          });
+      }
+      await ctx.db
+        .update(storeConnections)
+        .set({ status: 'active', lastSyncedAt: new Date(), lastError: null })
+        .where(and(eq(storeConnections.workspaceId, ctx.workspaceId), eq(storeConnections.id, c.id)));
+      return { status: 'ok', days: days.length };
+    }
     if (c.provider === 'ga4') {
       // Token lưu là refresh token; doanh thu GA4 không ghi (tránh tính trùng với doanh thu cửa hàng).
       if (!deps.ga4) return { status: 'skipped' };
@@ -270,7 +308,7 @@ export async function storeSummary(
         lte(storeDaily.date, range.to),
       ),
     );
-  const currencies = [...new Set(conns.filter((c) => c.provider === 'shopify').map((c) => c.currency ?? ''))];
+  const currencies = [...new Set(conns.filter((c) => c.provider !== 'ga4').map((c) => c.currency ?? ''))];
   const single = currencies.length === 1 ? currencies[0]! : null;
   return {
     connections: conns.length,
@@ -324,4 +362,11 @@ export function googleAnalyticsApi(cfg: {
   return cfg.mock
     ? new MockGoogleAnalytics()
     : new HttpGoogleAnalytics({ clientId: cfg.clientId ?? '', clientSecret: cfg.clientSecret ?? '' });
+}
+
+/** Shopee Open Platform thật hoặc giả (STORE_MOCK). */
+export function shopeeApi(cfg: { mock: boolean; host: string; partnerId?: string; partnerKey?: string }): ShopeeApi {
+  return cfg.mock
+    ? new MockShopee()
+    : new HttpShopee({ host: cfg.host, partnerId: cfg.partnerId ?? '', partnerKey: cfg.partnerKey ?? '' });
 }

@@ -235,6 +235,8 @@ export const ROUTE_PROBES: Record<string, Probe> = {
   'GET /api/v1/stores/shopify/callback': { kind: 'workspace' },
   'GET /api/v1/stores/ga4/authorize': { kind: 'workspace', query: () => ({ property_id: '123456' }) },
   'GET /api/v1/stores/ga4/callback': { kind: 'workspace' },
+  'GET /api/v1/stores/shopee/authorize': { kind: 'workspace' },
+  'GET /api/v1/stores/shopee/callback': { kind: 'workspace' },
   'POST /api/v1/business-links': {
     kind: 'workspace',
     body: (w) => ({ client_id: w.b.client.id, period_days: 30 }),

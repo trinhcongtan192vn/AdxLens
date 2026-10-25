@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { schema } from '@adxlens/db';
 import { closeTestDb, seedClient, seedMember, seedWorkspace, testDb, truncateAll } from '@adxlens/db/testing';
-import { MockGoogleAnalytics, MockShopify } from '@adxlens/store-client/mock';
+import { MockGoogleAnalytics, MockShopee, MockShopify } from '@adxlens/store-client/mock';
 import { keysFromEnv } from '@adxlens/core/connections';
 import { resolveActor } from '@adxlens/core/tenancy';
 import {
@@ -135,5 +135,44 @@ describe('kết nối cửa hàng (ADR-0029)', () => {
     });
     const [raw] = await db.select().from(schema.storeConnections).where(eq(schema.storeConnections.id, id));
     expect(raw!.tokenCiphertext!.toString('utf8')).not.toContain('refresh_bi_mat');
+  });
+
+  it('Shopee: mỗi lần đồng bộ lưu refresh token mới (mã hóa); doanh thu cộng chung với Shopify cùng tiền tệ; bị thu hồi → cần kết nối lại', async () => {
+    const s = await setup();
+    await saveStoreConnection(s.ctx, shop(s.client.id), KEYS);
+    const { id } = await saveStoreConnection(
+      s.ctx,
+      {
+        ...shop(s.client.id),
+        provider: 'shopee',
+        externalId: '123456',
+        name: 'Shopee Sao Mai',
+        token: 'shopee_refresh_goc',
+      },
+      KEYS,
+    );
+    const deps = { shopify: new MockShopify(), shopee: new MockShopee(), keys: KEYS.keys, clock };
+    const cipher = async () =>
+      (await db.select().from(schema.storeConnections).where(eq(schema.storeConnections.id, id)))[0]!.tokenCiphertext!;
+    const before = await cipher();
+    for (const c of await listStoreConnections(s.wctx)) {
+      expect((await runStoreSync(s.wctx, { connectionId: c.id, days: 30 }, deps)).status).toBe('ok');
+    }
+    const after = await cipher();
+    expect(after.equals(before)).toBe(false);
+    expect(after.toString('utf8')).not.toContain('shopee_refresh');
+    const sum = await storeSummary(s.wctx, [s.client.id], { from: '2026-10-22', to: '2026-10-24' });
+    // Shopify 33 đơn / 14.850.000đ + Shopee (20 + ngày%3: 22, 20, 21 = 63 đơn × 150.000đ = 9.450.000đ).
+    expect(sum).toMatchObject({ currency: 'VND', orders: 96, revenue: '24300000.0000' });
+
+    await saveStoreConnection(
+      s.ctx,
+      { ...shop(s.client.id), provider: 'shopee', externalId: '123456', name: 'Shopee Sao Mai', token: 'revoked' },
+      KEYS,
+    );
+    expect(await runStoreSync(s.wctx, { connectionId: id }, deps)).toEqual({
+      status: 'failed',
+      code: 'SHOPEE_HTTP_401',
+    });
   });
 });
