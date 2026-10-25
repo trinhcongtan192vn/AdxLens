@@ -2590,7 +2590,23 @@
     "floorRequired": "Bắt buộc với Sunsetting: ngân sách không giảm dưới mức này.",
     "floorHint": "Tùy chọn: ngân sách không giảm dưới mức này.",
     "revertRestoreHint": "Giờ tài khoản, ngoài giờ yên tĩnh. Trả về đi qua đủ guardrails; bị chặn tạm thời thì thử lại sau.",
-    "revertSuggestHint": "Giờ tài khoản của sáng hôm sau. Owner / Manager nhận thông báo kèm nút Hoàn tác."
+    "revertSuggestHint": "Giờ tài khoản của sáng hôm sau. Owner / Manager nhận thông báo kèm nút Hoàn tác.",
+    "schedule": {
+      "title": "Chỉ chạy theo lịch (ngày / giờ trong tuần)",
+      "days": "Ngày trong tuần",
+      "from": "Từ giờ",
+      "to": "Đến giờ",
+      "hint": "Giờ tài khoản. Ngoài lịch thì rule không đánh giá; giờ yên tĩnh 22:00–06:00 vẫn áp dụng.",
+      "day": {
+        "0": "CN",
+        "1": "T2",
+        "2": "T3",
+        "3": "T4",
+        "4": "T5",
+        "5": "T6",
+        "6": "T7"
+      }
+    }
   },
   "entity": {
     "title": "Chi tiết đối tượng",
