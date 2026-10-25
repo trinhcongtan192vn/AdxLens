@@ -4,7 +4,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from
 import { MetaApiError } from './errors';
 import { GRAPH_BASE } from './http';
 import { MockMetaRead, mockWriteState } from './mock';
-import { customAudienceRule, HttpMetaWrite } from './write';
+import { adSetTargeting, customAudienceRule, HttpMetaWrite } from './write';
 import { MockMetaWrite } from './write-mock';
 
 const V = 'v24.0';
@@ -133,5 +133,23 @@ describe('rule custom audience (ADR-0026)', () => {
     expect(() => customAudienceRule({ type: 'pixel', id: '1', event: 'all', days: 181 })).toThrow();
     expect(() => customAudienceRule({ type: 'page', id: '1', days: 0 })).toThrow();
     expect(() => customAudienceRule({ type: 'page', id: 'x"}', days: 30 })).toThrow();
+  });
+});
+
+describe('targeting nhóm QC mới (ADR-0026)', () => {
+  it('quốc gia, độ tuổi, custom audience; chặn giá trị sai', () => {
+    expect(JSON.parse(adSetTargeting({ countries: ['VN'], ageMin: 25, ageMax: 44, audienceIds: ['ca_1'] }))).toEqual({
+      geo_locations: { countries: ['VN'] },
+      age_min: 25,
+      age_max: 44,
+      custom_audiences: [{ id: 'ca_1' }],
+    });
+    expect(
+      JSON.parse(adSetTargeting({ countries: ['VN', 'TH'], ageMin: 18, ageMax: 65, audienceIds: [] })),
+    ).not.toHaveProperty('custom_audiences');
+    expect(() => adSetTargeting({ countries: [], ageMin: 18, ageMax: 65, audienceIds: [] })).toThrow();
+    expect(() => adSetTargeting({ countries: ['vn'], ageMin: 18, ageMax: 65, audienceIds: [] })).toThrow();
+    expect(() => adSetTargeting({ countries: ['VN'], ageMin: 17, ageMax: 65, audienceIds: [] })).toThrow();
+    expect(() => adSetTargeting({ countries: ['VN'], ageMin: 40, ageMax: 30, audienceIds: [] })).toThrow();
   });
 });

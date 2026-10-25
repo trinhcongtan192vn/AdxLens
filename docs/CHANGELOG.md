@@ -27,6 +27,39 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [126] Launcher: tạo nhóm QC mới (luôn tạm dừng) từ nhóm QC mẫu (ADR-0026) — 2026-10-25
+
+Bước 2 của gap "Audience pixel + nhóm QC mới" (bước 1: [125]).
+
+- **`/w/launcher` → thẻ "Nhóm QC mới":**
+  - chọn nhóm QC mẫu; nhóm mới nằm cùng chiến dịch, chép mục tiêu tối ưu, sự kiện chuyển đổi, cách tính phí, chiến lược
+    / mức giá thầu;
+  - người dùng đặt tên (tự gợi ý theo Client · chiến dịch · quốc gia · độ tuổi), quốc gia (mã 2 chữ, tối đa 25), độ tuổi
+    18–65, custom audience đưa vào (tối đa 10, không chọn = nhắm rộng), ngân sách ngày;
+  - chiến dịch dùng ngân sách chiến dịch → nhóm mới không đặt ngân sách riêng.
+- **Luôn PAUSED;** bật chạy là một hành động `resume_adset` riêng, đủ guardrail.
+- **Guardrail mới `new_adset_budget_too_large`:** ngân sách ngày ≤ ngân sách nhóm QC mẫu × (1 + ngưỡng ngân sách, mặc
+  định 15%). Kiểm lúc duyệt và lúc worker chạy.
+- **Gọi Meta:** đọc nhóm QC mẫu → `POST /act_x/adsets` (status PAUSED).
+  - Đọc lại xác minh PAUSED + đúng chiến dịch; lỗi giữa chừng → không đoán, báo kiểm tra thủ công.
+  - Không hoàn tác.
+- **Rule tự động không bao giờ tạo nhóm QC** (`no_auto_create`).
+- Nguồn audience phải là audience đã đồng bộ của đúng tài khoản; nhóm QC mẫu phải thuộc tài khoản.
+
+**Vùng bảo vệ:**
+- `packages/core/execution` (gateway, guardrail mới);
+- `packages/meta-client/write` (`createAdSet`, `adSetTargeting`).
+- **Cần PM chạy integration test trên staging trước khi merge `main`.**
+
+**Test tự động:**
+- `launch.test.ts`:
+  - ngân sách +30% → chặn; thiếu ngân sách / quốc gia / độ tuổi sai → 422;
+  - audience / mẫu lạ → 404;
+  - tạo PAUSED + xác minh; sai trạng thái → `verify_mismatch`;
+  - tier auto → `no_auto_create`.
+- `meta-client/write.test.ts`: dựng targeting, chặn giá trị sai.
+- Bộ cách ly: thêm `POST /api/v1/launcher/adsets`.
+
 ## [125] Audience Launcher: custom audience từ pixel / tương tác Page / Instagram (ADR-0026) — 2026-10-25
 
 Gap "Audience pixel + nhóm QC mới" (PM chọn sau khi đối chiếu Madgicx Academy). Bước 1: custom audience. Bước 2 (nhóm

@@ -10,7 +10,7 @@ import {
 } from '@adxlens/core/connections';
 import { isEnabled } from '@adxlens/core/flags';
 import { MetaApiError } from '@adxlens/meta-client';
-import { PIXEL_EVENTS, type MetaWriteApi, type WritableObject } from '@adxlens/meta-client/write';
+import { adSetTargeting, PIXEL_EVENTS, type MetaWriteApi, type WritableObject } from '@adxlens/meta-client/write';
 import { notify } from '@adxlens/core/notification';
 import { openIncident } from '@adxlens/core/ops';
 import {
@@ -48,6 +48,7 @@ const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'campaign' | 'account'> =
   create_ad: 'adset',
   create_lookalike: 'account',
   create_custom_audience: 'account',
+  create_adset: 'campaign',
   pause_campaign: 'campaign',
   resume_campaign: 'campaign',
   rename_ad: 'ad',
@@ -57,7 +58,7 @@ const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'campaign' | 'account'> =
   set_campaign_spend_cap: 'campaign',
 };
 
-const LAUNCH_TYPES = new Set<ActionType>(['create_ad', 'create_lookalike', 'create_custom_audience']);
+const LAUNCH_TYPES = new Set<ActionType>(['create_ad', 'create_lookalike', 'create_custom_audience', 'create_adset']);
 
 /** Hoàn tác được hay không (ADR-0009..0011). */
 export const UNDOABLE: Record<ActionType, boolean> = {
@@ -70,6 +71,7 @@ export const UNDOABLE: Record<ActionType, boolean> = {
   create_ad: false,
   create_lookalike: false,
   create_custom_audience: false,
+  create_adset: false,
   pause_campaign: true,
   resume_campaign: true,
   rename_ad: true,
@@ -778,6 +780,19 @@ type LaunchInput =
         | { type: 'pixel'; id: string; event: 'all' | (typeof PIXEL_EVENTS)[number]; days: number }
         | { type: 'page' | 'ig_business'; id: string; days: number };
       name: string;
+    }
+  | {
+      /** ADR-0026: nhóm QC mới (PAUSED) trong chiến dịch của nhóm QC mẫu; thiết lập tối ưu chép từ mẫu. */
+      kind: 'create_adset';
+      adAccountId: string;
+      templateAdsetId: string;
+      name: string;
+      /** Đơn vị nhỏ nhất (như ngân sách); null khi chiến dịch dùng ngân sách chiến dịch. */
+      dailyBudget: string | null;
+      countries: string[];
+      ageMin: number;
+      ageMax: number;
+      audienceIds: string[];
     };
 
 /**
@@ -801,7 +816,7 @@ export async function requestLaunch(
   if (block) throw BLOCK_ERROR[block]!;
   const name = input.name.trim().slice(0, 200);
   if (!name) throw new AppError('VALIDATION_FAILED', 'Cần tên');
-  let targetType: 'adset' | 'account';
+  let targetType: 'adset' | 'campaign' | 'account';
   let targetMetaId: string;
   let targetName: string | null;
   let params: Record<string, string>;
@@ -826,6 +841,49 @@ export async function requestLaunch(
     targetName = adset.name;
     params = { creative_id: input.creativeId, name };
     parents = [input.adsetId, adset.parent, adset.campaign].filter((x): x is string => !!x);
+  } else if (input.kind === 'create_adset') {
+    const tpl = await targetEntity(ctx, account.id, 'adset', input.templateAdsetId);
+    if (!tpl || !tpl.parent) throw new AppError('NOT_FOUND', 'Không tìm thấy nhóm QC mẫu');
+    const audienceIds = [...new Set(input.audienceIds)];
+    if (audienceIds.length) {
+      const found = await ctx.db
+        .select({ id: entities.metaId })
+        .from(entities)
+        .where(
+          and(
+            eq(entities.workspaceId, ctx.workspaceId),
+            eq(entities.adAccountId, account.id),
+            eq(entities.entityType, 'audience'),
+            inArray(entities.metaId, audienceIds),
+          ),
+        );
+      if (found.length !== audienceIds.length) throw new AppError('NOT_FOUND', 'Không tìm thấy audience');
+    }
+    const countries = [...new Set(input.countries.map((c) => c.trim().toUpperCase()))];
+    try {
+      adSetTargeting({ countries, ageMin: input.ageMin, ageMax: input.ageMax, audienceIds });
+    } catch (e) {
+      throw new AppError('VALIDATION_FAILED', e instanceof Error ? e.message : 'Nhắm mục tiêu không hợp lệ');
+    }
+    // Mẫu dùng ngân sách nhóm QC → cần ngân sách ngày; mẫu dùng ngân sách chiến dịch → không đặt.
+    const tplBudget = minorUnits(tpl.daily_budget);
+    const budget = tplBudget ? minorUnits(input.dailyBudget) : null;
+    if (tplBudget && (!budget || budget === '0')) throw new AppError('VALIDATION_FAILED', 'Cần ngân sách ngày');
+    targetType = 'campaign';
+    targetMetaId = tpl.parent;
+    targetName = tpl.name;
+    params = {
+      template_id: input.templateAdsetId,
+      campaign_id: tpl.parent,
+      name,
+      daily_budget: budget ?? '',
+      template_daily_budget: tplBudget ?? '',
+      countries: countries.join(','),
+      age_min: String(input.ageMin),
+      age_max: String(input.ageMax),
+      audience_ids: audienceIds.join(','),
+    };
+    parents = [input.templateAdsetId, tpl.parent];
   } else if (input.kind === 'create_custom_audience') {
     const src = input.source;
     const max = src.type === 'pixel' ? 180 : 365;
@@ -890,10 +948,12 @@ export async function requestLaunch(
     actionsToday: await actionsToday(ctx, account.id, account.timezone, now),
     // Tạo mới không cần lịch sử dữ liệu của đối tượng.
     dataDays: g.minDataDays,
+    currentDailyBudget: params.template_daily_budget || null,
+    newDailyBudget: params.daily_budget || null,
   });
   if (violations.length) throw new AppError('GUARDRAIL_VIOLATION', 'Vi phạm guardrails', { violations });
   const after: Record<string, string | null> =
-    input.kind === 'create_ad'
+    input.kind === 'create_ad' || input.kind === 'create_adset'
       ? { created_status: 'PAUSED' }
       : input.kind === 'create_custom_audience'
         ? { created_subtype: input.source.type === 'pixel' ? 'WEBSITE' : 'ENGAGEMENT' }
@@ -940,11 +1000,18 @@ async function executeLaunch(
     guardrails: g,
     actionType: a.actionType as ActionType,
     tier: a.tier,
-    targetIds: a.targetType === 'adset' ? [a.targetMetaId] : [],
+    targetIds:
+      a.targetType === 'adset'
+        ? [a.targetMetaId]
+        : a.actionType === 'create_adset'
+          ? [a.targetMetaId, a.params.template_id!]
+          : [],
     accountTimezone: account.timezone,
     now: clock.now(),
     actionsToday: await actionsToday(ctx, account.id, account.timezone, clock.now(), a.id),
     dataDays: g.minDataDays,
+    currentDailyBudget: a.params.template_daily_budget || null,
+    newDailyBudget: a.params.daily_budget || null,
   });
   if (violations.length)
     return finish('canceled', 'guardrail', { errorMessage: violations.map((v) => v.code).join(',') });
@@ -966,33 +1033,47 @@ async function executeLaunch(
                 creativeId: a.params.creative_id!,
               })
             ).id
-          : a.actionType === 'create_custom_audience'
+          : a.actionType === 'create_adset'
             ? (
-                await deps.writer.createCustomAudience(token, act, {
+                await deps.writer.createAdSet(token, act, {
                   name: a.params.name!,
-                  source:
-                    a.params.source_type === 'pixel'
-                      ? {
-                          type: 'pixel',
-                          id: a.params.source_id!,
-                          event: a.params.event as 'all',
-                          days: Number(a.params.days),
-                        }
-                      : {
-                          type: a.params.source_type as 'page' | 'ig_business',
-                          id: a.params.source_id!,
-                          days: Number(a.params.days),
-                        },
+                  templateAdSetId: a.params.template_id!,
+                  dailyBudget: a.params.daily_budget || null,
+                  targeting: {
+                    countries: a.params.countries!.split(','),
+                    ageMin: Number(a.params.age_min),
+                    ageMax: Number(a.params.age_max),
+                    audienceIds: a.params.audience_ids ? a.params.audience_ids.split(',') : [],
+                  },
                 })
               ).id
-            : (
-                await deps.writer.createLookalike(token, act, {
-                  name: a.params.name!,
-                  originAudienceId: a.params.origin_audience_id!,
-                  country: a.params.country!,
-                  ratio: a.params.ratio!,
-                })
-              ).id;
+            : a.actionType === 'create_custom_audience'
+              ? (
+                  await deps.writer.createCustomAudience(token, act, {
+                    name: a.params.name!,
+                    source:
+                      a.params.source_type === 'pixel'
+                        ? {
+                            type: 'pixel',
+                            id: a.params.source_id!,
+                            event: a.params.event as 'all',
+                            days: Number(a.params.days),
+                          }
+                        : {
+                            type: a.params.source_type as 'page' | 'ig_business',
+                            id: a.params.source_id!,
+                            days: Number(a.params.days),
+                          },
+                  })
+                ).id
+              : (
+                  await deps.writer.createLookalike(token, act, {
+                    name: a.params.name!,
+                    originAudienceId: a.params.origin_audience_id!,
+                    country: a.params.country!,
+                    ratio: a.params.ratio!,
+                  })
+                ).id;
       await log(ctx, a.id, 'meta_call', { ok: true, created_id: createdId });
     } catch (err) {
       const e = scrub(err);
@@ -1000,6 +1081,18 @@ async function executeLaunch(
       return { kind: 'failed' as const, code: 'meta_error_check_manually', error: e };
     }
     try {
+      if (a.actionType === 'create_adset') {
+        const s = await deps.writer.getObject(token, createdId, 'adset');
+        const ok = s.status === 'PAUSED' && s.campaign_id === a.params.campaign_id;
+        await log(ctx, a.id, 'verify', { ok, after: { created_id: createdId, status: s.status ?? null } });
+        return ok
+          ? done({ created_id: createdId, created_status: s.status ?? null })
+          : {
+              kind: 'failed' as const,
+              code: 'verify_mismatch',
+              error: { code: 'verify_mismatch', message: 'Nhóm QC mới không ở trạng thái mong đợi' },
+            };
+      }
       if (a.actionType === 'create_ad') {
         const ad = await deps.writer.getObject(token, createdId, 'ad');
         const ok = ad.status === 'PAUSED' && ad.adset_id === a.targetMetaId;

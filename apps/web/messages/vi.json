@@ -2368,7 +2368,8 @@
       "rename_campaign": "Đổi tên chiến dịch",
       "set_adset_bid": "Đổi giá thầu nhóm QC",
       "set_campaign_spend_cap": "Đổi giới hạn chi chiến dịch",
-      "create_custom_audience": "Tạo custom audience"
+      "create_custom_audience": "Tạo custom audience",
+      "create_adset": "Tạo nhóm QC mới"
     },
     "state": {
       "ACTIVE": "Đang chạy",
@@ -2467,7 +2468,8 @@
       "invalid_bid": "Giá thầu mới không hợp lệ.",
       "bid_change_too_large": "Đổi giá thầu quá {max}% mỗi lần.",
       "invalid_spend_cap": "Giới hạn chi mới không hợp lệ.",
-      "spend_cap_change_too_large": "Nâng giới hạn chi quá {max}% mỗi lần (hạ thì không giới hạn)."
+      "spend_cap_change_too_large": "Nâng giới hạn chi quá {max}% mỗi lần (hạ thì không giới hạn).",
+      "new_adset_budget_too_large": "Ngân sách nhóm QC mới vượt mẫu quá {max}%."
     },
     "bulkButton": "Xem trước & duyệt ({count})",
     "bulkTitle": "Duyệt {count} gợi ý",
@@ -3754,6 +3756,26 @@
       "launch": "Tạo audience",
       "note": "Cần duyệt; audience không tự tiêu tiền.",
       "queued": "Đã gửi tạo audience. Theo dõi ở Nhật ký hành động."
+    },
+    "adset": {
+      "title": "Nhóm QC mới",
+      "intro": "Tạo nhóm quảng cáo mới trong chiến dịch có sẵn với tệp người mới (quốc gia, độ tuổi, audience). Mục tiêu tối ưu, sự kiện chuyển đổi và giá thầu chép từ nhóm QC mẫu. Nhóm mới luôn ở trạng thái tạm dừng.",
+      "none": "Tài khoản chưa có nhóm QC nào để làm mẫu.",
+      "template": "Nhóm QC mẫu",
+      "templateHint": "Nhóm mới nằm cùng chiến dịch, cùng thiết lập tối ưu.",
+      "budget": "Ngân sách ngày",
+      "budgetHint": "Mẫu: {amount}/ngày. Tối đa mẫu +15%.",
+      "cbo": "Chiến dịch dùng ngân sách chiến dịch: nhóm mới không đặt ngân sách riêng.",
+      "countries": "Quốc gia",
+      "countriesHint": "Mã 2 chữ, cách nhau bằng dấu phẩy (VD: VN, TH).",
+      "ageMin": "Tuổi từ",
+      "ageMax": "đến",
+      "audiences": "Custom audience đưa vào (tối đa 10, không chọn = nhắm rộng)",
+      "name": "Tên nhóm QC (để trống = tự đặt)",
+      "launch": "Tạo nhóm QC (tạm dừng)",
+      "note": "Cần duyệt; bật chạy là một hành động riêng.",
+      "queued": "Đã gửi tạo nhóm QC. Theo dõi ở Nhật ký hành động.",
+      "tooLarge": "Ngân sách vượt mức cho phép so với nhóm QC mẫu."
     }
   }
 }
