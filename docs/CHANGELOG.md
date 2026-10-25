@@ -2,6 +2,60 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [104] Tactic tự động kiểu Madgicx: Stop-loss, Surf, Sunsetting, Revive (ADR-0021) — 2026-10-25
+
+PM duyệt "Phần có ghi Meta thì cũng làm luôn". ADR-0021 chuyển sang **Chấp nhận**.
+
+- **Thư viện rule** có nhóm **Tactic tự động (kiểu Madgicx)** gồm 4 mẫu. Mẫu nào cũng tạo ở shadow 14 ngày rồi mới live
+  (ADR-0012).
+  - **Stop-loss**:
+    - ngày dữ liệu gần nhất chi ≥ ngưỡng mà 0 click → tạm dừng; ngưỡng gợi ý = 2 × CPC 30 ngày, kèm "Vì sao giá trị
+      này?";
+    - sáng hôm sau (giờ chọn, mặc định 07:00) Owner / Manager nhận **đề xuất bật lại** kèm nút Hoàn tác.
+  - **Surf**:
+    - ROAS hôm qua ≥ 2 và 7 ngày ≥ 1,5 → +15% ngân sách (trần bắt buộc);
+    - **tự trả ngân sách cũ** vào giờ chọn (mặc định 21:00) qua Execution Gateway.
+  - **Sunsetting**: CPA tăng ≥ 30% → −15%, cách nhau ≥ 48 giờ, **không dưới sàn** (bắt buộc); đã ở sàn thì bỏ qua.
+  - **Revive**: quảng cáo **do rule dừng** trong 7 ngày mà số 7 ngày vẫn tốt → đề xuất bật lại, 1 lần / hành động. Không
+    đụng quảng cáo người dùng tự tắt; không ghi Meta.
+- **Hành động hẹn giờ** (`app.scheduled_reverts`, job `maintenance:reverts_tick` mỗi 15 phút → `execute:revert`):
+  - Trả ngân sách đi qua đủ guardrails, kill switch, breaker, quyền ghi, verify.
+  - Người dùng đã sửa ngân sách tay thì không trả (`manual_change`).
+  - Đang giờ yên tĩnh / hết hạn mức hôm nay thì chờ lần sau (tối đa 24 giờ).
+  - Chỉ bỏ cooldown 24 giờ cùng rule cho đúng hành động trả về.
+- **Không tự bật lại:** guardrail `no_auto_resume` giữ nguyên (quy tắc 6). Stop-loss / Revive chỉ đề xuất; người dùng
+  bấm Hoàn tác (luồng duyệt tay).
+- **Chỉ số rule mới:**
+  - 7 ngày: click liên kết, ROAS;
+  - ngày gần nhất: chi tiêu, kết quả, click, CPA, ROAS.
+- **Tùy chọn rule mới:** sàn ngân sách ngày; giờ hẹn (06:00–21:00, server kiểm theo giờ yên tĩnh của workspace);
+  `cooldownHours` ≥ 24.
+- Thông báo mới `rule_suggest_resume` (trong app + email, tắt được).
+- Sửa nhỏ: rule builder nay báo đúng "bắt buộc nhập trần" cho mẫu tăng ngân sách. Trước đây trang không truyền cờ này.
+
+**Giới hạn (ghi trong ADR):**
+- Dữ liệu theo ngày đã đồng bộ, chưa có trong ngày; "Stop-loss trong ngày" = sau một ngày xấu.
+- Chưa có rule cấp chiến dịch (cần ADR-0015) và lịch theo giờ trong tuần.
+
+**Vùng bảo vệ:**
+- `packages/core/execution`: `rules.ts`, `gateway.ts` (`requestAutoAction`: `cooldownHours`, `revertOf`), `reverts.ts`
+  mới.
+- `packages/db`: `scheduled_reverts`, migration 0075–0076.
+- **Cần PM chạy integration test trên staging trước khi merge `main`.**
+
+**Test tự động:**
+- `execution/tactics.test.ts`:
+  - giờ hẹn theo múi giờ;
+  - Surf: tăng → hẹn 21:00 → trả đúng ngân sách cũ qua Gateway, 1 lần;
+  - Surf: sửa tay thì không trả, giờ yên tĩnh thì chờ;
+  - Stop-loss: tạm dừng → sáng mai thông báo kèm link Hoàn tác, không tạo hành động bật lại;
+  - Revive: chỉ đối tượng do rule dừng, 1 đề xuất, không ghi;
+  - Sunsetting: sàn + cooldown 48 giờ;
+  - kiểm hợp lệ (hẹn sai loại, giờ yên tĩnh, sàn, Revive có tham số, cooldown < 24);
+  - 4 mẫu có trong thư viện.
+- Cách ly: probe `execute:revert` (lịch của A, và id lịch của B trong ngữ cảnh A).
+- **Đổi test (quy tắc 8):** `automation.test.ts` đổi số mẫu mong đợi 4 → 8, vì thêm 4 tactic.
+
 ## [103] Phễu › Giai đoạn: biểu đồ tỷ trọng chi tiêu × ROAS — 2026-10-25
 
 Theo Madgicx 360° Meta Dashboard, Strategy Status Overview.

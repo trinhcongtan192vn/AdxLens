@@ -126,6 +126,15 @@ export const circuitBreakers = app.table('circuit_breakers', {
 export const RULE_MODES = ['shadow', 'live', 'paused'] as const;
 export const RULE_MATCHES = ['all', 'any'] as const;
 
+/** Hành động của rule (ADR-0012, 0021): `revert` = hành động hẹn giờ; `floorDailyBudget` = sàn khi giảm dần. */
+export type RuleAction = {
+  type: string;
+  changePct?: string;
+  maxDailyBudget?: string;
+  floorDailyBudget?: string;
+  revert?: { kind: 'restore_budget' | 'suggest_undo'; hour: number };
+};
+
 /** Rule tự động (P2b, ADR-0012, L3 18). Tạo mới luôn ở `shadow`. */
 export const automationRules = app.table(
   'automation_rules',
@@ -141,8 +150,10 @@ export const automationRules = app.table(
     condition: jsonb('condition').$type<{ metric: string; op: string; value: string }[]>().notNull(),
     /** ADR-0014: 'all' = mọi điều kiện (VÀ), 'any' = ít nhất một (HOẶC). */
     match: text('match', { enum: RULE_MATCHES }).notNull().default('all'),
-    action: jsonb('action').$type<{ type: string; changePct?: string; maxDailyBudget?: string }>().notNull(),
-    guardrails: jsonb('guardrails').$type<{ maxActionsPerDay?: number; excludeMetaIds?: string[] }>().notNull(),
+    action: jsonb('action').$type<RuleAction>().notNull(),
+    guardrails: jsonb('guardrails')
+      .$type<{ maxActionsPerDay?: number; excludeMetaIds?: string[]; cooldownHours?: number }>()
+      .notNull(),
     mode: text('mode', { enum: RULE_MODES }).notNull().default('shadow'),
     shadowStartedAt: tsz('shadow_started_at'),
     liveSince: tsz('live_since'),
@@ -175,4 +186,31 @@ export const ruleEvaluations = app.table(
     blockedByGuardrail: text('blocked_by_guardrail'),
   },
   (t) => [index().on(t.ruleId, t.evaluatedAt), index().on(t.workspaceId)],
+);
+
+export const REVERT_KINDS = ['restore_budget', 'suggest_undo'] as const;
+export const REVERT_STATUSES = ['pending', 'done', 'skipped', 'canceled'] as const;
+
+/**
+ * Hành động hẹn giờ của rule (ADR-0021): trả ngân sách (Surf) hoặc đề xuất bật lại (Stop-loss / Revive). Job
+ * `maintenance:reverts_tick` xử lý dòng đến hạn qua Execution Gateway; không bao giờ tự bật lại đối tượng.
+ */
+export const scheduledReverts = app.table(
+  'scheduled_reverts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id').notNull(),
+    ruleId: uuid('rule_id').references(() => automationRules.id, { onDelete: 'set null' }),
+    actionId: uuid('action_id')
+      .notNull()
+      .references(() => actions.id, { onDelete: 'cascade' }),
+    kind: text('kind', { enum: REVERT_KINDS }).notNull(),
+    dueAt: tsz('due_at').notNull(),
+    status: text('status', { enum: REVERT_STATUSES }).notNull().default('pending'),
+    result: text('result'),
+    resultActionId: uuid('result_action_id'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index().on(t.status, t.dueAt), index().on(t.workspaceId), uniqueIndex().on(t.actionId, t.kind)],
 );

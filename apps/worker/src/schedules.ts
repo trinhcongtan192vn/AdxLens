@@ -7,6 +7,7 @@ export const SCHEDULES: { queue: QueueName; name: string; every?: number; patter
   { queue: 'maintenance', name: 'maintenance:daily_sync_tick', pattern: '5 * * * *' },
   { queue: 'maintenance', name: 'maintenance:report_tick', pattern: '10 * * * *' },
   { queue: 'maintenance', name: 'maintenance:rules_tick', pattern: '*/30 * * * *' },
+  { queue: 'maintenance', name: 'maintenance:reverts_tick', pattern: '*/15 * * * *' },
   // 02:00 UTC = 09:00 giờ Việt Nam: email nhắc token sắp hết hạn trong giờ làm việc.
   { queue: 'maintenance', name: 'maintenance:daily_tick', pattern: '0 2 * * *' },
 ];

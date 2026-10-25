@@ -8,3 +8,4 @@ export * from './rules';
 export * from './writer';
 export * from './self-test';
 export * from './rule-insights';
+export * from './reverts';

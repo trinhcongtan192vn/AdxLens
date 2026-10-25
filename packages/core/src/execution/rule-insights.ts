@@ -40,6 +40,8 @@ export async function estimateRuleSavings(
   clock: Clock = systemClock,
 ): Promise<RuleSavings & { items: Awaited<ReturnType<typeof backtestRule>>['items'] }> {
   const bt = await backtestRule(ctx, input, clock);
+  // Revive chỉ đề xuất, không đổi chi tiêu.
+  const suggestOnly = input.action.type === 'suggest_resume';
   const account = (await listAdAccounts(ctx)).find((a) => a.id === input.adAccountId)!;
   const end = addDays(localDate(clock.now(), account.timezone), -1);
   const first = new Map<string, string>();
@@ -52,7 +54,7 @@ export async function estimateRuleSavings(
     days: bt.days,
     items: bt.items,
   };
-  if (!first.size) return { ...base, kind: 'none', amount: '0' };
+  if (!first.size || suggestOnly) return { ...base, kind: 'none', amount: '0' };
 
   const key = sql.raw(input.level === 'ad' ? 'i.meta_id' : 'i.adset_id');
   const ids = [...first.keys()];
@@ -80,7 +82,7 @@ export type SuggestedValue = {
   index: number;
   value: string;
   /** Lý do dạng khóa + tham số (giao diện dịch); số trong tham số do code tính. */
-  reason: { key: 'cpa_x2' | 'frequency_x1_5'; params: Record<string, string> };
+  reason: { key: 'cpa_x2' | 'frequency_x1_5' | 'cpc_x2'; params: Record<string, string> };
 };
 
 /**
@@ -101,12 +103,13 @@ export async function suggestTemplateValues(
   const end = addDays(localDate(clock.now(), account.timezone), -1);
   const from = addDays(end, -(BACKTEST_DAYS - 1));
   const [agg] = await ctx.db.execute<{
+    clicks: string | null;
     spend: string | null;
     results: string | null;
     freq_w: string | null;
     imp: string | null;
   }>(sql`
-    select sum(spend)::text as spend, sum(results)::text as results,
+    select sum(spend)::text as spend, sum(results)::text as results, sum(link_clicks)::text as clicks,
       sum(coalesce(frequency, 0) * impressions)::text as freq_w, sum(impressions)::text as imp
     from analytics.insights_daily
     where workspace_id = ${ctx.workspaceId} and ad_account_id = ${adAccountId} and entity_type = 'ad'
@@ -117,7 +120,15 @@ export async function suggestTemplateValues(
     agg?.spend && agg.results && compareDecimal(agg.results, '0') > 0 ? divDecimal(agg.spend, agg.results, 0) : null;
   const freq = agg?.freq_w && agg.imp && compareDecimal(agg.imp, '0') > 0 ? divDecimal(agg.freq_w, agg.imp, 2) : null;
 
+  const cpc =
+    agg?.spend && agg.clicks && compareDecimal(agg.clicks, '0') > 0 ? divDecimal(agg.spend, agg.clicks, 0) : null;
   condition.forEach((c, index) => {
+    // Stop-loss: "chi ≥ 2 × CPC 30 ngày mà 0 click" — đủ tiền để kỳ vọng ít nhất 2 click.
+    if (c.metric === 'spend_1d' && cpc && compareDecimal(cpc, '0') > 0) {
+      const value = mulRatio(cpc, 2).split('.')[0]!;
+      c.value = value;
+      suggested.push({ index, value, reason: { key: 'cpc_x2', params: { cpc, currency: account.currency } } });
+    }
     // "Chi ≥ 2 × CPA 30 ngày mà 0 kết quả": đủ tiền để kỳ vọng ít nhất 1–2 kết quả.
     if (c.metric === 'spend' && cpa && compareDecimal(cpa, '0') > 0) {
       const value = mulRatio(cpa, 2).split('.')[0]!;

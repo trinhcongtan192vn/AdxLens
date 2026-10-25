@@ -45,6 +45,9 @@ export default async function NewRulePage({
           condition: x.condition,
           action: x.action,
           doneCount: x.doneCount,
+          requiresMaxDailyBudget: x.requiresMaxDailyBudget,
+          requiresFloorDailyBudget: x.requiresFloorDailyBudget,
+          tactic: x.tactic,
         }))}
       />
     </>

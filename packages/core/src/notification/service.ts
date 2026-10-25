@@ -31,6 +31,8 @@ export const NOTIFICATION_KINDS = {
   anomaly: { mandatory: false, inApp: true, email: true },
   /** ADR-0018: cảnh báo người dùng tự đặt. */
   custom_alert: { mandatory: false, inApp: true, email: true },
+  /** ADR-0021: rule đã tạm dừng đối tượng — đề xuất bật lại (Hoàn tác 1 bấm), rule không tự bật lại. */
+  rule_suggest_resume: { mandatory: false, inApp: true, email: true },
 } as const;
 
 export type NotificationKind = keyof typeof NOTIFICATION_KINDS;

@@ -129,6 +129,61 @@ export const JOB_PROBES: Record<string, JobProbe> = {
     },
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, actionId: p!.actionId }),
   },
+  // ADR-0021: lịch hẹn của A đến hạn (hành động gốc chưa thành công) → bỏ qua; dữ liệu B không đổi.
+  'execute:revert': {
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [a] = await db
+        .insert(schema.actions)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          actionType: 'set_adset_budget',
+          targetType: 'adset',
+          targetMetaId: '1',
+          tier: 'auto',
+          params: {},
+          beforeState: { daily_budget: '100' },
+          afterExpected: { daily_budget: '110' },
+          idempotencyKey: 'probe-revert',
+        })
+        .returning();
+      const [r] = await db
+        .insert(schema.scheduledReverts)
+        .values({ workspaceId: w.a.workspace.id, actionId: a!.id, kind: 'restore_budget', dueAt: new Date(0) })
+        .returning();
+      return { revertId: r!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, revertId: p!.revertId, tick: 'probe' }),
+  },
+  // Ngữ cảnh A nhưng id lịch hẹn của B → không tìm thấy (truy vấn theo workspace), không chạm B.
+  'execute:revert#cross': {
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [a] = await db
+        .insert(schema.actions)
+        .values({
+          workspaceId: w.b.workspace.id,
+          adAccountId: w.b.adAccount.id,
+          actionType: 'pause_ad',
+          targetType: 'ad',
+          targetMetaId: '2',
+          tier: 'auto',
+          params: {},
+          beforeState: { status: 'ACTIVE' },
+          afterExpected: { status: 'PAUSED' },
+          status: 'success',
+          idempotencyKey: 'probe-revert-b',
+        })
+        .returning();
+      const [r] = await db
+        .insert(schema.scheduledReverts)
+        .values({ workspaceId: w.b.workspace.id, actionId: a!.id, kind: 'suggest_undo', dueAt: new Date(0) })
+        .returning();
+      return { revertId: r!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, revertId: p!.revertId, tick: 'probe' }),
+  },
   'rules:evaluate': {
     prepare: async (db, w) => {
       const { schema } = await import('@adxlens/db');

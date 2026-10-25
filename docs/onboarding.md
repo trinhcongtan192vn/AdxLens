@@ -213,3 +213,6 @@ Mọi thao tác ghi đều bắt buộc lý do và ghi vào `/admin/audit`. Tạ
 - **Connector MCP có OAuth** (ADR-0022 B): claude.ai, ChatGPT và Claude Code tự tìm `/.well-known/oauth-*`, đăng ký
   client, mở `/oauth/authorize`. Cần URL https công khai (tunnel). Logic ở `core/ops/oauth.ts` (trước khi biết
   workspace) và `core/agent/oauth-grants.ts` (theo workspace). Thử luồng đầy đủ: `apps/web/src/app/api/v1/oauth/oauth.test.ts`.
+- **Tactic tự động** (ADR-0021): mẫu Stop-loss / Surf / Sunsetting / Revive trong `execution/rules.ts`; lịch hẹn ở
+  `execution/reverts.ts` (bảng `scheduled_reverts`, job `maintenance:reverts_tick` 15 phút). Guardrail `no_auto_resume`
+  giữ nguyên: bật lại luôn là đề xuất + Hoàn tác.
