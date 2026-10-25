@@ -46,17 +46,13 @@ export function toGridRows(
             lastChange: changes.has(key) ? { ...changes.get(key)!, at: changes.get(key)!.at.toISOString() } : null,
           }
         : {}),
-      // G4: chỉ nhóm QC / quảng cáo có hành động ghi (ADR-0009, 0010).
-      ...(level !== 'campaign'
-        ? {
-            target: {
-              adAccountId: r.adAccountId,
-              metaId: r.metaId,
-              name: r.name ?? r.metaId,
-              dailyBudget: r.dailyBudget ?? null,
-            },
-          }
-        : {}),
+      // G4 + ADR-0015: chiến dịch, nhóm QC, quảng cáo đều có hành động trạng thái; ngân sách chỉ ở nhóm QC.
+      target: {
+        adAccountId: r.adAccountId,
+        metaId: r.metaId,
+        name: r.name ?? r.metaId,
+        dailyBudget: level === 'adset' ? (r.dailyBudget ?? null) : null,
+      },
     };
   });
 }

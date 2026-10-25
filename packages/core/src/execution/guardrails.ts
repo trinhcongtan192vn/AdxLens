@@ -123,6 +123,9 @@ export const ACTION_TYPES = [
   // ADR-0023: tạo mới (chỉ duyệt tay).
   'create_ad',
   'create_lookalike',
+  // ADR-0015: trạng thái chiến dịch (chỉ duyệt tay).
+  'pause_campaign',
+  'resume_campaign',
 ] as const;
 export type ActionType = (typeof ACTION_TYPES)[number];
 
@@ -168,6 +171,10 @@ export function checkGuardrails(input: {
     if (input.actionType === 'duplicate_adset') v.push({ code: 'no_auto_duplicate' });
     // ADR-0023: tạo quảng cáo / audience không bao giờ tự chạy.
     if (input.actionType === 'create_ad' || input.actionType === 'create_lookalike') v.push({ code: 'no_auto_create' });
+    // ADR-0015: rule không bao giờ tạm dừng / bật lại cả chiến dịch.
+    if (input.actionType === 'pause_campaign' || input.actionType === 'resume_campaign') {
+      v.push({ code: 'no_auto_campaign' });
+    }
   }
   if (input.actionType === 'set_adset_budget') {
     const cur = input.currentDailyBudget;

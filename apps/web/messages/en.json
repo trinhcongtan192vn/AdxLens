@@ -2304,7 +2304,9 @@
       "duplicate_adset": "Duplicate ad set",
       "suggest_resume": "Suggest turning back on",
       "create_ad": "Create ad",
-      "create_lookalike": "Create lookalike"
+      "create_lookalike": "Create lookalike",
+      "pause_campaign": "Pause campaign",
+      "resume_campaign": "Resume campaign"
     },
     "state": {
       "ACTIVE": "Active",
@@ -2650,7 +2652,9 @@
       "resume_ad": "Resume {count} ads",
       "pause_adset": "Pause {count} ad sets",
       "resume_adset": "Resume {count} ad sets",
-      "set_adset_budget": "Change daily budget"
+      "set_adset_budget": "Change daily budget",
+      "pause_campaign": "Pause {count} campaigns",
+      "resume_campaign": "Resume {count} campaigns"
     },
     "confirm": "Run {count} actions",
     "note": "Each action is checked against guardrails, executed on Meta and verified; only objects without violations are sent. Follow results in the",
@@ -2661,11 +2665,12 @@
     "queued": "{count} actions sent",
     "partial": "{ok} sent, {failed} could not run",
     "parentPaused": {
-      "campaign": "Turn on the campaign first (Ads Manager)",
+      "campaign": "Turn the campaign on first",
       "adset": "Turn on the ad set first"
     },
     "failed": "{count} actions could not be submitted — see the reason on each item.",
-    "sent": "Submitted"
+    "sent": "Submitted",
+    "campaignNote": "Pausing a campaign stops every ad set under it. Resuming only turns the campaign on, not ad sets you turned off."
   },
   "goals": {
     "title": "Goals and onboarding",

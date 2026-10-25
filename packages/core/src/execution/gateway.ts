@@ -26,7 +26,7 @@ const { actions, actionLogs, adAccounts, entities } = schema;
 type State = Record<string, string | null>;
 export type ActionRow = typeof actions.$inferSelect;
 
-const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'account'> = {
+const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'campaign' | 'account'> = {
   pause_ad: 'ad',
   resume_ad: 'ad',
   pause_adset: 'adset',
@@ -35,6 +35,8 @@ const TARGET_TYPE: Record<ActionType, 'ad' | 'adset' | 'account'> = {
   duplicate_adset: 'adset',
   create_ad: 'adset',
   create_lookalike: 'account',
+  pause_campaign: 'campaign',
+  resume_campaign: 'campaign',
 };
 
 const LAUNCH_TYPES = new Set<ActionType>(['create_ad', 'create_lookalike']);
@@ -49,6 +51,8 @@ export const UNDOABLE: Record<ActionType, boolean> = {
   duplicate_adset: false,
   create_ad: false,
   create_lookalike: false,
+  pause_campaign: true,
+  resume_campaign: true,
 };
 
 /** Đơn vị nhỏ nhất của tiền tệ dạng số nguyên (ngân sách Meta) từ chuỗi numeric. */
@@ -60,8 +64,8 @@ export function minorUnits(v: string | null | undefined): string | null {
 }
 
 function expectedAfter(type: ActionType, newBudget?: string | null): State {
-  if (type === 'pause_ad' || type === 'pause_adset') return { status: 'PAUSED' };
-  if (type === 'resume_ad' || type === 'resume_adset') return { status: 'ACTIVE' };
+  if (type === 'pause_ad' || type === 'pause_adset' || type === 'pause_campaign') return { status: 'PAUSED' };
+  if (type === 'resume_ad' || type === 'resume_adset' || type === 'resume_campaign') return { status: 'ACTIVE' };
   if (type === 'set_adset_budget') return { daily_budget: newBudget ?? null };
   return { copy_status: 'PAUSED' };
 }
@@ -88,8 +92,14 @@ async function actionsToday(ctx: WorkspaceCtx, adAccountId: string, timezone: st
 }
 
 /** Số ngày có hiển thị của đối tượng trong 30 ngày (ngưỡng dữ liệu tối thiểu). */
-async function dataDays(ctx: WorkspaceCtx, adAccountId: string, type: 'ad' | 'adset', metaId: string, today: string) {
-  const col = type === 'ad' ? sql`meta_id` : sql`adset_id`;
+async function dataDays(
+  ctx: WorkspaceCtx,
+  adAccountId: string,
+  type: 'ad' | 'adset' | 'campaign',
+  metaId: string,
+  today: string,
+) {
+  const col = type === 'ad' ? sql`meta_id` : type === 'adset' ? sql`adset_id` : sql`campaign_id`;
   const [r] = await ctx.db.execute<{ n: string }>(sql`
     select count(distinct date)::text as n from analytics.insights_daily
     where workspace_id = ${ctx.workspaceId} and ad_account_id = ${adAccountId} and ${col} = ${metaId}
@@ -97,7 +107,7 @@ async function dataDays(ctx: WorkspaceCtx, adAccountId: string, type: 'ad' | 'ad
   return Number(r?.n ?? 0);
 }
 
-async function targetEntity(ctx: WorkspaceCtx, adAccountId: string, type: 'ad' | 'adset', metaId: string) {
+async function targetEntity(ctx: WorkspaceCtx, adAccountId: string, type: 'ad' | 'adset' | 'campaign', metaId: string) {
   const [e] = await ctx.db.execute<{
     name: string | null;
     status: string | null;
@@ -439,7 +449,7 @@ export async function executeAction(
   if (LAUNCH_TYPES.has(type)) return executeLaunch(ctx, a, account, deps, finish);
   const g = await effectiveGuardrails(ctx);
   if (a.targetType === 'account') return finish('canceled', 'invalid_target');
-  const objType: 'ad' | 'adset' = a.targetType;
+  const objType: 'ad' | 'adset' | 'campaign' = a.targetType;
   const e = await targetEntity(ctx, account.id, objType, a.targetMetaId);
   const today = localDate(now, account.timezone);
   const violations = checkGuardrails({

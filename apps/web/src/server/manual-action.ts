@@ -2,13 +2,22 @@ import 'server-only';
 import { z } from 'zod';
 
 /**
- * G4: hành động từ bảng chiến dịch — chỉ tạm dừng / bật lại ad, ad set và đổi ngân sách ngày ad set (ADR-0009,
- * 0010). Nhân bản (ADR-0011) không làm từ bảng. Ngân sách nhập theo đơn vị tiền tệ của tài khoản (chuỗi thập phân).
+ * G4: hành động từ bảng chiến dịch — tạm dừng / bật lại chiến dịch (ADR-0015), ad set, ad và đổi ngân sách ngày ad set
+ * (ADR-0009, 0010). Nhân bản (ADR-0011) không làm từ bảng. Ngân sách nhập theo đơn vị tiền tệ của tài khoản (chuỗi thập phân).
  */
 export const manualActionSchema = z
   .object({
     ad_account_id: z.string().uuid(),
-    action_type: z.enum(['pause_ad', 'resume_ad', 'pause_adset', 'resume_adset', 'set_adset_budget']),
+    action_type: z.enum([
+      'pause_ad',
+      'resume_ad',
+      'pause_adset',
+      'resume_adset',
+      'set_adset_budget',
+      // ADR-0015: trạng thái chiến dịch (duyệt tay).
+      'pause_campaign',
+      'resume_campaign',
+    ]),
     target_meta_id: z.string().regex(/^\d{1,30}$/),
     new_daily_budget: z
       .string()

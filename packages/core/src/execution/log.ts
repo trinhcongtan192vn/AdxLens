@@ -83,6 +83,8 @@ const INVERSE: Partial<Record<ActionType, ActionType>> = {
   resume_ad: 'pause_ad',
   pause_adset: 'resume_adset',
   resume_adset: 'pause_adset',
+  pause_campaign: 'resume_campaign',
+  resume_campaign: 'pause_campaign',
   set_adset_budget: 'set_adset_budget',
 };
 

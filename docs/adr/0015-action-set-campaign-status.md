@@ -1,6 +1,7 @@
 # ADR-0015: Hành động ghi — tạm dừng / bật lại chiến dịch
 
-- Trạng thái: Đề xuất (PM duyệt bắt buộc — hành động ghi Meta mới, vùng `packages/core/execution`)
+- Trạng thái: **Chấp nhận** (PM: "Phần có ghi Meta thì cũng làm luôn", 25/10/2026; làm ở CHANGELOG 108). Chưa làm: hộp
+  thoại hiện số ad set bên dưới và chi tiêu 7 ngày (hiện có cảnh báo chung).
 - Ngày: 24/10/2026
 - Liên quan: ADR-0008 (Execution Gateway), ADR-0009 (tạm dừng / bật lại ad, ad set), CHANGELOG 063 (G4)
 

@@ -2304,7 +2304,9 @@
       "duplicate_adset": "Nhân bản nhóm quảng cáo",
       "suggest_resume": "Đề xuất bật lại",
       "create_ad": "Tạo quảng cáo",
-      "create_lookalike": "Tạo lookalike"
+      "create_lookalike": "Tạo lookalike",
+      "pause_campaign": "Tạm dừng chiến dịch",
+      "resume_campaign": "Bật lại chiến dịch"
     },
     "state": {
       "ACTIVE": "Đang chạy",
@@ -2650,7 +2652,9 @@
       "resume_ad": "Bật lại {count} quảng cáo",
       "pause_adset": "Tạm dừng {count} nhóm QC",
       "resume_adset": "Bật lại {count} nhóm QC",
-      "set_adset_budget": "Đổi ngân sách ngày"
+      "set_adset_budget": "Đổi ngân sách ngày",
+      "pause_campaign": "Tạm dừng {count} chiến dịch",
+      "resume_campaign": "Bật lại {count} chiến dịch"
     },
     "confirm": "Thực hiện {count} hành động",
     "note": "Mỗi hành động được kiểm guardrails, thực hiện qua Meta rồi xác minh lại; chỉ gửi đối tượng không vi phạm. Theo dõi kết quả ở",
@@ -2661,11 +2665,12 @@
     "queued": "Đã gửi {count} hành động",
     "partial": "Đã gửi {ok}, {failed} không thực hiện được",
     "parentPaused": {
-      "campaign": "Bật chiến dịch trước (Ads Manager)",
+      "campaign": "Bật chiến dịch trước",
       "adset": "Bật nhóm QC trước"
     },
     "failed": "{count} hành động không thực hiện được — xem lý do từng đối tượng.",
-    "sent": "Đã gửi"
+    "sent": "Đã gửi",
+    "campaignNote": "Tạm dừng chiến dịch sẽ dừng mọi nhóm QC bên dưới. Bật lại chỉ bật chiến dịch, không bật nhóm QC đang tắt."
   },
   "goals": {
     "title": "Mục tiêu và onboarding",
