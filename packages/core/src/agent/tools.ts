@@ -1,7 +1,8 @@
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { schema } from '@adxlens/db';
-import { listAdAccounts } from '@adxlens/core/connections';
+import { listAdAccounts, listAssets } from '@adxlens/core/connections';
+import { listCreativeDrafts } from '@adxlens/core/execution';
 import { healthScores, topFindings } from '@adxlens/core/insight';
 import {
   accountKpis,
@@ -11,6 +12,7 @@ import {
   entityTable,
   explainCpaChange,
   landingPages,
+  launcherSources,
   stageAnalysis,
   METRIC_KEYS,
   metricValues,
@@ -19,6 +21,8 @@ import {
   type MetricKey,
 } from '@adxlens/core/reporting';
 import { addDays, AppError, localDate, type ActorCtx } from '@adxlens/core/shared';
+import { storeSummary } from '@adxlens/core/stores';
+import { listClients } from '@adxlens/core/tenancy';
 import type { AgentToolSpec } from './llm';
 
 const { entities } = schema;
@@ -33,14 +37,38 @@ export type ToolContext = {
   now: Date;
 };
 
+/** Loại thay đổi agent đề xuất được (một đối tượng đã có; tạo mới đi qua kế hoạch ADR-0031). */
+export const PROPOSAL_TYPES = [
+  'pause_ad',
+  'resume_ad',
+  'pause_adset',
+  'resume_adset',
+  'set_adset_budget',
+  'pause_campaign',
+  'resume_campaign',
+  'rename_ad',
+  'rename_adset',
+  'rename_campaign',
+  'set_adset_bid',
+  'set_campaign_spend_cap',
+] as const;
+type ProposalType = (typeof PROPOSAL_TYPES)[number];
+
 export type ProposalOut = {
-  actionType: 'pause_ad' | 'resume_ad' | 'pause_adset' | 'resume_adset' | 'set_adset_budget';
+  actionType: ProposalType;
   adAccountId: string;
   targetMetaId: string;
   targetName: string | null;
   newDailyBudget?: string | null;
+  /** ADR-0025: tên mới (`rename_*`). */
+  newName?: string | null;
+  /** ADR-0025: giá thầu / giới hạn chi mới (`set_adset_bid`, `set_campaign_spend_cap`). */
+  newValue?: string | null;
   reason?: string;
 };
+
+const levelOf = (t: ProposalType): 'ad' | 'adset' | 'campaign' =>
+  t.endsWith('_campaign') || t === 'set_campaign_spend_cap' ? 'campaign' : t.endsWith('_ad') ? 'ad' : 'adset';
 
 export type ToolResult = { data: unknown; proposal?: ProposalOut };
 
@@ -537,52 +565,245 @@ export const TOOLS: Record<string, Tool> = {
     },
   },
 
+  account_structure: {
+    spec: {
+      name: 'account_structure',
+      description:
+        'Cấu trúc tài khoản theo bản chụp gần nhất: chiến dịch hoặc nhóm QC (id, tên, trạng thái, ngân sách ngày, giá thầu, giới hạn chi, mục tiêu tối ưu, chiến dịch cha). Dùng để tìm đúng đối tượng trước khi đề xuất thay đổi.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          level: { type: 'string', enum: ['campaign', 'adset'] },
+          account_id: { type: 'string' },
+          status: { type: 'string', enum: ['active', 'paused', 'all'] },
+        },
+        required: ['level'],
+      },
+    },
+    input: z.object({
+      level: z.enum(['campaign', 'adset']),
+      account_id: accountId,
+      status: z.enum(['active', 'paused', 'all']).default('all'),
+    }),
+    run: async (t, i: { level: 'campaign' | 'adset'; account_id?: string; status: 'active' | 'paused' | 'all' }) => {
+      const s = await scope(t, i.account_id);
+      const a = s.accounts[0];
+      if (!a) return { data: null };
+      const rows = await t.ctx.db
+        .select({
+          metaId: entities.metaId,
+          name: entities.name,
+          status: entities.status,
+          parent: entities.parentMetaId,
+          dailyBudget: entities.dailyBudget,
+          attrs: entities.attrs,
+        })
+        .from(entities)
+        .where(
+          and(
+            eq(entities.workspaceId, t.ctx.workspaceId),
+            eq(entities.adAccountId, a.id),
+            eq(entities.entityType, i.level),
+          ),
+        );
+      const want = i.status === 'all' ? null : i.status === 'active' ? 'ACTIVE' : 'PAUSED';
+      const attr = (x: unknown, k: string) => {
+        const v = (x as Record<string, unknown> | null)?.[k];
+        return typeof v === 'string' || typeof v === 'number' ? String(v) : null;
+      };
+      return {
+        data: {
+          account: data(a.name),
+          account_id: a.id,
+          currency: a.currency,
+          // Ngân sách / giá thầu / giới hạn chi theo đơn vị nhỏ nhất của tiền tệ (như Meta).
+          money_unit: 'minor',
+          items: rows
+            .filter((r) => (want ? r.status === want : r.status === 'ACTIVE' || r.status === 'PAUSED'))
+            .sort((x, y) => (x.status === y.status ? 0 : x.status === 'ACTIVE' ? -1 : 1))
+            .slice(0, 40)
+            .map((r) => ({
+              meta_id: r.metaId,
+              name: data(r.name),
+              status: r.status,
+              parent_campaign_id: i.level === 'adset' ? r.parent : undefined,
+              daily_budget: r.dailyBudget,
+              bid_amount: attr(r.attrs, 'bid_amount'),
+              bid_strategy: attr(r.attrs, 'bid_strategy'),
+              spend_cap: attr(r.attrs, 'spend_cap'),
+              optimization_goal: attr(r.attrs, 'optimization_goal'),
+            })),
+        },
+      };
+    },
+  },
+
+  launch_assets: {
+    spec: {
+      name: 'launch_assets',
+      description:
+        'Tài sản để tạo quảng cáo của một tài khoản: nhóm QC làm mẫu, audience, Page, ảnh creative sẵn sàng trong thư viện (bản nháp), creative đã có.',
+      input_schema: { type: 'object', properties: { account_id: { type: 'string' } } },
+    },
+    input: z.object({ account_id: accountId }),
+    run: async (t, i: { account_id?: string }) => {
+      const s = await scope(t, i.account_id);
+      const a = s.accounts[0];
+      if (!a) return { data: null };
+      const [src, pages, drafts, creatives] = await Promise.all([
+        launcherSources(t.ctx, a.id),
+        listAssets(t.ctx, 'page'),
+        listCreativeDrafts(t.ctx, a.id, 12),
+        t.ctx.db
+          .select({ metaId: entities.metaId, name: entities.name })
+          .from(entities)
+          .where(
+            and(
+              eq(entities.workspaceId, t.ctx.workspaceId),
+              eq(entities.adAccountId, a.id),
+              eq(entities.entityType, 'creative'),
+            ),
+          )
+          .limit(20),
+      ]);
+      return {
+        data: {
+          account_id: a.id,
+          currency: a.currency,
+          template_adsets: src.adsets.slice(0, 20).map((x) => ({
+            meta_id: x.metaId,
+            name: data(x.name),
+            status: x.status,
+            campaign: data(x.campaignName),
+            daily_budget: x.dailyBudget,
+          })),
+          audiences: src.audiences
+            .slice(0, 30)
+            .map((x) => ({ meta_id: x.metaId, name: data(x.name), subtype: x.subtype })),
+          pages: pages.slice(0, 10).map((x) => ({ page_id: x.metaId, name: data(x.name) })),
+          image_drafts: drafts
+            .filter((d) => d.status === 'ready')
+            .map((d) => ({
+              draft_id: d.id,
+              source: d.source,
+              prompt: data(d.prompt),
+              created_at: d.createdAt.toISOString(),
+            })),
+          creatives: creatives.map((c) => ({ creative_id: c.metaId, name: data(c.name) })),
+        },
+      };
+    },
+  },
+
+  store_summary: {
+    spec: {
+      name: 'store_summary',
+      description:
+        'Doanh thu thật từ cửa hàng / sàn đã kết nối (Shopify, Shopee, TikTok Shop) và phiên / chuyển đổi GA4 của Client trong kỳ, cùng chi tiêu quảng cáo và MER (doanh thu cửa hàng / chi tiêu) đã tính sẵn.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          client_id: { type: 'string', description: 'id Client (uuid); bỏ trống = mọi Client được xem' },
+          period: { type: 'string', enum: [...AGENT_PERIODS] },
+        },
+      },
+    },
+    input: z.object({ client_id: z.string().uuid().optional(), period }),
+    run: async (t, i: { client_id?: string; period: Period }) => {
+      const clients = await listClients(t.ctx);
+      const picked = i.client_id ? clients.filter((c) => c.id === i.client_id) : clients;
+      if (i.client_id && !picked.length) throw new AppError('NOT_FOUND', 'Không tìm thấy Client');
+      const ids = picked.map((c) => c.id);
+      const accounts = (await listAdAccounts(t.ctx)).filter((a) => a.clientId && ids.includes(a.clientId));
+      const tz = accounts[0]?.timezone ?? 'Asia/Ho_Chi_Minh';
+      const { cur } = ranges(i.period, tz, t.now);
+      const store = await storeSummary(t.ctx, ids, cur);
+      const sameCurrency = accounts.filter((a) => a.currency === store.currency);
+      const spend = sameCurrency.length
+        ? (
+            await metricValues(
+              t.ctx,
+              sameCurrency.map((a) => a.id),
+              cur,
+            )
+          ).spend
+        : null;
+      const mer =
+        store.revenue != null && spend != null && Number(spend) > 0
+          ? Math.round((Number(store.revenue) / Number(spend)) * 100) / 100
+          : null;
+      return {
+        data: {
+          period: cur,
+          clients: picked.map((c) => data(c.name)),
+          store_connections: store.connections,
+          currency: store.currency,
+          store_revenue: store.revenue,
+          orders: store.orders,
+          ga4_sessions: store.sessions,
+          ga4_conversions: store.conversions,
+          ad_spend: spend,
+          mer,
+        },
+      };
+    },
+  },
+
   propose_action: {
     write: true,
     spec: {
       name: 'propose_action',
       description:
-        'ĐỀ XUẤT một thay đổi (tạm dừng / bật lại quảng cáo hoặc nhóm QC, đổi ngân sách ngày nhóm QC). KHÔNG thực hiện: người dùng sẽ xem trước, kiểm guardrails và tự duyệt. Chỉ dùng khi người dùng yêu cầu làm việc gì đó.',
+        'ĐỀ XUẤT một thay đổi trên đối tượng đã có: tạm dừng / bật lại quảng cáo, nhóm QC, chiến dịch; đổi ngân sách ngày hoặc giá thầu nhóm QC; đổi giới hạn chi chiến dịch; đổi tên. KHÔNG thực hiện: người dùng sẽ xem trước, kiểm guardrails và tự duyệt. Chỉ dùng khi người dùng yêu cầu làm việc gì đó.',
       input_schema: {
         type: 'object',
         properties: {
-          action_type: {
-            type: 'string',
-            enum: ['pause_ad', 'resume_ad', 'pause_adset', 'resume_adset', 'set_adset_budget'],
-          },
+          action_type: { type: 'string', enum: [...PROPOSAL_TYPES] },
           account_id: { type: 'string' },
           target_meta_id: { type: 'string' },
           new_daily_budget: {
             type: 'string',
-            description: 'Chỉ với set_adset_budget, số thập phân theo tiền tệ tài khoản',
+            description: 'Chỉ với set_adset_budget, cùng đơn vị với daily_budget của account_structure',
           },
+          new_value: {
+            type: 'string',
+            description: 'Chỉ với set_adset_bid / set_campaign_spend_cap, cùng đơn vị với bid_amount / spend_cap',
+          },
+          new_name: { type: 'string', description: 'Chỉ với rename_*' },
           reason: { type: 'string' },
         },
         required: ['action_type', 'account_id', 'target_meta_id'],
       },
     },
     input: z.object({
-      action_type: z.enum(['pause_ad', 'resume_ad', 'pause_adset', 'resume_adset', 'set_adset_budget']),
+      action_type: z.enum(PROPOSAL_TYPES),
       account_id: z.string().uuid(),
       target_meta_id: z.string().regex(/^\d{1,30}$/),
       new_daily_budget: z
         .string()
         .regex(/^\d{1,14}(\.\d{1,2})?$/)
         .nullish(),
+      new_value: z
+        .string()
+        .regex(/^\d{1,14}(\.\d{1,2})?$/)
+        .nullish(),
+      new_name: z.string().trim().min(1).max(400).nullish(),
       reason: z.string().max(300).optional(),
     }),
     run: async (
       t,
       i: {
-        action_type: ProposalOut['actionType'];
+        action_type: ProposalType;
         account_id: string;
         target_meta_id: string;
         new_daily_budget?: string | null;
+        new_value?: string | null;
+        new_name?: string | null;
         reason?: string;
       },
     ) => {
       const s = await scope(t, i.account_id);
-      const level = i.action_type.endsWith('_ad') ? 'ad' : 'adset';
+      const level = levelOf(i.action_type);
       const [e] = await t.ctx.db
         .select({ name: entities.name })
         .from(entities)
@@ -597,15 +818,30 @@ export const TOOLS: Record<string, Tool> = {
       if (!e) throw new AppError('NOT_FOUND', 'Không tìm thấy đối tượng');
       if (i.action_type === 'set_adset_budget' && !i.new_daily_budget)
         throw new AppError('VALIDATION_FAILED', 'Cần ngân sách mới');
+      if ((i.action_type === 'set_adset_bid' || i.action_type === 'set_campaign_spend_cap') && !i.new_value)
+        throw new AppError('VALIDATION_FAILED', 'Cần giá trị mới');
+      if (i.action_type.startsWith('rename_') && !i.new_name) throw new AppError('VALIDATION_FAILED', 'Cần tên mới');
       const proposal: ProposalOut = {
         actionType: i.action_type,
         adAccountId: i.account_id,
         targetMetaId: i.target_meta_id,
         targetName: e.name,
         newDailyBudget: i.new_daily_budget ?? null,
+        newValue: i.new_value ?? null,
+        newName: i.new_name ?? null,
         reason: i.reason,
       };
-      return { data: { proposed: true, note: 'Đã tạo thẻ đề xuất; người dùng sẽ xem trước và tự duyệt.' }, proposal };
+      return {
+        data: {
+          proposed: true,
+          note: 'Đã tạo thẻ đề xuất; người dùng sẽ xem trước và tự duyệt.',
+          // Tham số đề xuất (không phải số liệu): để câu trả lời nhắc lại đúng giá trị trên thẻ.
+          action_type: i.action_type,
+          new_daily_budget: i.new_daily_budget ?? undefined,
+          new_value: i.new_value ?? undefined,
+        },
+        proposal,
+      };
     },
   },
 };

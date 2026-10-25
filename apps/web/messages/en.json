@@ -3419,7 +3419,10 @@
       "propose_action": "Proposal",
       "funnel_stages": "Funnel stages",
       "landing_pages": "Landing pages",
-      "entity_details": "Selected items"
+      "entity_details": "Selected items",
+      "account_structure": "Account structure",
+      "launch_assets": "Launch assets",
+      "store_summary": "Store revenue"
     },
     "proposal": "Proposal — needs your approval",
     "review": "Preview and approve",
@@ -3428,7 +3431,14 @@
       "resume_ad": "Resume ad {name}",
       "pause_adset": "Pause ad set {name}",
       "resume_adset": "Resume ad set {name}",
-      "set_adset_budget": "Change daily budget of ad set {name}"
+      "set_adset_budget": "Change daily budget of ad set {name}",
+      "pause_campaign": "Pause campaign {name}",
+      "resume_campaign": "Resume campaign {name}",
+      "rename_ad": "Rename ad {name}",
+      "rename_adset": "Rename ad set {name}",
+      "rename_campaign": "Rename campaign {name}",
+      "set_adset_bid": "Change bid of ad set {name}",
+      "set_campaign_spend_cap": "Change spending limit of campaign {name}"
     },
     "context": "Context",
     "allAccounts": "All accounts",
@@ -3448,7 +3458,8 @@
       "campaign": "Campaign",
       "adset": "Ad set",
       "ad": "Ad"
-    }
+    },
+    "newName": "New name: {name}"
   },
   "integrations": {
     "title": "MCP server — connect AdxLens to Claude and other AI tools",
