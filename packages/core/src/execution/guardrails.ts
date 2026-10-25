@@ -125,6 +125,8 @@ export const ACTION_TYPES = [
   'create_lookalike',
   // ADR-0026: custom audience từ pixel / tương tác (chỉ duyệt tay).
   'create_custom_audience',
+  // ADR-0026: nhóm QC mới, luôn PAUSED (chỉ duyệt tay).
+  'create_adset',
   // ADR-0015: trạng thái chiến dịch (chỉ duyệt tay).
   'pause_campaign',
   'resume_campaign',
@@ -204,7 +206,8 @@ export function checkGuardrails(input: {
     if (
       input.actionType === 'create_ad' ||
       input.actionType === 'create_lookalike' ||
-      input.actionType === 'create_custom_audience'
+      input.actionType === 'create_custom_audience' ||
+      input.actionType === 'create_adset'
     ) {
       v.push({ code: 'no_auto_create' });
     }
@@ -221,6 +224,15 @@ export function checkGuardrails(input: {
     else if (!next || compareDecimal(next, '0') <= 0) v.push({ code: 'invalid_budget' });
     else if (compareDecimal(deltaPct(next, cur), g.maxBudgetChangePct) > 0) {
       v.push({ code: 'budget_change_too_large', params: { max: g.maxBudgetChangePct } });
+    }
+  }
+  // ADR-0026: nhóm QC mới — ngân sách ngày ≤ ngân sách nhóm QC mẫu × (1 + ngưỡng).
+  if (input.actionType === 'create_adset' && input.currentDailyBudget && input.newDailyBudget) {
+    const cur = input.currentDailyBudget;
+    const next = input.newDailyBudget;
+    if (compareDecimal(next, '0') <= 0) v.push({ code: 'invalid_budget' });
+    else if (compareDecimal(next, cur) > 0 && compareDecimal(deltaPct(next, cur), g.maxBudgetChangePct) > 0) {
+      v.push({ code: 'new_adset_budget_too_large', params: { max: g.maxBudgetChangePct } });
     }
   }
   // ADR-0025: giá thầu — chỉ nhóm QC đang có giá thầu; |thay đổi| ≤ ngưỡng ngân sách.

@@ -2368,7 +2368,8 @@
       "rename_campaign": "Rename campaign",
       "set_adset_bid": "Change ad set bid",
       "set_campaign_spend_cap": "Change campaign spending limit",
-      "create_custom_audience": "Create custom audience"
+      "create_custom_audience": "Create custom audience",
+      "create_adset": "Create ad set"
     },
     "state": {
       "ACTIVE": "Active",
@@ -2467,7 +2468,8 @@
       "invalid_bid": "Invalid new bid.",
       "bid_change_too_large": "Bid change over {max}% per action.",
       "invalid_spend_cap": "Invalid new spending limit.",
-      "spend_cap_change_too_large": "Raising the spending limit over {max}% per action (lowering is unlimited)."
+      "spend_cap_change_too_large": "Raising the spending limit over {max}% per action (lowering is unlimited).",
+      "new_adset_budget_too_large": "New ad set budget exceeds the template by more than {max}%."
     },
     "bulkButton": "Preview & approve ({count})",
     "bulkTitle": "Approve {count} suggestions",
@@ -3754,6 +3756,26 @@
       "launch": "Create audience",
       "note": "Needs approval; audiences don't spend money.",
       "queued": "Audience creation sent. Follow it in the Action log."
+    },
+    "adset": {
+      "title": "New ad set",
+      "intro": "Create a new ad set in an existing campaign with a new audience (countries, age, custom audiences). Optimization goal, conversion event and bid are copied from a template ad set. New ad sets always start paused.",
+      "none": "This account has no ad set to use as a template.",
+      "template": "Template ad set",
+      "templateHint": "The new ad set goes into the same campaign with the same optimization.",
+      "budget": "Daily budget",
+      "budgetHint": "Template: {amount}/day. At most template +15%.",
+      "cbo": "The campaign uses campaign budget: the new ad set has no budget of its own.",
+      "countries": "Countries",
+      "countriesHint": "2-letter codes, comma separated (e.g. VN, TH).",
+      "ageMin": "Age from",
+      "ageMax": "to",
+      "audiences": "Custom audiences to include (up to 10; none = broad)",
+      "name": "Ad set name (blank = automatic)",
+      "launch": "Create ad set (paused)",
+      "note": "Needs approval; turning it on is a separate action.",
+      "queued": "Ad set creation sent. Follow it in the Action log.",
+      "tooLarge": "The budget is above what is allowed relative to the template ad set."
     }
   }
 }

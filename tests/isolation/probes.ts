@@ -602,6 +602,19 @@ export const ROUTE_PROBES: Record<string, Probe> = {
       name: 'Probe',
     }),
   },
+  'POST /api/v1/launcher/adsets': {
+    kind: 'workspace',
+    body: (w) => ({
+      adAccountId: w.a.adAccount.id,
+      templateAdsetId: '1',
+      name: 'Probe',
+      dailyBudget: null,
+      countries: ['VN'],
+      ageMin: 18,
+      ageMax: 65,
+      audienceIds: [],
+    }),
+  },
   'POST /api/v1/launcher/audiences': {
     kind: 'workspace',
     body: (w) => ({

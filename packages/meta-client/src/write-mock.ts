@@ -6,6 +6,8 @@
 import { MetaApiError } from './errors';
 import { MOCK_ACCOUNTS, mockStructure, mockWriteState } from './mock';
 import {
+  adSetTargeting,
+  type NewAdSetTargeting,
   customAudienceRule,
   type CustomAudienceSource,
   type MetaObjectType,
@@ -238,6 +240,35 @@ export class MockMetaWrite implements MetaWriteApi {
       name: input.name,
       subtype: fault === 'wrong_value' ? 'CUSTOM' : subtype,
       act,
+    });
+    if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);
+    return { id };
+  }
+
+  async createAdSet(
+    _t: string,
+    _act: string,
+    input: { name: string; templateAdSetId: string; dailyBudget: string | null; targeting: NewAdSetTargeting },
+  ) {
+    adSetTargeting(input.targeting); // cùng kiểm tra như bản thật
+    const tpl = this.find(input.templateAdSetId);
+    if (tpl?.type !== 'adset')
+      throw new MetaApiError(400, 100, 33, 'GraphMethodException', 'Object does not exist', null);
+    this.calls.push({
+      op: 'createAdSet',
+      id: input.templateAdSetId,
+      value: `${input.name}:${input.dailyBudget ?? '-'}`,
+    });
+    const fault = this.takeFault();
+    const id = `${input.templateAdSetId}8${mockWriteState.copies.size + 1}`;
+    mockWriteState.copies.set(id, {
+      id,
+      name: input.name,
+      campaign_id: tpl.obj.campaign_id ?? '',
+      status: fault === 'wrong_value' ? 'ACTIVE' : 'PAUSED',
+      effective_status: fault === 'wrong_value' ? 'ACTIVE' : 'PAUSED',
+      daily_budget: input.dailyBudget,
+      lifetime_budget: null,
     });
     if (fault === 'error_after') throw new MetaApiError(0, null, null, 'NetworkError', 'socket hang up', null);
     return { id };

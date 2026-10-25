@@ -335,4 +335,81 @@ describe('Audience Launcher (ADR-0023)', () => {
     writer.failNext('wrong_value');
     expect(await s.run(e.id)).toEqual({ status: 'failed', resultCode: 'verify_mismatch' });
   });
+
+  it('ADR-0026 nhóm QC mới: PAUSED, chép mẫu; ngân sách ≤ mẫu +15%; nguồn / nhắm mục tiêu sai bị chặn; không tự chạy', async () => {
+    const s = await setup();
+    const [tpl] = await db
+      .select({
+        metaId: schema.entities.metaId,
+        parent: schema.entities.parentMetaId,
+        budget: schema.entities.dailyBudget,
+      })
+      .from(schema.entities)
+      .where(and(eq(schema.entities.adAccountId, s.adAccountId), eq(schema.entities.entityType, 'adset')))
+      .orderBy(schema.entities.metaId)
+      .limit(1);
+    expect(tpl!.budget).toBeTruthy();
+    const audience = s.sources.audiences.find((a) => a.subtype === 'CUSTOM')!.metaId;
+    const deps = { enqueue: s.enqueue, clock };
+    const budget = (pct: number) => String(Math.round((Number(tpl!.budget) * (100 + pct)) / 100));
+    const base = {
+      kind: 'create_adset' as const,
+      adAccountId: s.adAccountId,
+      templateAdsetId: tpl!.metaId,
+      name: 'Retarget giỏ hàng · VN 25-44',
+      dailyBudget: budget(10),
+      countries: ['VN'],
+      ageMin: 25,
+      ageMax: 44,
+      audienceIds: [audience],
+    };
+    await expect(requestLaunch(s.ctx, { ...base, dailyBudget: budget(30) }, deps)).rejects.toMatchObject({
+      code: 'GUARDRAIL_VIOLATION',
+      details: { violations: [{ code: 'new_adset_budget_too_large' }] },
+    });
+    await expect(requestLaunch(s.ctx, { ...base, dailyBudget: null }, deps)).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+    });
+    await expect(requestLaunch(s.ctx, { ...base, countries: ['VNM'] }, deps)).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+    });
+    await expect(requestLaunch(s.ctx, { ...base, ageMin: 50, ageMax: 30 }, deps)).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+    });
+    await expect(requestLaunch(s.ctx, { ...base, audienceIds: ['ca_la'] }, deps)).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    });
+    await expect(requestLaunch(s.ctx, { ...base, templateAdsetId: '999' }, deps)).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    });
+
+    const a = await requestLaunch(s.ctx, base, deps);
+    expect(a).toMatchObject({
+      actionType: 'create_adset',
+      targetType: 'campaign',
+      targetMetaId: tpl!.parent,
+      tier: 'approve',
+      params: { template_id: tpl!.metaId, countries: 'VN', age_min: '25', age_max: '44', audience_ids: audience },
+      afterExpected: { created_status: 'PAUSED' },
+    });
+    expect(await s.run(a.id)).toEqual({ status: 'success', resultCode: 'ok' });
+    expect(writer.calls.at(-1)).toMatchObject({ op: 'createAdSet', id: tpl!.metaId });
+    const b = await requestLaunch(s.ctx, { ...base, name: 'Bản 2' }, deps);
+    writer.failNext('wrong_value');
+    expect(await s.run(b.id)).toEqual({ status: 'failed', resultCode: 'verify_mismatch' });
+
+    // Rule tự động không bao giờ tạo nhóm QC.
+    expect(
+      checkGuardrails({
+        guardrails: { ...GUARDRAIL_DEFAULTS, excludeMetaIds: [] },
+        actionType: 'create_adset',
+        tier: 'auto',
+        targetIds: [],
+        accountTimezone: 'Asia/Ho_Chi_Minh',
+        now: clock.now(),
+        actionsToday: 0,
+        dataDays: 30,
+      }).map((v) => v.code),
+    ).toContain('no_auto_create');
+  });
 });

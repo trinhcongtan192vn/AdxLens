@@ -31,6 +31,33 @@ export type CustomAudienceSource =
   | { type: 'page' | 'ig_business'; id: string; days: number };
 export const PIXEL_EVENTS = ['PageView', 'ViewContent', 'AddToCart', 'InitiateCheckout', 'Purchase', 'Lead'] as const;
 
+/** ADR-0026: nhắm mục tiêu của nhóm QC mới (tối giản): quốc gia, độ tuổi, custom audience đưa vào. */
+export type NewAdSetTargeting = { countries: string[]; ageMin: number; ageMax: number; audienceIds: string[] };
+
+/** `targeting` (JSON) của Meta cho nhóm QC mới. */
+export function adSetTargeting(t: NewAdSetTargeting): string {
+  if (!t.countries.length || t.countries.length > 25 || t.countries.some((c) => !/^[A-Z]{2}$/.test(c))) {
+    throw new Error('Quốc gia không hợp lệ');
+  }
+  if (
+    !Number.isInteger(t.ageMin) ||
+    !Number.isInteger(t.ageMax) ||
+    t.ageMin < 18 ||
+    t.ageMax > 65 ||
+    t.ageMin > t.ageMax
+  ) {
+    throw new Error('Độ tuổi 18–65');
+  }
+  if (t.audienceIds.length > 10 || t.audienceIds.some((a) => !/^[\w-]{1,40}$/.test(a)))
+    throw new Error('Audience không hợp lệ');
+  return JSON.stringify({
+    geo_locations: { countries: t.countries },
+    age_min: t.ageMin,
+    age_max: t.ageMax,
+    ...(t.audienceIds.length ? { custom_audiences: t.audienceIds.map((id) => ({ id })) } : {}),
+  });
+}
+
 /** `rule` (JSON) của Meta cho custom audience website / tương tác. Kiểm khoảng ngày theo giới hạn của Meta. */
 export function customAudienceRule(s: CustomAudienceSource): string {
   const max = s.type === 'pixel' ? 180 : 365;
@@ -88,6 +115,15 @@ export interface MetaWriteApi {
     act: string,
     input: { name: string; source: CustomAudienceSource },
   ): Promise<{ id: string }>;
+  /**
+   * ADR-0026: tạo nhóm QC mới trong chiến dịch, luôn PAUSED. Thiết lập tối ưu / giá thầu chép từ nhóm QC mẫu (đọc
+   * ngay trước khi tạo); `dailyBudget` bỏ trống khi chiến dịch dùng ngân sách chiến dịch.
+   */
+  createAdSet(
+    token: string,
+    act: string,
+    input: { name: string; templateAdSetId: string; dailyBudget: string | null; targeting: NewAdSetTargeting },
+  ): Promise<{ id: string }>;
   /** Đọc lại audience vừa tạo (xác minh). */
   getAudience(token: string, id: string): Promise<{ id: string; name?: string | null; subtype?: string | null }>;
 }
@@ -100,6 +136,17 @@ const FIELDS: Record<MetaObjectType, string> = {
 const okSchema = z.object({ success: z.boolean().optional() }).passthrough();
 const copySchema = z.object({ copied_adset_id: z.string() }).passthrough();
 const idSchema = z.object({ id: z.string() }).passthrough();
+const templateSchema = z
+  .object({
+    campaign_id: z.string(),
+    optimization_goal: z.string().nullish(),
+    billing_event: z.string().nullish(),
+    bid_strategy: z.string().nullish(),
+    bid_amount: numStr.nullish(),
+    destination_type: z.string().nullish(),
+    promoted_object: z.record(z.string(), z.unknown()).nullish(),
+  })
+  .passthrough();
 const audienceSchema = z.object({ id: z.string(), name: z.string().nullish(), subtype: z.string().nullish() });
 
 export class HttpMetaWrite implements MetaWriteApi {
@@ -197,6 +244,45 @@ export class HttpMetaWrite implements MetaWriteApi {
       { name: input.name, rule: customAudienceRule(input.source), prefill: '1' },
       idSchema,
       { endpoint: 'customaudiences/create' },
+    );
+    return { id: r.id };
+  }
+
+  async createAdSet(
+    token: string,
+    act: string,
+    input: { name: string; templateAdSetId: string; dailyBudget: string | null; targeting: NewAdSetTargeting },
+  ) {
+    if (input.dailyBudget !== null && !/^\d+$/.test(input.dailyBudget)) {
+      throw new Error('daily_budget phải là số nguyên đơn vị nhỏ nhất');
+    }
+    const tpl = await this.http.get(
+      input.templateAdSetId,
+      token,
+      {
+        fields: 'campaign_id,optimization_goal,billing_event,bid_strategy,bid_amount,promoted_object,destination_type',
+      },
+      templateSchema,
+    );
+    const r = await this.http.request(
+      'POST',
+      `${act}/adsets`,
+      token,
+      {
+        name: input.name,
+        campaign_id: tpl.campaign_id,
+        status: 'PAUSED',
+        targeting: adSetTargeting(input.targeting),
+        ...(input.dailyBudget ? { daily_budget: input.dailyBudget } : {}),
+        ...(tpl.optimization_goal ? { optimization_goal: tpl.optimization_goal } : {}),
+        ...(tpl.billing_event ? { billing_event: tpl.billing_event } : {}),
+        ...(tpl.bid_strategy ? { bid_strategy: tpl.bid_strategy } : {}),
+        ...(tpl.bid_amount ? { bid_amount: tpl.bid_amount } : {}),
+        ...(tpl.destination_type ? { destination_type: tpl.destination_type } : {}),
+        ...(tpl.promoted_object ? { promoted_object: JSON.stringify(tpl.promoted_object) } : {}),
+      },
+      idSchema,
+      { endpoint: 'adsets/create' },
     );
     return { id: r.id };
   }

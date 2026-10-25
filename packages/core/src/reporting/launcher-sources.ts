@@ -19,6 +19,7 @@ export async function launcherSources(ctx: ActorCtx, adAccountId: string) {
       status: entities.status,
       parent: entities.parentMetaId,
       attrs: entities.attrs,
+      dailyBudget: entities.dailyBudget,
     })
     .from(entities)
     .where(
@@ -37,6 +38,8 @@ export async function launcherSources(ctx: ActorCtx, adAccountId: string) {
         name: r.name,
         status: r.status,
         campaignName: campaigns.get(r.parent ?? '') ?? null,
+        // ADR-0026: ngân sách ngày của nhóm QC (mẫu cho nhóm QC mới); null = chiến dịch dùng ngân sách chiến dịch.
+        dailyBudget: r.dailyBudget,
       }))
       .sort((a, b) =>
         a.status === b.status ? (a.name ?? '').localeCompare(b.name ?? '') : a.status === 'ACTIVE' ? -1 : 1,
