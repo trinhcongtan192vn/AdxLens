@@ -14,7 +14,7 @@ export function WsAskBar() {
   if (pathname?.startsWith('/w/agents')) return null;
   return (
     <form
-      className="fixed bottom-4 left-1/2 z-30 w-[min(560px,calc(100vw-32px))] -translate-x-1/2 lg:left-[calc(50%+120px)]"
+      className="fixed bottom-4 left-1/2 z-30 w-[min(560px,calc(100vw-32px))] -translate-x-1/2 lg:left-[calc(50%+120px)] print:hidden"
       onSubmit={(e) => {
         e.preventDefault();
         if (q.trim()) router.push(`/w/agents?q=${encodeURIComponent(q.trim())}`);

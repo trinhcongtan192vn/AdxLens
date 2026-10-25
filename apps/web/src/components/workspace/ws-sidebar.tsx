@@ -82,7 +82,7 @@ export function WsSidebar({
     );
   };
   return (
-    <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-line bg-surface px-3 py-4">
+    <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-line bg-surface px-3 py-4 print:hidden">
       <Link href="/w" className="flex items-center gap-2 px-2">
         <span className="flex size-7 items-center justify-center rounded-lg bg-brand text-on-brand">
           <TrendingUp className="size-4" aria-hidden />
