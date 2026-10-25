@@ -56,6 +56,8 @@ export function AdminAction({
   done,
   kind = 'secondary',
   testId,
+  intro,
+  redirectTo,
 }: {
   label: string;
   title: string;
@@ -67,6 +69,10 @@ export function AdminAction({
   done: string;
   kind?: 'primary' | 'secondary' | 'danger' | 'ghost';
   testId?: string;
+  /** Lời cảnh báo đầu hộp thoại (vd. thao tác không hoàn tác được). */
+  intro?: string;
+  /** Sau khi xong thì chuyển trang (vd. đối tượng vừa bị xóa) thay vì làm mới. */
+  redirectTo?: string;
 }) {
   const t = useTranslations('admin');
   const tc = useTranslations('common');
@@ -93,7 +99,8 @@ export function AdminAction({
         toast.success(done);
         setOpen(false);
         setReason('');
-        router.refresh();
+        if (redirectTo) router.push(redirectTo);
+        else router.refresh();
       } catch (e) {
         toast.error(e instanceof ApiError ? e.message : tc('errorGeneric'));
       }
@@ -134,6 +141,7 @@ export function AdminAction({
         }
       >
         <div className="flex flex-col gap-3">
+          {intro ? <p className="text-body text-danger">{intro}</p> : null}
           {fields.map((f) =>
             f.kind === 'checkbox' ? (
               <label key={f.name} className="flex items-center gap-2 text-body">

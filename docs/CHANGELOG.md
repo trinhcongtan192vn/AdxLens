@@ -27,6 +27,32 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [122] Trang admin: xóa workspace và xóa tài khoản người dùng — 2026-10-25
+
+PM yêu cầu "cho phép xóa account và workspace ở trang admin".
+
+- **Xóa workspace** (`/admin/workspaces/[id]` → **Vùng nguy hiểm**):
+  - chỉ superadmin; gõ đúng tên workspace; bắt buộc lý do;
+  - xóa mọi dòng có `workspace_id`, kể cả analytics và kết nối Meta (token bị xóa theo). Danh sách bảng đọc từ DB nên
+    không sót bảng mới; bảng tham chiếu nhau không cascade được xóa theo nhiều lượt;
+  - nhật ký admin và nhật ký cờ được giữ;
+  - xong thì chuyển về danh sách workspace.
+- **Xóa tài khoản** (nút trên từng dòng thành viên, trừ Owner):
+  - chỉ superadmin; gõ đúng email; bắt buộc lý do;
+  - xóa khỏi mọi workspace, xóa dữ liệu theo người dùng (thông báo, hội thoại AI, quyền OAuth…), xóa tài khoản đăng nhập
+    Supabase;
+  - **chặn:** tự xóa mình; tài khoản staff (gỡ quyền staff trước); người đang là Owner (xóa workspace hoặc chuyển quyền
+    Owner trước).
+- Mỗi thao tác ghi nhật ký admin (`workspace.deleted`, `user.deleted`).
+- Truy vấn xuyên workspace có chủ đích nằm ở `core/ops` (quy tắc 1). Route mới thêm vào bộ cách ly (miễn trừ staff).
+- **Nợ kỹ thuật ghi thêm:** ST01 (Owner tự xóa workspace) chỉ dựa vào cascade nên bỏ lại dữ liệu ở các bảng không có
+  khóa ngoại (xem `docs/tech-debt.md`).
+
+**Test tự động:** `core/ops/admin-delete.test.ts`:
+- operator bị chặn; sai tên / thiếu lý do → từ chối;
+- xóa trọn dữ liệu workspace (gồm analytics), workspace khác không bị đụng; có nhật ký;
+- xóa tài khoản: chặn tự xóa / staff / Owner / sai email; xóa thành viên + đăng nhập; Owner và workspace nguyên vẹn.
+
 ## [121] AI Agents: hiển thị câu trả lời dạng markdown — 2026-10-25
 
 PM yêu cầu "pretify câu trả lời từ AI": câu trả lời đang hiện chữ thô với dấu `**`.
