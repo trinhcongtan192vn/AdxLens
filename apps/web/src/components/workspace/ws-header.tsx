@@ -4,17 +4,21 @@ import { FileDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useTransition, type ReactNode } from 'react';
-import { Button, Segmented, Select } from '@adxlens/ui';
+import { Button, Select } from '@adxlens/ui';
 import { api } from '@/lib/api-client';
-import { W_PERIODS } from '@/lib/workspace-nav';
+import { PeriodFilter } from './period-filter';
 
-/** Đầu trang Workspace: tiêu đề · bộ chọn phạm vi (Agency / tài khoản) · kỳ 7/14/30 ngày. */
+/**
+ * Đầu trang Workspace: tiêu đề · bộ lọc tài khoản QC · kỳ 7/14/30 ngày. `period` chỉ truyền ở trang mà mọi khối đều theo
+ * kỳ; trang không có dữ liệu theo kỳ (hoặc chỉ một khối) không truyền — khối đó tự đặt `PeriodFilter`.
+ */
 export function WsHeader({
   title,
   subtitle,
   accounts,
   selectedId,
   period,
+  printPeriod,
   actions,
   hideScope,
 }: {
@@ -22,7 +26,9 @@ export function WsHeader({
   subtitle?: ReactNode;
   accounts: { id: string; name: string }[];
   selectedId: string | null;
-  period: string;
+  period?: string;
+  /** Kỳ hiện ở dòng in (khi bộ lọc kỳ nằm trong một khối của trang). */
+  printPeriod?: string;
   actions?: ReactNode;
   hideScope?: boolean;
 }) {
@@ -42,7 +48,8 @@ export function WsHeader({
         {subtitle ? <p className="text-small text-fg-tertiary">{subtitle}</p> : null}
         {/* Chỉ khi in / xuất PDF: ghi phạm vi + kỳ thay cho bộ chọn (bị ẩn khi in). */}
         <p className="hidden text-small text-fg-secondary print:block">
-          {scopeName ?? t('scope.agency', { n: accounts.length })} · {t(`periods.${period}` as never)}
+          {scopeName ?? t('scope.agency', { n: accounts.length })}
+          {(period ?? printPeriod) ? ` · ${t(`periods.${period ?? printPeriod}` as never)}` : ''}
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-3 print:hidden">
@@ -69,13 +76,7 @@ export function WsHeader({
             ))}
           </Select>
         )}
-        <div role="group" aria-label={t('periodLabel')}>
-          <Segmented
-            value={(W_PERIODS as readonly string[]).includes(period) ? period : 'last7'}
-            onChange={(v: string) => set({ period: v })}
-            options={W_PERIODS.map((p) => ({ value: p, label: t(`periods.${p}`) }))}
-          />
-        </div>
+        {period ? <PeriodFilter period={period} /> : null}
       </div>
     </header>
   );

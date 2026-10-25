@@ -16,6 +16,7 @@ import {
   type MetricKey,
 } from '@adxlens/core/reporting';
 import { Badge, buttonVariants, Card, cn, EmptyState } from '@adxlens/ui';
+import { PeriodFilter } from '@/components/workspace/period-filter';
 import { KpiCustomize } from '@/components/workspace/kpi-customize';
 import { Sparkline } from '@/components/workspace/sparkline';
 import { WsHeader } from '@/components/workspace/ws-header';
@@ -52,7 +53,7 @@ export default async function WorkspaceHome() {
       subtitle={scope.selected ? scope.selected.name : tw('scope.agency', { n: scope.accounts.length })}
       accounts={scope.accounts}
       selectedId={scope.selected?.id ?? null}
-      period={scope.period}
+      printPeriod={scope.period}
     />
   );
   if (!scope.accounts.length) {
@@ -255,6 +256,8 @@ export default async function WorkspaceHome() {
             {t('perf.coverage', { days: home.coverage.days, total: home.coverage.total })}
           </span>
           <div className="flex-1" />
+          {/* Kỳ chỉ tác động khối Hiệu suất (Sức khỏe / Tracking / Cần chú ý không theo kỳ). */}
+          <PeriodFilter period={scope.period} />
           <KpiCustomize current={metrics} options={METRIC_KEYS} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

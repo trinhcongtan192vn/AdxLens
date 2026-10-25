@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { localDate, periodRange, previousRange, toPeriod } from './period';
+import { localDate, periodApplies, periodRange, previousRange, toPeriod } from './period';
 
 // 2026-10-22 01:30 giờ Việt Nam = 2026-10-21 18:30 UTC.
 const now = new Date('2026-10-21T18:30:00Z');
@@ -32,5 +32,21 @@ describe('kỳ thời gian', () => {
 
   it('giá trị lạ về mặc định', () => {
     expect(toPeriod('xyz')).toBe('last7');
+  });
+});
+
+describe('periodApplies (bộ chọn kỳ chỉ ở trang lọc được theo ngày)', () => {
+  it('trang có số theo kỳ', () => {
+    expect(periodApplies('/accounts/a1')).toBe(true);
+    expect(periodApplies('/accounts/a1/campaign/123')).toBe(true);
+    expect(periodApplies('/clients/0e9c7d2a-1111-4222-8333-444455556666')).toBe(true);
+    expect(periodApplies('/creatives')).toBe(true);
+    expect(periodApplies('/creatives/compare')).toBe(true);
+  });
+  it('trang không lọc theo ngày', () => {
+    for (const p of ['/clients', '/settings/profile', '/connections', '/reports', '/notifications', '/action-log']) {
+      expect(periodApplies(p)).toBe(false);
+    }
+    expect(periodApplies('/clients/0e9c7d2a-1111-4222-8333-444455556666/reconciliation')).toBe(false);
   });
 });
