@@ -27,6 +27,17 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [115] Sửa: ảnh creative mờ — 2026-10-25
+
+- **Lỗi** (PM báo): ảnh ở Workspace › Quảng cáo, thư viện Creative và báo cáo rất mờ. Meta mặc định trả `thumbnail_url`
+  khoảng 64×64, app phóng lên thẻ lớn.
+- **Sửa:**
+  - đồng bộ xin thumbnail **720×720** (`thumbnail_width` / `thumbnail_height` khi đọc `adcreatives`);
+  - creative ảnh dùng `image_url` gốc khi có (lưới quảng cáo, thư viện creative, top quảng cáo trong báo cáo).
+- Ảnh rõ sau **lần đồng bộ kế tiếp**: bản chụp hiện tại vẫn là link ảnh nhỏ.
+
+**Test tự động:** `meta-client/read.test.ts` (xin thumbnail 720×720); test lưới quảng cáo / thư viện creative vẫn qua.
+
 ## [114] Sửa: bấm "Kết nối Meta" báo "Thiếu workspace (header X-Workspace-Id)" — 2026-10-25
 
 - **Lỗi** (PM báo trên bản team): link điều hướng `GET /api/v1/connections/meta/authorize` trả 400 khi trình duyệt chưa có
