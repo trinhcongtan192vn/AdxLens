@@ -10,3 +10,4 @@ export * from './self-test';
 export * from './rule-insights';
 export * from './reverts';
 export * from './creative-drafts';
+export * from './plans';

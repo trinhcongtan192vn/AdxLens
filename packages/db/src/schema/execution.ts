@@ -255,3 +255,37 @@ export const creativeDrafts = app.table(
   },
   (t) => [index().on(t.workspaceId, t.adAccountId, t.createdAt)],
 );
+
+export const ACTION_PLAN_STATUSES = ['proposed', 'approved', 'running', 'done', 'failed', 'canceled'] as const;
+
+/**
+ * Kế hoạch hành động (ADR-0031): chuỗi bước tạo mới (creative → nhóm QC → quảng cáo) do agent / người dùng soạn, duyệt
+ * một lần; job chạy từng bước qua Execution Gateway. `steps` / `results` theo `packages/core/execution/plans.ts`.
+ */
+export const actionPlans = app.table(
+  'action_plans',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workspaceId: uuid('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    adAccountId: uuid('ad_account_id')
+      .notNull()
+      .references(() => adAccounts.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    source: text('source', { enum: ['agent', 'user'] }).notNull(),
+    /** Tin trả lời của agent đã tạo kế hoạch (để hiện thẻ trong chat). */
+    agentMessageId: uuid('agent_message_id'),
+    status: text('status', { enum: ACTION_PLAN_STATUSES }).notNull().default('proposed'),
+    steps: jsonb('steps').$type<unknown[]>().notNull(),
+    results: jsonb('results').$type<unknown[]>().notNull().default([]),
+    createdBy: uuid('created_by').notNull(),
+    approvedBy: uuid('approved_by'),
+    approvedAt: tsz('approved_at'),
+    expiresAt: tsz('expires_at').notNull(),
+    finishedAt: tsz('finished_at'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index().on(t.workspaceId, t.createdAt)],
+);

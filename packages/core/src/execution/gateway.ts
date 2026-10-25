@@ -783,7 +783,7 @@ export async function actionCounts(ctx: WorkspaceCtx) {
     .groupBy(actions.status);
 }
 
-type LaunchInput =
+export type LaunchInput =
   | { kind: 'create_ad'; adAccountId: string; adsetId: string; creativeId: string; name: string }
   | {
       kind: 'create_lookalike';
@@ -838,6 +838,41 @@ export async function requestLaunch(
   input: LaunchInput,
   deps: { enqueue: Enqueue; clock?: Clock },
 ): Promise<ActionRow> {
+  return (await launch(ctx, input, { ...deps, mode: 'enqueue' }))!;
+}
+
+/**
+ * ADR-0031: kiểm một bước kế hoạch như `requestLaunch` (quyền, an toàn, nguồn, guardrails) mà không tạo hành động.
+ * `extraActionsToday` = số bước đứng trước trong cùng kế hoạch (tính vào giới hạn hành động / ngày).
+ */
+export async function checkLaunch(
+  ctx: ActorCtx,
+  input: LaunchInput,
+  opts: { clock?: Clock; extraActionsToday?: number } = {},
+): Promise<void> {
+  await launch(ctx, input, { ...opts, mode: 'check' });
+}
+
+/** ADR-0031: tạo hành động duyệt tay cho một bước kế hoạch (job kế hoạch thực hiện ngay, không enqueue). */
+export async function insertPlannedLaunch(
+  ctx: ActorCtx,
+  input: LaunchInput,
+  opts: { clock?: Clock; planId: string },
+): Promise<ActionRow> {
+  return (await launch(ctx, input, { ...opts, mode: 'insert' }))!;
+}
+
+async function launch(
+  ctx: ActorCtx,
+  input: LaunchInput,
+  deps: {
+    mode: 'enqueue' | 'insert' | 'check';
+    enqueue?: Enqueue;
+    clock?: Clock;
+    planId?: string;
+    extraActionsToday?: number;
+  },
+): Promise<ActionRow | null> {
   const clock = deps.clock ?? systemClock;
   const now = clock.now();
   const account = (await listAdAccounts(ctx)).find((x) => x.id === input.adAccountId);
@@ -1015,13 +1050,15 @@ export async function requestLaunch(
     targetIds: parents,
     accountTimezone: account.timezone,
     now,
-    actionsToday: await actionsToday(ctx, account.id, account.timezone, now),
+    actionsToday: (await actionsToday(ctx, account.id, account.timezone, now)) + (deps.extraActionsToday ?? 0),
     // Tạo mới không cần lịch sử dữ liệu của đối tượng.
     dataDays: g.minDataDays,
     currentDailyBudget: params.template_daily_budget || null,
     newDailyBudget: params.daily_budget || null,
   });
   if (violations.length) throw new AppError('GUARDRAIL_VIOLATION', 'Vi phạm guardrails', { violations });
+  if (deps.mode === 'check') return null;
+  if (deps.planId) params = { ...params, plan_id: deps.planId };
   const after: Record<string, string | null> =
     input.kind === 'create_ad' || input.kind === 'create_adset'
       ? { created_status: 'PAUSED' }
@@ -1050,7 +1087,8 @@ export async function requestLaunch(
     })
     .returning();
   await log(ctx, row!.id, 'approved', { by: ctx.actor.userId, params, after });
-  await deps.enqueue('execute:action', { workspaceId: ctx.workspaceId, actionId: row!.id });
+  if (deps.mode === 'enqueue')
+    await deps.enqueue!('execute:action', { workspaceId: ctx.workspaceId, actionId: row!.id });
   return row!;
 }
 
@@ -1237,6 +1275,24 @@ async function executeLaunch(
   const ts = clock.now();
   if (outcome.kind === 'success') {
     await recordSuccess(ctx, account.id);
+    // ADR-0031: nhóm QC mới vào bản chụp cấu trúc ngay (bước tạo quảng cáo kế tiếp của kế hoạch tìm thấy nó).
+    if (a.actionType === 'create_adset' && outcome.after.created_id) {
+      await ctx.db
+        .insert(entities)
+        .values({
+          workspaceId: ctx.workspaceId,
+          adAccountId: account.id,
+          entityType: 'adset',
+          metaId: outcome.after.created_id,
+          name: a.params.name ?? null,
+          status: 'PAUSED',
+          parentMetaId: a.params.campaign_id ?? null,
+          dailyBudget: a.params.daily_budget || null,
+          attrs: { campaign_id: a.params.campaign_id ?? null, from: 'adxlens' },
+          updatedAt: ts,
+        })
+        .onConflictDoNothing();
+    }
     // ADR-0027: creative mới vào bản chụp cấu trúc ngay (chọn được ở Ad Launcher trước lần đồng bộ kế tiếp).
     if (a.actionType === 'create_creative' && outcome.after.created_id) {
       await ctx.db

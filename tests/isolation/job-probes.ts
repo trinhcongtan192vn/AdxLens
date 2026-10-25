@@ -129,6 +129,28 @@ export const JOB_PROBES: Record<string, JobProbe> = {
     },
     payload: (w, p) => ({ workspaceId: w.a.workspace.id, actionId: p!.actionId }),
   },
+  // ADR-0031: kế hoạch đã duyệt của A (gói Free, cờ P2a tắt) → dừng ngay, không bước nào chạy; dữ liệu B không đổi.
+  'execute:plan': {
+    prepare: async (db, w) => {
+      const { schema } = await import('@adxlens/db');
+      const [p] = await db
+        .insert(schema.actionPlans)
+        .values({
+          workspaceId: w.a.workspace.id,
+          adAccountId: w.a.adAccount.id,
+          title: 'probe',
+          source: 'agent',
+          status: 'approved',
+          steps: [{ key: 'ad', kind: 'create_ad', adset: '1', creative: '2', name: 'probe' }],
+          createdBy: w.a.owner.id,
+          approvedBy: w.a.owner.id,
+          expiresAt: new Date(Date.now() + 3_600_000),
+        })
+        .returning();
+      return { planId: p!.id };
+    },
+    payload: (w, p) => ({ workspaceId: w.a.workspace.id, planId: p!.planId }),
+  },
   // ADR-0021: lịch hẹn của A đến hạn (hành động gốc chưa thành công) → bỏ qua; dữ liệu B không đổi.
   'execute:revert': {
     prepare: async (db, w) => {

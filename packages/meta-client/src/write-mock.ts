@@ -186,8 +186,12 @@ export class MockMetaWrite implements MetaWriteApi {
 
   async createAd(_t: string, act: string, input: { name: string; adsetId: string; creativeId: string }) {
     const s = mockStructure(act);
-    const adset = s.adsets.find((x) => x.id === input.adsetId);
-    if (!adset || !s.creatives.some((c) => c.id === input.creativeId)) {
+    // Như Meta thật: nhận cả nhóm QC / creative vừa tạo trong phiên (ADR-0031: kế hoạch nhiều bước).
+    const adset = s.adsets.find((x) => x.id === input.adsetId) ?? mockWriteState.copies.get(input.adsetId);
+    const creativeOk =
+      s.creatives.some((c) => c.id === input.creativeId) ||
+      mockWriteState.createdCreatives.get(input.creativeId)?.act === act;
+    if (!adset || !creativeOk) {
       throw new MetaApiError(400, 100, null, 'OAuthException', 'Invalid parameter', null);
     }
     this.calls.push({ op: 'createAd', id: input.adsetId, value: input.creativeId });
