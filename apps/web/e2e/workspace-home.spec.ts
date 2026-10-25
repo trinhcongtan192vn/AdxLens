@@ -103,7 +103,8 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   await expect(page.getByTestId('ws-export-pdf')).toBeVisible();
   await page.emulateMedia({ media: 'print' });
   await expect(page.getByRole('navigation', { name: 'Điều hướng Workspace' })).toBeHidden();
-  await expect(page.getByText(/· 7 ngày/)).toBeVisible();
+  // Kỳ đang chọn là 30 ngày (đổi ở đầu test).
+  await expect(page.getByText(/· 30 ngày$/)).toBeVisible();
   await page.emulateMedia({ media: 'screen' });
 
   // W9: AI Agents sau cờ P1 (workspace mới chưa bật) → không có menu, trang chặn ở server, không có ô hỏi nổi.
