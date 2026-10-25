@@ -21,7 +21,7 @@ import {
   type Clock,
   type WorkspaceCtx,
 } from '@adxlens/core/shared';
-import { creativeCopy, funnelStageOf } from './funnel-stage';
+import { adsetAudiences, creativeCopy, funnelStageOf } from './funnel-stage';
 import { extractResult, resultActionTypes, toDecimal } from './results';
 
 const { adAccounts, entities, insightsBreakdowns, insightsDaily, syncRuns } = schema;
@@ -211,6 +211,7 @@ async function syncStructure(ctx: WorkspaceCtx, adAccountId: string, act: string
           (s.targeting?.custom_audiences ?? []).map((x) => x.id),
           audienceTypes,
         ),
+        audiences: adsetAudiences(s.targeting, audienceTypes),
       },
     })),
     ...ads.map((a) => ({

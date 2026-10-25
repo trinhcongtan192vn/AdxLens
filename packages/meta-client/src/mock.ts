@@ -138,6 +138,19 @@ function structure(act: string): Structure {
                 : ci === 1 && si === 2
                   ? [{ id: `ca_list_${n}`, name: 'Khách cũ (danh sách)' }]
                   : [],
+          // Ad set "Sở thích": 2 interest (Top Audiences).
+          ...(si === 2 && ci !== 1
+            ? {
+                flexible_spec: [
+                  {
+                    interests: [
+                      { id: '6003139266461', name: 'Mỹ phẩm' },
+                      { id: '6003397425735', name: 'Thời trang' },
+                    ],
+                  },
+                ],
+              }
+            : {}),
         },
       });
       const adCount = small ? 1 : 3;

@@ -2819,7 +2819,8 @@
       "alerts": "Cảnh báo",
       "settings": "Cài đặt",
       "classic": "Giao diện cổ điển",
-      "business": "Business"
+      "business": "Business",
+      "audiences": "Audiences"
     },
     "create": {
       "button": "Tạo mới",
@@ -3453,5 +3454,25 @@
     },
     "needsStore": "Cần nguồn đơn hàng (Shopify / web) — chưa kết nối. Số từ Meta không đủ để tính.",
     "byAccount": "Theo tài khoản QC"
+  },
+  "wsAudiences": {
+    "subtitle": "Audience nào hiệu quả: lookalike, khách cũ, sở thích, nhắm rộng",
+    "audience": "Audience",
+    "type": "Loại",
+    "adsets": "Nhóm QC",
+    "spend": "Chi tiêu",
+    "results": "Kết quả",
+    "cpa": "Chi phí / kết quả",
+    "broad": "Nhắm rộng (không audience)",
+    "types": {
+      "lookalike": "Lookalike",
+      "custom": "Custom audience",
+      "interest": "Sở thích",
+      "broad": "Rộng"
+    },
+    "emptyTitle": "Chưa có dữ liệu audience",
+    "emptyBody": "Danh sách audience có sau lần đồng bộ kế tiếp (đọc từ targeting của nhóm QC).",
+    "note": "Số của mỗi audience = tổng các nhóm QC dùng audience đó; nhóm QC dùng nhiều audience được tính cho mỗi audience, nên tổng các dòng có thể lớn hơn tổng tài khoản.",
+    "noData": "{n} nhóm QC có chi tiêu chưa có thông tin audience (chờ đồng bộ)."
   }
 }

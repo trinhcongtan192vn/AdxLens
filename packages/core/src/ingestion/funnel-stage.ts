@@ -36,3 +36,37 @@ export function creativeCopy(c: MetaCreative): {
     cta: c.call_to_action_type ?? null,
   };
 }
+
+export type AdsetAudience = { key: string; name: string | null; type: 'lookalike' | 'custom' | 'interest' | 'broad' };
+
+/**
+ * Audience của một nhóm QC cho Top Audiences (Madgicx Audience Studio): custom audience (lookalike / custom theo loại
+ * Meta trả), interest / behavior trong targeting; không có gì → "Rộng". Chỉ id + tên, không lưu cả targeting.
+ */
+export function adsetAudiences(
+  targeting:
+    | {
+        custom_audiences?: { id: string; name?: string | null }[] | null;
+        flexible_spec?:
+          | {
+              interests?: { id: string; name?: string | null }[] | null;
+              behaviors?: { id: string; name?: string | null }[] | null;
+            }[]
+          | null;
+      }
+    | null
+    | undefined,
+  subtypes: Map<string, string | null> | null,
+): AdsetAudience[] {
+  const out: AdsetAudience[] = [];
+  for (const a of targeting?.custom_audiences ?? []) {
+    const sub = (subtypes?.get(a.id) ?? '').toUpperCase();
+    out.push({ key: `ca:${a.id}`, name: a.name ?? null, type: sub === 'LOOKALIKE' ? 'lookalike' : 'custom' });
+  }
+  for (const f of targeting?.flexible_spec ?? []) {
+    for (const i of [...(f.interests ?? []), ...(f.behaviors ?? [])]) {
+      out.push({ key: `int:${i.id}`, name: i.name ?? null, type: 'interest' });
+    }
+  }
+  return out.length ? out : [{ key: 'broad', name: null, type: 'broad' }];
+}
