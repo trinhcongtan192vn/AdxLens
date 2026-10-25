@@ -27,6 +27,26 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [141] Một màn "Thông báo": Hộp thư + Quy tắc cảnh báo — 2026-10-25
+
+PM góp ý UI/UX #1: màn Thông báo và màn Cảnh báo chưa rõ mục đích, cần một màn chung.
+
+- **Màn "Thông báo"** (`/w/alerts`, mục chuông ở đáy sidebar, kèm số chưa đọc):
+  - tab **Hộp thư**: mọi sự kiện đã xảy ra. Lọc theo nhóm: Cảnh báo chỉ số · Hành động · Báo cáo · Hệ thống. Lọc "Chỉ
+    chưa đọc", nút "Đánh dấu đã đọc tất cả";
+  - tab **Quy tắc cảnh báo**: tạo / bật / tắt / xóa cảnh báo chỉ số, gợi ý ngưỡng (như trước). `?new=1` mở thẳng tab này.
+- `/notifications` (link trong email cũ) chuyển về màn chung; menu tài khoản → "Thông báo" mở màn chung.
+- Nhóm loại thông báo là hàm thuần `notificationGroup`. Loại mới chưa xếp nhóm → "Hệ thống", vẫn hiện ở "Tất cả".
+
+**Vùng bảo vệ:** không.
+
+**Test tự động:**
+- `lib/notification-groups.test.ts`: nhóm theo loại; loại lạ → hệ thống.
+- E2E `workspace-home.spec.ts`: tiêu đề "Thông báo", bộ lọc hộp thư, lọc "Báo cáo", `/notifications` → màn chung, tab
+  "Quy tắc cảnh báo" → tạo / tắt cảnh báo như cũ.
+  - **Đổi test (quy tắc 8):** bước cũ chờ tiêu đề "Cảnh báo"; PM yêu cầu gộp nên tiêu đề / đường vào đổi. Assertion về
+    tạo cảnh báo giữ nguyên.
+
 ## [140] Bộ lọc kỳ đặt đúng vùng dữ liệu, không còn ở đầu mọi trang — 2026-10-25
 
 PM góp ý UI/UX #3: bộ lọc ngày ở header hầu hết các màn, kể cả màn không lọc theo ngày được.

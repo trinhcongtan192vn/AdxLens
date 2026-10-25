@@ -250,7 +250,7 @@ export function WsSidebar({
             </div>
             <Menu.Separator />
             <Menu.Item onSelect={() => router.push('/settings/profile')}>{t('shell.profile')}</Menu.Item>
-            <Menu.Item onSelect={() => router.push('/notifications')}>
+            <Menu.Item onSelect={() => router.push('/w/alerts')}>
               <span className="flex-1">{t('shell.notifications')}</span>
               {unread > 0 ? (
                 <span className="num rounded-full bg-danger px-1.5 text-caption text-fg-inverse">

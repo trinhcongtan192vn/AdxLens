@@ -1994,6 +1994,19 @@
       "always": "Luôn bật",
       "save": "Lưu",
       "saved": "Đã lưu cài đặt thông báo"
+    },
+    "subtitle": "Mọi sự kiện của workspace và quy tắc cảnh báo chỉ số ở một nơi.",
+    "unreadOnly": "Chỉ chưa đọc",
+    "tabs": {
+      "inbox": "Hộp thư",
+      "rules": "Quy tắc cảnh báo"
+    },
+    "groups": {
+      "all": "Tất cả",
+      "alerts": "Cảnh báo chỉ số",
+      "actions": "Hành động",
+      "reports": "Báo cáo",
+      "system": "Hệ thống"
     }
   },
   "schedules": {
@@ -2991,7 +3004,7 @@
       "funnels": "Phễu",
       "geography": "Địa lý",
       "scale": "Mở rộng",
-      "alerts": "Cảnh báo",
+      "alerts": "Thông báo",
       "settings": "Cài đặt",
       "business": "Business",
       "audiences": "Audiences",

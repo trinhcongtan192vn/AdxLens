@@ -1994,6 +1994,19 @@
       "always": "Always on",
       "save": "Save",
       "saved": "Notification settings saved"
+    },
+    "subtitle": "Every workspace event and your metric alert rules in one place.",
+    "unreadOnly": "Unread only",
+    "tabs": {
+      "inbox": "Inbox",
+      "rules": "Alert rules"
+    },
+    "groups": {
+      "all": "All",
+      "alerts": "Metric alerts",
+      "actions": "Actions",
+      "reports": "Reports",
+      "system": "System"
     }
   },
   "schedules": {
@@ -2991,7 +3004,7 @@
       "funnels": "Funnels",
       "geography": "Geography",
       "scale": "Scale",
-      "alerts": "Alerts",
+      "alerts": "Notifications",
       "settings": "Settings",
       "business": "Business",
       "audiences": "Audiences",
