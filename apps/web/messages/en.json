@@ -3388,7 +3388,10 @@
         "title": "Overspend",
         "action": "High spend, low revenue: cut or replace creative."
       }
-    }
+    },
+    "trendTitle": "Weekly trend",
+    "trendIntro": "Share of spend per format each week (Monday → Sunday), with ROAS when revenue exists.",
+    "trendWeek": "Week of"
   },
   "adCopy": {
     "title": "Ad copy",

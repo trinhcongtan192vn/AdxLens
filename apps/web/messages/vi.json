@@ -3388,7 +3388,10 @@
         "title": "Chi quá tay",
         "action": "Chi nhiều mà doanh thu thấp: giảm hoặc thay creative."
       }
-    }
+    },
+    "trendTitle": "Xu hướng theo tuần",
+    "trendIntro": "Tỷ trọng chi tiêu của từng định dạng mỗi tuần (thứ Hai → Chủ nhật), kèm ROAS khi có doanh thu.",
+    "trendWeek": "Tuần từ"
   },
   "adCopy": {
     "title": "Chữ quảng cáo",

@@ -1,4 +1,6 @@
-import { divDecimal, sumDecimal } from '@adxlens/core/shared';
+import { sql } from 'drizzle-orm';
+import { listAdAccounts } from '@adxlens/core/connections';
+import { addDays, divDecimal, sumDecimal, type ActorCtx } from '@adxlens/core/shared';
 import { adFormat, type AdFormat } from './ads-grid';
 
 /** Điểm đầu vào: một creative với tổng trong kỳ (từ thư viện creative P103). */
@@ -95,4 +97,77 @@ export function creativeInsights(points: CreativePoint[]): {
     return { key: p.key, name: p.name, quadrant, spend: p.spend, value: value(p) };
   });
   return { formats, missing, matrix, valueBasis: hasRevenue ? 'revenue' : 'results' };
+}
+
+export type FormatWeek = {
+  week: string;
+  formats: { format: AdFormat; spend: string; spendShare: number; roas: string | null; results: number }[];
+};
+
+/**
+ * Xu hướng theo tuần của từng định dạng (Madgicx Creative Insights "weekly trend"): `weeks` tuần (thứ Hai → Chủ nhật)
+ * kết thúc ở tuần chứa `endDate`. Chỉ tài khoản người dùng được xem; số do code tính.
+ */
+export async function creativeFormatTrend(
+  ctx: ActorCtx,
+  adAccountIds: string[],
+  endDate: string,
+  weeks = 8,
+): Promise<FormatWeek[]> {
+  const allowed = new Set((await listAdAccounts(ctx)).map((a) => a.id));
+  const ids = adAccountIds.filter((id) => allowed.has(id));
+  if (!ids.length) return [];
+  const from = addDays(endDate, -(weeks * 7 - 1));
+  const rows = await ctx.db.execute<{
+    week: string;
+    object_type: string | null;
+    video_id: string | null;
+    spend: string;
+    value: string | null;
+    results: string;
+  }>(sql`
+    select to_char(date_trunc('week', i.date), 'YYYY-MM-DD') as week, cr.attrs->>'format' as object_type,
+      cr.attrs->>'video_id' as video_id, sum(i.spend)::text as spend, sum(i.conversion_value)::text as value,
+      sum(i.results)::text as results
+    from analytics.insights_daily i
+    join analytics.entities a
+      on a.workspace_id = i.workspace_id and a.ad_account_id = i.ad_account_id and a.entity_type = 'ad'
+      and a.meta_id = i.meta_id
+    left join analytics.entities cr
+      on cr.workspace_id = a.workspace_id and cr.ad_account_id = a.ad_account_id and cr.entity_type = 'creative'
+      and cr.meta_id = a.attrs->>'creative_id'
+    where i.workspace_id = ${ctx.workspaceId} and i.ad_account_id in ${ids} and i.entity_type = 'ad'
+      and i.date between ${from} and ${endDate}
+    group by 1, 2, 3`);
+  const byWeek = new Map<string, Map<AdFormat, { spend: string[]; value: string[]; results: number }>>();
+  for (const r of rows) {
+    const f = adFormat(r.object_type, Boolean(r.video_id));
+    const w = byWeek.get(r.week) ?? new Map();
+    const g = w.get(f) ?? { spend: [], value: [], results: 0 };
+    g.spend.push(r.spend);
+    if (r.value) g.value.push(r.value);
+    g.results += Number(r.results);
+    w.set(f, g);
+    byWeek.set(r.week, w);
+  }
+  return [...byWeek.keys()].sort().map((week) => {
+    const w = byWeek.get(week)!;
+    const total = [...w.values()].reduce((t, g) => t + Number(sumDecimal(g.spend)), 0);
+    return {
+      week,
+      formats: [...w]
+        .map(([format, g]) => {
+          const spend = sumDecimal(g.spend);
+          const value = sumDecimal(g.value);
+          return {
+            format,
+            spend,
+            spendShare: share(Number(spend), total),
+            roas: Number(value) > 0 && Number(spend) > 0 ? divDecimal(value, spend, 2) : null,
+            results: g.results,
+          };
+        })
+        .sort((a, b) => Number(b.spend) - Number(a.spend)),
+    };
+  });
 }

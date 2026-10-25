@@ -3,7 +3,7 @@ import { getFormatter, getTranslations } from 'next-intl/server';
 import { ClientFilter, clientParam } from '@/components/client-filter';
 import { listAdAccounts } from '@adxlens/core/connections';
 import { CREATIVE_CLASSES, creativeLibrary, type CreativeClass } from '@adxlens/core/recommendation';
-import { adCopyInsights, creativeInsights } from '@adxlens/core/reporting';
+import { adCopyInsights, creativeFormatTrend, creativeInsights } from '@adxlens/core/reporting';
 import {
   Badge,
   Button,
@@ -88,6 +88,8 @@ export default async function CreativesPage({
   );
   const ti = await getTranslations('creativeInsights');
   const copy = await adCopyInsights(pc.ctx, [account.id], cur);
+  const trend = await creativeFormatTrend(pc.ctx, [account.id], cur.to);
+  const trendFormats = [...new Set(trend.flatMap((w) => w.formats.map((f) => f.format)))];
   const tc = await getTranslations('adCopy');
   const money = (v: string | null) =>
     v === null ? '—' : format.number(Number(v), { maximumFractionDigits: account.currency === 'VND' ? 0 : 2 });
@@ -206,6 +208,40 @@ export default async function CreativesPage({
             </div>
           </Card>
         </div>
+      ) : null}
+      {trend.length > 1 ? (
+        <Card className="mb-4 overflow-x-auto" data-testid="creative-trend">
+          <h2 className="text-h4 font-semibold text-fg">{ti('trendTitle')}</h2>
+          <p className="text-caption text-fg-tertiary">{ti('trendIntro')}</p>
+          <table className="mt-2 w-full text-caption">
+            <thead>
+              <tr className="text-fg-tertiary">
+                <th className="text-left font-normal">{ti('trendWeek')}</th>
+                {trendFormats.map((f) => (
+                  <th key={f} className="text-right font-normal">
+                    {ti(`formats.${f}`)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {trend.map((w) => (
+                <tr key={w.week} className="border-t border-line">
+                  <td className="py-1 text-fg">{w.week}</td>
+                  {trendFormats.map((f) => {
+                    const x = w.formats.find((y) => y.format === f);
+                    return (
+                      <td key={f} className="num py-1 text-right text-fg">
+                        {x ? `${x.spendShare}%` : '—'}
+                        {x?.roas ? <span className="ml-1 text-fg-tertiary">· {x.roas}x</span> : null}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
       ) : null}
       {copy.copies.length ? (
         <Card className="mb-4" data-testid="ad-copy-insights">
