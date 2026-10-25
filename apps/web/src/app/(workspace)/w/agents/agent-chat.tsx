@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Badge, Button, Card, cn, Select } from '@adxlens/ui';
 import { ActionDialog, type GridActionType } from '@/components/entity-actions';
 import { api, ApiError } from '@/lib/api-client';
+import { Markdown } from '@/components/markdown';
 
 export type ContextEntity = { level: 'campaign' | 'adset' | 'ad'; metaId: string; name: string | null };
 type Thread = { id: string; title: string; favorite: boolean; updated_at: string };
@@ -296,7 +297,7 @@ export function AgentChat({
                           </dl>
                         </>
                       ) : (
-                        <p className="whitespace-pre-wrap">{m.content}</p>
+                        <Markdown text={m.content} />
                       )}
                       {m.llm?.via === 'workspace' && m.status === 'done' ? (
                         <p className="mt-2 text-caption text-fg-tertiary" data-testid="agent-own-key">
