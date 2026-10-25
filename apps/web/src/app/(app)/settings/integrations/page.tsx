@@ -1,6 +1,14 @@
 import { getTranslations } from 'next-intl/server';
 import { getEnv } from '@adxlens/config/env';
-import { getLlmKey, listApiKeys, listOAuthGrants, LLM_MODELS } from '@adxlens/core/agent';
+import {
+  IMAGE_MODELS,
+  listApiKeys,
+  listLlmKeys,
+  listLlmRoutes,
+  listOAuthGrants,
+  LLM_MODELS,
+  TASK_PROVIDERS,
+} from '@adxlens/core/agent';
 import { appBaseUrl, currentRequest } from '@/server/public-base';
 import { getPageContext, requireFlag } from '@/server/page-context';
 import { requirePermission } from '@/server/guards';
@@ -18,24 +26,33 @@ export default async function IntegrationsPage() {
   const pc = await getPageContext();
   await requireFlag(pc, 'p1_recommendations');
   requirePermission(pc, 'clients.manage');
-  const [keys, llm, grants] = await Promise.all([listApiKeys(pc.ctx), getLlmKey(pc.ctx), listOAuthGrants(pc.ctx)]);
+  const [keys, llmKeys, routes, grants] = await Promise.all([
+    listApiKeys(pc.ctx),
+    listLlmKeys(pc.ctx),
+    listLlmRoutes(pc.ctx),
+    listOAuthGrants(pc.ctx),
+  ]);
   const endpoint = `${appBaseUrl(await currentRequest())}/api/v1/mcp`;
   return (
     <>
       <LlmKeyCard
         models={LLM_MODELS}
+        imageModels={IMAGE_MODELS}
+        taskProviders={TASK_PROVIDERS}
         platform={Boolean(getEnv().ANTHROPIC_API_KEY)}
-        current={
-          llm
-            ? {
-                provider: llm.provider,
-                model: llm.model,
-                keyHint: llm.keyHint,
-                lastUsedAt: llm.lastUsedAt?.toISOString() ?? null,
-                lastError: llm.lastError,
-              }
-            : null
-        }
+        keys={llmKeys.map((k) => ({
+          provider: k.provider,
+          model: k.model,
+          keyHint: k.keyHint,
+          lastUsedAt: k.lastUsedAt?.toISOString() ?? null,
+          lastError: k.lastError,
+        }))}
+        routes={Object.values(routes).map((r) => ({
+          task: r!.task,
+          provider: r!.provider,
+          model: r!.model,
+          source: r!.source,
+        }))}
       />
       <div className="mt-4" />
       <ConnectorCard

@@ -3485,7 +3485,7 @@
     "proposeOff": "Requires a plan with action approval.",
     "llm": {
       "title": "Workspace AI model",
-      "intro": "AI Agents answer with the agency's own AI account: Anthropic (Claude), OpenAI (GPT), Google (Gemini) or DeepSeek. Usage is billed to your account with the provider. Numbers are still computed and checked by AdxLens before they are shown.",
+      "intro": "AI runs on the agency's own AI accounts: Anthropic (Claude), OpenAI (GPT), Google (Gemini), DeepSeek — save several keys, one per provider. Usage is billed to your provider account. Numbers are still computed and checked by AdxLens before they are shown.",
       "statusOn": "In use",
       "statusError": "Error",
       "using": "{provider} · {model}",
@@ -3502,7 +3502,7 @@
       "model": "Model",
       "key": "API key",
       "keyKeep": "Leave empty to keep the current key",
-      "security": "The key is encrypted at rest, never shown again and only used to answer questions in AI Agents.",
+      "security": "Keys are encrypted when saved, never shown again and only used for AI tasks in AdxLens.",
       "save": "Save key",
       "remove": "Remove key",
       "saved": "AI key saved",
@@ -3520,7 +3520,33 @@
         "gemini": "Create a key at aistudio.google.com → Get API key.",
         "deepseek": "Create a key at platform.deepseek.com → API keys."
       },
-      "modelHint": "Pick a suggested model or type another model your account can use."
+      "modelHint": "Pick a suggested model or type another model your account can use.",
+      "addTitle": "Add a key",
+      "replaceTitle": "Change this provider's key / model",
+      "removeOf": "Remove {provider} key",
+      "routesTitle": "Model per task",
+      "routesIntro": "Each task uses a suitable model: a strong model for analysis, a cheap fast one for copywriting, OpenAI for images. Leave it on default and AdxLens picks from your saved keys.",
+      "tasks": {
+        "analysis": "Analysis (AI Agents)",
+        "copywriting": "Ad copywriting",
+        "image": "Creative images"
+      },
+      "routeDefault": "Default",
+      "routeCustom": "Chosen",
+      "routeSave": "Use this model",
+      "routeReset": "Back to default",
+      "routeSaved": "Model choice saved",
+      "routeError": "Could not save: the provider needs a key and must support this task",
+      "routeNone": {
+        "analysis": "No key: uses the AdxLens default model if available.",
+        "copywriting": "No key: AI copywriting is unavailable.",
+        "image": "No OpenAI key: AI images are unavailable."
+      },
+      "routeMissing": {
+        "analysis": "Add a key to choose a model.",
+        "copywriting": "Add a key to choose a model.",
+        "image": "Images need an OpenAI key."
+      }
     },
     "connector": {
       "title": "Use AdxLens in Claude / ChatGPT",

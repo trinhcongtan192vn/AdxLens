@@ -27,6 +27,27 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [135] Cài đặt → Tích hợp: nhiều khóa AI và chọn model cho từng việc (ADR-0030) — 2026-10-25
+
+Giao diện cho AI router (134).
+
+- **Thẻ "Mô hình AI của workspace":**
+  - liệt kê mọi khóa đã lưu: nhà cung cấp, model, 4 ký tự cuối, trạng thái, lần dùng cuối, nút gỡ riêng từng khóa;
+  - form "Thêm khóa" / "Đổi khóa / model của nhà cung cấp này": chọn nhà cung cấp đã có khóa thì để trống ô khóa để
+    chỉ đổi model.
+- **Khối "Model cho từng việc":** Phân tích (AI Agents), Viết nội dung quảng cáo, Tạo ảnh creative.
+  - Mỗi dòng hiện model đang dùng, nhãn "Mặc định" / "Đã chọn".
+  - Chỉ cho chọn nhà cung cấp đã có khóa và làm được việc đó. Tạo ảnh chỉ OpenAI, chọn model trong danh sách đóng.
+  - Nút "Về mặc định".
+
+**Vùng bảo vệ:** không.
+
+**Test tự động:** E2E `creatives.spec.ts`: lưu khóa Anthropic rồi OpenAI → 2 khóa cùng hiện; tạo ảnh = `gpt-image-1`;
+phân tích "Mặc định". API và lõi đã có test ở 134.
+
+**PM kiểm tra:** Cài đặt → Tích hợp → thêm hai khóa → ở "Model cho từng việc" chọn model rẻ hơn cho "Viết nội dung
+quảng cáo" → nhãn "Đã chọn"; bấm "Về mặc định" → quay về model của khóa phân tích.
+
 ## [134] AI router: nhiều khóa AI (mỗi nhà cung cấp một khóa), chọn model theo việc (ADR-0030) — 2026-10-25
 
 PM yêu cầu: "Triển khai AI router và nâng cấp bộ công cụ cho AI agent". Phần này là lõi router; giao diện ở 135.

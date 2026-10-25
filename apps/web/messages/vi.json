@@ -3485,7 +3485,7 @@
     "proposeOff": "Cần gói có tính năng duyệt hành động.",
     "llm": {
       "title": "Mô hình AI của workspace",
-      "intro": "AI Agents trả lời bằng tài khoản AI của chính agency: Anthropic (Claude), OpenAI (GPT), Google (Gemini) hoặc DeepSeek. Chi phí tính vào tài khoản của bạn ở nhà cung cấp. Số liệu vẫn do AdxLens tính và kiểm tra trước khi hiện.",
+      "intro": "AI chạy bằng tài khoản AI của chính agency: Anthropic (Claude), OpenAI (GPT), Google (Gemini), DeepSeek — lưu được nhiều khóa, mỗi nhà cung cấp một khóa. Chi phí tính vào tài khoản của bạn ở nhà cung cấp. Số liệu vẫn do AdxLens tính và kiểm tra trước khi hiện.",
       "statusOn": "Đang dùng",
       "statusError": "Lỗi",
       "using": "{provider} · {model}",
@@ -3502,7 +3502,7 @@
       "model": "Model",
       "key": "Khóa API",
       "keyKeep": "Để trống để giữ khóa hiện tại",
-      "security": "Khóa được mã hóa khi lưu, không hiện lại và chỉ dùng để trả lời câu hỏi trong AI Agents.",
+      "security": "Khóa được mã hóa khi lưu, không hiện lại và chỉ dùng cho các việc AI trong AdxLens.",
       "save": "Lưu khóa",
       "remove": "Gỡ khóa",
       "saved": "Đã lưu khóa AI",
@@ -3520,7 +3520,33 @@
         "gemini": "Tạo khóa ở aistudio.google.com → Get API key.",
         "deepseek": "Tạo khóa ở platform.deepseek.com → API keys."
       },
-      "modelHint": "Chọn từ danh sách gợi ý hoặc gõ tên model khác mà tài khoản của bạn dùng được."
+      "modelHint": "Chọn từ danh sách gợi ý hoặc gõ tên model khác mà tài khoản của bạn dùng được.",
+      "addTitle": "Thêm khóa",
+      "replaceTitle": "Đổi khóa / model của nhà cung cấp này",
+      "removeOf": "Gỡ khóa {provider}",
+      "routesTitle": "Model cho từng việc",
+      "routesIntro": "Mỗi việc dùng một model phù hợp: model mạnh cho phân tích, model rẻ và nhanh cho viết nội dung, OpenAI cho tạo ảnh. Để mặc định thì AdxLens tự chọn theo khóa đã lưu.",
+      "tasks": {
+        "analysis": "Phân tích (AI Agents)",
+        "copywriting": "Viết nội dung quảng cáo",
+        "image": "Tạo ảnh creative"
+      },
+      "routeDefault": "Mặc định",
+      "routeCustom": "Đã chọn",
+      "routeSave": "Dùng model này",
+      "routeReset": "Về mặc định",
+      "routeSaved": "Đã lưu lựa chọn model",
+      "routeError": "Không lưu được: nhà cung cấp cần có khóa và làm được việc này",
+      "routeNone": {
+        "analysis": "Chưa có khóa: dùng mô hình mặc định của AdxLens nếu có.",
+        "copywriting": "Chưa có khóa: chưa viết nội dung bằng AI được.",
+        "image": "Chưa có khóa OpenAI: chưa tạo ảnh bằng AI được."
+      },
+      "routeMissing": {
+        "analysis": "Thêm khóa để chọn model.",
+        "copywriting": "Thêm khóa để chọn model.",
+        "image": "Tạo ảnh cần khóa OpenAI."
+      }
     },
     "connector": {
       "title": "Dùng AdxLens trong Claude / ChatGPT",
