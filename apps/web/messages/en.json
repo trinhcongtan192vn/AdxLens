@@ -1923,6 +1923,11 @@
         "label": "Custom alerts",
         "title": "{scopeAll, select, yes {All accounts} other {{scope}}}: {metric, select, spend {Ad spend} cpa {Cost per result} cpm {CPM cost} cpc {CPC cost} ctr {CTR rate} roas {ROAS ratio} cost_per_purchase {Cost per purchase} cpl {Cost per lead} cost_per_add_to_cart {Cost per add to cart} frequency {Ad frequency} other {Ad results}} {cond, select, above {went above threshold} other {went below threshold}}",
         "body": "On {date}: {value} {currency} vs threshold {threshold} {currency}."
+      },
+      "rule_suggest_resume": {
+        "label": "Rule turn-back-on suggestions",
+        "title": "Turn {item} back on?",
+        "body": "Rule «{rule}» paused {item}. Open the action log and click Undo to run it again."
       }
     },
     "settings": {
@@ -2296,7 +2301,8 @@
       "pause_adset": "Pause ad set",
       "resume_adset": "Resume ad set",
       "set_adset_budget": "Change ad set daily budget",
-      "duplicate_adset": "Duplicate ad set"
+      "duplicate_adset": "Duplicate ad set",
+      "suggest_resume": "Suggest turning back on"
     },
     "state": {
       "ACTIVE": "Active",
@@ -2422,7 +2428,11 @@
       "pause_fatigued_ad": "Pause fatigued ads",
       "pause_adset_no_results": "Pause ad sets spending without results",
       "reduce_budget_high_cpa": "Cut budget of ad sets with rising CPA",
-      "increase_budget_winner": "Increase budget of winning ad sets (CPA down sharply)"
+      "increase_budget_winner": "Increase budget of winning ad sets (CPA down sharply)",
+      "stop_loss_no_clicks": "Stop-loss: spend with no clicks",
+      "surf_winner": "Surf: temporary boost for winners",
+      "sunset_loser": "Sunsetting: step down losers",
+      "revive_paused": "Revive: suggest turning back on"
     },
     "template": "Template",
     "doneCount": "done {count} times",
@@ -2437,7 +2447,10 @@
       "changePct": "Budget change (%)",
       "maxDailyBudget": "Daily budget cap (smallest currency unit)",
       "maxPerDay": "Max actions per day (optional)",
-      "match": "Condition matching"
+      "match": "Condition matching",
+      "floorDailyBudget": "Daily budget floor (minor units)",
+      "revertRestore": "Restore old budget at",
+      "revertSuggest": "Suggest turning back on at"
     },
     "levels": {
       "ad": "ad",
@@ -2450,7 +2463,14 @@
       "ctr": "CTR (ratio)",
       "frequency": "Frequency",
       "ctr_change_pct": "CTR change vs last week (%)",
-      "cpa_change_pct": "CPA change vs last week (%)"
+      "cpa_change_pct": "CPA change vs last week (%)",
+      "link_clicks": "Link clicks (7 days)",
+      "roas": "ROAS (7 days)",
+      "spend_1d": "Spend (latest day)",
+      "results_1d": "Results (latest day)",
+      "link_clicks_1d": "Clicks (latest day)",
+      "cpa_1d": "Cost per result (latest day)",
+      "roas_1d": "ROAS (latest day)"
     },
     "remove": "Remove",
     "addCondition": "+ Add condition",
@@ -2548,13 +2568,25 @@
     "whyValue": "Why this value?",
     "suggestReasons": {
       "cpa_x2": "2× the account's cost per result over the last 30 days ({cpa}): spending that much with no result signals waste.",
-      "frequency_x1_5": "1.5× the average frequency over the last 30 days ({frequency}), at least 2."
+      "frequency_x1_5": "1.5× the average frequency over the last 30 days ({frequency}), at least 2.",
+      "cpc_x2": "2× the account's cost per click over the last 30 days ({cpc}): spending that much with zero clicks means nobody clicks the ad."
     },
     "savings": {
       "saved": "Had this rule been running, you could have avoided about {amount} of spend in the last {days} days",
       "extra": "Had this rule been running, spend would have grown by about {amount} in the last {days} days on winning ad sets",
       "note": "Estimate on synced data for {entities} items, counted from the first trigger day; assumes Meta does not shift the budget elsewhere."
-    }
+    },
+    "tacticsTitle": "Automation tactics (Madgicx-style)",
+    "tacticHelp": {
+      "stop_loss_no_clicks": "Stop-loss: an ad that spent meaningfully on the latest data day with no clicks is paused. Next morning AdxLens suggests turning it back on (one-click Undo) — never turns it on by itself. Based on synced daily data, not hourly.",
+      "surf_winner": "Surf: an ad set profitable both yesterday and over 7 days gets +15% budget (cap required), then the old budget is restored at the chosen hour through the Execution Gateway. Not restored if you changed the budget by hand.",
+      "sunset_loser": "Sunsetting: when CPA rises sharply, cut the budget by 15%, at least 48 hours apart, never below your floor.",
+      "revive_paused": "Revive: an ad paused by a rule in the last 7 days whose 7-day numbers are still good gets a turn-back-on suggestion. Never touches ads you turned off yourself; never turns on by itself."
+    },
+    "floorRequired": "Required for Sunsetting: the budget never goes below this.",
+    "floorHint": "Optional: the budget never goes below this.",
+    "revertRestoreHint": "Account time, outside quiet hours. The restore passes all guardrails; retried later if blocked temporarily.",
+    "revertSuggestHint": "Account time, next morning. Owners / Managers get a notification with an Undo button."
   },
   "entity": {
     "title": "Object detail",

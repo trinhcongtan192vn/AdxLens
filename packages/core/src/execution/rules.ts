@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { schema } from '@adxlens/db';
 import type { Enqueue } from '@adxlens/jobs';
@@ -18,7 +18,8 @@ import {
 } from '@adxlens/core/shared';
 import { assertCan } from '@adxlens/core/tenancy';
 import { minorUnits, requestAutoAction } from './gateway';
-import { checkGuardrails, effectiveGuardrails, GUARDRAIL_DEFAULTS, type ActionType } from './guardrails';
+import { nextLocalHour, scheduleRevert } from './reverts';
+import { checkGuardrails, effectiveGuardrails, GUARDRAIL_DEFAULTS, inQuietHours, type ActionType } from './guardrails';
 
 const { automationRules, ruleEvaluations, recommendations } = schema;
 
@@ -30,6 +31,14 @@ export const RULE_METRICS = [
   'frequency',
   'ctr_change_pct',
   'cpa_change_pct',
+  // ADR-0021: 7 ngày + 1 ngày (hôm qua) cho Stop-loss / Surf.
+  'link_clicks',
+  'roas',
+  'spend_1d',
+  'results_1d',
+  'link_clicks_1d',
+  'cpa_1d',
+  'roas_1d',
 ] as const;
 export type RuleMetric = (typeof RULE_METRICS)[number];
 /** Số ngày shadow tối thiểu trước khi bật live (ADR-0012, L3 18). */
@@ -42,13 +51,25 @@ export const ruleConditionSchema = z.object({
   op: z.enum(['gte', 'lte']),
   value: decimal,
 });
+/** Giờ hẹn (giờ tài khoản) — phải ngoài giờ yên tĩnh của workspace (kiểm ở validateRule). */
+const revertSchema = z.object({
+  kind: z.enum(['restore_budget', 'suggest_undo']),
+  hour: z.number().int().min(0).max(23),
+});
 export const ruleActionSchema = z.object({
-  type: z.enum(['pause_ad', 'pause_adset', 'set_adset_budget']),
+  /** `suggest_resume` (Revive, ADR-0021): chỉ đề xuất bật lại — không ghi Meta (guardrail `no_auto_resume`). */
+  type: z.enum(['pause_ad', 'pause_adset', 'set_adset_budget', 'suggest_resume']),
   changePct: decimal.optional(),
   maxDailyBudget: z
     .string()
     .regex(/^\d{1,14}$/)
     .optional(),
+  /** Sunsetting: ngân sách ngày không giảm dưới sàn này (đơn vị nhỏ nhất). */
+  floorDailyBudget: z
+    .string()
+    .regex(/^\d{1,14}$/)
+    .optional(),
+  revert: revertSchema.optional(),
 });
 export const ruleInputSchema = z.object({
   adAccountId: z.string().uuid(),
@@ -66,6 +87,8 @@ export const ruleInputSchema = z.object({
         .array(z.string().regex(/^\d{1,30}$/))
         .max(500)
         .optional(),
+      /** ADR-0021: khoảng cách tối thiểu giữa 2 lần rule thao tác cùng đối tượng; chỉ được ≥ 24 giờ (chặt hơn). */
+      cooldownHours: z.number().int().min(24).max(720).optional(),
     })
     .default({}),
 });
@@ -82,6 +105,10 @@ export const RULE_TEMPLATES: (Omit<
   match?: 'all' | 'any';
   /** Mẫu tăng ngân sách: người dùng phải nhập trần ngân sách ngày (ADR-0012 mục 2, ADR-0014). */
   requiresMaxDailyBudget?: boolean;
+  /** Sunsetting (ADR-0021): bắt buộc sàn ngân sách. */
+  requiresFloorDailyBudget?: boolean;
+  /** Tactic Madgicx (ADR-0021): nhóm riêng trong thư viện mẫu. */
+  tactic?: boolean;
 })[] = [
   {
     key: 'pause_fatigued_ad',
@@ -129,7 +156,65 @@ export const RULE_TEMPLATES: (Omit<
     action: { type: 'set_adset_budget', changePct: '15' },
     requiresMaxDailyBudget: true,
   },
+  // ADR-0021 — tactic kiểu Madgicx. Dữ liệu theo ngày: "trong ngày" = ngày dữ liệu gần nhất (hôm qua).
+  {
+    // Stop-loss: chi đáng kể hôm qua mà 0 click → tạm dừng; sáng hôm sau đề xuất bật lại (không tự bật lại).
+    key: 'stop_loss_no_clicks',
+    sourceKey: 'tactic_stop_loss',
+    templateKey: 'stop_loss_no_clicks',
+    level: 'ad',
+    condition: [
+      { metric: 'spend_1d', op: 'gte', value: '200000' },
+      { metric: 'link_clicks_1d', op: 'lte', value: '0' },
+    ],
+    action: { type: 'pause_ad', revert: { kind: 'suggest_undo', hour: 7 } },
+    tactic: true,
+  },
+  {
+    // Surf: hôm qua và 7 ngày đều sinh lời → +15% (trần bắt buộc), tự trả ngân sách cũ lúc 21:00.
+    key: 'surf_winner',
+    sourceKey: 'tactic_surf',
+    templateKey: 'surf_winner',
+    level: 'adset',
+    condition: [
+      { metric: 'roas_1d', op: 'gte', value: '2' },
+      { metric: 'roas', op: 'gte', value: '1.5' },
+    ],
+    action: { type: 'set_adset_budget', changePct: '15', revert: { kind: 'restore_budget', hour: 21 } },
+    requiresMaxDailyBudget: true,
+    tactic: true,
+  },
+  {
+    // Sunsetting: CPA tăng mạnh → −15% mỗi lần, cách nhau ≥ 48 giờ, không dưới sàn.
+    key: 'sunset_loser',
+    sourceKey: 'tactic_sunset',
+    templateKey: 'sunset_loser',
+    level: 'adset',
+    condition: [
+      { metric: 'cpa_change_pct', op: 'gte', value: '30' },
+      { metric: 'results', op: 'gte', value: '3' },
+    ],
+    action: { type: 'set_adset_budget', changePct: '-15' },
+    requiresFloorDailyBudget: true,
+    tactic: true,
+  },
+  {
+    // Revive: quảng cáo do rule dừng trong 7 ngày nhưng 7 ngày qua vẫn có CPA tốt → đề xuất bật lại.
+    key: 'revive_paused',
+    sourceKey: 'tactic_revive',
+    templateKey: 'revive_paused',
+    level: 'ad',
+    condition: [
+      { metric: 'results', op: 'gte', value: '2' },
+      { metric: 'cpa', op: 'lte', value: '100000' },
+    ],
+    action: { type: 'suggest_resume' },
+    tactic: true,
+  },
 ];
+
+/** Cooldown mặc định của Sunsetting (ADR-0021). */
+export const SUNSET_COOLDOWN_HOURS = 48;
 
 export async function listRuleTemplates(ctx: ActorCtx) {
   const rows = await ctx.db
@@ -147,8 +232,37 @@ export async function listRuleTemplates(ctx: ActorCtx) {
 async function validateRule(ctx: WorkspaceCtx, r: z.output<typeof ruleInputSchema>) {
   if (r.action.type === 'pause_ad' && r.level !== 'ad')
     throw new AppError('VALIDATION_FAILED', 'Tạm dừng ad cần cấp ad');
-  if (r.action.type !== 'pause_ad' && r.level !== 'adset')
+  if (r.action.type !== 'pause_ad' && r.action.type !== 'suggest_resume' && r.level !== 'adset')
     throw new AppError('VALIDATION_FAILED', 'Hành động này cần cấp ad set');
+  // ADR-0021: hẹn giờ chỉ đi với đúng loại hành động; giờ hẹn ngoài giờ yên tĩnh.
+  const rv = r.action.revert;
+  if (rv) {
+    const okKind =
+      (rv.kind === 'restore_budget' &&
+        r.action.type === 'set_adset_budget' &&
+        compareDecimal(r.action.changePct ?? '0', '0') > 0) ||
+      (rv.kind === 'suggest_undo' && (r.action.type === 'pause_ad' || r.action.type === 'pause_adset'));
+    if (!okKind) throw new AppError('VALIDATION_FAILED', 'Hẹn giờ không hợp với hành động', { fields: ['revert'] });
+    const g0 = await effectiveGuardrails(ctx);
+    if (inQuietHours(rv.hour, g0.quietStartHour, g0.quietEndHour)) {
+      throw new AppError('GUARDRAIL_VIOLATION', 'Giờ hẹn nằm trong giờ yên tĩnh', { fields: ['revert'] });
+    }
+  }
+  if (
+    r.action.floorDailyBudget &&
+    !(r.action.type === 'set_adset_budget' && compareDecimal(r.action.changePct ?? '0', '0') < 0)
+  ) {
+    throw new AppError('VALIDATION_FAILED', 'Sàn ngân sách chỉ dùng khi giảm ngân sách', {
+      fields: ['floorDailyBudget'],
+    });
+  }
+  const tpl = RULE_TEMPLATES.find((t) => t.key === r.templateKey);
+  if (tpl?.requiresFloorDailyBudget && !r.action.floorDailyBudget) {
+    throw new AppError('VALIDATION_FAILED', 'Cần sàn ngân sách ngày', { fields: ['floorDailyBudget'] });
+  }
+  if (r.action.type === 'suggest_resume' && (r.action.changePct || r.action.maxDailyBudget || rv)) {
+    throw new AppError('VALIDATION_FAILED', 'Đề xuất bật lại không có tham số ngân sách / hẹn giờ');
+  }
   if (r.action.type === 'set_adset_budget') {
     const pct = r.action.changePct;
     if (!pct || compareDecimal(pct, '0') === 0) throw new AppError('VALIDATION_FAILED', 'Cần mức thay đổi ngân sách');
@@ -304,6 +418,11 @@ export async function entityMetrics(
     p_impressions: string | null;
     p_link_clicks: string | null;
     p_results: string | null;
+    value: string | null;
+    spend_1d: string | null;
+    results_1d: string | null;
+    link_clicks_1d: string | null;
+    value_1d: string | null;
   }>(sql`
     with w as (
       select ${key} as k,
@@ -315,7 +434,12 @@ export async function entityMetrics(
         sum(i.spend) filter (where i.date between ${prevFrom} and ${prevTo}) as p_spend,
         sum(i.impressions) filter (where i.date between ${prevFrom} and ${prevTo}) as p_impressions,
         sum(i.link_clicks) filter (where i.date between ${prevFrom} and ${prevTo}) as p_link_clicks,
-        sum(i.results) filter (where i.date between ${prevFrom} and ${prevTo}) as p_results
+        sum(i.results) filter (where i.date between ${prevFrom} and ${prevTo}) as p_results,
+        sum(i.conversion_value) filter (where i.date between ${curFrom} and ${asOf}) as value,
+        sum(i.spend) filter (where i.date = ${asOf}) as spend_1d,
+        sum(i.results) filter (where i.date = ${asOf}) as results_1d,
+        sum(i.link_clicks) filter (where i.date = ${asOf}) as link_clicks_1d,
+        sum(i.conversion_value) filter (where i.date = ${asOf}) as value_1d
       from analytics.insights_daily i
       where i.workspace_id = ${ctx.workspaceId} and i.ad_account_id = ${adAccountId} and i.entity_type = 'ad'
         and i.date between ${prevFrom} and ${asOf} and ${key} is not null
@@ -324,7 +448,9 @@ export async function entityMetrics(
     select e.meta_id, e.name, e.status, e.daily_budget::text as daily_budget, e.parent_meta_id as parent,
       w.spend::text as spend, w.impressions::text as impressions, w.link_clicks::text as link_clicks,
       w.results::text as results, w.freq_w::text as freq_w, w.p_spend::text as p_spend,
-      w.p_impressions::text as p_impressions, w.p_link_clicks::text as p_link_clicks, w.p_results::text as p_results
+      w.p_impressions::text as p_impressions, w.p_link_clicks::text as p_link_clicks, w.p_results::text as p_results,
+      w.value::text as value, w.spend_1d::text as spend_1d, w.results_1d::text as results_1d,
+      w.link_clicks_1d::text as link_clicks_1d, w.value_1d::text as value_1d
     from analytics.entities e join w on w.k = e.meta_id
     where e.workspace_id = ${ctx.workspaceId} and e.ad_account_id = ${adAccountId} and e.entity_type = ${level}`);
   const ratio = (a: string | null, b: string | null, scale = 6) =>
@@ -354,6 +480,13 @@ export async function entityMetrics(
         frequency: ratio(r.freq_w ?? '0', r.impressions, 4),
         ctr_change_pct: change(ctr, pCtr),
         cpa_change_pct: change(cpa, pCpa),
+        link_clicks: r.link_clicks ?? '0',
+        roas: ratio(r.value ?? '0', r.spend, 4),
+        spend_1d: r.spend_1d ?? '0',
+        results_1d: r.results_1d ?? '0',
+        link_clicks_1d: r.link_clicks_1d ?? '0',
+        cpa_1d: ratio(r.spend_1d ?? '0', r.results_1d, 4),
+        roas_1d: ratio(r.value_1d ?? '0', r.spend_1d, 4),
       },
     };
   });
@@ -364,8 +497,10 @@ export function matchConditions(
   conditions: { metric: string; op: string; value: string }[],
   e: Pick<EntityMetrics, 'metrics' | 'status'>,
   match: 'all' | 'any' = 'all',
+  /** Revive (ADR-0021) xét đối tượng đang tạm dừng; mọi rule khác chỉ xét đối tượng đang chạy. */
+  status: 'ACTIVE' | 'PAUSED' = 'ACTIVE',
 ): boolean {
-  if (e.status !== 'ACTIVE') return false;
+  if (e.status !== status) return false;
   // Chỉ số thiếu dữ liệu (null) không bao giờ làm điều kiện đúng — kể cả với "HOẶC" (ADR-0014).
   const ok = (c: { metric: string; op: string; value: string }) => {
     const v = e.metrics[c.metric as RuleMetric];
@@ -385,18 +520,72 @@ export function ruleBudget(current: string | null, changePct: string, maxDailyBu
   return next.toString();
 }
 
-export type WouldDo = { metaId: string; name: string | null; actionType: ActionType; newDailyBudget: string | null };
+export type WouldDo = {
+  metaId: string;
+  name: string | null;
+  actionType: ActionType;
+  newDailyBudget: string | null;
+  /** Revive: chỉ đề xuất bật lại, không tạo hành động ghi Meta. */
+  suggestOnly?: boolean;
+};
 
-function plan(rule: Pick<RuleRow, 'action'>, matched: EntityMetrics[]): WouldDo[] {
-  return matched.map((e) => ({
-    metaId: e.metaId,
-    name: e.name,
-    actionType: rule.action.type as ActionType,
-    newDailyBudget:
+const statusFor = (r: { action: { type: string } }) => (r.action.type === 'suggest_resume' ? 'PAUSED' : 'ACTIVE');
+
+function plan(rule: Pick<RuleRow, 'action' | 'level'>, matched: EntityMetrics[]): WouldDo[] {
+  const out: WouldDo[] = [];
+  for (const e of matched) {
+    if (rule.action.type === 'suggest_resume') {
+      out.push({
+        metaId: e.metaId,
+        name: e.name,
+        actionType: rule.level === 'ad' ? 'resume_ad' : 'resume_adset',
+        newDailyBudget: null,
+        suggestOnly: true,
+      });
+      continue;
+    }
+    let newDailyBudget =
       rule.action.type === 'set_adset_budget'
         ? ruleBudget(e.dailyBudget, rule.action.changePct ?? '0', rule.action.maxDailyBudget)
-        : null,
-  }));
+        : null;
+    // Sunsetting (ADR-0021): không giảm dưới sàn; đã ở / dưới sàn → bỏ qua đối tượng.
+    const floor = rule.action.floorDailyBudget;
+    if (floor && newDailyBudget !== null) {
+      if (e.dailyBudget !== null && BigInt(e.dailyBudget) <= BigInt(floor)) continue;
+      if (BigInt(newDailyBudget) < BigInt(floor)) newDailyBudget = floor;
+    }
+    out.push({ metaId: e.metaId, name: e.name, actionType: rule.action.type as ActionType, newDailyBudget });
+  }
+  return out;
+}
+
+/**
+ * Revive (ADR-0021): đối tượng do RULE tạm dừng (hành động auto thành công) trong 7 ngày → id hành động tạm dừng gần
+ * nhất. Đối tượng người dùng tự dừng không bao giờ có trong danh sách (PRD 11.2.6).
+ */
+export async function rulePausedTargets(
+  ctx: WorkspaceCtx,
+  adAccountId: string,
+  level: 'ad' | 'adset',
+  now: Date,
+): Promise<Map<string, string>> {
+  const rows = await ctx.db
+    .select({ id: schema.actions.id, metaId: schema.actions.targetMetaId, at: schema.actions.createdAt })
+    .from(schema.actions)
+    .where(
+      and(
+        eq(schema.actions.workspaceId, ctx.workspaceId),
+        eq(schema.actions.adAccountId, adAccountId),
+        eq(schema.actions.tier, 'auto'),
+        eq(schema.actions.status, 'success'),
+        eq(schema.actions.actionType, level === 'ad' ? 'pause_ad' : 'pause_adset'),
+        gte(schema.actions.createdAt, new Date(now.getTime() - 7 * 86_400_000)),
+      ),
+    )
+    .orderBy(desc(schema.actions.createdAt));
+  const out = new Map<string, string>();
+  for (const r of rows) if (!out.has(r.metaId)) out.set(r.metaId, r.id);
+  return out;
 }
 
 /**
@@ -419,7 +608,9 @@ export async function backtestRule(
   for (let i = BACKTEST_DAYS - 1; i >= 0; i--) {
     const d = addDays(end, -i);
     const m = (await entityMetrics(ctx, r.adAccountId, r.level, d)).filter(
-      (e) => matchConditions(r.condition, e, r.match) && !(r.guardrails.excludeMetaIds ?? []).includes(e.metaId),
+      (e) =>
+        matchConditions(r.condition, e, r.match, statusFor(r)) &&
+        !(r.guardrails.excludeMetaIds ?? []).includes(e.metaId),
     );
     for (const w of plan(r, m)) {
       const prev = last.get(w.metaId);
@@ -446,9 +637,16 @@ export async function evaluateRule(ctx: WorkspaceCtx, rule: RuleRow, clock: Cloc
   const metrics = await entityMetrics(ctx, rule.adAccountId, rule.level, asOf);
   const g = await effectiveGuardrails(ctx);
   const exclude = [...g.excludeMetaIds, ...(rule.guardrails.excludeMetaIds ?? [])];
-  const matched = metrics.filter((e) => matchConditions(rule.condition, e, rule.match));
+  let matched = metrics.filter((e) => matchConditions(rule.condition, e, rule.match, statusFor(rule)));
+  const paused =
+    rule.action.type === 'suggest_resume' ? await rulePausedTargets(ctx, rule.adAccountId, rule.level, now) : null;
+  if (paused) matched = matched.filter((e) => paused.has(e.metaId));
   const wouldDo = plan(rule, matched).map((w) => {
     const e = matched.find((x) => x.metaId === w.metaId)!;
+    // Đề xuất bật lại không ghi Meta → không qua guardrails ghi; bị chặn bởi loại trừ như mọi rule.
+    if (w.suggestOnly) {
+      return { ...w, blockedBy: exclude.includes(w.metaId) ? 'excluded' : null, pauseActionId: paused?.get(w.metaId) };
+    }
     const v = checkGuardrails({
       guardrails: {
         ...g,
@@ -465,7 +663,7 @@ export async function evaluateRule(ctx: WorkspaceCtx, rule: RuleRow, clock: Cloc
       currentDailyBudget: e.dailyBudget,
       newDailyBudget: w.newDailyBudget,
     });
-    return { ...w, blockedBy: v.length ? v.map((x) => x.code).join(',') : null };
+    return { ...w, blockedBy: v.length ? v.map((x) => x.code).join(',') : null, pauseActionId: undefined };
   });
   return {
     asOf,
@@ -558,7 +756,21 @@ export async function liveEvaluate(ctx: WorkspaceCtx, ruleId: string, deps: { en
   const created: string[] = [];
   const wouldDo: { metaId: string; actionType: string; newDailyBudget?: string | null; blockedBy?: string | null }[] =
     [];
+  const now = clock.now();
   for (const w of ev.wouldDo) {
+    // Revive (ADR-0021): đề xuất bật lại ngay (thông báo + Hoàn tác), một lần / hành động tạm dừng; không ghi Meta.
+    if (w.suggestOnly) {
+      const ok =
+        !w.blockedBy && w.pauseActionId
+          ? await scheduleRevert(ctx, { ruleId: rule.id, actionId: w.pauseActionId, kind: 'suggest_undo', dueAt: now })
+          : false;
+      wouldDo.push({
+        metaId: w.metaId,
+        actionType: 'suggest_resume',
+        blockedBy: w.blockedBy ?? (ok ? null : 'already_suggested'),
+      });
+      continue;
+    }
     const r = await requestAutoAction(
       ctx,
       {
@@ -569,10 +781,24 @@ export async function liveEvaluate(ctx: WorkspaceCtx, ruleId: string, deps: { en
         newDailyBudget: w.newDailyBudget,
         ruleMaxActionsPerDay: rule.guardrails.maxActionsPerDay,
         ruleExcludeMetaIds: rule.guardrails.excludeMetaIds,
+        cooldownHours:
+          rule.guardrails.cooldownHours ?? (rule.templateKey === 'sunset_loser' ? SUNSET_COOLDOWN_HOURS : undefined),
       },
       { enqueue: deps.enqueue, clock },
     );
-    if ('action' in r) created.push(r.action.id);
+    if ('action' in r) {
+      created.push(r.action.id);
+      // ADR-0021: Surf trả ngân sách / Stop-loss đề xuất bật lại vào giờ hẹn (giờ tài khoản).
+      const rv = rule.action.revert;
+      if (rv) {
+        await scheduleRevert(ctx, {
+          ruleId: rule.id,
+          actionId: r.action.id,
+          kind: rv.kind,
+          dueAt: nextLocalHour(now, ev.timezone, rv.hour),
+        });
+      }
+    }
     wouldDo.push({
       metaId: w.metaId,
       actionType: w.actionType,

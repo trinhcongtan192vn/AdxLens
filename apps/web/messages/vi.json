@@ -1923,6 +1923,11 @@
         "label": "Cảnh báo tự đặt",
         "title": "{scopeAll, select, yes {Mọi tài khoản} other {{scope}}}: {metric, select, spend {Chi tiêu} cpa {Chi phí / kết quả} cpm {Giá CPM} cpc {Giá CPC} ctr {Tỷ lệ CTR} roas {Chỉ số ROAS} cost_per_purchase {Chi phí / lượt mua} cpl {Chi phí / lead} cost_per_add_to_cart {Chi phí / thêm giỏ} frequency {Tần suất} other {Kết quả}} {cond, select, above {vượt ngưỡng} other {dưới ngưỡng}}",
         "body": "Ngày {date}: {value} {currency} so với ngưỡng {threshold} {currency}."
+      },
+      "rule_suggest_resume": {
+        "label": "Đề xuất bật lại từ rule",
+        "title": "Bật lại {item}?",
+        "body": "Rule «{rule}» đã tạm dừng {item}. Mở nhật ký hành động và bấm Hoàn tác nếu muốn chạy lại."
       }
     },
     "settings": {
@@ -2296,7 +2301,8 @@
       "pause_adset": "Tạm dừng nhóm quảng cáo",
       "resume_adset": "Bật lại nhóm quảng cáo",
       "set_adset_budget": "Đổi ngân sách ngày nhóm quảng cáo",
-      "duplicate_adset": "Nhân bản nhóm quảng cáo"
+      "duplicate_adset": "Nhân bản nhóm quảng cáo",
+      "suggest_resume": "Đề xuất bật lại"
     },
     "state": {
       "ACTIVE": "Đang chạy",
@@ -2422,7 +2428,11 @@
       "pause_fatigued_ad": "Tạm dừng quảng cáo mệt",
       "pause_adset_no_results": "Tạm dừng nhóm chi tiêu không ra kết quả",
       "reduce_budget_high_cpa": "Giảm ngân sách nhóm có CPA tăng mạnh",
-      "increase_budget_winner": "Tăng ngân sách nhóm thắng (CPA giảm mạnh)"
+      "increase_budget_winner": "Tăng ngân sách nhóm thắng (CPA giảm mạnh)",
+      "stop_loss_no_clicks": "Stop-loss: chi mà không click",
+      "surf_winner": "Surf: tăng tạm khi đang thắng",
+      "sunset_loser": "Sunsetting: giảm dần khi kém",
+      "revive_paused": "Revive: đề xuất bật lại"
     },
     "template": "Mẫu",
     "doneCount": "{count} lần đã làm",
@@ -2437,7 +2447,10 @@
       "changePct": "Thay đổi ngân sách (%)",
       "maxDailyBudget": "Trần ngân sách ngày (đơn vị nhỏ nhất của tiền tệ)",
       "maxPerDay": "Tối đa hành động mỗi ngày (không bắt buộc)",
-      "match": "Kiểu khớp điều kiện"
+      "match": "Kiểu khớp điều kiện",
+      "floorDailyBudget": "Sàn ngân sách ngày (đơn vị nhỏ nhất)",
+      "revertRestore": "Trả ngân sách cũ lúc",
+      "revertSuggest": "Đề xuất bật lại lúc"
     },
     "levels": {
       "ad": "quảng cáo",
@@ -2450,7 +2463,14 @@
       "ctr": "CTR (tỷ lệ)",
       "frequency": "Tần suất",
       "ctr_change_pct": "CTR thay đổi so tuần trước (%)",
-      "cpa_change_pct": "CPA thay đổi so tuần trước (%)"
+      "cpa_change_pct": "CPA thay đổi so tuần trước (%)",
+      "link_clicks": "Click liên kết (7 ngày)",
+      "roas": "ROAS (7 ngày)",
+      "spend_1d": "Chi tiêu (ngày gần nhất)",
+      "results_1d": "Kết quả (ngày gần nhất)",
+      "link_clicks_1d": "Click (ngày gần nhất)",
+      "cpa_1d": "Chi phí / kết quả (ngày gần nhất)",
+      "roas_1d": "ROAS (ngày gần nhất)"
     },
     "remove": "Bỏ",
     "addCondition": "+ Thêm điều kiện",
@@ -2548,13 +2568,25 @@
     "whyValue": "Vì sao giá trị này?",
     "suggestReasons": {
       "cpa_x2": "Gấp 2 lần chi phí / kết quả 30 ngày qua của tài khoản ({cpa}): đã tiêu chừng đó mà chưa có kết quả nào là dấu hiệu lãng phí.",
-      "frequency_x1_5": "Gấp 1,5 lần tần suất trung bình 30 ngày qua ({frequency}), tối thiểu 2."
+      "frequency_x1_5": "Gấp 1,5 lần tần suất trung bình 30 ngày qua ({frequency}), tối thiểu 2.",
+      "cpc_x2": "Gấp 2 lần chi phí / click 30 ngày qua ({cpc}): tiêu chừng đó mà 0 click là quảng cáo không ai bấm."
     },
     "savings": {
       "saved": "Nếu rule này đã chạy, bạn có thể đã tránh được khoảng {amount} chi tiêu trong {days} ngày qua",
       "extra": "Nếu rule này đã chạy, chi tiêu sẽ tăng thêm khoảng {amount} trong {days} ngày qua cho nhóm QC đang tốt",
       "note": "Ước tính trên dữ liệu đã đồng bộ cho {entities} đối tượng, tính từ ngày rule kích hoạt lần đầu; giả định Meta không dồn ngân sách sang chỗ khác."
-    }
+    },
+    "tacticsTitle": "Tactic tự động (kiểu Madgicx)",
+    "tacticHelp": {
+      "stop_loss_no_clicks": "Stop-loss: quảng cáo tiêu đáng kể trong ngày dữ liệu gần nhất mà không có click thì tạm dừng. Sáng hôm sau AdxLens gửi đề xuất bật lại (Hoàn tác 1 bấm) — không tự bật lại. Số theo ngày đã đồng bộ, không phải theo giờ.",
+      "surf_winner": "Surf: nhóm QC sinh lời cả hôm qua lẫn 7 ngày thì tăng 15% ngân sách (cần trần), rồi tự trả ngân sách cũ vào giờ chọn qua Execution Gateway. Bạn đã sửa ngân sách tay thì không trả.",
+      "sunset_loser": "Sunsetting: CPA tăng mạnh thì giảm 15% ngân sách, cách nhau ít nhất 48 giờ, không bao giờ dưới sàn bạn đặt.",
+      "revive_paused": "Revive: quảng cáo do rule tạm dừng trong 7 ngày mà số 7 ngày vẫn tốt thì gửi đề xuất bật lại. Không bao giờ đụng quảng cáo bạn tự tắt; không tự bật lại."
+    },
+    "floorRequired": "Bắt buộc với Sunsetting: ngân sách không giảm dưới mức này.",
+    "floorHint": "Tùy chọn: ngân sách không giảm dưới mức này.",
+    "revertRestoreHint": "Giờ tài khoản, ngoài giờ yên tĩnh. Trả về đi qua đủ guardrails; bị chặn tạm thời thì thử lại sau.",
+    "revertSuggestHint": "Giờ tài khoản của sáng hôm sau. Owner / Manager nhận thông báo kèm nút Hoàn tác."
   },
   "entity": {
     "title": "Chi tiết đối tượng",

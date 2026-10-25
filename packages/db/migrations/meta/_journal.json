@@ -526,6 +526,20 @@
       "when": 1792880478449,
       "tag": "0074_oauth_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1792888884687,
+      "tag": "0075_scheduled_reverts",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1792888885896,
+      "tag": "0076_scheduled_reverts_rls",
+      "breakpoints": true
     }
   ]
 }

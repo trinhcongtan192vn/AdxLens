@@ -117,6 +117,13 @@ export const JOBS = {
     schema: z.object({ ...ws, actionId: uuid }),
     jobId: (p) => `execute:${p.actionId}`,
   }),
+  // ADR-0021: một lịch hẹn của rule đến hạn (trả ngân sách / đề xuất bật lại). `tick` cho phép thử lại lần sau.
+  'execute:revert': def({
+    queue: 'execute',
+    workspaceScoped: true,
+    schema: z.object({ ...ws, revertId: uuid, tick: z.string() }),
+    jobId: (p) => `revert:${p.revertId}:${p.tick}`,
+  }),
   'rules:evaluate': def({
     queue: 'rules',
     workspaceScoped: true,
@@ -167,6 +174,13 @@ export const JOBS = {
     workspaceScoped: false,
     schema: z.object({ tick: z.string() }),
     jobId: (p) => `rules_tick:${p.tick}`,
+  }),
+  // Mỗi 15 phút: lịch hẹn của rule đến hạn → enqueue `execute:revert` (ADR-0021).
+  'maintenance:reverts_tick': def({
+    queue: 'maintenance',
+    workspaceScoped: false,
+    schema: z.object({ tick: z.string() }),
+    jobId: (p) => `reverts_tick:${p.tick}`,
   }),
   'maintenance:daily_tick': def({
     queue: 'maintenance',

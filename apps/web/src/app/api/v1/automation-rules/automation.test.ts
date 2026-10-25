@@ -92,10 +92,11 @@ describe('API rule tự động (P211–P214)', () => {
 
   it('cờ bật: mẫu, backtest, tạo (shadow), bật live bị chặn khi chưa đủ 14 ngày, tạm dừng; buyer 403', async () => {
     const { ws, user, body } = await setup(true);
-    // ADR-0014 thêm mẫu "tăng ngân sách ad set thắng" (trước: 3 mẫu).
+    // ADR-0014 thêm mẫu "tăng ngân sách ad set thắng" (trước: 3 mẫu); ADR-0021 thêm 4 tactic (Stop-loss, Surf,
+    // Sunsetting, Revive).
     const tpl = ((await call(templatesRoute.GET, { user, workspaceId: ws })).body as { items: { key: string }[] })
       .items;
-    expect(tpl).toHaveLength(4);
+    expect(tpl).toHaveLength(8);
     expect(tpl.map((x) => x.key)).toContain('increase_budget_winner');
     expect((await call(backtestRoute.POST, { user, workspaceId: ws, body })).body).toMatchObject({
       days: 30,

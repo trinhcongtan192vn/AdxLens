@@ -216,6 +216,18 @@ const TEXT: Record<string, Record<Locale, (p: P) => { subject: string; body: str
       };
     },
   },
+  rule_suggest_resume: {
+    vi: (p) => ({
+      subject: `Bật lại ${p.item}?`,
+      body: `Rule «${p.rule}» đã tạm dừng ${p.item}. Nếu muốn chạy lại, mở nhật ký hành động và bấm Hoàn tác. AdxLens không tự bật lại.`,
+      cta: 'Xem và hoàn tác',
+    }),
+    en: (p) => ({
+      subject: `Turn ${p.item} back on?`,
+      body: `Rule «${p.rule}» paused ${p.item}. To run it again, open the action log and click Undo. AdxLens never turns it back on by itself.`,
+      cta: 'Review and undo',
+    }),
+  },
   weekly_actions: {
     vi: (p) => ({
       subject: `Việc tuần này: ${p.count} gợi ý`,

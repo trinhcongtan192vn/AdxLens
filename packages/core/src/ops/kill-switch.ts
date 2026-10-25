@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray, lte } from 'drizzle-orm';
 import type { DbOrTx } from '@adxlens/db';
 import { schema } from '@adxlens/db';
 import { forbidden, systemClock, type Clock } from '@adxlens/core/shared';
@@ -164,4 +164,17 @@ export async function activeAutomationRules(db: DbOrTx) {
     .select({ id: automationRules.id, workspaceId: automationRules.workspaceId, mode: automationRules.mode })
     .from(automationRules)
     .where(inArray(automationRules.mode, ['shadow', 'live']));
+}
+
+/**
+ * Lịch hẹn của rule đến hạn (ADR-0021). TRUY VẤN XUYÊN WORKSPACE có chủ đích (quy tắc 1, chỉ ở `core/ops`): job định
+ * kỳ chỉ lấy id + workspace; xử lý từng lịch chạy trong ngữ cảnh workspace của nó.
+ */
+export async function dueReverts(db: DbOrTx, now: Date, limit = 500) {
+  const { scheduledReverts } = schema;
+  return db
+    .select({ id: scheduledReverts.id, workspaceId: scheduledReverts.workspaceId })
+    .from(scheduledReverts)
+    .where(and(eq(scheduledReverts.status, 'pending'), lte(scheduledReverts.dueAt, now)))
+    .limit(limit);
 }

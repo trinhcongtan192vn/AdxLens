@@ -8,7 +8,13 @@ import { Banner, Button, Card, CardHeader, Field, Input, Select, Table, TBody, T
 import { api, ApiError } from '@/lib/api-client';
 
 type Cond = { metric: string; op: 'gte' | 'lte'; value: string };
-type Action = { type: 'pause_ad' | 'pause_adset' | 'set_adset_budget'; changePct?: string; maxDailyBudget?: string };
+type Action = {
+  type: 'pause_ad' | 'pause_adset' | 'set_adset_budget' | 'suggest_resume';
+  changePct?: string;
+  maxDailyBudget?: string;
+  floorDailyBudget?: string;
+  revert?: { kind: 'restore_budget' | 'suggest_undo'; hour: number };
+};
 type Savings = { kind: 'saved' | 'extra' | 'none'; amount: string; currency: string; entities: number; days: number };
 type Suggested = { index: number; value: string; reason: { key: string; params: Record<string, string> } };
 type Template = {
@@ -18,9 +24,28 @@ type Template = {
   action: Action;
   doneCount: number;
   requiresMaxDailyBudget?: boolean;
+  requiresFloorDailyBudget?: boolean;
+  tactic?: boolean;
 };
 
-const METRICS = ['spend', 'results', 'cpa', 'ctr', 'frequency', 'ctr_change_pct', 'cpa_change_pct'] as const;
+const METRICS = [
+  'spend',
+  'results',
+  'cpa',
+  'ctr',
+  'frequency',
+  'ctr_change_pct',
+  'cpa_change_pct',
+  'link_clicks',
+  'roas',
+  'spend_1d',
+  'results_1d',
+  'link_clicks_1d',
+  'cpa_1d',
+  'roas_1d',
+] as const;
+/** Giờ hẹn ngoài giờ yên tĩnh mặc định (22:00–06:00); server kiểm lại theo guardrails của workspace. */
+const REVERT_HOURS = Array.from({ length: 16 }, (_, i) => i + 6);
 
 /** P212: chọn mẫu → chỉnh điều kiện / hành động / giới hạn → backtest (P213) → lưu ở chế độ shadow. */
 export function RuleBuilder({
@@ -140,19 +165,33 @@ export function RuleBuilder({
     <div className="flex max-w-[880px] flex-col gap-4">
       <Card>
         <CardHeader title={t('template')} />
-        <div className="flex flex-wrap gap-2 px-4 py-4">
-          {templates.map((x) => (
-            <Button
-              key={x.key}
-              kind={x.key === templateKey ? 'primary' : 'secondary'}
-              size="s"
-              onClick={() => pick(x.key)}
-            >
-              {t(`templates.${x.key}` as never)}
-              {x.doneCount ? ` · ${t('doneCount', { count: x.doneCount })}` : ''}
-            </Button>
-          ))}
-        </div>
+        {([false, true] as const).map((tactic) => {
+          const list = templates.filter((x) => Boolean(x.tactic) === tactic);
+          if (!list.length) return null;
+          return (
+            <div key={String(tactic)} className="px-4 py-3" data-testid={tactic ? 'rule-tactics' : undefined}>
+              {tactic ? <p className="mb-2 text-small font-semibold text-fg">{t('tacticsTitle')}</p> : null}
+              <div className="flex flex-wrap gap-2">
+                {list.map((x) => (
+                  <Button
+                    key={x.key}
+                    kind={x.key === templateKey ? 'primary' : 'secondary'}
+                    size="s"
+                    onClick={() => pick(x.key)}
+                  >
+                    {t(`templates.${x.key}` as never)}
+                    {x.doneCount ? ` · ${t('doneCount', { count: x.doneCount })}` : ''}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+        {t.has(`tacticHelp.${templateKey}` as never) ? (
+          <p className="border-t border-line px-4 py-2 text-small text-fg-secondary" data-testid="rule-tactic-help">
+            {t(`tacticHelp.${templateKey}` as never)}
+          </p>
+        ) : null}
       </Card>
       <Card>
         <div className="flex flex-col gap-3 px-4 py-4">
@@ -231,6 +270,7 @@ export function RuleBuilder({
                           {
                             ...s.reason.params,
                             cpa: s.reason.params.cpa ? money(s.reason.params.cpa, s.reason.params.currency!) : '',
+                            cpc: s.reason.params.cpc ? money(s.reason.params.cpc, s.reason.params.currency!) : '',
                           } as never,
                         )}
                       </p>
@@ -278,6 +318,44 @@ export function RuleBuilder({
                 />
               </Field>
             </div>
+          ) : null}
+          {action.type === 'set_adset_budget' && Number(action.changePct ?? 0) < 0 ? (
+            <Field
+              label={t('fields.floorDailyBudget')}
+              htmlFor="rule-floor"
+              hint={
+                templates.find((x) => x.key === templateKey)?.requiresFloorDailyBudget
+                  ? t('floorRequired')
+                  : t('floorHint')
+              }
+            >
+              <Input
+                id="rule-floor"
+                inputMode="numeric"
+                value={action.floorDailyBudget ?? ''}
+                onChange={(e) => setAction({ ...action, floorDailyBudget: e.target.value.trim() || undefined })}
+              />
+            </Field>
+          ) : null}
+          {action.revert ? (
+            <Field
+              label={t(action.revert.kind === 'restore_budget' ? 'fields.revertRestore' : 'fields.revertSuggest')}
+              htmlFor="rule-revert"
+              hint={t(action.revert.kind === 'restore_budget' ? 'revertRestoreHint' : 'revertSuggestHint')}
+            >
+              <Select
+                id="rule-revert"
+                value={action.revert.hour}
+                onChange={(e) => setAction({ ...action, revert: { ...action.revert!, hour: Number(e.target.value) } })}
+                className="w-32"
+              >
+                {REVERT_HOURS.map((h) => (
+                  <option key={h} value={h}>
+                    {String(h).padStart(2, '0')}:00
+                  </option>
+                ))}
+              </Select>
+            </Field>
           ) : null}
           <Field label={t('fields.maxPerDay')} htmlFor="rule-maxday" hint={t('maxPerDayHint')}>
             <Input

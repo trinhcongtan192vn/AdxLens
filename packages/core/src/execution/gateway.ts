@@ -274,6 +274,13 @@ export async function requestAutoAction(
     newDailyBudget?: string | null;
     ruleMaxActionsPerDay?: number;
     ruleExcludeMetaIds?: string[];
+    /** ADR-0021: cooldown của rule (≥ 24 giờ, chặt hơn mặc định). */
+    cooldownHours?: number;
+    /**
+     * ADR-0021: hành động trả về trạng thái trước rule (Surf trả ngân sách). Chỉ bỏ cooldown cùng rule cho hành động
+     * này — mọi guardrail, kill switch, breaker, quyền ghi vẫn kiểm; `before_state` = `after_expected` của gốc.
+     */
+    revertOf?: { actionId: string; expectedState: Record<string, string | null> };
   },
   deps: { enqueue: Enqueue; clock?: Clock },
 ): Promise<{ action: ActionRow } | { skipped: string }> {
@@ -292,18 +299,24 @@ export async function requestAutoAction(
         eq(actions.ruleId, input.ruleId),
         eq(actions.targetMetaId, input.targetMetaId),
         inArray(actions.status, ['pending', 'executing', 'success']),
-        gte(actions.createdAt, new Date(now.getTime() - AUTO_COOLDOWN_MS)),
+        gte(
+          actions.createdAt,
+          new Date(now.getTime() - Math.max(AUTO_COOLDOWN_MS, (input.cooldownHours ?? 0) * 3_600_000)),
+        ),
       ),
     )
     .limit(1);
-  if (recent) return { skipped: 'cooldown' };
+  if (recent && !input.revertOf) return { skipped: 'cooldown' };
   const type = TARGET_TYPE[input.actionType];
   const e = await targetEntity(ctx, account.id, type, input.targetMetaId);
   if (!e) return { skipped: 'target_missing' };
   const g = await effectiveGuardrails(ctx);
   const newBudget = input.actionType === 'set_adset_budget' ? minorUnits(input.newDailyBudget) : null;
-  const before: State =
-    input.actionType === 'set_adset_budget' ? { daily_budget: minorUnits(e.daily_budget) } : { status: e.status };
+  const before: State = input.revertOf
+    ? input.revertOf.expectedState
+    : input.actionType === 'set_adset_budget'
+      ? { daily_budget: minorUnits(e.daily_budget) }
+      : { status: e.status };
   const after = expectedAfter(input.actionType, newBudget);
   const violations = checkGuardrails({
     guardrails: {
@@ -336,12 +349,19 @@ export async function requestAutoAction(
       params: after.daily_budget ? { daily_budget: after.daily_budget } : {},
       beforeState: before,
       afterExpected: after,
-      idempotencyKey: `${ctx.workspaceId}:rule:${input.ruleId}:${input.targetMetaId}:${now.toISOString()}`,
+      idempotencyKey: input.revertOf
+        ? `${ctx.workspaceId}:revert:${input.revertOf.actionId}`
+        : `${ctx.workspaceId}:rule:${input.ruleId}:${input.targetMetaId}:${now.toISOString()}`,
       // Cùng đồng hồ với guardrail "số hành động hôm nay" và cooldown 24 giờ.
       createdAt: now,
     })
     .returning();
-  await log(ctx, row!.id, 'auto_requested', { rule_id: input.ruleId, before, after });
+  await log(ctx, row!.id, 'auto_requested', {
+    rule_id: input.ruleId,
+    before,
+    after,
+    ...(input.revertOf ? { revert_of: input.revertOf.actionId } : {}),
+  });
   await deps.enqueue('execute:action', { workspaceId: ctx.workspaceId, actionId: row!.id });
   return { action: row! };
 }
