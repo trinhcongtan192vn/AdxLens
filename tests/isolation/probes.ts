@@ -565,7 +565,12 @@ export const ROUTE_PROBES: Record<string, Probe> = {
   'DELETE /api/v1/llm-key': { kind: 'workspace' },
   'POST /api/v1/launcher/ads': {
     kind: 'workspace',
-    body: (w) => ({ adAccountId: w.a.adAccount.id, adsetId: '999000111', creativeIds: ['999000222'], name: 'Probe' }),
+    body: (w) => ({
+      adAccountId: w.a.adAccount.id,
+      adsetIds: ['999000111'],
+      creativeIds: ['999000222'],
+      name: 'Probe',
+    }),
   },
   'POST /api/v1/launcher/lookalikes': {
     kind: 'workspace',

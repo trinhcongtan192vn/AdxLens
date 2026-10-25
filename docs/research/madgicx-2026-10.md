@@ -293,7 +293,7 @@ khoản quảng cáo thật). Cần ảnh nào cho PRD thì chụp lại.
 - cổng khách + phân quyền theo Client;
 - báo cáo có lịch gửi + white label (One-Click Report của Madgicx không có).
 
-**Sửa ngay (chỉ đọc, hoặc trong khuôn khổ ADR đã duyệt):**
+**Sửa ngay (chỉ đọc, hoặc trong khuôn khổ ADR đã duyệt) — đã làm ở CHANGELOG 110, 112:**
 1. Rule: **giá trị động so với trung bình tài khoản** + cửa sổ **3 ngày** (Strategies).
 2. Sunsetting: tùy chọn **tạm dừng khi chạm sàn**. Tạm dừng được tự động; chỉ bật lại là bị cấm.
 3. Ads Manager mới: **lọc theo giai đoạn phễu**.

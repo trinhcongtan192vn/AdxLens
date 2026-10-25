@@ -371,6 +371,15 @@ export default async function CreativesPage({
                           {thumb(r.thumbnailUrl, 'size-10')}
                           <div>
                             <div className="font-medium text-fg">{r.name ?? r.creativeId}</div>
+                            {pc.flags.p2a_approve ? (
+                              <a
+                                href={`/w/launcher?account=${account.id}&creative=${r.creativeId}`}
+                                className="text-caption text-link hover:underline"
+                                data-testid="open-in-launcher"
+                              >
+                                {t('openInLauncher')}
+                              </a>
+                            ) : null}
                             <div className="text-small text-fg-secondary">
                               {r.format
                                 ? KNOWN_FORMATS.has(r.format)

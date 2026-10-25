@@ -15,6 +15,7 @@ import {
   EmptyState,
   Input,
   Segmented,
+  Select,
   Table,
   TBody,
   TD,
@@ -37,6 +38,7 @@ export type AmRowDto = {
   name: string | null;
   status: string | null;
   dailyBudget: string | null;
+  stage?: string | null;
   metrics: Values;
   prev: Values | null;
   series: (Values | null)[];
@@ -85,6 +87,8 @@ export function AdsManagerView({
   const [view, setView] = useState<View>('tree');
   const [hideZero, setHideZero] = useState(true);
   const [q, setQ] = useState('');
+  // Madgicx Ads Manager 2.0: lọc theo giai đoạn phễu.
+  const [stage, setStage] = useState('');
   const [open, setOpen] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<Map<string, AmRowDto>>(new Map());
   const [dialog, setDialog] = useState<{ type: GridActionType; targets: ActionTarget[] } | null>(null);
@@ -109,7 +113,8 @@ export function AdsManagerView({
   const k = (r: AmRowDto) => `${r.adAccountId}:${r.level}:${r.metaId}`;
   const needle = q.trim().toLowerCase();
   const spendOk = (r: AmRowDto) => !hideZero || Number(r.metrics.spend ?? 0) > 0;
-  const matches = (r: AmRowDto) => !needle || (r.name ?? '').toLowerCase().includes(needle);
+  const matches = (r: AmRowDto) =>
+    (!needle || (r.name ?? '').toLowerCase().includes(needle)) && (!stage || r.stage === stage);
   const children = useMemo(() => {
     const m = new Map<string, AmRowDto[]>();
     for (const r of rows) {
@@ -318,6 +323,20 @@ export function AdsManagerView({
             aria-label={t('search')}
           />
         </div>
+        <Select
+          aria-label={t('stageFilter')}
+          value={stage}
+          onChange={(e) => setStage(e.target.value)}
+          className="w-48"
+          data-testid="am-stage"
+        >
+          <option value="">{t('stageAll')}</option>
+          {(['prospecting', 're_engagement', 'retargeting', 'retention'] as const).map((x) => (
+            <option key={x} value={x}>
+              {t(`stages.${x}`)}
+            </option>
+          ))}
+        </Select>
         <label className="flex items-center gap-1 text-small text-fg-secondary">
           <Checkbox checked={hideZero} onChange={(e) => setHideZero(e.target.checked)} />
           {t('hideZero')}
