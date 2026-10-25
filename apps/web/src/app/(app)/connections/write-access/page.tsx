@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { hasPlanEntitlement } from '@adxlens/core/billing';
 import { listWriteAccess } from '@adxlens/core/connections';
 import { Badge, Banner, Card, CardHeader, EmptyState, PageHeader, Table, TBody, TD, TH, THead, TR } from '@adxlens/ui';
 import { requirePermission } from '@/server/guards';
@@ -27,7 +26,9 @@ export default async function WriteAccessPage({
   const t = await getTranslations('writeAccess');
   const tc = await getTranslations('nav');
   const q = await searchParams;
-  const [rows, planOk] = await Promise.all([listWriteAccess(pc.ctx), hasPlanEntitlement(pc.ctx, 'write_actions')]);
+  const rows = await listWriteAccess(pc.ctx);
+  // ADR-0024: cờ hiệu lực (toàn app × gói, hoặc ngoại lệ) đã gồm gói.
+  const planOk = pc.flags.p2a_approve;
   return (
     <>
       <PageHeader

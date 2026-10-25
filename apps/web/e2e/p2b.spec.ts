@@ -1,28 +1,13 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import {
   evaluateLiveRulesNow,
+  forceFlagOn,
   makeStaff,
   setPlanNow,
   signUpAndCreateWorkspace,
   simulateShadowNow,
   useDaytimeTimezone,
 } from './helpers';
-
-async function enableFlag(page: Page, ws: string, name: string) {
-  await page.goto(`/admin/flags?q=${encodeURIComponent(ws)}`);
-  await page.getByRole('button', { name: `${name} · ${ws}` }).click();
-  await expect(
-    page
-      .getByTestId('flag-checklist')
-      .getByText(/Đạt|Chưa đạt/)
-      .first(),
-  ).toBeVisible();
-  const override = page.getByLabel('Vượt checklist chưa đạt (được ghi log)');
-  if (await override.count()) await override.check();
-  await page.getByLabel('Lý do (bắt buộc, ≥ 5 ký tự)').fill('E2E rule tự động');
-  await page.getByRole('button', { name: 'Bật cờ' }).click();
-  await expect(page.getByRole('button', { name: `${name} · ${ws}` })).toContainText('Bật');
-}
 
 /**
  * B8 P2b (META_MOCK=1): rule builder từ mẫu (P212) → backtest (P213) → lưu chạy thử → giả lập 14 ngày (chỉ
@@ -46,10 +31,11 @@ test('P2b: mẫu → backtest → shadow → giả lập 14 ngày → live → h
 
   await makeStaff(email, true);
   await setPlanNow(ws, 'growth');
-  for (const f of ['Báo cáo', 'Gợi ý', 'Duyệt 1 click', 'Tự động hóa']) await enableFlag(page, ws, f);
+  for (const f of ['Báo cáo', 'Gợi ý', 'Duyệt 1 click', 'Tự động hóa'])
+    await forceFlagOn(page, ws, f, 'E2E rule tự động');
+  // ADR-0024: kết nối có ads_management = được ghi ngay.
   await page.goto('/connections/write-access');
-  await page.getByRole('link', { name: 'Cấp quyền ghi' }).click();
-  await expect(page.getByText(/Đã cấp quyền ghi/)).toBeVisible();
+  await expect(page.getByTestId('write-access-row').first()).toContainText('Được ghi');
 
   // P212: mẫu "ad mệt", nới điều kiện để chắc chắn khớp dữ liệu mẫu, backtest rồi lưu.
   await page.goto('/automation');

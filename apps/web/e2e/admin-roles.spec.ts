@@ -18,7 +18,7 @@ test('operator đề xuất bật cờ → superadmin duyệt → cờ bật, c�
   await page.goto(`/admin/flags?q=${encodeURIComponent(ws)}`);
   await expect(page.getByText(`${opEmail} · Operator`)).toBeVisible();
   await page.getByRole('button', { name: `Báo cáo · ${ws}` }).click();
-  await expect(page.getByText(/đề xuất sẽ được gửi cho superadmin duyệt/)).toBeVisible();
+  await expect(page.getByText(/sẽ được gửi cho superadmin duyệt/)).toBeVisible();
   await page.getByLabel('Lý do (bắt buộc, ≥ 5 ký tự)').fill(`Khách cần báo cáo ${ws}`);
   await page.getByRole('button', { name: 'Gửi đề xuất' }).click();
   const panel = page.getByTestId('flag-proposals');
@@ -26,7 +26,7 @@ test('operator đề xuất bật cờ → superadmin duyệt → cờ bật, c�
   await expect(panel.getByRole('button', { name: 'Duyệt' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: `Báo cáo · ${ws}` })).toContainText('Tắt');
 
-  // Superadmin (phiên khác): duyệt — workspace chưa có dữ liệu nên checklist chưa đạt → vượt có ghi log.
+  // Superadmin (phiên khác): duyệt — ADR-0024: checklist chỉ tham khảo, không cần vượt.
   const sa = await browser.newContext();
   const saPage = await sa.newPage();
   const saEmail = await signUpAndCreateWorkspace(saPage, { workspace: `Agency PM ${Date.now()}` });
@@ -34,7 +34,6 @@ test('operator đề xuất bật cờ → superadmin duyệt → cờ bật, c�
   await saPage.goto(`/admin/flags?q=${encodeURIComponent(ws)}`);
   const saPanel = saPage.getByTestId('flag-proposals');
   await saPanel.locator('li', { hasText: ws }).getByRole('button', { name: 'Duyệt' }).click();
-  await saPage.getByLabel('Vượt checklist chưa đạt (được ghi log)').check();
   await saPage.getByLabel('Ghi chú (không bắt buộc)').fill(`Duyệt ${ws}`);
   await saPage.getByRole('dialog').getByRole('button', { name: 'Duyệt' }).click();
   await expect(saPage.getByRole('button', { name: `Báo cáo · ${ws}` })).toContainText('Bật');

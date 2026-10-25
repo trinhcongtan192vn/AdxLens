@@ -1,17 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
-import { generateWeeklyNow, makeStaff, setPlanNow, signUpAndCreateWorkspace } from './helpers';
-
-async function enableFlag(page: Page, ws: string, name: string) {
-  await page.goto(`/admin/flags?q=${encodeURIComponent(ws)}`);
-  await page.getByRole('button', { name: `${name} · ${ws}` }).click();
-  const checklist = page.getByTestId('flag-checklist');
-  await expect(checklist.getByText(/Đạt|Chưa đạt/).first()).toBeVisible();
-  const override = page.getByLabel('Vượt checklist chưa đạt (được ghi log)');
-  if (await override.count()) await override.check();
-  await page.getByLabel('Lý do (bắt buộc, ≥ 5 ký tự)').fill('E2E duyệt hành động');
-  await page.getByRole('button', { name: 'Bật cờ' }).click();
-  await expect(page.getByRole('button', { name: `${name} · ${ws}` })).toContainText('Bật');
-}
+import { expect, test } from '@playwright/test';
+import { forceFlagOn, generateWeeklyNow, makeStaff, setPlanNow, signUpAndCreateWorkspace } from './helpers';
 
 /**
  * B7 P2a (META_MOCK=1): cấp quyền ghi (P201) → guardrails (P205) → duyệt 1 click từ Việc tuần này (P202) →
@@ -37,12 +25,10 @@ test('P2a: quyền ghi → duyệt → thực hiện + xác minh → hoàn tác 
   // PM bật cờ; gói Growth (thay thanh toán).
   await makeStaff(email, true);
   await setPlanNow(ws, 'growth');
-  for (const f of ['Báo cáo', 'Gợi ý', 'Duyệt 1 click']) await enableFlag(page, ws, f);
+  for (const f of ['Báo cáo', 'Gợi ý', 'Duyệt 1 click']) await forceFlagOn(page, ws, f, 'E2E duyệt hành động');
 
-  // P201 cấp quyền ghi.
+  // ADR-0024: kết nối đã có ads_management = được ghi ngay, không cần bước "Cấp quyền ghi".
   await page.goto('/connections/write-access');
-  await page.getByRole('link', { name: 'Cấp quyền ghi' }).click();
-  await expect(page.getByText(/Đã cấp quyền ghi/)).toBeVisible();
   await expect(page.getByTestId('write-access-row').first()).toContainText('Được ghi');
 
   // P101 → P202: duyệt tạm dừng ad mệt.

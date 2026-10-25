@@ -1333,7 +1333,7 @@
       "today": "Hôm nay"
     },
     "flags": {
-      "title": "Ma trận cờ tính năng",
+      "title": "Cờ tính năng",
       "search": "Tìm workspace…",
       "cols": {
         "workspace": "Workspace",
@@ -1368,7 +1368,7 @@
         "noHistory": "Chưa có thay đổi.",
         "overrideTag": "vượt checklist",
         "propose": "Gửi đề xuất",
-        "proposeHint": "Bạn là operator: đề xuất sẽ được gửi cho superadmin duyệt. Checklist vẫn chạy khi duyệt.",
+        "proposeHint": "Bạn là operator: đề xuất bật thêm sẽ được gửi cho superadmin duyệt.",
         "proposed": "Đã gửi đề xuất bật cờ"
       },
       "proposals": {
@@ -1388,7 +1388,45 @@
           "reject": "Đã từ chối đề xuất",
           "cancel": "Đã hủy đề xuất"
         }
-      }
+      },
+      "global": {
+        "title": "Toàn app",
+        "intro": "Bật một tính năng cho mọi workspace có gói phù hợp. Tắt ở đây = tắt cho mọi khách (trừ ngoại lệ bật thêm), hành động ghi đang chờ bị hủy.",
+        "turnOn": "Bật toàn app",
+        "turnOff": "Tắt toàn app",
+        "enableTitle": "Bật {flag} cho toàn app",
+        "disableTitle": "Tắt {flag} cho toàn app",
+        "enableHint": "Mọi workspace có gói chứa tính năng này sẽ dùng được (sau tối đa 60 giây). Cờ cha phải đang bật.",
+        "disableHint": "Tắt cho mọi workspace (trừ ngoại lệ bật thêm) và tắt luôn các cờ phụ thuộc."
+      },
+      "plans": {
+        "title": "Theo gói",
+        "intro": "Gói nào có tính năng nào. Mặc định theo bảng giá; bấm ô để đổi.",
+        "plan": "Gói",
+        "included": "Có",
+        "excluded": "Không",
+        "addTitle": "Thêm {flag} vào gói {plan}",
+        "removeTitle": "Bỏ {flag} khỏi gói {plan}",
+        "hint": "Áp cho mọi workspace đang dùng gói này (trừ ngoại lệ), sau tối đa 60 giây."
+      },
+      "overrides": {
+        "title": "Ngoại lệ theo workspace",
+        "intro": "Giá trị đang có hiệu lực của từng workspace. Ngoại lệ thắng toàn app × gói: dùng cho dùng thử, demo, hoặc tắt riêng khách có sự cố.",
+        "forcedOn": "bật thêm",
+        "forcedOff": "tắt riêng",
+        "dialogTitle": "{flag} · {workspace}",
+        "choice": {
+          "on": "Bật thêm",
+          "off": "Tắt riêng",
+          "clear": "Theo toàn app × gói"
+        },
+        "choiceHint": {
+          "on": "Bật cho workspace này dù gói không có (cờ cha vẫn phải có hiệu lực).",
+          "off": "Tắt cho workspace này dù toàn app và gói đang bật; tắt luôn cờ con.",
+          "clear": "Bỏ ngoại lệ, workspace dùng theo cờ toàn app và gói."
+        }
+      },
+      "scopeHistory": "Nhật ký đổi cờ toàn app / theo gói"
     },
     "killSwitch": {
       "nav": "Kill switch",

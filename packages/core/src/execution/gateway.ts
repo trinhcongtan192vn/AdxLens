@@ -1,7 +1,6 @@
 import { and, count, eq, gte, inArray, sql } from 'drizzle-orm';
 import { schema } from '@adxlens/db';
 import type { Enqueue } from '@adxlens/jobs';
-import { hasPlanEntitlement } from '@adxlens/core/billing';
 import { connectionCanWrite, listAdAccounts, withConnectionToken, type TokenKeys } from '@adxlens/core/connections';
 import { isEnabled } from '@adxlens/core/flags';
 import { MetaApiError } from '@adxlens/meta-client';
@@ -141,8 +140,8 @@ async function accountOf(ctx: WorkspaceCtx, adAccountId: string) {
 
 /** Cổng an toàn chung (ADR-0008 bước 1–3). Trả lý do chặn hoặc null. */
 async function safetyBlock(ctx: WorkspaceCtx, adAccountId: string, connectionId: string): Promise<string | null> {
+  // ADR-0024: cờ hiệu lực đã gồm gói (toàn app × gói, hoặc ngoại lệ của workspace) — một cổng duy nhất.
   if (!(await isEnabled(ctx, 'p2a_approve'))) return 'feature_disabled';
-  if (!(await hasPlanEntitlement(ctx, 'write_actions'))) return 'plan_required';
   const k = await killSwitchState(ctx);
   if (k.global || k.workspace) return 'kill_switch';
   if (await breakerOpen(ctx, adAccountId)) return 'circuit_breaker_open';

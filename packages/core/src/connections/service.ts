@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, isNull, lte, ne, or } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, lte, ne, or, sql } from 'drizzle-orm';
 import type { DbOrTx } from '@adxlens/db';
 import { schema } from '@adxlens/db';
 import type { MetaAdAccount } from '@adxlens/meta-client';
@@ -47,10 +47,14 @@ export async function saveConnection(
     .from(metaConnections)
     .where(and(eq(metaConnections.workspaceId, ctx.workspaceId), eq(metaConnections.metaUserId, input.metaUser.id)));
   let connectionId: string;
+  // ADR-0024 (PM 25/10/2026): kết nối có `ads_management` = đồng ý cho AdxLens thao tác tài khoản → được ghi ngay, không
+  // cần bước "Cấp quyền ghi". Owner đã tự tắt (writeChangedAt có giá trị) thì giữ nguyên lựa chọn đó.
+  const canWrite = input.scopes.includes('ads_management');
   if (existing) {
     await ctx.db
       .update(metaConnections)
       .set({
+        writeEnabled: sql`case when ${metaConnections.writeChangedAt} is null then ${canWrite} else ${metaConnections.writeEnabled} end`,
         tokenCiphertext: ciphertext,
         tokenKeyVersion: keys.current,
         scopes: input.scopes,
@@ -73,6 +77,7 @@ export async function saveConnection(
         tokenKeyVersion: keys.current,
         scopes: input.scopes,
         expiresAt: input.expiresAt,
+        writeEnabled: canWrite,
       })
       .returning({ id: metaConnections.id });
     connectionId = row!.id;

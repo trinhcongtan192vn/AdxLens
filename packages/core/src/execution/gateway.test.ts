@@ -13,7 +13,7 @@ import {
   saveConnection,
   setWriteEnabled,
 } from '@adxlens/core/connections';
-import { disableFlag, enableFlag } from '@adxlens/core/flags';
+import { disableFlag, enableFlag, setGlobalFlag } from '@adxlens/core/flags';
 import { startBackfill, syncRange } from '@adxlens/core/ingestion';
 import { listNotifications } from '@adxlens/core/notification';
 import { listIncidents } from '@adxlens/core/ops';
@@ -69,7 +69,8 @@ async function setup(opts: { flags?: boolean; plan?: 'free' | 'growth'; write?: 
   const enqueue = recordingEnqueue();
   await startBackfill(ctx, adAccountId, { enqueue, clock });
   await syncRange(ctx, enqueue.calls[0]!.payload as never, { meta: new MockMetaRead(now), keys: KEYS.keys, clock });
-  if (opts.write !== false) await setWriteEnabled(ctx, connectionId, true);
+  // ADR-0024: kết nối có ads_management được ghi ngay; `write: false` = Owner đã tự tắt quyền ghi.
+  await setWriteEnabled(ctx, connectionId, opts.write !== false);
   if (opts.flags !== false) {
     const pm = await seedStaff(db, true);
     for (const key of ['p0_reports', 'p1_recommendations', 'p2a_approve'] as const) {
@@ -345,11 +346,16 @@ describe('Execution Gateway — cổng an toàn và quyền', () => {
     await expect(requestAction(s.ctx, input, s)).rejects.toMatchObject({ code: 'KILL_SWITCH_ACTIVE' });
     await db.delete(schema.killSwitches);
 
-    const free = await setup({ plan: 'free' });
+    // ADR-0024: gói nằm trong cờ hiệu lực — cờ toàn app bật nhưng gói Free không có P2a → không tìm thấy (404).
+    const free = await setup({ plan: 'free', flags: false });
+    const pm = await seedStaff(db, true);
+    for (const key of ['p0_reports', 'p1_recommendations', 'p2a_approve'] as const) {
+      await setGlobalFlag(db, { key, enabled: true, staffUserId: pm.id, reason: 'mở toàn app' });
+    }
     const f = await free.ad();
     await expect(
       requestAction(free.ctx, { adAccountId: free.adAccountId, actionType: 'pause_ad', targetMetaId: f.metaId }, free),
-    ).rejects.toMatchObject({ code: 'PLAN_REQUIRED' });
+    ).rejects.toMatchObject({ code: 'FEATURE_DISABLED' });
     const ro = await setup({ write: false });
     const r = await ro.ad();
     await expect(

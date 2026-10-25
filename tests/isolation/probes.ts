@@ -244,6 +244,19 @@ export const ROUTE_PROBES: Record<string, Probe> = {
     reason: 'Staff AD02, bật cờ chỉ PM qua core/flags (admin.test.ts)',
   },
   'GET /api/v1/admin/workspaces/[id]/flag-history': { kind: 'exempt', reason: 'Staff AD02 (admin.test.ts)' },
+  'DELETE /api/v1/admin/workspaces/[id]/flags/[key]': {
+    kind: 'exempt',
+    reason: 'Staff: bỏ ngoại lệ cờ qua core/flags (ADR-0024, admin.test.ts)',
+  },
+  'POST /api/v1/admin/flags/global/[key]': {
+    kind: 'exempt',
+    reason: 'Staff superadmin: cờ toàn app, không thuộc workspace (ADR-0024, admin.test.ts)',
+  },
+  'POST /api/v1/admin/flags/plans/[plan]/[key]': {
+    kind: 'exempt',
+    reason: 'Staff superadmin: ma trận gói, không thuộc workspace (ADR-0024, admin.test.ts)',
+  },
+  'GET /api/v1/admin/flags/history': { kind: 'exempt', reason: 'Staff: nhật ký cờ toàn app / gói (ADR-0024)' },
   'GET /api/v1/notifications': { kind: 'workspace' },
   'POST /api/v1/notifications': { kind: 'workspace' },
   'POST /api/v1/notifications/[id]/read': {
