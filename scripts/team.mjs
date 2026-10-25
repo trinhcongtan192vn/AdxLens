@@ -1,5 +1,4 @@
-// `pnpm team:update` (hoặc double-click Cap-nhat-AdxLens.cmd): cập nhật BẢN TEAM TEST lên commit PM đã xem trước
-// (Xem-truoc-AdxLens.cmd, scripts/preview.mjs); chưa xem trước thì lên `origin/develop` mới nhất.
+// `pnpm team:update` (hoặc double-click Cap-nhat-AdxLens.cmd): cập nhật BẢN TEAM TEST lên `origin/develop` mới nhất.
 // Bản team chạy ở thư mục riêng (git worktree cạnh thư mục dev, vd. E:\VideCode\AdxLens-team) nên việc đang code dở ở
 // thư mục dev không ảnh hưởng team. Lần đầu tự tạo worktree và copy .env.local (không in nội dung).
 // Thứ tự để team gián đoạn ít nhất: build bản mới vào apps/web/.next-next trong lúc app cũ vẫn chạy → migration →
@@ -9,7 +8,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { copyFileSync, existsSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { buildStamp, DEFAULT_PM, devPublicConfig, supabaseEnvFile } from './lib/start-local.mjs';
-import { formatDuration, listeningPid, needsInstall, promoteTarget, teamDirOf } from './lib/team.mjs';
+import { formatDuration, listeningPid, needsInstall, teamDirOf } from './lib/team.mjs';
 
 const isWin = process.platform === 'win32';
 const LOCAL_URL = 'http://localhost:3000';
@@ -58,28 +57,10 @@ const TEAM = teamDirOf(MAIN);
 const inTeam = { cwd: TEAM };
 console.log(`Thư mục dev:  ${MAIN}\nThư mục team: ${TEAM}`);
 
-step('Lấy code (origin/develop)…');
+step('Lấy code mới nhất (origin/develop)…');
 run('git', ['-C', MAIN, 'fetch', 'origin', 'develop']);
-const developHead = out('git', ['-C', MAIN, 'rev-parse', 'origin/develop']);
-if (!/^[0-9a-f]{40}$/.test(developHead)) fail('Không đọc được origin/develop.');
-// PM đã xem trước commit nào (Xem-truoc-AdxLens.cmd) thì đưa đúng commit đó lên team, không lấy commit mới hơn.
-let previewCommit = null;
-try {
-  previewCommit = JSON.parse(readFileSync(path.join(MAIN, '.adxlens-preview.json'), 'utf8')).commit ?? null;
-} catch {
-  previewCommit = null;
-}
-const pick = promoteTarget({
-  previewCommit,
-  developHead,
-  isAncestor: (c) => ok('git', ['-C', MAIN, 'merge-base', '--is-ancestor', c, 'origin/develop']),
-});
-const target = pick.commit;
-console.log(
-  pick.source === 'preview'
-    ? `Đưa lên team bản anh đã xem trước: ${target.slice(0, 7)}${target !== developHead ? ` (develop đã có commit mới hơn ${developHead.slice(0, 7)} — chưa đưa lên)` : ''}`
-    : `Chưa có bản xem trước — đưa develop mới nhất: ${target.slice(0, 7)}`,
-);
+const target = out('git', ['-C', MAIN, 'rev-parse', 'origin/develop']);
+if (!/^[0-9a-f]{40}$/.test(target)) fail('Không đọc được origin/develop.');
 
 let created = false;
 if (!existsSync(TEAM)) {

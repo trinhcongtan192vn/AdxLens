@@ -27,27 +27,11 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
-## [109] Bản xem trước cho PM: test trước khi đưa lên team — 2026-10-25
+## [109] (đã gỡ) Bản xem trước cho PM — 2026-10-25
 
-PM yêu cầu được test trước khi đưa lên team.
-
-- **`Xem-truoc-AdxLens.cmd`** (`pnpm preview`): chạy `origin/develop` mới nhất ở **http://localhost:3100**, thư mục riêng
-  `…-preview`, chỉ máy PM thấy.
-- **`Cap-nhat-AdxLens.cmd`** nay đưa lên team **đúng commit PM đã xem trước** (`.adxlens-preview.json`). Chưa xem trước thì
-  lấy develop mới nhất như cũ.
-- **An toàn khi chung database với bản team:**
-  - Redis db 1 riêng;
-  - worker xem trước không đăng ký job định kỳ (`WORKER_SCHEDULES=off`, biến mới): không chạy đồng bộ hằng ngày, rule,
-    lịch hẹn → không làm trùng / không ghi Meta 2 lần.
-- Runbook: `docs/runbooks/dev-public.md` mục 8.
-
-**Test tự động:** `scripts/lib/team.test.ts`:
-- thư mục / cổng / env xem trước;
-- chọn commit đưa lên team: commit đã xem trước nếu còn trong develop, không thì develop mới nhất.
-
-**PM kiểm tra:**
-1. Double-click `Xem-truoc-AdxLens.cmd` → mở http://localhost:3100 → test.
-2. Bấm `Cap-nhat-AdxLens.cmd` → cửa sổ ghi "Đưa lên team bản anh đã xem trước: …".
+PM thấy không cần, nên đã gỡ lại toàn bộ: `Xem-truoc-AdxLens.cmd`, `scripts/preview*.mjs`, biến `WORKER_SCHEDULES`.
+`Cap-nhat-AdxLens.cmd` lấy `develop` mới nhất như trước. Từ giờ dev push xong thì cập nhật bản team luôn để PM test trên
+https://adxlens-dev.sctech.io.vn.
 
 ## [108] Tạm dừng / bật lại chiến dịch ngay trong AdxLens (ADR-0015) — 2026-10-25
 

@@ -56,11 +56,6 @@ export const tokenEnvSchema = z.object({
 });
 
 export const integrationsEnvSchema = z.object({
-  /**
-   * `off` = worker KHÔNG đăng ký job định kỳ (đồng bộ hằng ngày, rule, hẹn giờ…). Dùng cho bản xem trước của PM
-   * (scripts/preview.mjs) chạy chung database với bản team: chỉ xử lý job do chính bản xem trước tạo, không làm trùng.
-   */
-  WORKER_SCHEDULES: z.enum(['on', 'off']).default('on'),
   ANTHROPIC_API_KEY: optionalString,
   ANTHROPIC_MODEL: z.string().default('claude-sonnet-5-5'),
   EMAIL_FROM: z.string().default('AdxLens <no-reply@adxlens.local>'),

@@ -9,7 +9,6 @@
     "dev": "node scripts/dev.mjs",
     "env:init": "node scripts/env-init.mjs",
     "team:update": "node scripts/team.mjs",
-    "preview": "node scripts/preview.mjs",
     "start:local": "node scripts/start-local.mjs",
     "seed:staff": "tsx scripts/seed-staff.mts",
     "e4:report": "tsx scripts/e4-report.ts",

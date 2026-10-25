@@ -214,36 +214,6 @@ Code đang làm dở ở `E:\VideCode\AdxLens` không ảnh hưởng team.
   vì dùng database riêng `adxlens_test`; E2E chạy trên CI. Không chạy `pnpm db:migrate` ở thư mục dev với migration chưa
   merge (DB dùng chung).
 
-## 8. Bản xem trước của PM (test trước khi đưa lên team)
-
-**Mục đích:** PM test `develop` mới nhất trên máy mình trước khi team thấy.
-
-**Các bước:**
-1. Double-click **`Xem-truoc-AdxLens.cmd`** (thư mục dev).
-   - Script tạo / cập nhật thư mục `…\AdxLens-preview` (git worktree) ở `origin/develop` mới nhất, build, chạy migration.
-   - Script mở cửa sổ "AdxLens (xem truoc)" và trình duyệt tại **http://localhost:3100**.
-   - Chỉ máy này thấy bản xem trước. Bản team vẫn chạy bản cũ ở cổng 3000 / domain dev.
-2. Test. Đăng nhập bằng mật khẩu như bình thường.
-3. OK thì double-click **`Cap-nhat-AdxLens.cmd`**. Bản team lên **đúng commit đã xem trước**: script ghi commit vào
-   `.adxlens-preview.json`. Develop có commit mới hơn cũng chưa lên.
-   Chưa từng xem trước thì `Cap-nhat` lấy develop mới nhất như cũ.
-
-**Cách tách khỏi bản team:**
-- Chung Supabase (database, tài khoản, kết nối Meta) → thấy cùng dữ liệu.
-- **Migration mới áp vào database chung ngay khi mở bản xem trước.** Migration hiện tại chỉ thêm bảng / cột nên bản team cũ
-  vẫn chạy. Migration đổi / xóa cột phải ghi rõ trong CHANGELOG trước.
-- Redis **db 1** riêng → hàng đợi job riêng.
-- Worker xem trước **không chạy job định kỳ** (`WORKER_SCHEDULES=off`): không đồng bộ hằng ngày, không chạy rule, không
-  xử lý lịch hẹn. Bản xem trước chỉ xử lý việc PM bấm ở đó (đồng bộ thủ công, báo cáo, duyệt hành động…), nên không làm
-  trùng (không ghi Meta 2 lần) với worker của bản team.
-
-**Hạn chế:**
-- Kết nối Meta **mới** từ bản xem trước không được: Meta chỉ nhận redirect của domain đã đăng ký. Dùng kết nối có sẵn.
-- Link trong email trỏ về domain team.
-- Muốn thử rule live / hẹn giờ thì dùng bản team: bản xem trước không có job định kỳ.
-
-**Tắt:** đóng cửa sổ "AdxLens (xem truoc)".
-
 ## Sự cố thường gặp
 
 | Hiện tượng | Nguyên nhân thường gặp | Cách xử lý |

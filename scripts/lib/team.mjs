@@ -33,36 +33,3 @@ export function formatDuration(ms) {
   const m = Math.floor(s / 60);
   return `${m} phút ${Math.round(s - m * 60)} giây`;
 }
-
-/** Thư mục bản xem trước của PM: cạnh thư mục dev, hậu tố `-preview` (vd. E:\VideCode\AdxLens-preview). */
-export function previewDirOf(mainDir) {
-  return `${path.resolve(mainDir)}-preview`;
-}
-
-/** Cổng của bản xem trước (bản team dùng 3000). */
-export const PREVIEW_PORT = 3100;
-
-/**
- * Commit đưa lên bản team: commit PM đã xem trước (nếu có và vẫn nằm trong develop), không thì develop mới nhất.
- * `isAncestor(commit)` = commit thuộc lịch sử origin/develop.
- */
-export function promoteTarget({ previewCommit, developHead, isAncestor }) {
-  if (previewCommit && /^[0-9a-f]{40}$/.test(previewCommit) && isAncestor(previewCommit)) {
-    return { commit: previewCommit, source: 'preview' };
-  }
-  return { commit: developHead, source: 'develop' };
-}
-
-/** Env cho tiến trình của bản xem trước: URL localhost, Redis riêng (db 1), không job định kỳ. */
-export function previewEnv(redisUrl = 'redis://127.0.0.1:6379') {
-  const u = new URL(redisUrl);
-  u.pathname = '/1';
-  const app = `http://localhost:${PREVIEW_PORT}`;
-  return {
-    APP_URL: app,
-    PUBLIC_REPORT_URL: `${app}/r`,
-    REDIS_URL: u.toString(),
-    WORKER_SCHEDULES: 'off',
-    PORT: String(PREVIEW_PORT),
-  };
-}
