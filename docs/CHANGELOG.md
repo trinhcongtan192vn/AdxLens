@@ -27,6 +27,31 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [120] Script dọn dữ liệu test / mock trong DB local (`pnpm purge:test-data`) — 2026-10-25
+
+PM yêu cầu "xóa hết dữ liệu mock ở trang admin". PM chọn: xóa dữ liệu test + mock, giữ workspace thật; làm bằng script
+có chạy thử.
+
+- **`pnpm purge:test-data`:** chạy thử, chỉ in số lượng sẽ xóa. Thêm `-- --apply` để xóa thật.
+- **Chỉ chạy với DB trên máy** (127.0.0.1 / localhost), không bao giờ staging / production (quy tắc 9).
+- **Workspace không có kết nối Meta thật** (id người dùng Meta dạng số, không phải mẫu): xóa cả workspace và mọi dòng có
+  `workspace_id`. Danh sách bảng đọc từ DB nên không sót bảng mới.
+- **Workspace có kết nối thật:** giữ; chỉ gỡ kết nối mock / mẫu bên trong cùng tài khoản QC và dữ liệu của chúng.
+- **User test** (`@e2e.local`, `@test.local`) không còn thuộc workspace nào được giữ: xóa ở app và Supabase Auth, kể cả
+  đăng ký test chưa vào app.
+- Trong giao dịch xóa, tắt khóa ngoại và trigger chỉ-thêm (`session_replication_role = replica`), để xóa trọn nhật ký
+  của dữ liệu test.
+- **Đã chạy trên DB local** (dùng chung bản dev + bản team) ngày 25/10:
+  - giữ 3 workspace: Tan Trinh, Tan Trinh - thật, Nguyễn văn test;
+  - xóa 284 workspace test, 325 user test + 16 tài khoản đăng nhập test;
+  - gỡ 1 kết nối Meta mock (3 tài khoản QC).
+- Gỡ file truy vấn tạm `packages/db/q-tmp.mjs` bị commit nhầm ở [119] (làm CI lint lỗi).
+
+**Test tự động:** `scripts/lib/purge-test-data.test.ts`:
+- nhận diện kết nối thật / mock / mẫu;
+- chỉ chấp nhận DB local;
+- chia giữ / xóa: user test còn thuộc workspace được giữ thì giữ; email thật không bao giờ bị xóa.
+
 ## [119] Đổi tên quảng cáo / nhóm QC / chiến dịch qua Execution Gateway (ADR-0025) — 2026-10-25
 
 PM chọn làm gap "Giá thầu + giới hạn chi + đổi tên" (đối chiếu Madgicx Academy). Bước này làm **đổi tên**. Giá thầu và
