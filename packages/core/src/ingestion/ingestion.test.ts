@@ -263,6 +263,26 @@ describe('trạng thái đồng bộ', () => {
       kind: 'backfill',
     });
   });
+
+  it('đồng bộ lại khi đang có lần chưa xong → 409 (không xếp trùng); xong rồi thì chạy lại được', async () => {
+    const { ctx, adAccountId } = await setup();
+    const enqueue = recordingEnqueue();
+    await startBackfill(ctx, adAccountId, { enqueue, clock });
+    const range = { from: '2026-10-20', to: '2026-10-21' };
+    const busy = { enqueue, clock, rejectIfBusy: true };
+    await expect(startManualSync(ctx, adAccountId, range, busy)).rejects.toMatchObject({
+      code: 'CONFLICT',
+    });
+    await runAll(
+      ctx,
+      enqueue.calls.map((c) => c.payload as BackfillJob),
+    );
+    const r = await startManualSync(ctx, adAccountId, range, busy);
+    expect(r.syncRunId).toBeTruthy();
+    await expect(startManualSync(ctx, adAccountId, range, busy)).rejects.toMatchObject({ code: 'CONFLICT' });
+    // Playbook tự động (không rejectIfBusy) vẫn xếp được lần đồng bộ lại có độ trễ.
+    expect((await startManualSync(ctx, adAccountId, range, { enqueue, clock, delayMs: 1 })).syncRunId).toBeTruthy();
+  });
 });
 
 describe('daily sync', () => {

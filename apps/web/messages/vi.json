@@ -398,13 +398,7 @@
     "reportFromEmail": "Email gửi báo cáo",
     "domainUnverified": "Domain {domain} chưa xác minh SPF/DKIM, email báo cáo có thể vào thư rác.",
     "invalid": "Giá trị không hợp lệ.",
-    "save": "Lưu thay đổi",
-    "deleteTitle": "Xóa workspace",
-    "deleteBody": "Xóa vĩnh viễn workspace cùng kết nối, báo cáo và dữ liệu. Báo cáo công khai sẽ ngừng truy cập được. Chỉ Owner thực hiện được.",
-    "deleteButton": "Xóa workspace…",
-    "deleteConfirmHint": "Nhập chính xác \"{name}\" để xác nhận. Thao tác không hoàn tác được.",
-    "deleteConfirmLabel": "Tên workspace",
-    "deleteForever": "Xóa vĩnh viễn"
+    "save": "Lưu thay đổi"
   },
   "settingsMembers": {
     "title": "Thành viên & vai trò",
@@ -571,6 +565,15 @@
       "catalog": "{n} catalog",
       "missing": "Chưa cấp: {scopes}. Một số tính năng (chọn Page / Pixel mặc định, lead, catalog) sẽ không có dữ liệu.",
       "regrant": "Kết nối lại để cấp thêm"
+    },
+    "resync": {
+      "button": "Đồng bộ lại",
+      "aria": "Đồng bộ lại {name}",
+      "title": "Đồng bộ lại {name}",
+      "body": "Lấy lại số liệu từ Meta cho khoảng ngày chọn (tới hôm qua theo múi giờ tài khoản), rồi tự đối chiếu lại với Ads Manager. Số liệu hôm nay vẫn cập nhật tự động.",
+      "days": "{n} ngày",
+      "confirm": "Chạy đồng bộ",
+      "queued": "Đã xếp lịch đồng bộ lại; số liệu cập nhật sau vài phút."
     }
   },
   "placeholder": {

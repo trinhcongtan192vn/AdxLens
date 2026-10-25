@@ -24,10 +24,12 @@ import {
   TR,
 } from '@adxlens/ui';
 import { CONNECT_SCOPES } from '@adxlens/meta-client';
+import { addDays, localDate } from '@adxlens/core/shared';
 import { maskAccountId, tokenState } from '@/lib/format';
 import { requirePermission } from '@/server/guards';
 import { getPageContext } from '@/server/page-context';
 import { ConnectionList } from './connection-list';
+import { ResyncButton } from './resync-button';
 
 export async function generateMetadata() {
   const t = await getTranslations('nav');
@@ -167,6 +169,13 @@ export default async function ConnectionsPage({ searchParams }: { searchParams: 
                         <Badge tone={a.active30d ? 'success' : 'neutral'}>{a.active30d ? t('yes') : t('no')}</Badge>
                       </TD>
                       <TD className="text-right">
+                        {st.kind === 'valid' ? (
+                          <ResyncButton
+                            adAccountId={a.id}
+                            name={a.name}
+                            yesterday={addDays(localDate(now, a.timezone), -1)}
+                          />
+                        ) : null}
                         {st.kind !== 'valid' ? (
                           <a
                             href={AUTHORIZE}

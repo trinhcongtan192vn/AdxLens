@@ -27,6 +27,32 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [123] Bỏ xóa workspace ở Cài đặt; nút "Đồng bộ lại" ở trang Kết nối — 2026-10-25
+
+PM yêu cầu:
+- "bỏ tính năng xóa workspace ở phần cài đặt luôn, ko cho user xóa workspace. Nếu user muốn xóa dữ liệu thì đã có trong
+  phần Ngắt kết nối";
+- thêm nút chạy đồng bộ lại vào trang Kết nối.
+
+- **Không còn xóa workspace phía người dùng:**
+  - bỏ khối "Xóa workspace" ở Cài đặt → Workspace;
+  - bỏ API `DELETE /api/v1/workspace`;
+  - bỏ `deleteWorkspace` / `onWorkspaceDelete` trong `core/tenancy` (không còn ai dùng).
+- Xóa dữ liệu: Ngắt kết nối (luồng xóa có mã). Xóa hẳn workspace: chỉ superadmin ở trang admin ([122]).
+- Bỏ dòng nợ kỹ thuật về ST01 (hàm đã bị gỡ).
+- **Kết nối → bảng tài khoản QC:** mỗi tài khoản có token hợp lệ có nút **Đồng bộ lại**.
+  - Chọn 7 / 30 / 90 ngày tới hôm qua theo múi giờ tài khoản.
+  - Xong thì tự đối chiếu lại; dùng chung API với nút ở trang Đối chiếu.
+- **Chặn bấm trùng:** tài khoản đang có lần đồng bộ chưa xong (backfill / chạy lại) → 409 "Tài khoản đang đồng bộ", để
+  không tốn quota Meta. Áp cho cả nút của staff ở admin. Playbook tự đồng bộ lại khi đối chiếu lệch (có độ
+  trễ 24 giờ) không bị chặn.
+
+**Test tự động:**
+- `ingestion.test.ts`: đang đồng bộ → 409; xong rồi thì chạy lại được.
+- `connections/resync-button.test.tsx`: tính khoảng ngày theo lịch.
+- **Đổi test (quy tắc 8):** `settings.test.ts` "xóa workspace: chỉ owner, phải nhập đúng tên" thành "không có API xóa
+  workspace cho người dùng", vì PM bỏ tính năng.
+
 ## [122] Trang admin: xóa workspace và xóa tài khoản người dùng — 2026-10-25
 
 PM yêu cầu "cho phép xóa account và workspace ở trang admin".
