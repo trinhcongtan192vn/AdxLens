@@ -2,6 +2,17 @@
 
 Mỗi feature merge vào `develop` có một mục: thay đổi gì, test tự động đi kèm, vùng bảo vệ bị chạm, và cách PM kiểm tra thủ công. PM verify trên `develop` trước khi merge `develop → main`.
 
+## [103] Phễu › Giai đoạn: biểu đồ tỷ trọng chi tiêu × ROAS — 2026-10-25
+
+Theo Madgicx 360° Meta Dashboard, Strategy Status Overview.
+
+- Tab **Giai đoạn phễu** có thêm biểu đồ phía trên bảng: mỗi giai đoạn một cột % chi tiêu, đường chấm là ROAS. Không có
+  ROAS thì không vẽ chấm.
+- Số lấy từ `stageAnalysis` (091), không tính lại.
+
+**Test tự động:** `funnels/stage-chart.test.tsx` (số cột, chấm ROAS chỉ khi có, nhãn); E2E: biểu đồ hiện trong tab
+Giai đoạn phễu.
+
 ## [102] Xuất PDF các trang phân tích Workspace — 2026-10-25
 
 Theo Madgicx 360° Audit "Export PDF".

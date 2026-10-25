@@ -6,6 +6,7 @@ import { WsHeader } from '@/components/workspace/ws-header';
 import { formatMetric } from '@/lib/metric-format';
 import { getPageContext } from '@/server/page-context';
 import { workspaceScope } from '@/server/workspace-scope';
+import { StageChart } from './stage-chart';
 
 export async function generateMetadata() {
   const t = await getTranslations('ws');
@@ -102,6 +103,19 @@ export default async function FunnelsPage({ searchParams }: { searchParams: Prom
           </TabBar>
           {tab === 'stage' ? (
             <Card className="overflow-x-auto p-0" data-testid="funnel-stages">
+              {stages.length ? (
+                <StageChart
+                  label={t('stage.chartTitle')}
+                  shareLabel={t('share')}
+                  roasLabel="ROAS"
+                  rows={stages.map((r) => ({
+                    stage: r.stage,
+                    name: t(`stage.names.${r.stage}`),
+                    spendShare: r.spendShare,
+                    roas: r.metrics.roas,
+                  }))}
+                />
+              ) : null}
               <Table>
                 <THead>
                   <tr>

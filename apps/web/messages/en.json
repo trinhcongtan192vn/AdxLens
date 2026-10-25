@@ -3110,7 +3110,8 @@
         "retention": "Customer lists",
         "unknown": "Audience type not readable"
       },
-      "note": "Classified by the custom audiences in each ad set targeting (read from Meta on sync)."
+      "note": "Classified by the custom audiences in each ad set targeting (read from Meta on sync).",
+      "chartTitle": "Spend share × ROAS by stage"
     },
     "landing": {
       "ads": "Ads",
