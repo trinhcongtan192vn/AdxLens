@@ -3,11 +3,12 @@ import type { ReactNode } from 'react';
 import { listClients } from '@adxlens/core/tenancy';
 import { toLocale } from '@/i18n/locale';
 import { PERIOD_COOKIE, toPeriod } from '@/lib/period';
-import { shellNav, W_CLIENT_COOKIE } from '@/lib/workspace-nav';
+import { cookieOpen, RP_COOKIE } from '@/lib/right-panel';
+import { shellNav, W_CLIENT_COOKIE, W_SCOPE_COOKIE } from '@/lib/workspace-nav';
 import { getPageContext } from '@/server/page-context';
 import { getShellExtras } from '@/server/shell-extras';
 import { PageToolbar } from './page-toolbar';
-import { WsAskBar } from './ws-ask-bar';
+import { RightPanel } from './right-panel';
 import { WsSidebar, type CreateItem } from './ws-sidebar';
 
 /**
@@ -52,7 +53,15 @@ export async function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
-      {pc.flags.p1_recommendations ? <WsAskBar /> : null}
+      {/* Khối thứ 3 (PM 25/10): trợ lý theo ngữ cảnh — Hỏi AI / Giải thích (sau cờ P1) + Thông báo. Mặc định gập. */}
+      <RightPanel
+        aiEnabled={pc.flags.p1_recommendations}
+        initialOpen={cookieOpen(store.get(RP_COOKIE)?.value)}
+        accountId={
+          /^[0-9a-f-]{36}$/.test(store.get(W_SCOPE_COOKIE)?.value ?? '') ? store.get(W_SCOPE_COOKIE)!.value : null
+        }
+        period={toPeriod(store.get(PERIOD_COOKIE)?.value)}
+      />
     </div>
   );
 }

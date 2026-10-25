@@ -3972,5 +3972,45 @@
     "tiktokHint": "Người bán đăng nhập TikTok Shop Seller Center và ủy quyền; mọi shop được chọn sẽ gắn với Client này.",
     "connectTiktok": "Kết nối TikTok Shop",
     "tiktokNotConfigured": "Chưa cấu hình app TikTok Shop (xem docs/runbooks/store-connectors.md)."
+  },
+  "panel": {
+    "title": "Trợ lý",
+    "close": "Đóng trợ lý",
+    "tabs": {
+      "ask": "Hỏi AI",
+      "explain": "Giải thích",
+      "inbox": "Thông báo"
+    },
+    "ask": {
+      "intro": "Hỏi về số liệu của màn đang xem — tài khoản và kỳ đang chọn được gửi kèm. Mọi con số do AdxLens tính và kiểm tra.",
+      "introEntity": "Hỏi về đối tượng đang xem — AdxLens bắt đầu từ số liệu của chính đối tượng này.",
+      "placeholder": "Hỏi về màn này…",
+      "newChat": "Hội thoại mới",
+      "contextEntity": "Ngữ cảnh: đối tượng đang xem",
+      "contextAccount": "Ngữ cảnh: tài khoản đang chọn",
+      "contextAll": "Ngữ cảnh: mọi tài khoản"
+    },
+    "explain": {
+      "intro": "Chọn một câu hỏi — AdxLens phân rã biến động bằng số đã tính, AI chỉ diễn giải.",
+      "note": "Bấm ✨ cạnh một chỉ số để hỏi riêng về chỉ số đó.",
+      "metric": "Vì sao {metric} thay đổi so với kỳ trước?",
+      "button": "Giải thích {metric}",
+      "q": {
+        "cpa": "Vì sao chi phí / kết quả thay đổi so với kỳ trước?",
+        "spend": "Chi tiêu thay đổi thế nào, chiến dịch nào đóng góp nhiều nhất?",
+        "findings": "Có vấn đề gì cần xử lý ngay?",
+        "fatigue": "Quảng cáo nào đang mệt và nên làm mới?",
+        "best": "Quảng cáo nào hiệu quả nhất kỳ này?",
+        "funnel": "Giai đoạn phễu nào đang kém nhất?",
+        "mer": "MER (doanh thu cửa hàng / chi tiêu) kỳ này thế nào?",
+        "geo": "Khu vực nào có chi phí / kết quả tốt nhất và kém nhất?",
+        "entity": "Vì sao hiệu quả của đối tượng này thay đổi so với kỳ trước?",
+        "children": "Thành phần con nào kéo hiệu quả xuống?"
+      }
+    },
+    "inbox": {
+      "empty": "Chưa có thông báo.",
+      "all": "Xem tất cả thông báo →"
+    }
   }
 }

@@ -127,6 +127,15 @@ test('giao diện Workspace: trang chủ + cảnh báo', async ({ page }) => {
   // W9: AI Agents sau cờ P1 (workspace mới chưa bật) → không có menu, trang chặn ở server, không có ô hỏi nổi.
   await expect(page.getByRole('link', { name: 'AI Agents' })).toHaveCount(0);
   await expect(page.getByTestId('ws-ask-bar')).toHaveCount(0);
+  // PM 25/10: right panel — mặc định gập (thanh dọc); cờ P1 tắt → chỉ có tab Thông báo; nhớ trạng thái mở.
+  await expect(page.getByTestId('right-panel')).toHaveCount(0);
+  await expect(page.getByTestId('right-rail').getByRole('button')).toHaveCount(1);
+  await page.getByTestId('right-rail').getByRole('button', { name: 'Thông báo' }).click();
+  await expect(page.getByTestId('panel-inbox')).toBeVisible();
+  await page.reload();
+  await expect(page.getByTestId('right-panel')).toBeVisible();
+  await page.getByRole('button', { name: 'Đóng trợ lý' }).click();
+  await expect(page.getByTestId('right-rail')).toBeVisible();
   await page.goto('/w/agents');
   await expect(page).toHaveURL(/\/feature-unavailable/);
   await page.goto('/w');

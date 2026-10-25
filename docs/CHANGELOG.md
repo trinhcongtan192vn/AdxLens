@@ -27,6 +27,41 @@ Từ đối chiếu gap với Madgicx Academy (`docs/research/madgicx-2026-10.md
   - giá trị động chỉ cho chỉ số tỷ lệ; dừng khi chạm sàn cần sàn.
 - `execution/tactics.test.ts`: ở sàn + `pauseAtFloor` → hành động tạm dừng tự động; không bật thì bỏ qua.
 
+## [143] Bố cục 3 khối: right panel trợ lý theo ngữ cảnh (Hỏi AI · Giải thích · Thông báo) — 2026-10-25
+
+PM góp ý UI/UX #5; PM chọn "gập, mở khi cần".
+
+- **Bố cục:** sidebar trái · nội dung giữa · **right panel** (380px).
+  - Mặc định gập thành thanh dọc mảnh ở mép phải; mở / đóng nhớ theo người dùng (cookie `rp`).
+  - Màn nhỏ: nút nổi mở bottom sheet.
+  - Ẩn ở trang AI Agents (đã là màn hỏi đáp đầy đủ).
+- **Hỏi AI** (sau cờ P1):
+  - hỏi ngay trong panel, không phải sang màn AI Agents;
+  - tự gửi kèm ngữ cảnh: tài khoản đang chọn, kỳ, và **đối tượng đang xem** khi ở trang chi tiết chiến dịch / nhóm QC /
+    QC (agent bắt đầu bằng `entity_details`);
+  - câu trả lời qua cùng bộ kiểm số; thẻ đề xuất ("Xem & duyệt") và thẻ kế hoạch (duyệt một lần) dùng được ngay trong
+    panel;
+  - nút "Hội thoại mới". Thay ô "Hỏi AdxLens" nổi ở đáy trang.
+- **Giải thích** (sau cờ P1):
+  - câu hỏi gợi ý theo màn: trang chủ (chi phí / kết quả, chi tiêu, vấn đề), Quảng cáo / Mở rộng (mệt, tốt nhất), Phễu,
+    Business (MER), Địa lý, trang chi tiết (vì sao đối tượng đổi, con nào kéo xuống);
+  - **nút ✨ cạnh mỗi KPI trang chủ** mở panel và hỏi "Vì sao {chỉ số} thay đổi so với kỳ trước?";
+  - số do công cụ tính, AI chỉ diễn giải.
+- **Thông báo:** 15 thông báo gần nhất, bấm để mở và đánh dấu đã đọc, "Xem tất cả" về màn Thông báo.
+
+**Vùng bảo vệ:** không. Dùng lại API agent / thông báo sẵn có, không đổi quyền hay cờ.
+
+**Test tự động:**
+- `lib/right-panel.test.ts`: đối tượng ngữ cảnh từ đường dẫn chi tiết; gợi ý theo màn; ẩn ở AI Agents; mặc định gập.
+- E2E `workspace-home.spec.ts`:
+  - mặc định gập; cờ P1 tắt → thanh dọc chỉ có Thông báo;
+  - mở tab Thông báo → tải lại vẫn mở → đóng về thanh dọc;
+  - không còn ô hỏi nổi.
+
+**PM kiểm tra:**
+1. Bật cờ Gợi ý → trang chủ bấm ✨ cạnh "Chi tiêu" → panel mở và trả lời.
+2. Mở một nhóm QC từ Ads Manager → Hỏi AI "vì sao CPA tăng?" → câu trả lời về đúng nhóm QC đó.
+
 ## [142] Chi tiết chiến dịch / nhóm QC / QC mở ở khung giữa, nhớ trang nguồn — 2026-10-25
 
 PM góp ý UI/UX #4 (chọn "Trong khung giữa"): bấm vào chi tiết thì như sang màn của client, sidebar đổi.
