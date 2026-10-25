@@ -16,6 +16,7 @@ import {
   type MetricKey,
 } from '@adxlens/core/reporting';
 import { Badge, buttonVariants, Card, cn, EmptyState } from '@adxlens/ui';
+import { ExplainButton } from '@/components/workspace/explain-button';
 import { PeriodFilter } from '@/components/workspace/period-filter';
 import { KpiCustomize } from '@/components/workspace/kpi-customize';
 import { Sparkline } from '@/components/workspace/sparkline';
@@ -265,7 +266,10 @@ export default async function WorkspaceHome() {
             const good = changeIsGood(k.key, k.changePct);
             return (
               <Card key={k.key} data-testid={`ws-kpi-${k.key}`}>
-                <p className="text-small text-fg-tertiary">{tm(`${k.key}.name`)}</p>
+                <p className="flex items-center gap-1 text-small text-fg-tertiary">
+                  {tm(`${k.key}.name`)}
+                  {pc.flags.p1_recommendations ? <ExplainButton label={tm(`${k.key}.name`)} /> : null}
+                </p>
                 <p className="num mt-1 text-h2 font-semibold text-fg">{fmt(k.key, k.cur)}</p>
                 <p className="mt-0.5 text-caption">
                   <span

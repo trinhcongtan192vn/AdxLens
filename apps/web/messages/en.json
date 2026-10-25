@@ -3972,5 +3972,45 @@
     "tiktokHint": "The seller signs in to TikTok Shop Seller Center and authorizes; every shop selected maps to this client.",
     "connectTiktok": "Connect TikTok Shop",
     "tiktokNotConfigured": "The TikTok Shop app is not configured (see docs/runbooks/store-connectors.md)."
+  },
+  "panel": {
+    "title": "Assistant",
+    "close": "Close assistant",
+    "tabs": {
+      "ask": "Ask AI",
+      "explain": "Explain",
+      "inbox": "Notifications"
+    },
+    "ask": {
+      "intro": "Ask about the numbers on this screen — the selected account and period are sent along. Every number is computed and checked by AdxLens.",
+      "introEntity": "Ask about the item you are viewing — AdxLens starts from its own numbers.",
+      "placeholder": "Ask about this screen…",
+      "newChat": "New conversation",
+      "contextEntity": "Context: item in view",
+      "contextAccount": "Context: selected account",
+      "contextAll": "Context: all accounts"
+    },
+    "explain": {
+      "intro": "Pick a question — AdxLens breaks the change down with computed numbers; AI only explains.",
+      "note": "Click ✨ next to a metric to ask about that metric.",
+      "metric": "Why did {metric} change vs the previous period?",
+      "button": "Explain {metric}",
+      "q": {
+        "cpa": "Why did cost per result change vs the previous period?",
+        "spend": "How did spend change and which campaigns drove it?",
+        "findings": "What issues need attention now?",
+        "fatigue": "Which ads are fatigued and should be refreshed?",
+        "best": "Which ads performed best this period?",
+        "funnel": "Which funnel stage is weakest?",
+        "mer": "How is MER (store revenue / ad spend) this period?",
+        "geo": "Which regions have the best and worst cost per result?",
+        "entity": "Why did this item's performance change vs the previous period?",
+        "children": "Which children drag performance down?"
+      }
+    },
+    "inbox": {
+      "empty": "No notifications yet.",
+      "all": "See all notifications →"
+    }
   }
 }
